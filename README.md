@@ -18,7 +18,7 @@
 <a href="#-miroflow-sota-performance" target="_blank"><b>✨ Performance</b></a> |
 <a href="#-miroflow-modular-ai-agent-framework" target="_black"><b>🤖 Framework</b> </a> | 
 <a href="#-getting-started" target="_black"><b>🚀 Getting Started</b> </a> | 
-<a href="https://github.com/MiroMindAI/MiroFlow/tree/mirothinker" target="_black"><b>🌟 MiroFlow-MiroThinker</b> </a>
+<a href="https://github.com/MiroMindAI/MiroThinker" target="_black"><b>🌟 MiroThinker</b> </a>
 </p>
 
 <!-- <p align="center">
@@ -51,7 +51,7 @@
 
 <img src="./docs/figs/logo.png" alt="MiroFlow Logo" width="200" align="right">
 
-**MiroFlow** is a **battle-tested** agent framework that reliably completes complex tool-use tasks. We have extensively used it to generate high-quality, post-training agent trace data for **[MiroThinker](https://github.com/MiroMindAI/MiroFlow/tree/mirothinker)**. Some key features are:
+**MiroFlow** is a **battle-tested** agent framework that reliably completes complex tool-use tasks. We have extensively used it to generate high-quality, post-training agent trace data for **[MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)**. Some key features are:
 
 - 🌟 **Reproducible SOTA**: **MiroFlow** consistently achieves 72.2% (pass@1 average@3) on GAIA validation set. Follow our [getting-started guide](#get-start) below, or view our many runs of gaia trace on huggingfaces. If you can't reproduce our result, please open a Github issue - We take reproducibility seriously.
 - 🌟 **High Concurrency and Fault Tolerance**: **MiroFlow**  scales data collection efficiently and handles rate-limited APIs and unstable network connections with ease.
@@ -207,6 +207,7 @@ Run a single task:
 
 ```bash
 ## run a task with instruction
+cd miroflow/apps/run-agent
 uv run main.py trace --task="your task description" --task_file_name="path to related task file"
 ```
 
@@ -216,16 +217,19 @@ Run prebuilt agent on the benchmark data:
 
 ```bash
 ## download data
+cd miroflow/apps/prepare-benchmark
 uv run python main.py get gaia-val
 ## run the code
+cd miroflow/apps/run-agent
 uv run main.py common-benchmark benchmark=gaia-validation
 ```
 
-<!-- To run evaluation parrelly with multi-runs, you can use scripts provided:
+To perform parallel multi-run evaluations, you can use the provided script:
 
 ```bash
-bash scripts/
-``` -->
+cd miroflow/apps/run-agent
+bash scripts/claude-sonnet-3.7/run_evaluate_multiple_runs_gaia-validation.sh
+```
 
 # 🌟 MiroThinker: A Series of Open-Source Agentic Models (7B/14B/32B)
 
@@ -235,7 +239,7 @@ By combining MiroFlow’s reliable orchestration with MiroThinker’s advanced r
 
 These models are a direct result of our extensive data collection efforts, utilizing MiroFlow to generate high-quality, post-training agent trace data. This unique approach enables MiroThinker to excel in planning, executing, and reasoning through complex multi-step tasks.
 
-We invite the community to explore and build upon these models. For more details on the architecture and implementation, please refer to our codebase. More about: **[MiroThinker](https://github.com/MiroMindAI/MiroFlow/tree/mirothinker)**
+We invite the community to explore and build upon these models. For more details on the architecture and implementation, please refer to our codebase. More about: **[MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)**
 
 # 🤔 Why Choose MiroFlow
 
