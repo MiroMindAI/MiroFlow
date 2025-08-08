@@ -178,6 +178,10 @@ If you wish to use a different LLM as the primary agent model, you will need to 
 
 ```bash
 ## copy environment variable template and prepare yours in .env file
+cd miroflow/apps/prepare-benchmark
+cp .env.template .env
+vim .env
+cd miroflow/apps/run-agent
 cp .env.template .env
 vim .env
 ```
@@ -195,7 +199,7 @@ vim .env
    Command example:
    ```shell
    E2B_ACCESS_TOKEN=${your-token}
-   e2b template build -c "/root/.jupyter/start-up.sh" -t <team_id> -n all_pip_apt_pkg` -d ./e2b.Dockerfile
+   e2b template build -c "/root/.jupyter/start-up.sh" -t <team_id> -n "all_pip_apt_pkg" -d ./e2b.Dockerfile
    ```
 
 For additional information, please see the [E2B Docker documentation](https://e2b.dev/docs/sandbox-template).
@@ -218,7 +222,7 @@ Run prebuilt agent on the benchmark data:
 ```bash
 ## download data
 cd miroflow/apps/prepare-benchmark
-uv run python main.py get gaia-val
+uv run main.py get gaia-val
 ## run the code
 cd miroflow/apps/run-agent
 uv run main.py common-benchmark benchmark=gaia-validation
