@@ -1,0 +1,45 @@
+# conf/agent/default.yaml
+# The name of tools and sub-agents defined in: mirage/apps/reorg-modular-structure/src/mirage_agent/config/settings.py
+# Each sub-agent prompt is written in: mirage/apps/reorg-modular-structure/src/mirage_agent/utils/prompt_utils.py
+main_agent:
+  tools:
+    - tool-code
+    - tool-vqa
+    - tool-transcribe
+    - tool-reasoning
+    - tool-markitdown
+  # tool_blacklist:
+  #   - ["name-of-tool", "name-of-method"]  # tool blacklist example
+  max_turns: 20  # Maximum number of turns for main agent execution
+  max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
+sub_agents:
+  agent-browsing:
+    tools:
+      - tool-serper-search
+      - tool-vqa
+      - tool-markitdown
+      - tool-code
+    max_turns: 20
+    max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
+  # agent-coding:
+  #   tools:
+  #     - tool-code
+  #     - tool-reasoning
+  #   max_turns: 20
+  # agent-reading:
+  #   tools:
+  #     - tool-reading
+  #   max_turns: 20
+
+tool_config:
+  tool-vqa:
+    enable_claude_vision: "true"
+    enable_openai_vision: "true"
+
+o3_hint: false
+o3_final_answer: true  # Use O3 to extract final answer from summary
+
+# Message ID configuration
+add_message_id: false  # Add random message ID to all messages sent to LLM
+
+keep_tool_result: -1 

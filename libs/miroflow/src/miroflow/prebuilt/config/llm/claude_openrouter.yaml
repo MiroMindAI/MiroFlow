@@ -1,0 +1,19 @@
+# conf/llm/claude.yaml
+defaults:
+  - _default
+  - _self_
+
+provider: "claude_openrouter"
+model_name: "anthropic/claude-3.7-sonnet"
+
+anthropic_base_url: https://api.anthropic.com
+openrouter_base_url: https://openrouter.ai/api/v1
+openrouter_provider: null # set to "google" or "amazon" to froce specific provider
+disable_cache_control: false 
+
+temperature: 0.3
+top_p: 0.95
+max_tokens: 8192
+max_context_length: 190000  # Claude 3.7 Sonnet max context
+
+async_client: true

@@ -1,0 +1,32 @@
+# conf/agent/default.yaml
+# The name of tools and sub-agents defined in: mirage/apps/reorg-modular-structure/src/mirage_agent/config/settings.py
+# Each sub-agent prompt is written in: mirage/apps/reorg-modular-structure/src/mirage_agent/utils/prompt_utils.py
+defaults:
+  - _default
+  - _self_
+
+main_agent:
+  tools:
+    - tool-vqa
+    - tool-reading
+    - tool-code
+    - tool-reasoning
+    - tool-transcribe
+  max_turns: 20  # Maximum number of turns for main agent execution
+# Trival reproduce of OWL:
+sub_agents:
+  agent-browsing:
+    tools:
+      - tool-searching
+      - tool-vqa
+      - tool-reading
+      - tool-code
+    max_turns: 20
+
+o3_hint: true
+o3_final_answer: true
+
+# Message ID configuration
+add_message_id: true  # Add random message ID to all messages sent to LLM
+
+keep_tool_result: -1

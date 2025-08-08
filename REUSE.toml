@@ -1,0 +1,31 @@
+version = 1
+
+# cursor, gitignore and github workflow
+[[annotations]]
+path = ["**/.cursor/**", ".github/**", "**/.gitignore", "**/justfile", "**/Makefile", "**/.env.template"]
+SPDX-FileCopyrightText = "MiromindAI"
+SPDX-License-Identifier = "Apache-2.0"
+
+# hydra configs
+[[annotations]]
+path = "libs/miroflow/src/miroflow/prebuilt/config/**.yaml"
+SPDX-FileCopyrightText = "MiromindAI"
+SPDX-License-Identifier = "Apache-2.0"
+
+# uv-related
+[[annotations]]
+path = ["**/.python-version", "**/pyproject.toml", "**/uv.lock"]
+SPDX-FileCopyrightText = "MiromindAI"
+SPDX-License-Identifier = "Apache-2.0"
+
+# docs
+[[annotations]]
+path = ["**/*.md"]
+SPDX-FileCopyrightText = "MiromindAI"
+SPDX-License-Identifier = "Apache-2.0"
+
+# testing file. TODO find original license
+[[annotations]]
+path = ["libs/miroflow-tool/tests/files-for-tests/*"]
+SPDX-FileCopyrightText = "MiromindAI"
+SPDX-License-Identifier = "Apache-2.0"

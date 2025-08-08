@@ -1,0 +1,16 @@
+# conf/llm/default.yaml - Default LLM configuration
+provider: "openai" # openai, qwen, anthropic, gemini, deepseek
+model_name: "gpt-4.1" # gpt-4.1, qwen3-14b, claude-sonnet-4-20250514, claude-3-7-sonnet-20250219, gemini-1.5-pro, deepseek-chat
+async_client: true
+temperature: 0.3
+top_p: 1.0
+min_p: 0.0
+top_k: -1
+max_tokens: 4096
+max_context_length: 195000  # Maximum context length for the model
+openai_base_url: null
+openrouter_provider: null  # For OpenRouter: set to "google", "amazon", etc. to force specific provider
+disable_cache_control: false  # Set to true to disable cache control for Anthropic models
+keep_tool_result: -1
+anthropic_base_url: https://api.anthropic.com
+oai_tool_thinking: false 

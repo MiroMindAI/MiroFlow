@@ -1,0 +1,17 @@
+[project]
+name = "trace-dashboard"
+version = "1.0.0"
+description = "A web dashboard for analyzing trace JSON files"
+requires-python = ">=3.8"
+dependencies = [
+    "flask>=2.3.3",
+    "werkzeug>=2.3.7",
+]
+
+[tool.uv]
+dev-dependencies = [] 
+
+[dependency-groups]
+dev = [
+    "reuse>=4.0.3",
+]

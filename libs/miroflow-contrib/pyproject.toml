@@ -1,0 +1,65 @@
+[project]
+name = "miroflow-contrib"
+version = "0.1.0"
+description = "a catch-all place for loosely related code"
+readme = "README.md"
+authors = [
+    { name = "MiroMind Team", email = "miromind@shanda.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "asyncio>=3.4.3",
+    "httpx>=0.28.1",
+    "python-dateutil>=2.9.0.post0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/miroflow"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.1",
+    "pytest-asyncio>=1.0.0",
+    "pytest-cov>=6.2.1",
+    "pytest-html>=4.1.1",
+    "pytest-xdist>=3.7.0",
+    "pytest-mock>=3.10.0",
+    "pytest-timeout>=2.1.0",
+    "inline-snapshot>=0.23.2",
+    "reuse>=5.0.2",
+]
+
+[tool.pytest.ini_options]
+# see https://docs.pytest.org/en/stable/reference/customize.html#pyproject-toml
+minversion = "8.4.1"
+# make warning go away
+# https://github.com/pytest-dev/pytest-asyncio/issues/924#issuecomment-2321921915
+asyncio_default_fixture_loop_scope = "function"
+addopts = [
+    # summary for failed AND passed tests
+    "-rA",
+    # only show stderr for test. stdlog can contain sensitive information
+    "--show-capture=stderr",
+    # use `pytest-xdist` to run tests in parallel
+    "-n=auto",
+    # use `pytest-html` to generate test report in html format
+    "--html=report.html",
+    "--self-contained-html",
+    # use `pytest-cov` to generate test coverage report
+    "--cov=miroflow.contrib",
+    "--cov-report=html",
+    # strict markers
+    "--strict-markers",
+    # verbose output
+    "-v",
+]
+markers = [
+    "integration: marks tests as integration tests (may be slow)",
+    "unit: marks tests as unit tests",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "requires_api_key: marks tests that require real API credentials",
+]

@@ -1,0 +1,4 @@
+---
+globs: tools/*.py
+alwaysApply: false
+---

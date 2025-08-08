@@ -1,0 +1,13 @@
+# conf/benchmark/gaia-validation.yaml
+defaults:
+  - _default
+  - _self_
+
+name: "gaia-validation"
+
+data:
+  data_dir: "${env.data_dir}/gaia-val"
+
+execution:
+  max_tasks: null  # null means no limit
+  max_concurrent: 5
