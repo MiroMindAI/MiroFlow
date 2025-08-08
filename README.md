@@ -186,9 +186,11 @@ cp .env.template .env
 vim .env
 ```
 
-**Step 3:** Prepare E2B Sandbox:
+**Step 3:** Prepare E2B Sandbox (Optional)
 
 > [!TIP]
+> We provide a public E2B sandbox template. Follow this step if you want to reproduce.
+>
 > For the E2B sandbox service, we recommend setting up a Linux Docker image with a comprehensive set of apt and Python packages pre-installed. Without these pre-installed packages, the agent will need to spend extra steps and context installing them, resulting in reduced token efficiency.
 >
 > you need to have `npm` install and `docker` running locally.

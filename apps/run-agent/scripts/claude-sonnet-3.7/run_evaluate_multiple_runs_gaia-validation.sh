@@ -35,7 +35,7 @@ for i in $(seq 1 $NUM_RUNS); do
             benchmark.execution.max_concurrent=5 \
             benchmark.execution.pass_at_k=1 \
             agent=$AGENT_SET \
-            output_dir=${RESULTS_DIR}/$RUN_ID \
+            output_dir="$RESULTS_DIR/$RUN_ID" \
             > "$RESULTS_DIR/${RUN_ID}_output.log" 2>&1
         
         if [ $? -eq 0 ]; then
