@@ -14,6 +14,7 @@ from gen_gaia import gen_gaia_validation
 from gen_gaia_text_only import gen_gaia_text_only
 from gen_webwalkerqa import gen_webwalkerqa
 
+
 @dataclasses.dataclass
 class _Env:
     supported = (
