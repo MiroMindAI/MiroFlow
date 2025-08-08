@@ -2,15 +2,15 @@
 
 This project is an example of a modular agent structure, utilizing Hydra for advanced configuration management.
 
-## 快速试验
+## Quick Testing
 
 You may refer to `scripts/exmamples` to run simple tests.
 
-## 运行程序
+## Running the Application
 
 This project uses `uv` for environment and package management.
 
-### 基本运行
+### Basic Execution
 
 To run the main application with the default configuration (as defined in `conf/config.yaml`), use the following command:
 
@@ -18,11 +18,11 @@ To run the main application with the default configuration (as defined in `conf/
 uv run main.py
 ```
 
-### 使用 Hydra 进行配置
+### Using Hydra for Configuration
 
 Hydra allows for powerful configuration overrides directly from the command line.
 
-**1. 切换 LLM 配置:**
+**1. Switching LLM Configuration:**
 
 You can switch the entire language model configuration by specifying the `llm` group. For example, to use the `gemini` configuration instead of the default `gpt-4`:
 
@@ -32,7 +32,7 @@ uv run main.py llm=gemini
 
 Available LLM configurations can be found in `conf/llm/`.
 
-**2. 覆盖单个参数:**
+**2. Overriding Individual Parameters:**
 
 Any parameter in the configuration can be overridden. For example, to change the temperature of the `gemini` model:
 
@@ -40,7 +40,7 @@ Any parameter in the configuration can be overridden. For example, to change the
 uv run main.py llm=gemini llm.temperature=0.9
 ```
 
-**3. 运行基准测试:**
+**3. Running Benchmarks:**
 
 The benchmark runner also uses Hydra. To run a benchmark, specify the `benchmark` group:
 
@@ -49,7 +49,7 @@ uv run benchmarks/common_benchmark.py benchmark=gaia
 ```
 
 
-## 配置结构
+## Configuration Structure
 
 The configuration for this application resides in the `conf/` directory, following Hydra conventions:
 
