@@ -29,7 +29,6 @@ def create_mcp_server_parameters(
         if logs_dir:
             tool_code_env["LOGS_DIR"] = str(logs_dir)
 
-
         configs.append(
             {
                 "name": "tool-code",
@@ -133,7 +132,6 @@ def create_mcp_server_parameters(
         agent_cfg.get("tools", None) is not None
         and "tool-browsing" in agent_cfg["tools"]
     ):
-
         configs.append(
             {
                 "name": "tool-browsing",
@@ -265,4 +263,3 @@ def expose_sub_agents_as_tools(sub_agents_cfg: DictConfig):
                 )
             )
     return sub_agents_server_params
-

@@ -99,9 +99,7 @@ class Node[_PrepResult, _ExecResult](BaseNode[_PrepResult, _ExecResult]):
         raise RuntimeError("Should not reach here")
 
 
-class BatchNode[_PrepResult, _ExecResult](
-    Node[list[_PrepResult] , list[_ExecResult]]
-):
+class BatchNode[_PrepResult, _ExecResult](Node[list[_PrepResult], list[_ExecResult]]):
     def _exec(self, prep_res: list[_PrepResult]) -> list[_ExecResult]:
         return [super(BatchNode, self)._exec(i) for i in prep_res]
 
@@ -139,9 +137,7 @@ class Flow[_PrepResult, Any](BaseNode[_PrepResult, Any]):
         o = self._orch(shared)
         return self.post(shared, p, o)
 
-    def post(
-        self, shared: SharedData, prep_res: _PrepResult, exec_res: Any
-    ) -> str:
+    def post(self, shared: SharedData, prep_res: _PrepResult, exec_res: Any) -> str:
         return exec_res
 
 
@@ -195,9 +191,7 @@ class AsyncNode[_PrepResult, _ExecResult](Node[_PrepResult, _ExecResult]):
         raise RuntimeError("Use run_async.")
 
 
-class AsyncBatchNode(
-    AsyncNode[list[_PrepResult] | None, list[_ExecResult], str]
-):
+class AsyncBatchNode(AsyncNode[list[_PrepResult] | None, list[_ExecResult], str]):
     async def _exec(self, prep_res: list[_PrepResult] | None) -> list[_ExecResult]:
         if prep_res is None:
             return []
@@ -215,9 +209,7 @@ class AsyncParallelBatchNode(
         )
 
 
-class AsyncFlow(
-    Flow[_PrepResult, Any], AsyncNode[_PrepResult, Any]
-):
+class AsyncFlow(Flow[_PrepResult, Any], AsyncNode[_PrepResult, Any]):
     async def _orch_async(
         self, shared: SharedData, params: Params | None = None
     ) -> Any:

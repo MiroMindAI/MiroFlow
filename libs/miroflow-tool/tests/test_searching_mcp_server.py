@@ -7,8 +7,10 @@ import pytest
 from mcp import StdioServerParameters
 
 from miroflow.tool.manager import ToolManager
- 
+
 pytest.skip("Skipping all tests in this file", allow_module_level=True)
+
+
 class TestSearchingMCPServer:
     """Test suite for Searching MCP Server functionality."""
 
@@ -654,4 +656,3 @@ pytest_plugins = []
 def pytest_configure(config):
     """Configure pytest with custom markers."""
     config.addinivalue_line("markers", "integration: marks tests as integration tests")
-    
