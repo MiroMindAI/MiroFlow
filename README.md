@@ -197,10 +197,15 @@ vim .env
 2. Run `e2b template build` command [check official doc here](https://e2b.dev/docs/sdk-reference/cli/v1.0.2/template), use `all_pip_apt_pkg` as the name of template.
 
    Command example:
-   ```shell
-   E2B_ACCESS_TOKEN=${your-token}
-   e2b template build -c "/root/.jupyter/start-up.sh" -t <team_id> -n "all_pip_apt_pkg" -d ./e2b.Dockerfile
-   ```
+```shell
+## grab the dockerfile
+curl https://github.com/MiroMindAI/MiroFlow/blob/main/docs/e2b.Dockerfile
+## build the template
+E2B_ACCESS_TOKEN=${your-token}
+e2b template build -c "/root/.jupyter/start-up.sh" -t <team_id> -n "all_pip_apt_pkg" -d ./e2b.Dockerfile
+## check that template is built successfully
+E2B_ACCESS_TOKEN=${your-token} e2b template list -t <team_id>
+```
 
 For additional information, please see the [E2B Docker documentation](https://e2b.dev/docs/sandbox-template).
 
