@@ -198,7 +198,7 @@ vim .env
    e2b template build -c "/root/.jupyter/start-up.sh" -t <team_id> -n all_pip_apt_pkg` -d ./e2b.Dockerfile
    ```
 
-For additional information, please see the [E2B Docker documentation](https://docs.e2b.dev/docs/docker).
+For additional information, please see the [E2B Docker documentation](https://e2b.dev/docs/sandbox-template).
 
 
 ## Runing a single task
