@@ -215,9 +215,6 @@ wget https://github.com/MiroMindAI/MiroFlow/blob/main/docs/e2b.Dockerfile
 3. Run `e2b template build` command [check official doc here](https://e2b.dev/docs/sdk-reference/cli/v1.0.2/template), use `all_pip_apt_pkg` as the name of template.
 
 ```shell
-## login to e2b (optional)
-## see https://npm.io/package/@e2b/cli
-e2b auth login
 ## build the template with `docker build` locally
 E2B_ACCESS_TOKEN=${your-token}
 e2b template build -c "/root/.jupyter/start-up.sh" -n "all_pip_apt_pkg" -d ./e2b.Dockerfile
