@@ -1,3 +1,14 @@
+# You can use most Debian-based base images
+FROM e2bdev/code-interpreter
+
+# Update package list and install Python 3.10 and pip
+RUN apt-get update && apt-get install -y \
+    portaudio19-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python3 -m pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Install dependencies and customize sandbox
 RUN python3 -m pip install --no-cache-dir \
     Flask \
     IPython \
