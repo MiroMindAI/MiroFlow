@@ -152,8 +152,8 @@ Comprehensive logging infrastructure that captures agent interactions, tool exec
 
 ```bash
 ## clone the repo
-git clone https://github.com/MiroMindAsia/miroflow
-cd miroflow/apps/run-agent
+git clone https://github.com/MiroMindAI/MiroFlow
+cd MiroFlow/apps/run-agent
 ## prepare python environment
 uv sync
 ```
@@ -178,10 +178,10 @@ If you wish to use a different LLM as the primary agent model, you will need to 
 
 ```bash
 ## copy environment variable template and prepare yours in .env file
-cd miroflow/apps/prepare-benchmark
+cd MiroFlow/apps/prepare-benchmark
 cp .env.template .env
 vim .env
-cd miroflow/apps/run-agent
+cd MiroFlow/apps/run-agent
 cp .env.template .env
 vim .env
 ```
@@ -231,7 +231,7 @@ Run a single task:
 
 ```bash
 ## run a task with instruction
-cd miroflow/apps/run-agent
+cd MiroFlow/apps/run-agent
 uv run main.py trace --task="your task description" --task_file_name="path to related task file"
 ```
 
@@ -241,17 +241,17 @@ Run prebuilt agent on the benchmark data:
 
 ```bash
 ## download data
-cd miroflow/apps/prepare-benchmark
+cd MiroFlow/apps/prepare-benchmark
 uv run main.py get gaia-val
 ## run the code
-cd miroflow/apps/run-agent
+cd MiroFlow/apps/run-agent
 uv run main.py common-benchmark benchmark=gaia-validation
 ```
 
 To perform parallel multi-run evaluations, you can use the provided script:
 
 ```bash
-cd miroflow/apps/run-agent
+cd MiroFlow/apps/run-agent
 bash scripts/claude-sonnet-3.7/run_evaluate_multiple_runs_gaia-validation.sh
 ```
 
