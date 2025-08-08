@@ -25,7 +25,7 @@ for i in $(seq 1 $NUM_RUNS); do
     RUN_ID="run_$i"
     
     (
-        uv run python benchmarks/common_benchmark.py \
+        uv run main.py common-benchmark \
             benchmark=$BENCHMARK_NAME \
             llm=claude_openrouter \
             llm.provider=$LLM_PROVIDER \
@@ -35,7 +35,7 @@ for i in $(seq 1 $NUM_RUNS); do
             benchmark.execution.max_concurrent=5 \
             benchmark.execution.pass_at_k=1 \
             agent=$AGENT_SET \
-            hydra.run.dir=${RESULTS_DIR}/$RUN_ID \
+            output_dir="$RESULTS_DIR/$RUN_ID" \
             > "$RESULTS_DIR/${RUN_ID}_output.log" 2>&1
         
         if [ $? -eq 0 ]; then
@@ -64,7 +64,7 @@ echo "All $NUM_RUNS runs completed!"
 echo "=========================================="
 
 echo "Calculating average scores..."
-uv run python benchmarks/evaluators/calculate_average_score.py "$RESULTS_DIR"
+uv run main.py avg-score "$RESULTS_DIR"
 
 echo "=========================================="
 echo "Multiple runs evaluation completed!"

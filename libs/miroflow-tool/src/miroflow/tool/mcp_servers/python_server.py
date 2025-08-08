@@ -1,8 +1,8 @@
+import asyncio
 import os
 
 from e2b_code_interpreter import Sandbox
 from fastmcp import FastMCP
-import asyncio
 
 # Initialize FastMCP server
 mcp = FastMCP("e2b-python-interpreter")
@@ -10,6 +10,10 @@ mcp = FastMCP("e2b-python-interpreter")
 # API keys
 E2B_API_KEY = os.environ.get("E2B_API_KEY")
 LOGS_DIR = os.environ.get("LOGS_DIR")  # Directory where benchmark logs are stored
+
+# DEFAULT TEMPLATE ID
+# see README.md on how to build this
+DEFAULT_TEMPLATE_ID = "1av7fdjfvcparqo8efq6"
 
 # DEFAULT CONFS
 DEFAULT_TIMEOUT = 1200  # seconds
@@ -138,7 +142,9 @@ async def create_sandbox() -> str:
         sandbox = None
         try:
             sandbox = Sandbox(
-                template="all_pip_apt_pkg", timeout=DEFAULT_TIMEOUT, api_key=E2B_API_KEY
+                template=DEFAULT_TEMPLATE_ID,
+                timeout=DEFAULT_TIMEOUT,
+                api_key=E2B_API_KEY,
             )
             info = sandbox.get_info()
 
