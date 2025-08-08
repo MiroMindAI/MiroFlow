@@ -255,15 +255,16 @@ cd MiroFlow/apps/run-agent
 bash scripts/claude-sonnet-3.7/run_evaluate_multiple_runs_gaia-validation.sh
 ```
 
-# 🌟 MiroThinker: A Series of Open-Source Agentic Models (7B/14B/32B)
+# 🌟 MiroThinker (7B/14B/32B): Our Open-Source Agentic Models
+
+[![MiroThinker](https://img.shields.io/badge/Github-24292F?style=for-the-badge&logo=github&logoColor=white)](https://github.com/MiroMindAI/MiroThinker)
+
 
 MiroThinker is our suite of open-source agentic models, designed to work seamlessly with the MiroFlow framework. Our models are specifically built to handle **complex, multi-tool tasks**, leveraging the reproducible and robust foundation that MiroFlow provides.
 
 By combining MiroFlow’s reliable orchestration with MiroThinker’s advanced reasoning capabilities, we offer a powerful, end-to-end solution for building high-performing, reproducible AI agents.
-
 These models are a direct result of our extensive data collection efforts, utilizing MiroFlow to generate high-quality, post-training agent trace data. This unique approach enables MiroThinker to excel in planning, executing, and reasoning through complex multi-step tasks.
-
-We invite the community to explore and build upon these models. For more details on the architecture and implementation, please refer to our codebase. More about: **[MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)**
+We invite the community to explore and build upon these models. For more details on the architecture and implementation, please take a look at our codebase.
 
 # 🤔 Why Choose MiroFlow
 
