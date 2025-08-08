@@ -73,9 +73,9 @@ addopts = [
 env_files = [".env"]
 
 markers = [
-    # "integration: marks tests as integration tests (may be slow)",
+    "integration: marks tests as integration tests (may be slow)",
     "unit: marks tests as unit tests",
-    # "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    # "requires_api_key: marks tests that require real API credentials",
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "requires_api_key: marks tests that require real API credentials",
 ]
 
