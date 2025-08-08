@@ -53,7 +53,12 @@ async def single_task(
     )
 
 
-def main(*args, task_id: str = "task_1", task: str="Write a python code to say 'Hello, World!', use python to execute the code.",  task_file_name: str = ""):
+def main(
+    *args,
+    task_id: str = "task_1",
+    task: str = "Write a python code to say 'Hello, World!', use python to execute the code.",
+    task_file_name: str = "",
+):
     print("inside trace")
     dotenv.load_dotenv()
     with hydra.initialize_config_dir(config_dir=config_path(), version_base=None):

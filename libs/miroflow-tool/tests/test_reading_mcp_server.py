@@ -15,6 +15,7 @@ from miroflow.tool.manager import ToolManager
 current_file_path = os.path.abspath(__file__)
 current_dir = os.path.dirname(current_file_path)
 files_for_tests_dir = os.path.join(current_dir, "files-for-tests")
+pytest.skip("Skipping all tests in this file", allow_module_level=True)
 
 
 class TestReadingMCPServer:

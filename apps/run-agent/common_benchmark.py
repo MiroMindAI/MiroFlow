@@ -530,7 +530,7 @@ class JSONLDatasetEvaluator(BenchmarkEvaluator):
                 except json.JSONDecodeError as e:
                     print(f"Warning: Failed to parse line {i + 1}: {e}")
                     continue
-        tasks = tasks[:self.cfg.benchmark.execution.max_tasks]
+        tasks = tasks[: self.cfg.benchmark.execution.max_tasks]
         self.tasks = tasks
         print(f"Loaded {len(tasks)} tasks")
         return tasks

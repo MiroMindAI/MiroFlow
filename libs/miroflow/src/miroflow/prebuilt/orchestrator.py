@@ -694,7 +694,7 @@ Output:
 Return exactly one of the [number, date, time, string], nothing else.
 """
         print(f"Answer type instruction: {instruction}")
-        
+
         message_id = _generate_message_id()
         response = await client.chat.completions.create(
             model="gpt-4.1",
@@ -704,18 +704,20 @@ Return exactly one of the [number, date, time, string], nothing else.
         # 检查结果是否为空，如果为空则抛出异常触发重试
         if not answer_type or not answer_type.strip():
             raise ValueError("answer type returned empty result")
-        
+
         print(f"Answer type: {answer_type}")
-        
+
         return answer_type.strip()
 
     @retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
-    async def _o3_extract_gaia_final_answer(self, answer_type: str, task_description_detail: str, summary: str) -> str:
+    async def _o3_extract_gaia_final_answer(
+        self, answer_type: str, task_description_detail: str, summary: str
+    ) -> str:
         """使用O3模型从summary中抽取最终答案"""
         client = AsyncOpenAI(api_key=self.cfg.env.openai_api_key, timeout=600)
-        
+
         full_prompts = {
-"time": f"""# Inputs
+            "time": f"""# Inputs
 
 * **Original Question**: `{task_description_detail}`
 * **Agent Summary**: `{summary}`
@@ -774,8 +776,7 @@ If no answer is clearly supported by the evidence, provide a well-justified educ
 
 Return the step-by-step process and your final answer wrapped in \\boxed{{...}}, check the **Formatting rules**, **Additional constraints**, **Common pitfalls to avoid** and **Quick reference examples** step by step, and ensure the answer meet the requirements.
 """,
-
-"number": f"""# Inputs
+            "number": f"""# Inputs
 
 * **Original Question**: `{task_description_detail}`
 * **Agent Summary**: `{summary}`
@@ -854,8 +855,7 @@ If no answer is clearly supported by the evidence, provide a well-justified educ
 
 Return the step-by-step process and your final answer wrapped in \\boxed{{...}}, check the **Formatting rules**, **Additional constraints**, **Common pitfalls to avoid** and **Quick reference examples** step by step, and ensure the answer meet the requirements.
 """,
-
-"string": f"""# Inputs
+            "string": f"""# Inputs
 
 * **Original Question**: `{task_description_detail}`
 * **Agent Summary**: `{summary}`
@@ -940,10 +940,12 @@ If no answer is clearly supported by the evidence, provide a well-justified educ
 --- 
 # Output
 Return the step-by-step process and your final answer wrapped in \\boxed{{...}}, check the **Formatting rules**, **Additional constraints**, **Common pitfalls to avoid** and **Quick reference examples** step by step, and ensure the answer meet the requirements.
-"""
-}
-        full_prompt = full_prompts.get(answer_type if answer_type in ["number", "time"] else "string")
-        
+""",
+        }
+        full_prompt = full_prompts.get(
+            answer_type if answer_type in ["number", "time"] else "string"
+        )
+
         print("O3 Extract Final Answer Prompt:")
         print(full_prompt)
 
@@ -959,12 +961,12 @@ Return the step-by-step process and your final answer wrapped in \\boxed{{...}},
         if not result or not result.strip():
             raise ValueError("O3 final answer extraction returned empty result")
 
-        match = re.search(r'\\boxed{([^}]*)}', result)
+        match = re.search(r"\\boxed{([^}]*)}", result)
         if not match:
             raise ValueError("O3 final answer extraction returned empty answer")
 
         print("response:", result)
-                
+
         return result
 
     async def run_main_agent(
@@ -1285,7 +1287,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 # 执行O3最终答案提取
                 try:
                     answer_type = await self._get_gaia_answer_type(task_description)
-                
+
                     o3_extracted_answer = await self._o3_extract_gaia_final_answer(
                         answer_type,
                         task_description,

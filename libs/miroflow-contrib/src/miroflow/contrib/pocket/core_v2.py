@@ -7,8 +7,8 @@ import warnings
 A, B = TypeVar("A"), TypeVar("B")
 Context = Any
 
-class Node[A, B](ABC):
 
+class Node[A, B](ABC):
     @abstractmethod
     def prep(self, ctx: Context) -> A: ...
 
@@ -23,30 +23,31 @@ class Node[A, B](ABC):
         e = self.exec(p)
         return self.post(ctx, p, e)
 
+
 class Flowable(Protocol):
     @property
     def successors(self) -> dict[str, "Node[Any, Any]"]: ...
 
+
 class FlowableMixin:
     def handle(self: Flowable, action: str) -> "Node[Any, Any] | None":
         return self.successors.get(action, None)
-    
-    def add_successor(self: Flowable, action: str, node: "Node[Any, Any]") -> "Node[Any, Any]":
+
+    def add_successor(
+        self: Flowable, action: str, node: "Node[Any, Any]"
+    ) -> "Node[Any, Any]":
         if action in self.successors:
             warnings.warn(f"Overwriting successor for action '{action}'")
         self.successors[action] = node
         return node
-    
+
+
 @dataclass
 class Flow:
     start: Node[Any, Any]
-    
-    
-    def flow(self, ctx: Context) -> str: 
-        curr,last_action = (
-            copy.copy(self.start),
-            "default"
-        )
+
+    def flow(self, ctx: Context) -> str:
+        curr, last_action = (copy.copy(self.start), "default")
         while curr is not None:
             last_action = curr.run(ctx)
             next_node = curr.successors.get(last_action, None)

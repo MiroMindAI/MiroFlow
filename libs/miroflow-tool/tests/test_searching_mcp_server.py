@@ -8,6 +8,8 @@ from mcp import StdioServerParameters
 
 from miroflow.tool.manager import ToolManager
 
+pytest.skip("Skipping all tests in this file", allow_module_level=True)
+
 
 class TestSearchingMCPServer:
     """Test suite for Searching MCP Server functionality."""

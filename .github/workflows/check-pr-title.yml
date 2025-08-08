@@ -1,0 +1,22 @@
+name: check-pr-title
+
+on:
+  pull_request:
+   types: [opened, synchronize]
+
+jobs:
+  check-pr-title:
+    if: github.repository_owner == 'MiroMindAI'
+    name: Check PR Title
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
+
+    - name: check PR with regex
+      run: uv run .github/scripts/check_pr_title.py "${TITLE}"
+      env:
+        TITLE: ${{ github.event.pull_request.title }}
