@@ -50,8 +50,8 @@ class ToolManagerProtocol(Protocol):
 class ToolManager(ToolManagerProtocol):
     def __init__(self, server_configs, tool_blacklist=None):
         """
-        初始化 ToolManager。
-        :param server_configs: create_server_parameters() 返回的列表
+        Initialize ToolManager.
+        :param server_configs: List returned by create_server_parameters()
         """
         self.server_configs = server_configs
         self.server_dict = {
@@ -61,7 +61,7 @@ class ToolManager(ToolManagerProtocol):
         self.tool_blacklist = tool_blacklist if tool_blacklist else set()
 
         logger.info(
-            f"ToolManager 初始化，已加载服务器: {list(self.server_dict.keys())}"
+            f"ToolManager initialized, loaded servers: {list(self.server_dict.keys())}"
         )
 
     def _is_huggingface_dataset_or_space_url(self, url):
@@ -88,14 +88,14 @@ class ToolManager(ToolManagerProtocol):
         )
 
     def get_server_params(self, server_name):
-        """获取指定服务器的参数"""
+        """Get parameters for specified server"""
         return self.server_dict.get(server_name)
 
     async def _find_servers_with_tool(self, tool_name):
         """
-        在所有服务器中查找包含指定工具名称的服务器
-        :param tool_name: 要查找的工具名称
-        :return: 包含该工具的服务器名称列表
+        Find servers containing the specified tool name among all servers
+        :param tool_name: Tool name to search for
+        :return: List of server names containing the tool
         """
         servers_with_tool = []
 
@@ -111,7 +111,7 @@ class ToolManager(ToolManagerProtocol):
                         ) as session:
                             await session.initialize()
                             tools_response = await session.list_tools()
-                            # 遵循与 get_all_tool_definitions 相同的 blacklist 逻辑
+                            # Follow the same blacklist logic as get_all_tool_definitions
                             for tool in tools_response.tools:
                                 if (server_name, tool.name) in self.tool_blacklist:
                                     continue
@@ -129,8 +129,8 @@ class ToolManager(ToolManagerProtocol):
                             await session.initialize()
                             tools_response = await session.list_tools()
                             for tool in tools_response.tools:
-                                # 与 get_all_tool_definitions 保持一致：SSE 部分没有 blacklist 处理
-                                # 可以在这里添加特定工具的过滤逻辑（如果需要）
+                                # Consistent with get_all_tool_definitions: SSE part has no blacklist processing
+                                # Can add specific tool filtering logic here (if needed)
                                 # if server_name == "tool-excel" and tool.name not in ["get_workbook_metadata", "read_data_from_excel"]:
                                 #     continue
                                 if tool.name == tool_name:
@@ -140,11 +140,11 @@ class ToolManager(ToolManagerProtocol):
                     logger.error(
                         f"错误: 服务器 '{server_name}' 的参数类型未知: {type(server_params)}"
                     )
-                    # 对于未知类型，我们跳过而不是抛出异常，因为这是查找功能
+                    # For unknown types, we skip rather than throw an exception, because this is a search function
                     continue
             except Exception as e:
                 logger.error(
-                    f"错误: 无法连接或获取服务器 '{server_name}' 的工具以查找 '{tool_name}': {e}"
+                    f"Error: Cannot connect or get tools from server '{server_name}' to find '{tool_name}': {e}"
                 )
                 continue
 
@@ -152,16 +152,16 @@ class ToolManager(ToolManagerProtocol):
 
     async def get_all_tool_definitions(self):
         """
-        连接到所有已配置的服务器，获取它们的工具定义。
-        返回一个适合传递给 Prompt 生成器的列表。
+        Connect to all configured servers and get their tool definitions.
+        Returns a list suitable for passing to Prompt generators.
         """
         all_servers_for_prompt = []
-        # 处理远程服务器工具
+        # Handle remote server tools
         for config in self.server_configs:
             server_name = config["name"]
             server_params = config["params"]
             one_server_for_prompt = {"name": server_name, "tools": []}
-            logger.info(f"正在获取服务器 '{server_name}' 的工具定义...")
+            logger.info(f"Getting tool definitions for server '{server_name}'...")
 
             try:
                 if isinstance(server_params, StdioServerParameters):
@@ -175,7 +175,7 @@ class ToolManager(ToolManagerProtocol):
                             for tool in tools_response.tools:
                                 if (server_name, tool.name) in self.tool_blacklist:
                                     logger.info(
-                                        f"server '{server_name}' 中的工具 '{tool.name}' 被列入黑名单，跳过。"
+                                        f"Tool '{tool.name}' in server '{server_name}' is blacklisted, skipping."
                                     )
                                     continue
                                 one_server_for_prompt["tools"].append(
@@ -196,7 +196,7 @@ class ToolManager(ToolManagerProtocol):
                             await session.initialize()
                             tools_response = await session.list_tools()
                             for tool in tools_response.tools:
-                                # 可以在这里添加特定工具的过滤逻辑（如果需要）
+                                # Can add specific tool filtering logic here (if needed)
                                 # if server_name == "tool-excel" and tool.name not in ["get_workbook_metadata", "read_data_from_excel"]:
                                 #     continue
                                 one_server_for_prompt["tools"].append(
@@ -215,13 +215,13 @@ class ToolManager(ToolManagerProtocol):
                     )
 
                 logger.info(
-                    f"成功获取服务器 '{server_name}' 的 {len(one_server_for_prompt['tools'])} 个工具定义。"
+                    f"Successfully obtained {len(one_server_for_prompt['tools'])} tool definitions for server '{server_name}'."
                 )
                 all_servers_for_prompt.append(one_server_for_prompt)
 
             except Exception as e:
-                logger.error(f"错误: 无法连接或获取服务器 '{server_name}' 的工具: {e}")
-                # 仍然添加服务器条目，但标记工具列表为空或包含错误信息
+                logger.error(f"Error: Cannot connect or get tools from server '{server_name}': {e}")
+                # Still add server entry, but mark tool list as empty or containing error information
                 one_server_for_prompt["tools"] = [
                     {"error": f"Failed to fetch tools: {e}"}
                 ]
@@ -232,11 +232,11 @@ class ToolManager(ToolManagerProtocol):
     @with_timeout(600)
     async def execute_tool_call(self, server_name, tool_name, arguments) -> Any:
         """
-        执行单个工具调用。
-        :param server_name: 服务器名称
-        :param tool_name: 工具名称
-        :param arguments: 工具参数字典
-        :return: 包含结果或错误的字典
+        Execute a single tool call.
+        :param server_name: Server name
+        :param tool_name: Tool name
+        :param arguments: Tool arguments dictionary
+        :return: Dictionary containing result or error
         """
 
         # 原远程服务器调用逻辑

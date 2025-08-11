@@ -8,7 +8,7 @@ from trace_analyzer import TraceAnalyzer
 
 app = Flask(__name__)
 
-# 全局变量存储分析器实例
+# Global variable to store analyzer instance
 analyzer = None
 
 
@@ -25,13 +25,13 @@ def list_files():
         directory = request.args.get("directory", "")
 
         if not directory:
-            # 默认行为：检查上级目录
+            # Default behavior: check parent directory
             directory = os.path.abspath("..")
 
-        # 扩展路径（处理~等符号）
+        # Expand path (handle ~ and other symbols)
         directory = os.path.expanduser(directory)
 
-        # 转换为绝对路径
+        # Convert to absolute path
         directory = os.path.abspath(directory)
 
         if not os.path.exists(directory):
@@ -46,7 +46,7 @@ def list_files():
                 if file.endswith(".json"):
                     file_path = os.path.join(directory, file)
                     try:
-                        # 获取文件大小和修改时间
+                        # Get file size and modification time
                         stat = os.stat(file_path)
                         json_files.append(
                             {
@@ -61,7 +61,7 @@ def list_files():
                             {"name": file, "path": file_path, "size": 0, "modified": 0}
                         )
 
-            # 按文件名排序
+            # Sort by filename
             json_files.sort(key=lambda x: x["name"])
 
             return jsonify(
@@ -91,7 +91,7 @@ def load_trace():
     if not file_path:
         return jsonify({"error": "请提供文件路径"}), 400
 
-    # 如果是相对路径，转换为绝对路径
+    # If it's a relative path, convert to absolute path
     if not os.path.isabs(file_path):
         file_path = os.path.abspath(file_path)
 
@@ -193,7 +193,7 @@ def get_raw_messages():
         main_history = analyzer.get_main_agent_history()
         browser_sessions = analyzer.get_browser_agent_sessions()
 
-        # 获取消息结构概览
+        # Get message structure overview
         main_messages = analyzer.get_main_agent_messages()
         message_structure = []
 

@@ -11,7 +11,7 @@ import sys
 
 
 def extract_score_from_log(run_dir, task_score_dict):
-    # 遍历所有task_{task_id}_attempt_*.log的文件，提取score
+    # Traverse all task_{task_id}_attempt_*.log files to extract score
     log_files = glob.glob(os.path.join(run_dir, "task_*_attempt_*.json"))
     for log_file in log_files:
         task_id = log_file.split("/")[-1].split("_")[1]
@@ -35,7 +35,7 @@ def main(results_dir: str, pass_at_k: int = 3):
 
     print(f"Analyzing results from: {results_dir}")
 
-    # 遍历所有run_*目录under results_dir
+    # Traverse all run_* directories under results_dir
     run_dirs = glob.glob(os.path.join(results_dir, "run_*"))
     task_score_dict = {}
     for run_dir in run_dirs:
@@ -50,7 +50,7 @@ def main(results_dir: str, pass_at_k: int = 3):
         else:
             failed_id.append(task)
 
-    # 保存简单的统计结果
+    # Save simple statistical results
     output_file = os.path.join(results_dir, f"average_scores_pass_at_{pass_at_k}.txt")
     with open(output_file, "w") as f:
         f.write("EVALUATION RESULTS\n")
