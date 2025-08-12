@@ -63,8 +63,8 @@ class GPTOpenAIResponseClient(LLMProviderClientBase):
             self.token_usage["total_cache_read_input_tokens"] += cached_tokens
 
             logger.debug(
-                f"Current round token usage - Input: {self.token_usage["total_input_tokens"]}, "
-                f"Output: {self.token_usage["total_output_tokens"]}"
+                f"Current round token usage - Input: {self.token_usage['total_input_tokens']}, "
+                f"Output: {self.token_usage['total_output_tokens']}"
             )
 
     def format_token_usage_summary(self):

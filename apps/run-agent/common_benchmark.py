@@ -546,7 +546,7 @@ class JSONLDatasetEvaluator(BenchmarkEvaluator):
         if path.is_absolute():
             return task.task_question, str(path.resolve())
 
-        # 构建完整文件路径：数据目录 + 相对路径
+        # Build complete file path: data directory + relative path
         full_file_path = Path(self.data_dir) / path
         return task.task_question, str(full_file_path.resolve())
 
@@ -636,9 +636,9 @@ def main(*args):
     with hydra.initialize_config_dir(config_dir=config_path(), version_base=None):
         cfg = hydra.compose(config_name=config_name(), overrides=list(args))
         _ = bootstrap_logger()
-        # 默认关闭 tracing, 同时不 set key
+        # Default to disable tracing, and don't set key
         set_tracing_disabled(True)
         set_tracing_export_api_key("fake-key")
-        # 压制 trace provider 的报警
+        # Suppress trace provider warnings
         bootstrap_silent_trace_provider()
         asyncio.run(entrypoint(cfg))

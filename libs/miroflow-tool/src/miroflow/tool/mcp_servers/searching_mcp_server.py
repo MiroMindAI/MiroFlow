@@ -4,7 +4,7 @@ import datetime
 import calendar
 from fastmcp import FastMCP
 from mcp.client.stdio import stdio_client
-from mcp import ClientSession, StdioServerParameters  # (已在 config.py 导入)
+from mcp import ClientSession, StdioServerParameters  # (already imported in config.py)
 import wikipedia
 import asyncio
 from .utils.smart_request import smart_request, request_to_json

@@ -14,53 +14,53 @@ logger = bootstrap_logger()
 
 def robust_json_loads(json_str):
     """
-    鲁棒的JSON解析函数，首先尝试标准json，失败时尝试json5
+    Robust JSON parsing function, first try standard json, fallback to json5 if that fails
 
     Args:
-        json_str (str): 要解析的JSON字符串
+        json_str (str): The JSON string to parse
 
     Returns:
-        dict: 解析后的JSON对象
+        dict: The parsed JSON object
 
     Raises:
-        json.JSONDecodeError: 如果所有解析尝试都失败
+        json.JSONDecodeError: If all parsing attempts fail
     """
-    # 首先尝试标准json
+    # First try standard json
     try:
         return json.loads(json_str)
     except json.JSONDecodeError as e:
-        logger.debug(f"标准JSON解析失败: {e}")
+        logger.debug(f"Standard JSON parsing failed: {e}")
 
-        # 如果有json5，尝试使用json5解析
+        # If json5 is available, try json5 parsing
         if json5 is not None:
             try:
                 return json5.loads(json_str)
             except Exception as e2:
-                logger.debug(f"JSON5解析也失败: {e2}")
+                logger.debug(f"JSON5 parsing also failed: {e2}")
 
-        # 如果都失败了，重新抛出原始异常
+        # If both fail, re-raise the original exception
         raise e
 
 
 def escape_string_content(content, key_name=None):
     """
-    智能转义和修复：根据key类型进行不同的处理
+    Smart escaping and fixing: different processing based on key type
 
-    转义策略：
-    - 基础转义：双引号、换行符等JSON必需的转义
-    - 智能修复：根据key类型修复常见语法错误
+    Escaping strategy:
+    - Basic escaping: double quotes, newlines and other JSON-required escaping
+    - Smart fixing: fix common syntax errors based on key type
       * code_block: null→None, true→True, false→False
       * command: True→true, False→false, None→""
-      * 其他: None→null, True→true, False→false
+      * others: None→null, True→true, False→false
 
     Args:
-        content (str): 要转义的字符串内容
-        key_name (str): key的名称，用于确定修复策略
+        content (str): The string content to escape
+        key_name (str): The key name, used to determine fixing strategy
 
     Returns:
-        str: 转义并修复后的字符串
+        str: The escaped and fixed string
     """
-    # 策略1：基础转义（所有字段都需要）
+    # Strategy 1: Basic escaping (needed for all fields)
     result = []
     i = 0
 
@@ -68,88 +68,90 @@ def escape_string_content(content, key_name=None):
         char = content[i]
 
         if char == "\\" and i + 1 < len(content):
-            # 发现反斜杠，保持转义序列原样（包括 \" 和 \\n 等）
-            result.append(char)  # 添加反斜杠
-            result.append(content[i + 1])  # 添加下一个字符
-            i += 2  # 跳过两个字符
+            # Found backslash, keep escape sequence as is (including \" and \\n etc.)
+            result.append(char)  # Add backslash
+            result.append(content[i + 1])  # Add next character
+            i += 2  # Skip two characters
 
         elif char == '"':
-            # 未转义的双引号，需要转义
+            # Unescaped double quote, needs escaping
             result.append('\\"')
             i += 1
 
         elif char == "\n":
-            # 未转义的换行符，需要转义（JSON标准要求）
+            # Unescaped newline, needs escaping (JSON standard requirement)
             result.append("\\n")
             i += 1
 
         elif char == "\r":
-            # 未转义的回车符，需要转义
+            # Unescaped carriage return, needs escaping
             result.append("\\r")
             i += 1
 
         else:
-            # 其他字符直接保持原样
+            # Other characters remain as is
             result.append(char)
             i += 1
 
     content_escaped = "".join(result)
 
-    # 策略2：根据key类型进行智能修复
+    # Strategy 2: Smart fixing based on key type
     if key_name == "code_block":
-        # Python代码修复
+        # Python code fixing
         content_escaped = fix_python_syntax(content_escaped)
     elif key_name == "command":
-        # Shell命令修复
+        # Shell command fixing
         content_escaped = fix_shell_syntax(content_escaped)
     else:
-        # 通用JSON修复
+        # General JSON fixing
         content_escaped = fix_json_syntax(content_escaped)
 
     return content_escaped
 
 
 def fix_python_syntax(content):
-    """修复Python代码中的常见语法错误"""
+    """Fix common syntax errors in Python code"""
     import re
 
-    # Python中需要保持的关键词
-    # null → None（但要小心不要误改字符串中的null）
+    # Keywords that need to be kept in Python
+    # null → None (but be careful not to change null inside strings)
     content = re.sub(r"\bnull\b", "None", content)
     # true → True
     content = re.sub(r"\btrue\b", "True", content)
     # false → False
     content = re.sub(r"\bfalse\b", "False", content)
 
-    # 修复常见的Python语法错误
-    # 例如：print "text" → print("text")（Python 2 to 3）
+    # Fix common Python syntax errors
+    # e.g.: print "text" → print("text") (Python 2 to 3)
     content = re.sub(r'\bprint\s+"([^"]*)"', r'print("\1")', content)
 
     return content
 
 
 def fix_shell_syntax(content):
-    """修复Shell命令中的常见语法错误"""
+    """Fix common syntax errors in Shell commands"""
     import re
 
-    # Shell中的关键词修复
-    # true/false在shell中通常是小写
+    # Keyword fixes in Shell
+    # true/false are usually lowercase in shell
     content = re.sub(r"\bTrue\b", "true", content)
     content = re.sub(r"\bFalse\b", "false", content)
-    content = re.sub(r"\bNone\b", '""', content)  # None在shell中通常用空字符串
+    content = re.sub(
+        r"\bNone\b", '""', content
+    )  # None is usually empty string in shell
 
-    # 修复常见的shell语法问题
-    # 例如：确保变量引用正确
+    # Fix common shell syntax issues
+    # e.g.: ensure variable references are correct
 
     return content
 
 
 def fix_json_syntax(content):
-    """修复JSON字符串中的常见错误"""
+    """Fix common errors in JSON strings"""
     import re
 
-    # JSON标准关键词修复
-    # Python关键词 → JSON关键词
+    # JSON standard keyword fixes
+    # Python keywords → JSON keywords
     content = re.sub(r"\bNone\b", "null", content)
     content = re.sub(r"\bTrue\b", "true", content)
     content = re.sub(r"\bFalse\b", "false", content)
@@ -159,51 +161,51 @@ def fix_json_syntax(content):
 
 def parse_escaped_json_string(raw_str):
     """
-    修复JSON字符串中的转义问题，支持智能语法修复
+    Fix escape issues in JSON strings, supports smart syntax fixing
 
-    采用5种策略的渐进式解析：
-    1. 直接解析 - 如果已经是有效JSON就直接返回
-    2. 行开始模式 - 使用简单的行开始key模式进行解析
-    3. 负向后瞻模式 - 使用复杂的负向后瞻排除转义key
-    4. 老版本方法 - 使用历史兼容的简单字符串替换
-    5. 保守回退 - 最基本的转义修复
+    Uses 5 progressive parsing strategies:
+    1. Direct parsing - return directly if already valid JSON
+    2. Line start pattern - use simple line start key pattern for parsing
+    3. Negative lookbehind pattern - use complex negative lookbehind to exclude escaped keys
+    4. Legacy method - use historically compatible simple string replacement
+    5. Conservative fallback - most basic escape fixing
 
     Args:
-        raw_str (str): 可能包含转义问题的JSON字符串
+        raw_str (str): JSON string that may contain escape issues
 
     Returns:
-        str: 修复后的有效JSON字符串
+        str: Fixed valid JSON string
 
     Raises:
-        json.JSONDecodeError: 如果所有策略都无法修复为有效JSON
+        json.JSONDecodeError: If all strategies fail to fix into valid JSON
     """
     raw_str = raw_str.strip()
 
-    # 策略1：直接解析验证
+    # Strategy 1: Direct parsing verification
     if _try_direct_parse(raw_str):
         return raw_str
 
-    # 策略2：行开始模式解析
+    # Strategy 2: Line start pattern parsing
     result = _try_line_start_pattern(raw_str)
     if result:
         return result
 
-    # 策略3：负向后瞻模式解析
+    # Strategy 3: Negative lookbehind pattern parsing
     result = _try_negative_lookbehind_pattern(raw_str)
     if result:
         return result
 
-    # 策略4：老版本方法
+    # Strategy 4: Legacy method
     result = _try_legacy_method(raw_str)
     if result:
         return result
 
-    # 策略5：保守回退
+    # Strategy 5: Conservative fallback
     return _conservative_escape_fallback(raw_str)
 
 
 def _try_direct_parse(raw_str):
-    """策略1：尝试直接解析，如果成功就不需要修复"""
+    """Strategy 1: Try direct parsing, no fixing needed if successful"""
     try:
         robust_json_loads(raw_str)
         return True
@@ -212,17 +214,17 @@ def _try_direct_parse(raw_str):
 
 
 def _try_line_start_pattern(raw_str):
-    """策略2：使用行开始模式进行解析"""
+    """Strategy 2: Use line start pattern for parsing"""
     return _try_parse_with_pattern(raw_str, r'^\s*"([\w\-_]+)"\s*:')
 
 
 def _try_negative_lookbehind_pattern(raw_str):
-    """策略3：使用负向后瞻模式进行解析"""
+    """Strategy 3: Use negative lookbehind pattern for parsing"""
     return _try_parse_with_pattern(raw_str, r'(?<!\\)"([\w\-_]+)"\s*:')
 
 
 def _try_legacy_method(raw_str):
-    """策略4：尝试老版本的简单方法"""
+    """Strategy 4: Try legacy simple method"""
     try:
         corrected_json = _legacy_escape_method(raw_str)
         robust_json_loads(corrected_json)
@@ -232,11 +234,11 @@ def _try_legacy_method(raw_str):
 
 
 def _try_parse_with_pattern(raw_str, pattern):
-    """通用的基于key模式的解析方法"""
+    """General key pattern-based parsing method"""
     import re
 
     try:
-        # 如果是行开始模式，需要添加多行标志
+        # Add multiline flag if it's a line start pattern
         flags = re.MULTILINE if pattern.startswith(r"^\s*") else 0
         key_matches = list(re.finditer(pattern, raw_str, flags))
         if not key_matches:
@@ -249,29 +251,29 @@ def _try_parse_with_pattern(raw_str, pattern):
             key_name = key_match.group(1)
             key_end = key_match.end()
 
-            # 添加key之前的内容（包括key本身）
+            # Add content before key (including key itself)
             result.append(raw_str[last_end:key_end])
 
-            # 跳过空白字符，找到value的开始引号
+            # Skip whitespace, find the start quote of value
             value_start_pos = key_end
             while value_start_pos < len(raw_str) and raw_str[value_start_pos] in " \t":
                 value_start_pos += 1
 
             if value_start_pos >= len(raw_str) or raw_str[value_start_pos] != '"':
-                # 不是字符串值，跳过
+                # Not a string value, skip
                 last_end = key_end
                 continue
 
-            # 跳过开始引号
+            # Skip the start quote
             value_content_start = value_start_pos + 1
 
-            # 找到value的结束位置
+            # Find the end position of value
             if i < len(key_matches) - 1:
                 search_limit = key_matches[i + 1].start()
             else:
                 search_limit = len(raw_str)
 
-            # 反向查找value结束标记
+            # Search backwards for value end marker
             value_end_pos = _find_value_end_position(
                 raw_str, value_content_start, search_limit
             )
@@ -279,22 +281,22 @@ def _try_parse_with_pattern(raw_str, pattern):
                 last_end = key_end
                 continue
 
-            # 提取并转义value内容
+            # Extract and escape value content
             value_content = raw_str[value_content_start:value_end_pos]
             escaped_value = escape_string_content(value_content, key_name)
 
-            # 添加修复后的value
+            # Add fixed value
             result.append(' "')
             result.append(escaped_value)
             result.append('"')
 
             last_end = value_end_pos + 1
 
-        # 添加剩余内容
+        # Add remaining content
         result.append(raw_str[last_end:])
         corrected_json = "".join(result)
 
-        # 验证修复结果
+        # Verify fix result
         robust_json_loads(corrected_json)
         return corrected_json
 
@@ -303,7 +305,7 @@ def _try_parse_with_pattern(raw_str, pattern):
 
 
 def _find_value_end_position(raw_str, start_pos, search_limit):
-    """查找value的结束位置"""
+    """Find the end position of value"""
     for pos in range(search_limit - 1, start_pos, -1):
         if raw_str[pos] == '"':
             after_quote = raw_str[pos + 1 : search_limit].strip()
@@ -318,49 +320,49 @@ def _find_value_end_position(raw_str, start_pos, search_limit):
 
 def _legacy_escape_method(raw_str):
     """
-    老版本的简单转义方法：主要处理code_block字段的特殊情况
+    Legacy simple escape method: mainly handles special cases of code_block field
     """
-    # 去除首尾空白
+    # Remove leading and trailing whitespace
     raw_str = raw_str.strip()
 
-    # 检查是否包含 code_block 字段，这需要特殊处理
+    # Check if contains code_block field, which needs special handling
     if '"code_block": "' in raw_str:
-        # 分割为两部分：前半部分和代码内容部分
+        # Split into two parts: first part and code content part
         parts = raw_str.split('"code_block": "', 1)
         if len(parts) != 2:
-            raise ValueError("无法正确分割 code_block 字段")
+            raise ValueError("Unable to correctly split code_block field")
 
-        # 前半部分：正常处理转义序列
+        # First part: handle escape sequences normally
         first_part = parts[0].replace("\\n", "\n")
 
-        # 后半部分：代码内容需要特殊处理
+        # Second part: code content needs special handling
         second_part = parts[1]
 
-        # 找到代码内容的结束位置（应该以 "\n} 结尾）
+        # Find the end position of code content (should end with "\n})
         if second_part.endswith("\n}"):
-            code_content = second_part[:-2]  # 移除最后的 \n}
+            code_content = second_part[:-2]  # Remove the last \n}
         elif second_part.endswith('"\\n}'):
-            code_content = second_part[:-4]  # 移除最后的 "\n}
+            code_content = second_part[:-4]  # Remove the last "\n}
         else:
-            # 寻找最后一个 " 字符作为代码内容结束
+            # Find the last " character as code content end
             last_quote = second_part.rfind('"')
             if last_quote == -1:
-                raise ValueError("无法找到代码内容的结束位置")
+                raise ValueError("Unable to find end position of code content")
             code_content = second_part[:last_quote]
 
-        # 转义代码内容中的特殊字符
-        # 注意顺序：先转义反斜杠，再转义引号，最后处理换行符
+        # Escape special characters in code content
+        # Note the order: escape backslashes first, then quotes, finally handle newlines
         code_content_escaped = (
-            code_content.replace("\\", "\\\\")  # 转义反斜杠
-            .replace('"', '\\"')  # 转义引号
+            code_content.replace("\\", "\\\\")  # Escape backslashes
+            .replace('"', '\\"')  # Escape quotes
             .replace("\n", "\\n")
-        )  # 换行符保持为转义格式
+        )  # Keep newlines as escaped format
 
-        # 重新组装完整的JSON字符串
+        # Reassemble the complete JSON string
         corrected_json = first_part + '"code_block": "' + code_content_escaped + '"\n}'
 
     else:
-        # 不包含 code_block 的简单情况，直接替换转义序列
+        # Simple case without code_block, directly replace escape sequences
         corrected_json = raw_str.replace("\\n", "\n").replace("\\\\", "\\")
 
     return corrected_json
@@ -368,33 +370,33 @@ def _legacy_escape_method(raw_str):
 
 def _conservative_escape_fallback(raw_str):
     """
-    保守的fallback策略：只修复最明显的问题
+    Conservative fallback strategy: only fix the most obvious issues
     """
     import re
 
-    # 只处理最常见的问题：字符串值中的换行符
+    # Only handle the most common issue: newlines in string values
     def fix_newlines(match):
         key = match.group(1)
         value = match.group(2)
 
-        # 只转义换行符，保持简单
+        # Only escape newlines, keep it simple
         fixed_value = value.replace("\n", "\\n").replace("\r", "\\r")
         return f'"{key}": "{fixed_value}"'
 
-    # 使用最保守的正则模式
+    # Use most conservative regex pattern
     pattern = r'"([^"]+)":\s*"([^"]*)"'
 
     try:
         return re.sub(pattern, fix_newlines, raw_str)
     except re.error:
-        # 如果连这个都失败了，直接返回原字符串
+        # If even this fails, return original string directly
         return raw_str
 
 
 def parse_llm_response_for_tool_calls(llm_response_content_text):
     """
-    从 LLM 响应文本中解析 tool_calls 或 <use_mcp_tool> 标记。
-    返回一个包含工具调用信息的列表。
+    Parse tool_calls or <use_mcp_tool> tags from LLM response text.
+    Returns a list containing tool call information.
     """
     # tool_calls or MCP reponse are handled differently
     # for openai response api, the tool_calls are in the response text
@@ -406,13 +408,15 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
                 server_name, tool_name = item.get("name").rsplit("-", maxsplit=1)
                 arguments_str = item.get("arguments")
                 try:
-                    # 尝试处理可能存在的换行符和转义符
+                    # Try to handle possible newlines and escape characters
                     arguments = robust_json_loads(arguments_str)
                 except json.JSONDecodeError:
-                    logger.debug(f"警告: 无法解析工具参数 JSON: {arguments_str}")
-                    # 尝试更宽松的解析或记录错误
+                    logger.debug(
+                        f"Warning: Unable to parse tool arguments JSON: {arguments_str}"
+                    )
+                    # Try more lenient parsing or log error
                     try:
-                        # 尝试替换掉一些常见的错误格式，例如 Python 的 dict 字符串
+                        # Try to replace some common error formats, e.g. Python dict strings
                         arguments_str_fixed = (
                             arguments_str.replace("'", '"')
                             .replace("None", "null")
@@ -420,10 +424,12 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
                             .replace("False", "false")
                         )
                         arguments = robust_json_loads(arguments_str_fixed)
-                        logger.debug("信息: 已尝试修复并成功解析参数。")
+                        logger.debug(
+                            "Info: Attempted fix and successfully parsed arguments."
+                        )
                     except json.JSONDecodeError:
                         logger.debug(
-                            f"错误: 修复后仍无法解析工具参数 JSON: {arguments_str}"
+                            f"Error: Still unable to parse tool arguments JSON after fix: {arguments_str}"
                         )
                         arguments = {
                             "error": "Failed to parse arguments",
@@ -447,15 +453,17 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
             server_name, tool_name = tool_call.function.name.rsplit("-", maxsplit=1)
             arguments_str = tool_call.function.arguments
 
-            # 解析 JSON 字符串为字典
+            # Parse JSON string to dictionary
             try:
-                # 尝试处理可能存在的换行符和转义符
+                # Try to handle possible newlines and escape characters
                 arguments = robust_json_loads(arguments_str)
             except json.JSONDecodeError:
-                logger.debug(f"警告: 无法解析工具参数 JSON: {arguments_str}")
-                # 尝试更宽松的解析或记录错误
+                logger.debug(
+                    f"Warning: Unable to parse tool arguments JSON: {arguments_str}"
+                )
+                # Try more lenient parsing or log error
                 try:
-                    # 尝试替换掉一些常见的错误格式，例如 Python 的 dict 字符串
+                    # Try to replace some common error formats, e.g. Python dict strings
                     arguments_str_fixed = (
                         arguments_str.replace("'", '"')
                         .replace("None", "null")
@@ -463,10 +471,12 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
                         .replace("False", "false")
                     )
                     arguments = robust_json_loads(arguments_str_fixed)
-                    logger.debug("信息: 已尝试修复并成功解析参数。")
+                    logger.debug(
+                        "Info: Attempted fix and successfully parsed arguments."
+                    )
                 except json.JSONDecodeError:
                     logger.debug(
-                        f"错误: 修复后仍无法解析工具参数 JSON: {arguments_str}"
+                        f"Error: Still unable to parse tool arguments JSON after fix: {arguments_str}"
                     )
                     arguments = {
                         "error": "Failed to parse arguments",
@@ -486,30 +496,30 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
     # for other clients, such as qwen and anthropic, we use MCP instead of tool calls
     tool_calls = []
     bad_tool_calls = []
-    # 查找所有 <use_mcp_tool> 标记，使用更鲁棒的正则表达式
-    # 允许更多的空白字符，大小写不敏感，允许标签属性
+    # Find all <use_mcp_tool> tags, using more robust regular expressions
+    # Allow more whitespace, case insensitive, allow tag attributes
     tool_call_patterns = re.findall(
         r"<use_mcp_tool[^>]*?>\s*<server_name[^>]*?>(.*?)</server_name>\s*<tool_name[^>]*?>(.*?)</tool_name>\s*<arguments[^>]*?>\s*([\s\S]*?)\s*</arguments>\s*</use_mcp_tool>",
         llm_response_content_text,
         re.DOTALL | re.IGNORECASE,
     )
 
-    # 检查是否有不合法的工具调用
-    # 查找所有可能的不完整或格式错误的 <use_mcp_tool> 标记，使用更鲁棒的正则表达式
+    # Check for invalid tool calls
+    # Find all possible incomplete or malformed <use_mcp_tool> tags, using more robust regular expressions
     incomplete_patterns = [
-        r"<use_mcp_tool[^>]*?>(?:(?!</use_mcp_tool>).)*?(?:</use_mcp_tool>|$)",  # 完整或不完整的工具调用
-        r"<server_name[^>]*?>(?:(?!</server_name>).)*?(?:</server_name>|$)",  # 服务器名称标签
-        r"<tool_name[^>]*?>(?:(?!</tool_name>).)*?(?:</tool_name>|$)",  # 工具名称标签
-        r"<arguments[^>]*?>(?:(?!</arguments>).)*?(?:</arguments>|$)",  # 参数标签
+        r"<use_mcp_tool[^>]*?>(?:(?!</use_mcp_tool>).)*?(?:</use_mcp_tool>|$)",  # Complete or incomplete tool calls
+        r"<server_name[^>]*?>(?:(?!</server_name>).)*?(?:</server_name>|$)",  # Server name tags
+        r"<tool_name[^>]*?>(?:(?!</tool_name>).)*?(?:</tool_name>|$)",  # Tool name tags
+        r"<arguments[^>]*?>(?:(?!</arguments>).)*?(?:</arguments>|$)",  # Arguments tags
     ]
 
-    # 检查每个模式是否有不完整的标签
+    # Check each pattern for incomplete tags
     for pattern in incomplete_patterns:
         matches = re.findall(
             pattern, llm_response_content_text, re.DOTALL | re.IGNORECASE
         )
         for match in matches:
-            # 检查是否缺少闭合标签（忽略大小写）
+            # Check if closing tags are missing (case insensitive)
             if pattern.endswith("</server_name>|$)") and not re.search(
                 r"</server_name>\s*$", match, re.IGNORECASE
             ):
@@ -535,12 +545,12 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
                     {"error": "Unclosed use_mcp_tool tag", "content": match}
                 )
 
-    # 如果发现不合法的工具调用，记录警告
+    # If invalid tool calls are found, log warnings
     if bad_tool_calls:
-        logger.debug(f"警告: 发现 {len(bad_tool_calls)} 个不合法的工具调用")
+        logger.debug(f"Warning: Found {len(bad_tool_calls)} invalid tool calls")
         for bad_call in bad_tool_calls:
             logger.debug(
-                f"不合法工具调用: {bad_call['error']} - {bad_call['content'][:100]}..."
+                f"Invalid tool call: {bad_call['error']} - {bad_call['content'][:100]}..."
             )
 
     for match in tool_call_patterns:
@@ -548,20 +558,24 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
         tool_name = match[1].strip()
         arguments_str = match[2].strip()
 
-        # 解析 JSON 字符串为字典
+        # Parse JSON string to dictionary
         try:
-            # 尝试处理可能存在的换行符和转义符
+            # Try to handle possible newlines and escape characters
             arguments = robust_json_loads(arguments_str)
         except json.JSONDecodeError:
-            logger.debug(f"警告: 无法解析工具参数 JSON: {arguments_str}")
-            # 尝试更宽松的解析或记录错误
+            logger.debug(
+                f"Warning: Unable to parse tool arguments JSON: {arguments_str}"
+            )
+            # Try more lenient parsing or log error
             try:
-                # 统一使用智能JSON修复，不再特殊处理某个工具
+                # Uniformly use smart JSON fixing, no longer special handling for specific tools
                 arguments_str_fixed = parse_escaped_json_string(arguments_str)
                 arguments = robust_json_loads(arguments_str_fixed)
-                logger.debug("信息: 已尝试修复并成功解析参数。")
+                logger.debug("Info: Attempted fix and successfully parsed arguments.")
             except json.JSONDecodeError:
-                logger.debug(f"错误: 修复后仍无法解析工具参数 JSON: {arguments_str}")
+                logger.debug(
+                    f"Error: Still unable to parse tool arguments JSON after fix: {arguments_str}"
+                )
                 arguments = {"error": "Failed to parse arguments", "raw": arguments_str}
 
         tool_calls.append(
@@ -575,42 +589,44 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
 
     for item in bad_tool_calls:
         if item["error"] == "Unclosed arguments tag":
-            # 尝试修复缺少 </arguments> 的情况
+            # Try to fix missing </arguments> case
             content = llm_response_content_text
             if content.find("<arguments>") != -1 and content.find("</arguments>") == -1:
-                # 找到 <arguments> 开始位置
+                # Find <arguments> start position
                 args_start = content.find("<arguments>") + len("<arguments>")
-                # 查找下一个 </ 标签作为结束位置
+                # Find next </ tag as end position
                 next_tag = content.find("</", args_start)
                 if next_tag != -1:
-                    # 在下一个标签前添加 </arguments>
+                    # Add </arguments> before next tag
                     fixed_content = (
                         content[:next_tag] + "</arguments>" + content[next_tag:]
                     )
                 else:
-                    # 如果没有下一个标签，在末尾添加 </arguments>
+                    # If no next tag, add </arguments> at the end
                     fixed_content = content + "</arguments>"
 
-                logger.info("尝试修复缺少 </arguments> 的工具调用，重新解析...")
-                # 递归调用自己重新解析修复后的内容
+                logger.info(
+                    "Attempting to fix tool call with missing </arguments>, re-parsing..."
+                )
+                # Recursively call self to re-parse fixed content
                 return parse_llm_response_for_tool_calls(fixed_content)
 
     return tool_calls, bad_tool_calls
 
 
 def main():
-    """简单的调试入口，用于测试解析功能"""
-    # 简单的测试案例
+    """Simple debug entry point for testing parsing functionality"""
+    # Simple test case
     test_case = 'Let\'s check if there are any numbered references in the paper:\n\n<use_mcp_tool>\n<server_name>tool-code</server_name>\n<tool_name>run_command</tool_name>\n<arguments>\n{\n"sandbox_id": "i86ayus8ryxxtaifen3bg",\n"command": "pdfgrep -i \'\\\\[[0-9]\\\\]\' /home/user/48_2009-CJFS.pdf"\n}\n</arguments>\n</use_mcp_tool>'
 
-    # 解析测试
+    # Parse test
     tool_calls, bad_tool_calls = parse_llm_response_for_tool_calls(test_case)
 
-    print(f"解析结果: {len(tool_calls)} 个工具调用, {len(bad_tool_calls)} 个错误")
+    print(f"Parse result: {len(tool_calls)} tool calls, {len(bad_tool_calls)} errors")
     if tool_calls:
         args = tool_calls[0]["arguments"]
-        print(f"参数: {list(args.keys())}")
+        print(f"Arguments: {list(args.keys())}")
         for key, value in args.items():
             print(f"{key}:\n{value}\n")
 
-    print("调试完成")
+    print("Debug completed")

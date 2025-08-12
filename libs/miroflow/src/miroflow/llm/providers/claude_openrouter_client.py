@@ -79,8 +79,8 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
             self.token_usage["total_cache_read_input_tokens"] += cached_tokens
 
             logger.debug(
-                f"Current round token usage - Input: {self.token_usage["total_input_tokens"]}, "
-                f"Output: {self.token_usage["total_output_tokens"]}"
+                f"Current round token usage - Input: {self.token_usage['total_input_tokens']}, "
+                f"Output: {self.token_usage['total_output_tokens']}"
             )
 
     def format_token_usage_summary(self):
@@ -226,7 +226,7 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
                 raise ContextLimitError(f"Context limit exceeded: {error_str}")
 
             logger.error(
-                f"OpenRouter LLM 调用失败: {str(e)}, input = {json.dumps(params)}",
+                f"OpenRouter LLM call failed: {str(e)}, input = {json.dumps(params)}",
                 exc_info=True,
             )
             raise e
@@ -239,8 +239,8 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
             return self.client.chat.completions.create(**params)
 
     def _clean_user_content_from_response(self, text: str) -> str:
-        """删除assistant response中的\\n\\nUser:到<use_mcp_tool>之间的内容（如果没有<use_mcp_tool>删到底）"""
-        # 匹配 \n\nUser: 到 <use_mcp_tool> 之间的内容，如果没有 <use_mcp_tool> 则删到文本结尾
+        """Remove content between \\n\\nUser: and <use_mcp_tool> in assistant response (if no <use_mcp_tool>, remove to end)"""
+        # Match content between \n\nUser: and <use_mcp_tool>, if no <use_mcp_tool> delete to text end
         pattern = r"\n\nUser:.*?(?=<use_mcp_tool>|$)"
         cleaned_text = re.sub(pattern, "", text, flags=re.MULTILINE | re.DOTALL)
 
@@ -301,10 +301,10 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
         merged_text = "\n".join(
             [item[1]["text"] for item in tool_call_info if item[1]["type"] == "text"]
         )
-        # 过滤出type为"text"的工具调用结果
+        # Filter tool call results with type "text"
         tool_call_info = [item for item in tool_call_info if item[1]["type"] == "text"]
 
-        # 分离 valid tool calls 和 bad tool calls
+        # Separate valid tool calls and bad tool calls
         valid_tool_calls = [
             (tool_id, content)
             for tool_id, content in tool_call_info
@@ -318,12 +318,12 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
 
         total_calls = len(valid_tool_calls) + len(bad_tool_calls)
 
-        # 构建输出文本
+        # Build output text
         output_parts = []
 
         if total_calls > 1:
-            # 多工具调用时的处理
-            # 添加工具结果描述
+            # Handling for multiple tool calls
+            # Add tool result description
             if tool_calls_exceeded:
                 output_parts.append(
                     f"You made too many tool calls. I can only afford to process {len(valid_tool_calls)} valid tool calls in this turn."
@@ -333,15 +333,15 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
                     f"I have processed {len(valid_tool_calls)} valid tool calls in this turn."
                 )
 
-            # 按照格式输出每个 valid tool call 结果
+            # Output each valid tool call result according to format
             for i, (tool_id, content) in enumerate(valid_tool_calls, 1):
                 output_parts.append(f"Valid tool call {i} result:\n{content['text']}")
 
-            # 输出 bad tool calls 结果
+            # Output bad tool calls results
             for i, (tool_id, content) in enumerate(bad_tool_calls, 1):
                 output_parts.append(f"Failed tool call {i} result:\n{content['text']}")
         else:
-            # 单个工具调用时，直接输出结果
+            # For single tool call, output result directly
             for tool_id, content in valid_tool_calls:
                 output_parts.append(content["text"])
             for tool_id, content in bad_tool_calls:
@@ -367,44 +367,44 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
         return llm_response.choices[0].message.content
 
     def _estimate_tokens(self, text: str) -> int:
-        """使用tiktoken估算文本的token数量"""
+        """Use tiktoken to estimate token count of text"""
         if not hasattr(self, "encoding"):
-            # 初始化 tiktoken 编码器
+            # Initialize tiktoken encoder
             try:
                 self.encoding = tiktoken.get_encoding("o200k_base")
             except Exception:
-                # 如果 o200k_base 不可用，使用 cl100k_base 作为备选
+                # If o200k_base is not available, use cl100k_base as fallback
                 self.encoding = tiktoken.get_encoding("cl100k_base")
 
         try:
             return len(self.encoding.encode(text))
         except Exception:
-            # 如果编码失败，使用简单估算：每4个字符约1个token
+            # If encoding fails, use simple estimation: about 1 token per 4 characters
             return len(text) // 4
 
     def ensure_summary_context(
         self, message_history: list, summary_prompt: str
     ) -> bool:
         """
-        检查当前message_history + summary_prompt是否会超context
-        如果会超过，移除最后的assistant-user对并返回False
-        返回True表示可以继续，False表示已经回退了消息
+        Check if current message_history + summary_prompt would exceed context
+        If it would exceed, remove last assistant-user pair and return False
+        Return True means can continue, False means messages have been rolled back
         """
-        # 获取最后一次LLM调用的token使用量
+        # Get token usage from last LLM call
         last_prompt_tokens = self.last_call_tokens.get("prompt_tokens", 0)
         last_completion_tokens = self.last_call_tokens.get("completion_tokens", 0)
         buffer_factor = 1.2
 
-        # 计算summary prompt的token数量
+        # Calculate token count of summary prompt
         summary_tokens = self._estimate_tokens(summary_prompt) * buffer_factor
 
-        # 计算message_history最后一条user消息的token数量（如果存在且未发送）
+        # Calculate token count of last user message in message_history (if exists and not sent)
         last_user_tokens = 0
         if message_history[-1]["role"] == "user":
             content = message_history[-1]["content"][0]["text"]
             last_user_tokens = self._estimate_tokens(content) * buffer_factor
 
-        # 计算总token数量：最后一次prompt + completion + 最后user消息 + summary + 预留的response空间
+        # Calculate total token count: last prompt + completion + last user message + summary + reserved response space
         estimated_total = (
             last_prompt_tokens
             + last_completion_tokens
@@ -415,24 +415,26 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
 
         if estimated_total >= self.max_context_length:
             logger.debug(
-                f"当前context + summary会超限: {estimated_total} >= {self.max_context_length}"
+                f"Current context + summary would exceed limit: {estimated_total} >= {self.max_context_length}"
             )
 
-            # 移除最后的user消息（工具调用结果）
+            # Remove last user message (tool call results)
             if message_history[-1]["role"] == "user":
                 message_history.pop()
 
-            # 移除倒数第二个assistant消息（工具调用请求）
+            # Remove second-to-last assistant message (tool call request)
             if message_history[-1]["role"] == "assistant":
                 message_history.pop()
 
             logger.debug(
-                f"已移除最后的assistant-user对，当前message_history长度: {len(message_history)}"
+                f"Removed last assistant-user pair, current message_history length: {len(message_history)}"
             )
 
             return False
 
-        logger.debug(f"context检查通过: {estimated_total}/{self.max_context_length}")
+        logger.debug(
+            f"Context check passed: {estimated_total}/{self.max_context_length}"
+        )
         return True
 
     def handle_max_turns_reached_summary_prompt(self, message_history, summary_prompt):

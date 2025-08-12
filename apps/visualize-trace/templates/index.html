@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,7 +16,7 @@ SPDX-License-Identifier: Apache-2.0
 </head>
 <body>
     <div class="container-fluid">
-        <!-- 头部 -->
+        <!-- Header -->
         <div class="row">
             <div class="col-12">
                 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
@@ -27,8 +27,8 @@ SPDX-License-Identifier: Apache-2.0
                         <div class="navbar-nav ms-auto">
                             <div class="nav-item me-2">
                                 <div class="input-group input-group-sm">
-                                    <span class="input-group-text">目录:</span>
-                                    <input type="text" class="form-control" id="directoryInput" placeholder="输入目录路径..." style="width: 200px;">
+                                    <span class="input-group-text">Directory:</span>
+                                    <input type="text" class="form-control" id="directoryInput" placeholder="Enter directory path..." style="width: 200px;">
                                     <button class="btn btn-outline-light" type="button" id="browseDirectoryBtn">
                                         <i class="fas fa-folder-open"></i>
                                     </button>
@@ -36,22 +36,22 @@ SPDX-License-Identifier: Apache-2.0
                             </div>
                             <div class="nav-item">
                                 <div class="input-group input-group-sm file-navigation">
-                                    <button class="btn btn-outline-light nav-btn" type="button" id="prevFileBtn" title="上一个文件">
+                                    <button class="btn btn-outline-light nav-btn" type="button" id="prevFileBtn" title="Previous file">
                                         <i class="fas fa-chevron-left"></i>
                                     </button>
                                     <select class="form-select form-select-sm" id="fileSelect" style="min-width: 250px;">
-                                        <option value="">选择Trace文件...</option>
+                                        <option value="">Select Trace file...</option>
                                     </select>
-                                    <button class="btn btn-outline-light nav-btn" type="button" id="nextFileBtn" title="下一个文件">
+                                    <button class="btn btn-outline-light nav-btn" type="button" id="nextFileBtn" title="Next file">
                                         <i class="fas fa-chevron-right"></i>
                                     </button>
                                 </div>
                             </div>
                             <button class="btn btn-outline-light btn-sm ms-2" id="loadBtn">
-                                <i class="fas fa-upload"></i> 加载
+                                <i class="fas fa-upload"></i> Load
                             </button>
                             <button class="btn btn-outline-light btn-sm ms-2" id="refreshBtn">
-                                <i class="fas fa-sync"></i> 刷新
+                                <i class="fas fa-sync"></i> Refresh
                             </button>
                         </div>
                     </div>
@@ -59,33 +59,33 @@ SPDX-License-Identifier: Apache-2.0
             </div>
         </div>
 
-        <!-- 顶部摘要信息 -->
+        <!-- Top summary information -->
         <div class="row mt-3">
             <div class="col-12">
                 <div class="card summary-panel">
                     <div class="card-body">
                         <div class="row">
-                            <!-- 基本信息 -->
+                            <!-- Basic information -->
                             <div class="col-md-4">
-                                <h6><i class="fas fa-info-circle"></i> 基本信息</h6>
+                                <h6><i class="fas fa-info-circle"></i> Basic Information</h6>
                                 <div id="basicInfo">
-                                    <p class="text-muted">请先加载trace文件</p>
+                                    <p class="text-muted">Please load trace file first</p>
                                 </div>
                             </div>
                             
-                            <!-- 执行摘要 -->
+                            <!-- Execution summary -->
                             <div class="col-md-4">
-                                <h6><i class="fas fa-chart-pie"></i> 执行摘要</h6>
+                                <h6><i class="fas fa-chart-pie"></i> Execution Summary</h6>
                                 <div id="executionSummary">
-                                    <p class="text-muted">请先加载trace文件</p>
+                                    <p class="text-muted">Please load trace file first</p>
                                 </div>
                             </div>
                             
-                            <!-- 性能摘要 -->
+                            <!-- Performance summary -->
                             <div class="col-md-4">
-                                <h6><i class="fas fa-clock"></i> 性能摘要</h6>
+                                <h6><i class="fas fa-clock"></i> Performance Summary</h6>
                                 <div id="performanceSummary">
-                                    <p class="text-muted">请先加载trace文件</p>
+                                    <p class="text-muted">Please load trace file first</p>
                                 </div>
                             </div>
                         </div>
@@ -94,88 +94,88 @@ SPDX-License-Identifier: Apache-2.0
             </div>
         </div>
 
-        <!-- 主要内容 -->
+        <!-- Main content -->
         <div class="row mt-3">
-            <!-- 左侧导航目录 -->
+            <!-- Left navigation panel -->
             <div class="col-md-2">
                 <div class="card navigation-panel">
                     <div class="card-header">
-                        <h6><i class="fas fa-list"></i> 步骤导航</h6>
+                        <h6><i class="fas fa-list"></i> Step Navigation</h6>
                     </div>
                     <div class="card-body p-0">
                         <div class="navigation-list" id="navigationList">
-                            <p class="text-muted p-3 mb-0">请先加载trace文件</p>
+                            <p class="text-muted p-3 mb-0">Please load trace file first</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- 右侧面板 - 执行流程 -->
+            <!-- Right panel - Execution flow -->
             <div class="col-md-10">
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5><i class="fas fa-project-diagram"></i> 执行流程</h5>
+                        <h5><i class="fas fa-project-diagram"></i> Execution Flow</h5>
                         <div>
                             <button class="btn btn-outline-primary btn-sm" id="expandAllBtn">
-                                <i class="fas fa-expand"></i> 展开所有
+                                <i class="fas fa-expand"></i> Expand All
                             </button>
                             <button class="btn btn-outline-primary btn-sm" id="collapseAllBtn">
-                                <i class="fas fa-compress"></i> 收起所有
+                                <i class="fas fa-compress"></i> Collapse All
                             </button>
                         </div>
                     </div>
                     <div class="card-body" id="executionFlow">
-                        <p class="text-muted">请先加载trace文件</p>
+                        <p class="text-muted">Please load trace file first</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 底部统计信息 -->
+        <!-- Bottom statistics -->
         <div class="row mt-3">
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5><i class="fas fa-layer-group"></i> Spans统计</h5>
+                        <h5><i class="fas fa-layer-group"></i> Spans Statistics</h5>
                     </div>
                     <div class="card-body" id="spansStats">
-                        <p class="text-muted">请先加载trace文件</p>
+                        <p class="text-muted">Please load trace file first</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-header">
-                        <h5><i class="fas fa-list-ul"></i> 步骤日志统计</h5>
+                        <h5><i class="fas fa-list-ul"></i> Step Logs Statistics</h5>
                     </div>
                     <div class="card-body" id="stepLogsStats">
-                        <p class="text-muted">请先加载trace文件</p>
+                        <p class="text-muted">Please load trace file first</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 快捷键提示 -->
+    <!-- Shortcut keys hint -->
     <div class="position-fixed bottom-0 start-0 p-3" style="z-index: 10;">
         <div class="card border-0 shadow-sm" style="background-color: rgba(0,0,0,0.8); color: white; font-size: 12px;">
             <div class="card-body p-2">
                 <div class="text-center">
-                    <strong>快捷键:</strong> 
-                    <span class="badge bg-secondary mx-1">←→</span> 切换文件 
-                    <span class="badge bg-secondary mx-1">Enter</span> 加载 
-                    <span class="badge bg-secondary mx-1">Ctrl+R</span> 刷新
+                    <strong>Shortcuts:</strong> 
+                    <span class="badge bg-secondary mx-1">←→</span> Switch files 
+                    <span class="badge bg-secondary mx-1">Enter</span> Load 
+                    <span class="badge bg-secondary mx-1">Ctrl+R</span> Refresh
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 消息提示模态框 -->
+    <!-- Message modal -->
     <div class="modal fade" id="messageModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">消息详情</h5>
+                    <h5 class="modal-title">Message Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -185,25 +185,25 @@ SPDX-License-Identifier: Apache-2.0
         </div>
     </div>
 
-    <!-- 加载遮罩 -->
+    <!-- Loading overlay -->
     <div class="loading-overlay d-none" id="loadingOverlay">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
     </div>
 
-    <!-- Toast通知 -->
+    <!-- Toast notifications -->
     <div class="toast-container position-fixed top-0 end-0 p-3">
         <div id="errorToast" class="toast" role="alert">
             <div class="toast-header bg-danger text-white">
-                <strong class="me-auto">错误</strong>
+                <strong class="me-auto">Error</strong>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
             </div>
             <div class="toast-body" id="errorMessage"></div>
         </div>
         <div id="successToast" class="toast" role="alert">
             <div class="toast-header bg-success text-white">
-                <strong class="me-auto">成功</strong>
+                <strong class="me-auto">Success</strong>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
             </div>
             <div class="toast-body" id="successMessage"></div>

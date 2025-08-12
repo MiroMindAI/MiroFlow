@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-测试Web Demo功能的脚本
+Script for testing Web Demo functionality
 """
 
 import requests
@@ -14,110 +14,116 @@ BASE_URL = "http://127.0.0.1:5000"
 
 
 def test_api_endpoints():
-    """测试各个API端点"""
-    print("🔍 测试 Trace Analysis Web Demo")
+    """Test various API endpoints"""
+    print("🔍 Testing Trace Analysis Web Demo")
     print("=" * 50)
 
-    # 1. 测试文件列表
-    print("\n1. 获取文件列表...")
+    # 1. Test file list
+    print("\n1. Getting file list...")
     try:
         response = requests.get(f"{BASE_URL}/api/list_files")
         if response.status_code == 200:
             files = response.json()
-            print(f"✓ 找到 {len(files['files'])} 个文件:")
+            print(f"✓ Found {len(files['files'])} files:")
             for file in files["files"]:
                 print(f"  - {file}")
         else:
-            print(f"✗ 获取文件列表失败: {response.status_code}")
+            print(f"✗ Failed to get file list: {response.status_code}")
             return False
     except Exception as e:
-        print(f"✗ 连接失败: {e}")
+        print(f"✗ Connection failed: {e}")
         return False
 
-    # 2. 加载文件
+    # 2. Load file
     if files["files"]:
         file_path = files["files"][0]
-        print(f"\n2. 加载文件: {file_path}")
+        print(f"\n2. Loading file: {file_path}")
 
         load_response = requests.post(
             f"{BASE_URL}/api/load_trace", json={"file_path": file_path}
         )
         if load_response.status_code == 200:
-            print("✓ 文件加载成功")
+            print("✓ File loaded successfully")
         else:
-            print(f"✗ 文件加载失败: {load_response.status_code}")
+            print(f"✗ Failed to load file: {load_response.status_code}")
             return False
 
-        # 3. 测试基本信息
-        print("\n3. 获取基本信息...")
+        # 3. Test basic information
+        print("\n3. Getting basic information...")
         basic_info = requests.get(f"{BASE_URL}/api/basic_info")
         if basic_info.status_code == 200:
             info = basic_info.json()
-            print(f"✓ 任务ID: {info.get('task_id', 'N/A')}")
-            print(f"✓ 状态: {info.get('status', 'N/A')}")
-            print(f"✓ 最终答案: {info.get('final_boxed_answer', 'N/A')[:50]}...")
+            print(f"✓ Task ID: {info.get('task_id', 'N/A')}")
+            print(f"✓ Status: {info.get('status', 'N/A')}")
+            print(f"✓ Final answer: {info.get('final_boxed_answer', 'N/A')[:50]}...")
         else:
-            print(f"✗ 获取基本信息失败: {basic_info.status_code}")
+            print(f"✗ Failed to get basic information: {basic_info.status_code}")
 
-        # 4. 测试执行摘要
-        print("\n4. 获取执行摘要...")
+        # 4. Test execution summary
+        print("\n4. Getting execution summary...")
         summary_response = requests.get(f"{BASE_URL}/api/execution_summary")
         if summary_response.status_code == 200:
             summary = summary_response.json()
-            print(f"✓ 总步骤数: {summary.get('total_steps', 0)}")
-            print(f"✓ 工具调用次数: {summary.get('total_tool_calls', 0)}")
-            print(f"✓ Browser会话数: {summary.get('browser_sessions_count', 0)}")
+            print(f"✓ Total steps: {summary.get('total_steps', 0)}")
+            print(f"✓ Tool calls: {summary.get('total_tool_calls', 0)}")
+            print(f"✓ Browser sessions: {summary.get('browser_sessions_count', 0)}")
         else:
-            print(f"✗ 获取执行摘要失败: {summary_response.status_code}")
+            print(f"✗ Failed to get execution summary: {summary_response.status_code}")
 
-        # 5. 测试执行流程
-        print("\n5. 获取执行流程...")
+        # 5. Test execution flow
+        print("\n5. Getting execution flow...")
         flow_response = requests.get(f"{BASE_URL}/api/execution_flow")
         if flow_response.status_code == 200:
             flow = flow_response.json()
-            print(f"✓ 执行流程包含 {len(flow)} 个步骤")
+            print(f"✓ Execution flow contains {len(flow)} steps")
 
-            # 显示前几个步骤的摘要
+            # Show summary of the first few steps
             for i, step in enumerate(flow[:3]):
                 print(
-                    f"  步骤 {i+1}: {step['agent']} ({step['role']}) - {step['content_preview'][:50]}..."
+                    f"  Step {i + 1}: {step['agent']} ({step['role']}) - {step['content_preview'][:50]}..."
                 )
                 if step["tool_calls"]:
                     for tool in step["tool_calls"]:
                         print(
-                            f"    🛠️ 工具调用: {tool['server_name']}.{tool['tool_name']}"
+                            f"    🛠️ Tool call: {tool['server_name']}.{tool['tool_name']}"
                         )
         else:
-            print(f"✗ 获取执行流程失败: {flow_response.status_code}")
+            print(f"✗ Failed to get execution flow: {flow_response.status_code}")
 
-        # 6. 测试性能摘要
-        print("\n6. 获取性能摘要...")
+        # 6. Test performance summary
+        print("\n6. Getting performance summary...")
         perf_response = requests.get(f"{BASE_URL}/api/performance_summary")
         if perf_response.status_code == 200:
             perf = perf_response.json()
             if perf:
-                print(f"✓ 总执行时间: {perf.get('total_wall_time', 0):.2f}秒")
+                print(
+                    f"✓ Total execution time: {perf.get('total_wall_time', 0):.2f} seconds"
+                )
             else:
-                print("✓ 无性能数据")
+                print("✓ No performance data")
         else:
-            print(f"✗ 获取性能摘要失败: {perf_response.status_code}")
+            print(f"✗ Failed to get performance summary: {perf_response.status_code}")
 
         print("\n" + "=" * 50)
-        print("🎉 测试完成！")
-        print(f"📱 Web界面地址: {BASE_URL}")
-        print("💡 在浏览器中打开上述地址以查看完整的交互界面")
+        print("🎉 Testing completed!")
+        print(f"📱 Web interface URL: {BASE_URL}")
+        print(
+            "💡 Open the above URL in your browser to view the complete interactive interface"
+        )
 
         return True
 
     else:
-        print("✗ 没有找到可用的trace文件")
+        print("✗ No available trace files found")
         return False
 
 
 if __name__ == "__main__":
     success = test_api_endpoints()
     if success:
-        print("\n🚀 Web Demo 启动成功！")
-        print("现在可以在浏览器中访问 http://127.0.0.1:5000 来使用完整的交互界面")
+        print("\n🚀 Web Demo started successfully!")
+        print(
+            "You can now access http://127.0.0.1:5000 in your browser to use the complete interactive interface"
+        )
     else:
-        print("\n❌ 测试失败，请检查应用是否正在运行")
+        print("\n❌ Test failed, please check if the application is running")

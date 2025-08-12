@@ -8,37 +8,37 @@ from trace_analyzer import TraceAnalyzer
 
 app = Flask(__name__)
 
-# 全局变量存储分析器实例
+# Global variable to store analyzer instance
 analyzer = None
 
 
 @app.route("/")
 def index():
-    """主页面"""
+    """Main page"""
     return render_template("index.html")
 
 
 @app.route("/api/list_files", methods=["GET"])
 def list_files():
-    """列出可用的JSON文件"""
+    """List available JSON files"""
     try:
         directory = request.args.get("directory", "")
 
         if not directory:
-            # 默认行为：检查上级目录
+            # Default behavior: check parent directory
             directory = os.path.abspath("..")
 
-        # 扩展路径（处理~等符号）
+        # Expand path (handle ~ and other symbols)
         directory = os.path.expanduser(directory)
 
-        # 转换为绝对路径
+        # Convert to absolute path
         directory = os.path.abspath(directory)
 
         if not os.path.exists(directory):
-            return jsonify({"error": f"目录不存在: {directory}"}), 404
+            return jsonify({"error": f"Directory does not exist: {directory}"}), 404
 
         if not os.path.isdir(directory):
-            return jsonify({"error": f"路径不是目录: {directory}"}), 400
+            return jsonify({"error": f"Path is not a directory: {directory}"}), 400
 
         try:
             json_files = []
@@ -46,7 +46,7 @@ def list_files():
                 if file.endswith(".json"):
                     file_path = os.path.join(directory, file)
                     try:
-                        # 获取文件大小和修改时间
+                        # Get file size and modification time
                         stat = os.stat(file_path)
                         json_files.append(
                             {
@@ -61,20 +61,22 @@ def list_files():
                             {"name": file, "path": file_path, "size": 0, "modified": 0}
                         )
 
-            # 按文件名排序
+            # Sort by filename
             json_files.sort(key=lambda x: x["name"])
 
             return jsonify(
                 {
                     "files": json_files,
                     "directory": directory,
-                    "message": f'在目录 "{directory}" 中找到 {len(json_files)} 个JSON文件',
+                    "message": f'Found {len(json_files)} JSON files in directory "{directory}"',
                 }
             )
         except PermissionError:
-            return jsonify({"error": f"没有权限访问目录: {directory}"}), 403
+            return jsonify(
+                {"error": f"No permission to access directory: {directory}"}
+            ), 403
         except Exception as e:
-            return jsonify({"error": f"读取目录失败: {str(e)}"}), 500
+            return jsonify({"error": f"Failed to read directory: {str(e)}"}), 500
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -82,40 +84,40 @@ def list_files():
 
 @app.route("/api/load_trace", methods=["POST"])
 def load_trace():
-    """加载trace文件"""
+    """Load trace file"""
     global analyzer
 
     data = request.get_json()
     file_path = data.get("file_path")
 
     if not file_path:
-        return jsonify({"error": "请提供文件路径"}), 400
+        return jsonify({"error": "Please provide file path"}), 400
 
-    # 如果是相对路径，转换为绝对路径
+    # If it's a relative path, convert to absolute path
     if not os.path.isabs(file_path):
         file_path = os.path.abspath(file_path)
 
     if not os.path.exists(file_path):
-        return jsonify({"error": f"文件不存在: {file_path}"}), 404
+        return jsonify({"error": f"File does not exist: {file_path}"}), 404
 
     try:
         analyzer = TraceAnalyzer(file_path)
         return jsonify(
             {
-                "message": "文件加载成功",
+                "message": "File loaded successfully",
                 "file_path": file_path,
                 "file_name": os.path.basename(file_path),
             }
         )
     except Exception as e:
-        return jsonify({"error": f"加载文件失败: {str(e)}"}), 500
+        return jsonify({"error": f"Failed to load file: {str(e)}"}), 500
 
 
 @app.route("/api/basic_info")
 def get_basic_info():
-    """获取基本信息"""
+    """Get basic information"""
     if not analyzer:
-        return jsonify({"error": "请先加载trace文件"}), 400
+        return jsonify({"error": "Please load trace file first"}), 400
 
     try:
         return jsonify(analyzer.get_basic_info())
@@ -125,9 +127,9 @@ def get_basic_info():
 
 @app.route("/api/performance_summary")
 def get_performance_summary():
-    """获取性能摘要"""
+    """Get performance summary"""
     if not analyzer:
-        return jsonify({"error": "请先加载trace文件"}), 400
+        return jsonify({"error": "Please load trace file first"}), 400
 
     try:
         return jsonify(analyzer.get_performance_summary())
@@ -137,9 +139,9 @@ def get_performance_summary():
 
 @app.route("/api/execution_flow")
 def get_execution_flow():
-    """获取执行流程"""
+    """Get execution flow"""
     if not analyzer:
-        return jsonify({"error": "请先加载trace文件"}), 400
+        return jsonify({"error": "Please load trace file first"}), 400
 
     try:
         return jsonify(analyzer.analyze_conversation_flow())
@@ -149,9 +151,9 @@ def get_execution_flow():
 
 @app.route("/api/execution_summary")
 def get_execution_summary():
-    """获取执行摘要"""
+    """Get execution summary"""
     if not analyzer:
-        return jsonify({"error": "请先加载trace文件"}), 400
+        return jsonify({"error": "Please load trace file first"}), 400
 
     try:
         return jsonify(analyzer.get_execution_summary())
@@ -161,9 +163,9 @@ def get_execution_summary():
 
 @app.route("/api/spans_summary")
 def get_spans_summary():
-    """获取spans摘要"""
+    """Get spans summary"""
     if not analyzer:
-        return jsonify({"error": "请先加载trace文件"}), 400
+        return jsonify({"error": "Please load trace file first"}), 400
 
     try:
         return jsonify(analyzer.get_spans_summary())
@@ -173,9 +175,9 @@ def get_spans_summary():
 
 @app.route("/api/step_logs_summary")
 def get_step_logs_summary():
-    """获取步骤日志摘要"""
+    """Get step logs summary"""
     if not analyzer:
-        return jsonify({"error": "请先加载trace文件"}), 400
+        return jsonify({"error": "Please load trace file first"}), 400
 
     try:
         return jsonify(analyzer.get_step_logs_summary())
@@ -185,15 +187,15 @@ def get_step_logs_summary():
 
 @app.route("/api/debug/raw_messages")
 def get_raw_messages():
-    """获取原始消息数据用于调试"""
+    """Get raw message data for debugging"""
     if not analyzer:
-        return jsonify({"error": "请先加载trace文件"}), 400
+        return jsonify({"error": "Please load trace file first"}), 400
 
     try:
         main_history = analyzer.get_main_agent_history()
         browser_sessions = analyzer.get_browser_agent_sessions()
 
-        # 获取消息结构概览
+        # Get message structure overview
         main_messages = analyzer.get_main_agent_messages()
         message_structure = []
 
@@ -220,7 +222,7 @@ def get_raw_messages():
                 "raw_main_history": main_history,
                 "raw_browser_sessions": {
                     k: v for k, v in list(browser_sessions.items())[:2]
-                },  # 只显示前两个会话
+                },  # Only show first two sessions
             }
         )
     except Exception as e:

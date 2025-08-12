@@ -74,7 +74,7 @@ class LLMProviderClientBase(ABC):
         self.openrouter_provider: Optional[str] = self.cfg.llm.get(
             "openrouter_provider"
         )
-        # 安全地处理字符串到bool的转换
+        # Safely handle string to bool conversion
         disable_cache_control_val = self.cfg.llm.get("disable_cache_control", False)
         if isinstance(disable_cache_control_val, str):
             self.disable_cache_control: bool = (
@@ -84,10 +84,10 @@ class LLMProviderClientBase(ABC):
             self.disable_cache_control: bool = bool(disable_cache_control_val)
 
         logger.info(
-            f"openrouter_provider配置值: {self.openrouter_provider} (类型: {type(self.openrouter_provider)})"
+            f"openrouter_provider config value: {self.openrouter_provider} (type: {type(self.openrouter_provider)})"
         )
         logger.info(
-            f"disable_cache_control配置值: {disable_cache_control_val} (类型: {type(disable_cache_control_val)}) -> 解析为: {self.disable_cache_control}"
+            f"disable_cache_control config value: {disable_cache_control_val} (type: {type(disable_cache_control_val)}) -> parsed as: {self.disable_cache_control}"
         )
 
         self.token_usage = self._reset_token_usage()

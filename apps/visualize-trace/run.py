@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-Trace Analysis Web Demo 启动脚本
+Trace Analysis Web Demo startup script
 """
 
 import os
@@ -14,54 +14,58 @@ import subprocess
 
 
 def check_dependencies():
-    """检查依赖是否已安装"""
+    """Check if dependencies are installed"""
     try:
         import importlib.util
 
         if importlib.util.find_spec("flask") is not None:
-            print("✓ Flask 已安装")
+            print("✓ Flask installed")
             return True
         else:
             raise ImportError("Flask not found")
     except ImportError:
-        print("✗ Flask 未安装")
-        print("请使用以下命令安装依赖:")
+        print("✗ Flask not installed")
+        print("Please use the following command to install dependencies:")
         print("  uv sync")
-        print("或者:")
+        print("or:")
         print("  uv pip install -r requirements.txt")
         return False
 
 
 def install_dependencies():
-    """安装依赖（建议使用uv）"""
-    print("正在安装依赖...")
+    """Install dependencies (recommended to use uv)"""
+    print("Installing dependencies...")
     try:
-        # 优先尝试使用uv
+        # Try using uv first
         try:
             subprocess.check_call(["uv", "sync"])
-            print("✓ 使用uv安装依赖完成")
+            print("✓ Dependencies installed using uv")
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
-            # 回退到pip
+            # Fall back to pip
             subprocess.check_call(
                 [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"]
             )
-            print("✓ 使用pip安装依赖完成")
+            print("✓ Dependencies installed using pip")
             return True
     except subprocess.CalledProcessError:
-        print("✗ 依赖安装失败")
-        print("请手动运行: uv sync 或 pip install -r requirements.txt")
+        print("✗ Failed to install dependencies")
+        print("Please run manually: uv sync or pip install -r requirements.txt")
         return False
 
 
 def main():
-    """主函数"""
+    """Main function"""
     import argparse
 
-    # 解析命令行参数
+    # Parse command line arguments
     parser = argparse.ArgumentParser(description="Trace Analysis Web Demo")
     parser.add_argument(
-        "-p", "--port", type=int, default=5000, help="指定端口号 (默认: 5000)"
+        "-p",
+        "--port",
+        type=int,
+        default=5000,
+        help="Specify port number (default: 5000)",
     )
     args = parser.parse_args()
 
@@ -69,33 +73,37 @@ def main():
     print("Trace Analysis Web Demo")
     print("=" * 50)
 
-    # 检查依赖
+    # Check dependencies
     if not check_dependencies():
-        print("\n正在安装依赖...")
+        print("\nInstalling dependencies...")
         if not install_dependencies():
-            print("请手动安装依赖: pip install -r requirements.txt")
+            print(
+                "Please install dependencies manually: pip install -r requirements.txt"
+            )
             return
 
-    # 检查JSON文件
+    # Check JSON files
     parent_dir = os.path.dirname(os.path.abspath(__file__))
     json_files = [
         f for f in os.listdir(os.path.join(parent_dir, "..")) if f.endswith(".json")
     ]
 
     if not json_files:
-        print("\n警告: 在上级目录中没有找到JSON文件")
-        print("请确保有trace JSON文件在 trace_analyze/ 目录中")
+        print("\nWarning: No JSON files found in parent directory")
+        print(
+            "Please ensure there are trace JSON files in the trace_analyze/ directory"
+        )
     else:
-        print(f"\n找到 {len(json_files)} 个JSON文件:")
-        for file in json_files[:5]:  # 只显示前5个
+        print(f"\nFound {len(json_files)} JSON files:")
+        for file in json_files[:5]:  # Show only first 5
             print(f"  - {file}")
         if len(json_files) > 5:
-            print(f"  ... 和其他 {len(json_files) - 5} 个文件")
+            print(f"  ... and {len(json_files) - 5} other files")
 
-    # 启动应用
-    print("\n正在启动Web应用...")
-    print(f"应用将在 http://localhost:{args.port} 运行")
-    print("按 Ctrl+C 停止应用")
+    # Start application
+    print("\nStarting web application...")
+    print(f"Application will run at http://localhost:{args.port}")
+    print("Press Ctrl+C to stop the application")
     print("=" * 50)
 
     try:
@@ -103,9 +111,9 @@ def main():
 
         app.run(debug=True, host="0.0.0.0", port=args.port)
     except KeyboardInterrupt:
-        print("\n应用已停止")
+        print("\nApplication stopped")
     except Exception as e:
-        print(f"\n启动应用失败: {e}")
+        print(f"\nFailed to start application: {e}")
 
 
 if __name__ == "__main__":

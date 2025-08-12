@@ -71,7 +71,7 @@ class TestReadingMCPServer:
                     "uri": f"file://{files_for_tests_dir}/test-pdf.pdf",
                 },
                 "should_succeed": True,
-                "expected_content_keywords": ["做笔记"],
+                "expected_content_keywords": ["note-taking"],
             },
             {
                 "name": "convert_excel_file",
@@ -81,7 +81,7 @@ class TestReadingMCPServer:
                     "uri": f"file://{files_for_tests_dir}/test-excel.xlsx",
                 },
                 "should_succeed": True,
-                "expected_content_keywords": ["财务"],
+                "expected_content_keywords": ["finance"],
             },
             {
                 "name": "convert_word_file",
@@ -91,7 +91,7 @@ class TestReadingMCPServer:
                     "uri": f"file://{files_for_tests_dir}/test-word.docx",
                 },
                 "should_succeed": True,
-                "expected_content_keywords": ["做笔记"],
+                "expected_content_keywords": ["note-taking"],
             },
             {
                 "name": "convert_powerpoint_file",
@@ -101,7 +101,7 @@ class TestReadingMCPServer:
                     "uri": f"file://{files_for_tests_dir}/test-ppt.pptx",
                 },
                 "should_succeed": True,
-                "expected_content_keywords": ["计算机系统"],
+                "expected_content_keywords": ["computer system"],
             },
             {
                 "name": "convert_image_file",
@@ -111,7 +111,11 @@ class TestReadingMCPServer:
                     "uri": f"file://{files_for_tests_dir}/test-zip.zip",
                 },
                 "should_succeed": True,
-                "expected_content_keywords": ["计算机系统", "做笔记", "财务"],
+                "expected_content_keywords": [
+                    "computer system",
+                    "note-taking",
+                    "finance",
+                ],
             },
         ],
     )

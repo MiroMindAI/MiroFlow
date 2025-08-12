@@ -49,8 +49,8 @@ def _list_tools(sub_agent_tool_managers: dict[str, ToolManager]):
 
 
 def _generate_message_id() -> str:
-    """生成随机message ID，使用LLM常见的格式"""
-    # 使用8位随机hex字符串，类似OpenAI API的格式，避免跨对话cache命中
+    """Generate random message ID using common LLM format"""
+    # Use 8-character random hex string, similar to OpenAI API format, avoid cross-conversation cache hits
     return f"msg_{uuid.uuid4().hex[:8]}"
 
 
@@ -73,17 +73,17 @@ class Orchestrator:
         # call this once, then use cache value
         self._list_sub_agent_tools = _list_tools(sub_agent_tool_managers)
 
-        # 处理add_message_id配置，支持字符串到bool的转换
+        # Handle add_message_id configuration, support string to bool conversion
         add_message_id_val = self.cfg.agent.get("add_message_id", False)
         if isinstance(add_message_id_val, str):
             self.add_message_id: bool = add_message_id_val.lower().strip() == "true"
         else:
             self.add_message_id: bool = bool(add_message_id_val)
         logger.info(
-            f"add_message_id配置值: {add_message_id_val} (类型: {type(add_message_id_val)}) -> 解析为: {self.add_message_id}"
+            f"add_message_id config value: {add_message_id_val} (type: {type(add_message_id_val)}) -> parsed as: {self.add_message_id}"
         )
 
-        # 将 task_log 传递给 llm_client
+        # Pass task_log to llm_client
         if self.llm_client and task_log:
             self.llm_client.task_log = task_log
 
@@ -91,8 +91,8 @@ class Orchestrator:
     # def _log_step(
     #     self, step_name: str, message: str, status: str = "info", level: str = "info"
     # ):
-    #     """记录步骤日志"""
-    #     # 使用TaskLog的log_step方法记录到结构化日志中
+    #     """Log step information"""
+    #     # Use TaskLog's log_step method to record to structured log
     #     self.task_log.log_step(step_name, message, status)
 
     async def _handle_llm_call_with_logging(
@@ -105,32 +105,32 @@ class Orchestrator:
         keep_tool_result: int = -1,
         agent_type: str = "main",
     ) -> tuple[str | None, bool, Any | None]:
-        """统一的LLM调用和日志处理
+        """Unified LLM call and logging handling
         Returns:
             tuple[Optional[str], bool, Optional[object]]: (response_text, should_break, tool_calls_info)
         """
 
-        # 为user消息添加message ID（如果配置启用且消息还没有ID）
+        # Add message ID to user messages (if configured and message doesn't have ID yet)
         if self.add_message_id:
             for message in message_history:
                 if message.get("role") == "user":
                     content = message.get("content")
                     if isinstance(content, list):
-                        # content是列表格式（Anthropic风格）
+                        # content is list format (Anthropic style)
                         for content_item in content:
                             if content_item.get("type") == "text":
                                 text = content_item["text"]
-                                # 检查是否已经有message ID
+                                # Check if message ID already exists
                                 if not text.startswith("[msg_"):
                                     message_id = _generate_message_id()
                                     content_item["text"] = f"[{message_id}] {text}"
                     elif isinstance(content, str):
-                        # content是字符串格式（简单格式）
+                        # content is string format (simple format)
                         if not content.startswith("[msg_"):
                             message_id = _generate_message_id()
                             message["content"] = f"[{message_id}] {content}"
 
-        # 保存LLM调用前的消息历史
+        # Save message history before LLM call
         if self.task_log:
             if agent_type == "main":
                 self.task_log.main_agent_message_history = {
@@ -162,14 +162,14 @@ class Orchestrator:
                     span.span_data.usage = response.usage.dict()
 
             if response:
-                # 使用客户端的响应处理方法
+                # Use client's response processing method
                 assistant_response_text, should_break = (
                     self.llm_client.process_llm_response(
                         response, message_history, agent_type
                     )
                 )
 
-                # 保存LLM响应处理后的消息历史
+                # Save message history after LLM response processing
                 if self.task_log:
                     if agent_type == "main":
                         self.task_log.main_agent_message_history = {
@@ -185,7 +185,7 @@ class Orchestrator:
                         }
                     self.task_log.save()
 
-                # 使用客户端的工具调用信息提取方法
+                # Use client's tool call information extraction method
                 tool_calls_info = self.llm_client.extract_tool_calls_info(
                     response, assistant_response_text
                 )
@@ -212,7 +212,7 @@ class Orchestrator:
                 return None, True, None
 
         except asyncio.TimeoutError:
-            logger.debug(f"⚠️ {purpose} 超时了")
+            logger.debug(f"⚠️ {purpose} timed out")
             self.task_log.log_step(
                 f"{purpose.lower().replace(' ', '_')}_timeout",
                 f"{purpose} timed out",
@@ -221,17 +221,17 @@ class Orchestrator:
             return None, True, None
 
         except ContextLimitError as e:
-            logger.debug(f"⚠️ {purpose} Context超限: {e}")
+            logger.debug(f"⚠️ {purpose} context limit exceeded: {e}")
             self.task_log.log_step(
                 f"{purpose.lower().replace(' ', '_')}_context_limit",
                 f"{purpose} context limit exceeded: {str(e)}",
                 "warning",
             )
-            # 对于context超限，返回特殊标识以便上层处理
+            # For context limit exceeded, return special identifier for upper layer handling
             return None, True, "context_limit"
 
         except Exception as e:
-            logger.debug(f"⚠️ {purpose} 调用失败: {e}")
+            logger.debug(f"⚠️ {purpose} call failed: {e}")
             self.task_log.log_step(
                 f"{purpose.lower().replace(' ', '_')}_error",
                 f"{purpose} failed: {str(e)}",
@@ -251,32 +251,32 @@ class Orchestrator:
         task_guidence="",
     ):
         """
-        处理summary时的context超限重试逻辑
+        Handle context limit retry logic when processing summary
 
         Returns:
-            str: final_answer_text - LLM生成的summary文本，失败时为错误信息
+            str: final_answer_text - LLM generated summary text, error message on failure
 
-        处理的LLM三种情况：
-        1. 调用成功：返回生成的summary文本
-        2. Context超限或网络问题：移除assistant-user对话重试，标记任务失败
-        3. 直到只剩初始system-user消息为止
+        Handle three LLM scenarios:
+        1. Call successful: return generated summary text
+        2. Context limit exceeded or network issues: remove assistant-user dialogue and retry, mark task as failed
+        3. Until only initial system-user messages remain
         """
         retry_count = 0
 
         while True:
-            # 生成summary prompt
+            # Generate summary prompt
             summary_prompt = generate_agent_summarize_prompt(
                 task_description + task_guidence,
                 task_failed=task_failed,
                 agent_type=agent_type,
             )
 
-            # 处理消息历史与summary prompt的合并
+            # Handle merging of message history and summary prompt
             summary_prompt = self.llm_client.handle_max_turns_reached_summary_prompt(
                 message_history, summary_prompt
             )
 
-            # 直接添加summary prompt到消息历史
+            # Directly add summary prompt to message history
             message_history.append(
                 {"role": "user", "content": [{"type": "text", "text": summary_prompt}]}
             )
@@ -291,29 +291,31 @@ class Orchestrator:
             )
 
             if response_text:
-                # 调用成功：返回生成的summary文本
+                # Call successful: return generated summary text
                 return response_text
 
-            # Context超限或网络问题：尝试移除消息继续重试
+            # Context limit exceeded or network issues: try removing messages and retry
             retry_count += 1
             logger.debug(
-                f"LLM调用失败，第{retry_count}次重试，移除最近的assistant-user对话"
+                f"LLM call failed, attempt {retry_count} retry, removing recent assistant-user dialogue"
             )
 
-            # 先移除刚添加的summary prompt
+            # First remove the just-added summary prompt
             if message_history and message_history[-1]["role"] == "user":
                 message_history.pop()
 
-            # 移除倒数最近的assistant消息（工具调用请求）
+            # Remove the most recent assistant message (tool call request)
             if message_history and message_history[-1]["role"] == "assistant":
                 message_history.pop()
 
-            # 一旦需要移除assistant-user对话，任务就失败了（信息被丢弃）
+            # Once assistant-user dialogue needs to be removed, task fails (information is lost)
             task_failed = True
 
-            # 如果已经没有更多对话可以移除了
-            if len(message_history) <= 2:  # 只剩初始system-user消息
-                logger.warning("已移除所有可移除的对话，但仍然无法生成summary")
+            # If there are no more dialogues to remove
+            if len(message_history) <= 2:  # Only initial system-user messages remain
+                logger.warning(
+                    "Removed all removable dialogues, but still unable to generate summary"
+                )
                 break
 
             self.task_log.log_step(
@@ -322,7 +324,7 @@ class Orchestrator:
                 "warning",
             )
 
-        # 如果移除所有对话后仍然失败
+        # If still fails after removing all dialogues
         logger.error("Summary failed after removing all possible messages")
         return "Unable to generate final summary due to persistent network issues. You should try again."
 
@@ -330,20 +332,20 @@ class Orchestrator:
         self, sub_agent_name, task_description, keep_tool_result: int = -1
     ):
         """
-        运行子代理
+        Run sub agent
         """
         logger.debug(f"\n=== Starting Sub Agent {sub_agent_name} ===")
         task_description += "\n\nPlease provide the answer and detailed supporting information of the subtask given to you."
         logger.debug(f"Subtask: {task_description}")
 
-        # 开始新的sub-agent session
+        # Start new sub-agent session
         self.task_log.start_sub_agent_session(sub_agent_name, task_description)
 
-        # 简化的初始用户内容（无文件附件）
+        # Simplified initial user content (no file attachments)
         initial_user_content = [{"type": "text", "text": task_description}]
         message_history = [{"role": "user", "content": initial_user_content}]
 
-        # 获取sub-agent的工具定义
+        # Get sub-agent tool definitions
         tool_definitions = await self._list_sub_agent_tools()
         tool_definitions = tool_definitions.get(sub_agent_name, [])
         self.task_log.log_step(
@@ -351,33 +353,35 @@ class Orchestrator:
         )
 
         if not tool_definitions:
-            logger.debug("警告: 未能获取任何工具定义。LLM 可能无法使用工具。")
+            logger.debug(
+                "Warning: Failed to get any tool definitions. LLM may not be able to use tools."
+            )
             self.task_log.log_step(
                 f"{sub_agent_name}_no_tools",
                 f"No tool definitions available for {sub_agent_name}",
                 "warning",
             )
 
-        # 生成sub-agent的系统 Prompt
+        # Generate sub-agent system prompt
         system_prompt = self.llm_client.generate_agent_system_prompt(
             date=datetime.datetime.today(),
             mcp_servers=tool_definitions,
         ) + generate_agent_specific_system_prompt(agent_type=sub_agent_name)
 
-        # 限制sub-agent的轮次
+        # Limit sub-agent turns
         max_turns = self.cfg.agent.sub_agents[sub_agent_name].max_turns
         if max_turns < 0:
             max_turns = sys.maxsize
         turn_count = 0
         all_tool_results_content_with_id = []
-        task_failed = False  # 跟踪任务是否失败
+        task_failed = False  # Track whether task failed
 
         while turn_count < max_turns:
             turn_count += 1
             logger.debug(f"\n--- Sub Agent {sub_agent_name} Turn {turn_count} ---")
             self.task_log.save()
 
-            # 使用统一的LLM调用处理
+            # Use unified LLM call handling
             (
                 assistant_response_text,
                 should_break,
@@ -392,7 +396,7 @@ class Orchestrator:
                 agent_type=sub_agent_name,
             )
 
-            # 处理LLM响应
+            # Handle LLM response
             if assistant_response_text:
                 if should_break:
                     self.task_log.log_step(
@@ -401,47 +405,49 @@ class Orchestrator:
                     )
                     break
             else:
-                # LLM调用失败，标记任务失败并结束当前轮次
+                # LLM call failed, mark task as failed and end current turn
                 if tool_calls == "context_limit":
-                    # Context超限情况
+                    # Context limit exceeded situation
                     self.task_log.log_step(
                         "sub_agent_context_limit_reached",
                         f"Sub agent {sub_agent_name} context limit reached, jumping to summary",
                         "warning",
                     )
                 else:
-                    # 其他LLM调用失败情况
+                    # Other LLM call failure situations
                     self.task_log.log_step(
                         "sub_agent_llm_call_failed",
                         "LLM call failed",
                         "failed",
                     )
-                task_failed = True  # 标记任务失败
+                task_failed = True  # Mark task as failed
                 break
 
-            # 使用从LLM响应中解析的工具调用
+            # Use tool calls parsed from LLM response
             if tool_calls is None or (
                 len(tool_calls[0]) == 0 and len(tool_calls[1]) == 0
             ):
-                logger.debug(f"Sub Agent {sub_agent_name} 未要求使用工具，结束任务。")
+                logger.debug(
+                    f"Sub Agent {sub_agent_name} did not request tool use, ending task."
+                )
                 self.task_log.log_step(
                     "sub_agent_no_tool_calls",
                     f"No tool calls found in sub agent {sub_agent_name}, ending on turn {turn_count}",
                 )
                 break
 
-            # 执行工具调用
+            # Execute tool calls
             tool_calls_data = []
             all_tool_results_content_with_id = []
 
-            # 从配置中获取单轮最大工具调用数
+            # Get maximum tool calls per turn from configuration
             max_tool_calls = self.cfg.agent.sub_agents[
                 sub_agent_name
             ].max_tool_calls_per_turn
             tool_calls_exceeded = len(tool_calls[0]) > max_tool_calls
             if tool_calls_exceeded:
                 logger.warning(
-                    f"[ERROR] Sub agent单轮tool call数量过多({len(tool_calls[0])}个)，只处理前{max_tool_calls}个"
+                    f"[ERROR] Sub agent single turn tool call count too high ({len(tool_calls[0])} calls), only processing first {max_tool_calls}"
                 )
 
             for call in tool_calls[0][:max_tool_calls]:
@@ -544,19 +550,19 @@ class Orchestrator:
                 message_history, all_tool_results_content_with_id, tool_calls_exceeded
             )
 
-            # 生成summary_prompt来检查token限制
+            # Generate summary_prompt to check token limit
             temp_summary_prompt = generate_agent_summarize_prompt(
                 task_description,
-                task_failed=True,  # 这里设为True，模拟可能的任务失败情况进行context检查
+                task_failed=True,  # Set to True here to simulate potential task failure for context checking
                 agent_type=sub_agent_name,
             )
 
-            # 检查当前context是否会超限，如果超限则自动回退消息并触发summary
+            # Check if current context would exceed limit, auto rollback messages and trigger summary if exceeded
             if not self.llm_client.ensure_summary_context(
                 message_history, temp_summary_prompt
             ):
-                # context预估超限，跳到summary阶段
-                task_failed = True  # 标记任务失败
+                # Context estimated to exceed limit, jump to summary stage
+                task_failed = True  # Mark task as failed
                 self.task_log.log_step(
                     f"{sub_agent_name}_context_limit_reached",
                     "Context limit reached, triggering summary",
@@ -564,14 +570,16 @@ class Orchestrator:
                 )
                 break
 
-        # 继续进行
+        # Continue execution
         logger.debug(
             f"\n=== Sub Agent {sub_agent_name} Completed ({turn_count} turns) ==="
         )
 
-        # 记录浏览代理循环结束
+        # Record browser agent loop end
         if turn_count >= max_turns:
-            if not task_failed:  # 如果还没有标记为失败，且是因为轮数超限
+            if (
+                not task_failed
+            ):  # If not yet marked as failed and due to turn limit exceeded
                 task_failed = True
             self.task_log.log_step(
                 "sub_agent_max_turns_reached",
@@ -585,13 +593,13 @@ class Orchestrator:
                 f"Sub agent {sub_agent_name} loop completed after {turn_count} turns",
             )
 
-        # 最终总结 - 仿照主代理的流程
+        # Final summary - following main agent process
         self.task_log.log_step(
             "sub_agent_final_summary",
             f"Generating sub agent {sub_agent_name} final summary",
         )
 
-        # 使用context超限重试逻辑生成最终总结
+        # Use context limit retry logic to generate final summary
         final_answer_text = await self._handle_summary_with_context_limit_retry(
             system_prompt,
             message_history,
@@ -630,12 +638,12 @@ class Orchestrator:
             "sub_agent_completed", f"Sub agent {sub_agent_name} completed", "info"
         )
 
-        # 返回最终答案而不是对话日志，这样主代理可以直接使用
+        # Return final answer instead of dialogue log, so main agent can use directly
         return final_answer_text
 
     @retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
     async def _o3_extract_hints(self, question: str) -> str:
-        """使用O3模型抽取任务提示"""
+        """Use O3 model to extract task hints"""
         client = AsyncOpenAI(api_key=self.cfg.env.openai_api_key, timeout=600)
 
         instruction = """Carefully analyze the given task description (question) without attempting to solve it directly. Your role is to identify potential challenges and areas that require special attention during the solving process, and provide practical guidance for someone who will solve this task by actively gathering and analyzing information from the web.
@@ -658,7 +666,7 @@ Here is the question:
 
 """
 
-        # 为O3消息添加message ID（如果配置启用）
+        # Add message ID for O3 messages (if configured)
         content = instruction + question
         if self.add_message_id:
             message_id = _generate_message_id()
@@ -671,7 +679,7 @@ Here is the question:
         )
         result = response.choices[0].message.content
 
-        # 检查结果是否为空，如果为空则抛出异常触发重试
+        # Check if result is empty, raise exception to trigger retry if empty
         if not result or not result.strip():
             raise ValueError("O3 hints extraction returned empty result")
 
@@ -701,7 +709,7 @@ Return exactly one of the [number, date, time, string], nothing else.
             messages=[{"role": "user", "content": f"[{message_id}] {instruction}"}],
         )
         answer_type = response.choices[0].message.content
-        # 检查结果是否为空，如果为空则抛出异常触发重试
+        # Check if result is empty, raise exception to trigger retry if empty
         if not answer_type or not answer_type.strip():
             raise ValueError("answer type returned empty result")
 
@@ -713,7 +721,7 @@ Return exactly one of the [number, date, time, string], nothing else.
     async def _o3_extract_gaia_final_answer(
         self, answer_type: str, task_description_detail: str, summary: str
     ) -> str:
-        """使用O3模型从summary中抽取最终答案"""
+        """Use O3 model to extract final answer from summary"""
         client = AsyncOpenAI(api_key=self.cfg.env.openai_api_key, timeout=600)
 
         full_prompts = {
@@ -957,7 +965,7 @@ Return the step-by-step process and your final answer wrapped in \\boxed{{...}},
         )
         result = response.choices[0].message.content
 
-        # 检查结果是否为空，如果为空则抛出异常触发重试
+        # Check if result is empty, raise exception to trigger retry if empty
         if not result or not result.strip():
             raise ValueError("O3 final answer extraction returned empty result")
 
@@ -982,7 +990,7 @@ Return the step-by-step process and your final answer wrapped in \\boxed{{...}},
         if task_file_name:
             logger.debug(f"Associated File: {task_file_name}")
 
-        # 1. 处理输入
+        # 1. Process input
         initial_user_content, task_description = process_input(
             task_description, task_file_name
         )
@@ -1009,9 +1017,9 @@ Your objective is maximum completeness, transparency, and detailed documentation
             initial_user_content[0]["text"] + task_guidence
         )
 
-        o3_notes = ""  # 初始化o3_notes
+        o3_notes = ""  # Initialize o3_notes
         if self.cfg.agent.o3_hint:
-            # 执行O3 hints提取
+            # Execute O3 hints extraction
             try:
                 o3_hints = await self._o3_extract_hints(task_description)
                 o3_notes = (
@@ -1019,17 +1027,17 @@ Your objective is maximum completeness, transparency, and detailed documentation
                     + o3_hints
                 )
 
-                # 更新初始用户内容
+                # Update initial user content
                 original_text = initial_user_content[0]["text"]
                 initial_user_content[0]["text"] = original_text + o3_notes
             except Exception as e:
                 logger.warning(f"O3 hints extraction failed after retries: {str(e)}")
-                o3_notes = ""  # 继续执行，但不使用O3提示
+                o3_notes = ""  # Continue execution but without O3 hints
 
         logger.info("Initial user input content: %s", initial_user_content)
         message_history = [{"role": "user", "content": initial_user_content}]
 
-        # 2. 获取工具定义
+        # 2. Get tool definitions
         tool_definitions = await self.main_agent_tool_manager.get_all_tool_definitions()
         tool_definitions += expose_sub_agents_as_tools(self.cfg.agent.sub_agents)
         if not tool_definitions:
@@ -1039,24 +1047,24 @@ Your objective is maximum completeness, transparency, and detailed documentation
 
         self.task_log.log_step("get_main_tool_definitions", f"{tool_definitions}")
 
-        # 3. 生成系统 Prompt
+        # 3. Generate system prompt
         system_prompt = self.llm_client.generate_agent_system_prompt(
             date=datetime.datetime.today(),
             mcp_servers=tool_definitions,
         ) + generate_agent_specific_system_prompt(agent_type="main")
 
-        # 4. 主循环：LLM <-> Tools
+        # 4. Main loop: LLM <-> Tools
         max_turns = self.cfg.agent.main_agent.max_turns
         if max_turns < 0:
             max_turns = sys.maxsize
         turn_count = 0
-        task_failed = False  # 跟踪任务是否失败
+        task_failed = False  # Track whether task failed
         while turn_count < max_turns:
             turn_count += 1
             logger.debug(f"\n--- Main Agent Turn {turn_count} ---")
             self.task_log.save()
 
-            # 使用统一的LLM调用处理
+            # Use unified LLM call handling
             (
                 assistant_response_text,
                 should_break,
@@ -1071,46 +1079,46 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 agent_type="main",
             )
 
-            # 处理LLM响应
+            # Handle LLM response
             if assistant_response_text:
                 if should_break:
                     break
             else:
-                # LLM调用失败，标记任务失败并结束当前轮次
+                # LLM call failed, mark task as failed and end current turn
                 if tool_calls == "context_limit":
-                    # Context超限情况
+                    # Context limit exceeded situation
                     self.task_log.log_step(
                         "main_agent_context_limit_reached",
                         "Main agent context limit reached, jumping to summary",
                         "warning",
                     )
                 else:
-                    # 其他LLM调用失败情况
+                    # Other LLM call failure situations
                     self.task_log.log_step(
                         step_name="main_agent",
                         message="LLM call failed",
                         status="failed",
                     )
-                task_failed = True  # 标记任务失败
+                task_failed = True  # Mark task as failed
                 break
 
             if tool_calls is None or (
                 len(tool_calls[0]) == 0 and len(tool_calls[1]) == 0
             ):
-                # 没有工具调用，认为是最终答案
-                logger.debug("LLM 未要求使用工具，流程结束。")
-                break  # 退出循环
+                # No tool calls, consider as final answer
+                logger.debug("LLM did not request tool use, process ends.")
+                break  # Exit loop
 
-            # 7. 执行工具调用 (按顺序执行)
+            # 7. Execute tool calls (in sequence)
             tool_calls_data = []
             all_tool_results_content_with_id = []
 
-            # 从配置中获取单轮最大工具调用数
+            # Get maximum tool calls per turn from configuration
             max_tool_calls = self.cfg.agent.main_agent.max_tool_calls_per_turn
             tool_calls_exceeded = len(tool_calls[0]) > max_tool_calls
             if tool_calls_exceeded:
                 logger.warning(
-                    f"[ERROR] 单轮tool call数量过多({len(tool_calls[0])}个)，只处理前{max_tool_calls}个"
+                    f"[ERROR] Single turn tool call count too high ({len(tool_calls[0])} calls), only processing first {max_tool_calls}"
                 )
 
             for call in tool_calls[0][:max_tool_calls]:
@@ -1188,11 +1196,11 @@ Your objective is maximum completeness, transparency, and detailed documentation
                         "error": error_msg,
                     }
 
-                # 格式化结果以反馈给 LLM (更简洁)
+                # Format result for LLM feedback (more concise)
                 tool_result_for_llm = self.output_formatter.format_tool_result_for_user(
                     tool_result
                 )
-                # all_tool_results_content.extend(tool_result_for_llm)  # 收集所有工具结果
+                # all_tool_results_content.extend(tool_result_for_llm)  # Collect all tool results
                 all_tool_results_content_with_id.append((call_id, tool_result_for_llm))
 
             if len(tool_calls[1]) > 0:
@@ -1221,19 +1229,19 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 message_history, all_tool_results_content_with_id, tool_calls_exceeded
             )
 
-            # 生成summary_prompt来检查token限制
+            # Generate summary_prompt to check token limit
             temp_summary_prompt = generate_agent_summarize_prompt(
                 task_description + task_guidence,
-                task_failed=True,  # 这里设为True，模拟可能的任务失败情况进行context检查
+                task_failed=True,  # Set to True here to simulate possible task failure for context checking
                 agent_type="main",
             )
 
-            # 检查当前context是否会超限，如果超限则自动回退消息并触发summary
+            # Check if current context would exceed limit, auto rollback messages and trigger summary if exceeded
             if not self.llm_client.ensure_summary_context(
                 message_history, temp_summary_prompt
             ):
-                # context超限，跳到summary阶段
-                task_failed = True  # 标记任务失败
+                # Context limit exceeded, jump to summary stage
+                task_failed = True  # Mark task as failed
                 self.task_log.log_step(
                     "main_context_limit_reached",
                     "Context limit reached, triggering summary",
@@ -1241,9 +1249,11 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 )
                 break
 
-        # 记录主循环结束
+        # Record main loop end
         if turn_count >= max_turns:
-            if not task_failed:  # 如果还没有标记为失败，且是因为轮数超限
+            if (
+                not task_failed
+            ):  # If not yet marked as failed and due to turn limit exceeded
                 task_failed = True
             self.task_log.log_step(
                 "max_turns_reached",
@@ -1256,10 +1266,10 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 "main_loop_completed", f"Main loop completed after {turn_count} turns"
             )
 
-        # 最终总结
+        # Final summary
         self.task_log.log_step("final_summary", "Generating final summary")
 
-        # 使用context超限重试逻辑生成最终总结
+        # Use context limit retry logic to generate final summary
         final_answer_text = await self._handle_summary_with_context_limit_retry(
             system_prompt,
             message_history,
@@ -1271,7 +1281,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
             task_guidence=task_guidence,
         )
 
-        # 处理响应结果
+        # Handle response result
         if final_answer_text:
             self.task_log.log_step(
                 "final_answer", "Final answer extracted successfully"
@@ -1282,9 +1292,9 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 "final_answer_content", f"Final answer content: {final_answer_text}"
             )
 
-            # 使用O3模型抽取最终答案
+            # Use O3 model to extract final answer
             if self.cfg.agent.o3_final_answer:
-                # 执行O3最终答案提取
+                # Execute O3 final answer extraction
                 try:
                     answer_type = await self._get_gaia_answer_type(task_description)
 
@@ -1294,7 +1304,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
                         final_answer_text,
                     )
 
-                    # 将O3抽取的答案伪装成assistant返回的结果添加到消息历史
+                    # Disguise O3 extracted answer as assistant returned result and add to message history
                     assistant_o3_message = {
                         "role": "assistant",
                         "content": [
@@ -1306,14 +1316,14 @@ Your objective is maximum completeness, transparency, and detailed documentation
                     }
                     message_history.append(assistant_o3_message)
 
-                    # 拼接original summary和o3答案作为最终结果
+                    # Concatenate original summary and o3 answer as final result
                     final_answer_text = f"{final_answer_text}\n\nO3 Extracted Answer:\n{o3_extracted_answer}"
 
                 except Exception as e:
                     logger.warning(
                         f"O3 final answer extraction failed after retries: {str(e)}"
                     )
-                    # 继续使用原始的 final_answer_text
+                    # Continue using original final_answer_text
 
         else:
             final_answer_text = "No final answer generated."
@@ -1323,14 +1333,14 @@ Your objective is maximum completeness, transparency, and detailed documentation
 
         logger.debug(f"LLM Final Answer: {final_answer_text}")
 
-        # 保存最终的消息历史（包含O3处理结果）
+        # Save final message history (including O3 processing results)
         self.task_log.main_agent_message_history = {
             "system_prompt": system_prompt,
             "message_history": message_history,
         }
         self.task_log.save()
 
-        # 格式化并返回最终输出
+        # Format and return final output
         self.task_log.log_step("format_output", "Formatting final output")
         final_summary, final_boxed_answer, usage_log = (
             self.output_formatter.format_final_summary_and_log(

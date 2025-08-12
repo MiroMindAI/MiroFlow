@@ -108,7 +108,7 @@ Add your tool configuration to `mirage/apps/reorg-modular-structure/src/mirage_a
 
 ```python
 def create_mcp_server_parameters(cfg: DictConfig, agent_cfg: DictConfig):
-    """定义并返回 MCP 服务器配置列表"""
+    """Define and return MCP server configuration list"""
     configs = []
     
     # ... existing code ...

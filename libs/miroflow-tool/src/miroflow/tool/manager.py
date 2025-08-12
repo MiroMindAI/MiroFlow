@@ -6,7 +6,7 @@ import asyncio
 import functools
 from typing import Any, Awaitable, Callable, Protocol, TypeVar
 
-from mcp import ClientSession, StdioServerParameters  # (已在 config.py 导入)
+from mcp import ClientSession, StdioServerParameters  # (already imported in config.py)
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 
@@ -50,8 +50,8 @@ class ToolManagerProtocol(Protocol):
 class ToolManager(ToolManagerProtocol):
     def __init__(self, server_configs, tool_blacklist=None):
         """
-        初始化 ToolManager。
-        :param server_configs: create_server_parameters() 返回的列表
+        Initialize ToolManager.
+        :param server_configs: List returned by create_server_parameters()
         """
         self.server_configs = server_configs
         self.server_dict = {
@@ -61,7 +61,7 @@ class ToolManager(ToolManagerProtocol):
         self.tool_blacklist = tool_blacklist if tool_blacklist else set()
 
         logger.info(
-            f"ToolManager 初始化，已加载服务器: {list(self.server_dict.keys())}"
+            f"ToolManager initialized, loaded servers: {list(self.server_dict.keys())}"
         )
 
     def _is_huggingface_dataset_or_space_url(self, url):
@@ -88,14 +88,14 @@ class ToolManager(ToolManagerProtocol):
         )
 
     def get_server_params(self, server_name):
-        """获取指定服务器的参数"""
+        """Get parameters for specified server"""
         return self.server_dict.get(server_name)
 
     async def _find_servers_with_tool(self, tool_name):
         """
-        在所有服务器中查找包含指定工具名称的服务器
-        :param tool_name: 要查找的工具名称
-        :return: 包含该工具的服务器名称列表
+        Find servers containing the specified tool name among all servers
+        :param tool_name: Tool name to search for
+        :return: List of server names containing the tool
         """
         servers_with_tool = []
 
@@ -111,7 +111,7 @@ class ToolManager(ToolManagerProtocol):
                         ) as session:
                             await session.initialize()
                             tools_response = await session.list_tools()
-                            # 遵循与 get_all_tool_definitions 相同的 blacklist 逻辑
+                            # Follow the same blacklist logic as get_all_tool_definitions
                             for tool in tools_response.tools:
                                 if (server_name, tool.name) in self.tool_blacklist:
                                     continue
@@ -129,8 +129,8 @@ class ToolManager(ToolManagerProtocol):
                             await session.initialize()
                             tools_response = await session.list_tools()
                             for tool in tools_response.tools:
-                                # 与 get_all_tool_definitions 保持一致：SSE 部分没有 blacklist 处理
-                                # 可以在这里添加特定工具的过滤逻辑（如果需要）
+                                # Consistent with get_all_tool_definitions: SSE part has no blacklist processing
+                                # Can add specific tool filtering logic here (if needed)
                                 # if server_name == "tool-excel" and tool.name not in ["get_workbook_metadata", "read_data_from_excel"]:
                                 #     continue
                                 if tool.name == tool_name:
@@ -138,13 +138,13 @@ class ToolManager(ToolManagerProtocol):
                                     break
                 else:
                     logger.error(
-                        f"错误: 服务器 '{server_name}' 的参数类型未知: {type(server_params)}"
+                        f"Error: Unknown parameter type for server '{server_name}': {type(server_params)}"
                     )
-                    # 对于未知类型，我们跳过而不是抛出异常，因为这是查找功能
+                    # For unknown types, we skip rather than throw an exception, because this is a search function
                     continue
             except Exception as e:
                 logger.error(
-                    f"错误: 无法连接或获取服务器 '{server_name}' 的工具以查找 '{tool_name}': {e}"
+                    f"Error: Cannot connect or get tools from server '{server_name}' to find '{tool_name}': {e}"
                 )
                 continue
 
@@ -152,16 +152,16 @@ class ToolManager(ToolManagerProtocol):
 
     async def get_all_tool_definitions(self):
         """
-        连接到所有已配置的服务器，获取它们的工具定义。
-        返回一个适合传递给 Prompt 生成器的列表。
+        Connect to all configured servers and get their tool definitions.
+        Returns a list suitable for passing to Prompt generators.
         """
         all_servers_for_prompt = []
-        # 处理远程服务器工具
+        # Handle remote server tools
         for config in self.server_configs:
             server_name = config["name"]
             server_params = config["params"]
             one_server_for_prompt = {"name": server_name, "tools": []}
-            logger.info(f"正在获取服务器 '{server_name}' 的工具定义...")
+            logger.info(f"Getting tool definitions for server '{server_name}'...")
 
             try:
                 if isinstance(server_params, StdioServerParameters):
@@ -175,7 +175,7 @@ class ToolManager(ToolManagerProtocol):
                             for tool in tools_response.tools:
                                 if (server_name, tool.name) in self.tool_blacklist:
                                     logger.info(
-                                        f"server '{server_name}' 中的工具 '{tool.name}' 被列入黑名单，跳过。"
+                                        f"Tool '{tool.name}' in server '{server_name}' is blacklisted, skipping."
                                     )
                                     continue
                                 one_server_for_prompt["tools"].append(
@@ -196,7 +196,7 @@ class ToolManager(ToolManagerProtocol):
                             await session.initialize()
                             tools_response = await session.list_tools()
                             for tool in tools_response.tools:
-                                # 可以在这里添加特定工具的过滤逻辑（如果需要）
+                                # Can add specific tool filtering logic here (if needed)
                                 # if server_name == "tool-excel" and tool.name not in ["get_workbook_metadata", "read_data_from_excel"]:
                                 #     continue
                                 one_server_for_prompt["tools"].append(
@@ -208,20 +208,22 @@ class ToolManager(ToolManagerProtocol):
                                 )
                 else:
                     logger.error(
-                        f"错误: 服务器 '{server_name}' 的参数类型未知: {type(server_params)}"
+                        f"Error: Unknown parameter type for server '{server_name}': {type(server_params)}"
                     )
                     raise TypeError(
                         f"Unknown server params type for {server_name}: {type(server_params)}"
                     )
 
                 logger.info(
-                    f"成功获取服务器 '{server_name}' 的 {len(one_server_for_prompt['tools'])} 个工具定义。"
+                    f"Successfully obtained {len(one_server_for_prompt['tools'])} tool definitions for server '{server_name}'."
                 )
                 all_servers_for_prompt.append(one_server_for_prompt)
 
             except Exception as e:
-                logger.error(f"错误: 无法连接或获取服务器 '{server_name}' 的工具: {e}")
-                # 仍然添加服务器条目，但标记工具列表为空或包含错误信息
+                logger.error(
+                    f"Error: Cannot connect or get tools from server '{server_name}': {e}"
+                )
+                # Still add server entry, but mark tool list as empty or containing error information
                 one_server_for_prompt["tools"] = [
                     {"error": f"Failed to fetch tools: {e}"}
                 ]
@@ -232,17 +234,19 @@ class ToolManager(ToolManagerProtocol):
     @with_timeout(600)
     async def execute_tool_call(self, server_name, tool_name, arguments) -> Any:
         """
-        执行单个工具调用。
-        :param server_name: 服务器名称
-        :param tool_name: 工具名称
-        :param arguments: 工具参数字典
-        :return: 包含结果或错误的字典
+        Execute a single tool call.
+        :param server_name: Server name
+        :param tool_name: Tool name
+        :param arguments: Tool arguments dictionary
+        :return: Dictionary containing result or error
         """
 
-        # 原远程服务器调用逻辑
+        # Original remote server call logic
         server_params = self.get_server_params(server_name)
         if not server_params:
-            logger.error(f"错误: 尝试调用未找到的服务器 '{server_name}'")
+            logger.error(
+                f"Error: Attempting to call server '{server_name}' that was not found"
+            )
             return {
                 "server_name": server_name,
                 "tool_name": tool_name,
@@ -250,7 +254,7 @@ class ToolManager(ToolManagerProtocol):
             }
 
         logger.info(
-            f"正在连接到服务器 '{server_name}' 以调用工具 '{tool_name}'...调用参数为'{arguments}'..."
+            f"Connecting to server '{server_name}' to call tool '{tool_name}'...call arguments: '{arguments}'..."
         )
 
         if server_name == "playwright":
@@ -262,10 +266,10 @@ class ToolManager(ToolManagerProtocol):
                     tool_name, arguments=arguments
                 )
 
-                # 检查结果是否为空并提供更好的反馈
+                # Check if result is empty and provide better feedback
                 if tool_result is None or tool_result == "":
                     logger.error(
-                        f"工具 '{tool_name}' 返回了空结果，可能是正常的（如删除操作）或工具执行有问题"
+                        f"Tool '{tool_name}' returned empty result, this may be normal (such as delete operations) or the tool execution may have issues"
                     )
                     return {
                         "server_name": server_name,
@@ -297,23 +301,25 @@ class ToolManager(ToolManagerProtocol):
                                 tool_result = await session.call_tool(
                                     tool_name, arguments=arguments
                                 )
-                                # 安全地提取结果内容，不改变原始格式
+                                # Safely extract result content without changing original format
                                 if tool_result.content and len(tool_result.content) > 0:
                                     text_content = tool_result.content[-1].text
                                     if (
                                         text_content is not None
                                         and text_content.strip()
                                     ):
-                                        result_content = text_content  # 保留原始格式！
+                                        result_content = (
+                                            text_content  # Preserve original format!
+                                        )
                                     else:
                                         result_content = f"Tool '{tool_name}' completed but returned empty text - this may be expected or indicate an issue"
                                 else:
                                     result_content = f"Tool '{tool_name}' completed but returned no content - this may be expected or indicate an issue"
 
-                                # 如果结果为空，记录警告
+                                # If result is empty, log warning
                                 if not tool_result.content:
                                     logger.error(
-                                        f"工具 '{tool_name}' 返回了空内容，tool_result.content: {tool_result.content}"
+                                        f"Tool '{tool_name}' returned empty content, tool_result.content: {tool_result.content}"
                                     )
 
                                 # post hoc check for browsing agent reading answers from hf datsets
@@ -338,23 +344,25 @@ class ToolManager(ToolManagerProtocol):
                                 tool_result = await session.call_tool(
                                     tool_name, arguments=arguments
                                 )
-                                # 安全地提取结果内容，不改变原始格式
+                                # Safely extract result content without changing original format
                                 if tool_result.content and len(tool_result.content) > 0:
                                     text_content = tool_result.content[-1].text
                                     if (
                                         text_content is not None
                                         and text_content.strip()
                                     ):
-                                        result_content = text_content  # 保留原始格式！
+                                        result_content = (
+                                            text_content  # Preserve original format!
+                                        )
                                     else:
                                         result_content = f"Tool '{tool_name}' completed but returned empty text - this may be expected or indicate an issue"
                                 else:
                                     result_content = f"Tool '{tool_name}' completed but returned no content - this may be expected or indicate an issue"
 
-                                # 如果结果为空，记录警告
+                                # If result is empty, log warning
                                 if not tool_result.content:
                                     logger.error(
-                                        f"工具 '{tool_name}' 返回了空内容，tool_result.content: {tool_result.content}"
+                                        f"Tool '{tool_name}' returned empty content, tool_result.content: {tool_result.content}"
                                     )
 
                                 # post hoc check for browsing agent reading answers from hf datsets
@@ -372,20 +380,22 @@ class ToolManager(ToolManagerProtocol):
                         f"Unknown server params type for {server_name}: {type(server_params)}"
                     )
 
-                logger.info(f"工具 '{tool_name}' (服务器: '{server_name}') 调用成功。")
+                logger.info(
+                    f"Tool '{tool_name}' (server: '{server_name}') called successfully."
+                )
 
                 return {
                     "server_name": server_name,
                     "tool_name": tool_name,
-                    "result": result_content,  # 返回提取的文本内容
+                    "result": result_content,  # Return extracted text content
                 }
 
             except Exception as outer_e:  # Rename this to outer_e to avoid shadowing
                 logger.error(
-                    f"错误: 调用工具 '{tool_name}' (服务器: '{server_name}') 失败: {outer_e}"
+                    f"Error: Failed to call tool '{tool_name}' (server: '{server_name}'): {outer_e}"
                 )
                 # import traceback
-                # traceback.print_exc() # 打印详细堆栈跟踪以进行调试
+                # traceback.print_exc() # Print detailed stack trace for debugging
 
                 # Store the original error message for later use
                 error_message = str(outer_e)
@@ -397,18 +407,18 @@ class ToolManager(ToolManagerProtocol):
                     and arguments["url"] is not None
                 ):
                     try:
-                        logger.info("尝试使用 MarkItDown 进行回退...")
+                        logger.info("Attempting to use MarkItDown for fallback...")
                         from markitdown import MarkItDown
 
                         md = MarkItDown(
                             docintel_endpoint="<document_intelligence_endpoint>"
                         )
                         result = md.convert(arguments["url"])
-                        logger.info("使用 MarkItDown 成功")
+                        logger.info("Successfully used MarkItDown")
                         return {
                             "server_name": server_name,
                             "tool_name": tool_name,
-                            "result": result.text_content,  # 返回提取的文本内容
+                            "result": result.text_content,  # Return extracted text content
                         }
                     except (
                         Exception
