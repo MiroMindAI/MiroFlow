@@ -149,11 +149,6 @@ async def audio_transcription(audio_path_or_url: str) -> str:
 
                 # Check content type if available
                 content_type = response.headers.get("content-type", "").lower()
-                if content_type and not any(
-                    media_type in content_type
-                    for media_type in ["audio", "video", "application/octet-stream"]
-                ):
-                    raise Exception(f"Invalid content type '{content_type}'.")
 
                 # Get proper extension for the temporary file
                 file_extension = _get_audio_extension(audio_path_or_url, content_type)
@@ -229,11 +224,6 @@ async def audio_question_answering(audio_path_or_url: str, question: str) -> str
 
             # Check content type if available
             content_type = response.headers.get("content-type", "").lower()
-            if content_type and not any(
-                media_type in content_type
-                for media_type in ["audio", "video", "application/octet-stream"]
-            ):
-                return f"[ERROR]: Audio question answering failed: Invalid content type '{content_type}'. Expected audio file.\nNote: Files from sandbox are not available. You should use local path given in the instruction. \nURLs must include the proper scheme (e.g., 'https://') and be publicly accessible. The file should be in a common audio format such as MP3.\nNote: YouTube video URL is not supported."
 
             # Get proper extension for the temporary file
             file_extension = _get_audio_extension(audio_path_or_url, content_type)
