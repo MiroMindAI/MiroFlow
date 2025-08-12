@@ -547,7 +547,7 @@ class Orchestrator:
             # Generate summary_prompt to check token limit
             temp_summary_prompt = generate_agent_summarize_prompt(
                 task_description,
-                task_failed=True,  # 这里设为True，模拟可能的任务失败情况进行context检查
+                task_failed=True,  # Set to True here to simulate potential task failure for context checking
                 agent_type=sub_agent_name,
             )
 
@@ -556,7 +556,7 @@ class Orchestrator:
                 message_history, temp_summary_prompt
             ):
                 # Context estimated to exceed limit, jump to summary stage
-                task_failed = True  # 标记任务失败
+                task_failed = True  # Mark task as failed
                 self.task_log.log_step(
                     f"{sub_agent_name}_context_limit_reached",
                     "Context limit reached, triggering summary",

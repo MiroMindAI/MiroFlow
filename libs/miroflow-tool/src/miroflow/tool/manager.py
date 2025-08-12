@@ -6,7 +6,7 @@ import asyncio
 import functools
 from typing import Any, Awaitable, Callable, Protocol, TypeVar
 
-from mcp import ClientSession, StdioServerParameters  # (已在 config.py 导入)
+from mcp import ClientSession, StdioServerParameters  # (already imported in config.py)
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 
@@ -138,7 +138,7 @@ class ToolManager(ToolManagerProtocol):
                                     break
                 else:
                     logger.error(
-                        f"错误: 服务器 '{server_name}' 的参数类型未知: {type(server_params)}"
+                        f"Error: Unknown parameter type for server '{server_name}': {type(server_params)}"
                     )
                     # For unknown types, we skip rather than throw an exception, because this is a search function
                     continue
@@ -208,7 +208,7 @@ class ToolManager(ToolManagerProtocol):
                                 )
                 else:
                     logger.error(
-                        f"错误: 服务器 '{server_name}' 的参数类型未知: {type(server_params)}"
+                        f"Error: Unknown parameter type for server '{server_name}': {type(server_params)}"
                     )
                     raise TypeError(
                         f"Unknown server params type for {server_name}: {type(server_params)}"
@@ -239,10 +239,10 @@ class ToolManager(ToolManagerProtocol):
         :return: Dictionary containing result or error
         """
 
-        # 原远程服务器调用逻辑
+        # Original remote server call logic
         server_params = self.get_server_params(server_name)
         if not server_params:
-            logger.error(f"错误: 尝试调用未找到的服务器 '{server_name}'")
+            logger.error(f"Error: Attempting to call server '{server_name}' that was not found")
             return {
                 "server_name": server_name,
                 "tool_name": tool_name,
@@ -250,7 +250,7 @@ class ToolManager(ToolManagerProtocol):
             }
 
         logger.info(
-            f"正在连接到服务器 '{server_name}' 以调用工具 '{tool_name}'...调用参数为'{arguments}'..."
+            f"Connecting to server '{server_name}' to call tool '{tool_name}'...call arguments: '{arguments}'..."
         )
 
         if server_name == "playwright":
@@ -262,10 +262,10 @@ class ToolManager(ToolManagerProtocol):
                     tool_name, arguments=arguments
                 )
 
-                # 检查结果是否为空并提供更好的反馈
+                # Check if result is empty and provide better feedback
                 if tool_result is None or tool_result == "":
                     logger.error(
-                        f"工具 '{tool_name}' 返回了空结果，可能是正常的（如删除操作）或工具执行有问题"
+                        f"Tool '{tool_name}' returned empty result, this may be normal (such as delete operations) or the tool execution may have issues"
                     )
                     return {
                         "server_name": server_name,
@@ -297,23 +297,23 @@ class ToolManager(ToolManagerProtocol):
                                 tool_result = await session.call_tool(
                                     tool_name, arguments=arguments
                                 )
-                                # 安全地提取结果内容，不改变原始格式
+                                # Safely extract result content without changing original format
                                 if tool_result.content and len(tool_result.content) > 0:
                                     text_content = tool_result.content[-1].text
                                     if (
                                         text_content is not None
                                         and text_content.strip()
                                     ):
-                                        result_content = text_content  # 保留原始格式！
+                                        result_content = text_content  # Preserve original format!
                                     else:
                                         result_content = f"Tool '{tool_name}' completed but returned empty text - this may be expected or indicate an issue"
                                 else:
                                     result_content = f"Tool '{tool_name}' completed but returned no content - this may be expected or indicate an issue"
 
-                                # 如果结果为空，记录警告
+                                # If result is empty, log warning
                                 if not tool_result.content:
                                     logger.error(
-                                        f"工具 '{tool_name}' 返回了空内容，tool_result.content: {tool_result.content}"
+                                        f"Tool '{tool_name}' returned empty content, tool_result.content: {tool_result.content}"
                                     )
 
                                 # post hoc check for browsing agent reading answers from hf datsets
@@ -338,23 +338,23 @@ class ToolManager(ToolManagerProtocol):
                                 tool_result = await session.call_tool(
                                     tool_name, arguments=arguments
                                 )
-                                # 安全地提取结果内容，不改变原始格式
+                                # Safely extract result content without changing original format
                                 if tool_result.content and len(tool_result.content) > 0:
                                     text_content = tool_result.content[-1].text
                                     if (
                                         text_content is not None
                                         and text_content.strip()
                                     ):
-                                        result_content = text_content  # 保留原始格式！
+                                        result_content = text_content  # Preserve original format!
                                     else:
                                         result_content = f"Tool '{tool_name}' completed but returned empty text - this may be expected or indicate an issue"
                                 else:
                                     result_content = f"Tool '{tool_name}' completed but returned no content - this may be expected or indicate an issue"
 
-                                # 如果结果为空，记录警告
+                                # If result is empty, log warning
                                 if not tool_result.content:
                                     logger.error(
-                                        f"工具 '{tool_name}' 返回了空内容，tool_result.content: {tool_result.content}"
+                                        f"Tool '{tool_name}' returned empty content, tool_result.content: {tool_result.content}"
                                     )
 
                                 # post hoc check for browsing agent reading answers from hf datsets
@@ -372,20 +372,20 @@ class ToolManager(ToolManagerProtocol):
                         f"Unknown server params type for {server_name}: {type(server_params)}"
                     )
 
-                logger.info(f"工具 '{tool_name}' (服务器: '{server_name}') 调用成功。")
+                logger.info(f"Tool '{tool_name}' (server: '{server_name}') called successfully.")
 
                 return {
                     "server_name": server_name,
                     "tool_name": tool_name,
-                    "result": result_content,  # 返回提取的文本内容
+                    "result": result_content,  # Return extracted text content
                 }
 
             except Exception as outer_e:  # Rename this to outer_e to avoid shadowing
                 logger.error(
-                    f"错误: 调用工具 '{tool_name}' (服务器: '{server_name}') 失败: {outer_e}"
+                    f"Error: Failed to call tool '{tool_name}' (server: '{server_name}'): {outer_e}"
                 )
                 # import traceback
-                # traceback.print_exc() # 打印详细堆栈跟踪以进行调试
+                # traceback.print_exc() # Print detailed stack trace for debugging
 
                 # Store the original error message for later use
                 error_message = str(outer_e)
@@ -397,18 +397,18 @@ class ToolManager(ToolManagerProtocol):
                     and arguments["url"] is not None
                 ):
                     try:
-                        logger.info("尝试使用 MarkItDown 进行回退...")
+                        logger.info("Attempting to use MarkItDown for fallback...")
                         from markitdown import MarkItDown
 
                         md = MarkItDown(
                             docintel_endpoint="<document_intelligence_endpoint>"
                         )
                         result = md.convert(arguments["url"])
-                        logger.info("使用 MarkItDown 成功")
+                        logger.info("Successfully used MarkItDown")
                         return {
                             "server_name": server_name,
                             "tool_name": tool_name,
-                            "result": result.text_content,  # 返回提取的文本内容
+                            "result": result.text_content,  # Return extracted text content
                         }
                     except (
                         Exception

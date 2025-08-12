@@ -149,7 +149,7 @@ RUN python3 -m pip install --no-cache-dir \
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    # ── 基础构建 & Python ───────────────────────────────
+    # ── Basic build & Python ───────────────────────────────
     build-essential gfortran cmake pkg-config git curl wget ca-certificates \
     # ── scientific computing ───────────────────────────────────────
     libopenblas-dev liblapack-dev libatlas-base-dev \

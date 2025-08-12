@@ -226,7 +226,7 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
                 raise ContextLimitError(f"Context limit exceeded: {error_str}")
 
             logger.error(
-                f"OpenRouter LLM 调用失败: {str(e)}, input = {json.dumps(params)}",
+                f"OpenRouter LLM call failed: {str(e)}, input = {json.dumps(params)}",
                 exc_info=True,
             )
             raise e
