@@ -85,9 +85,9 @@ class TestPythonServer:
             "download_file_from_internet_to_sandbox",
         ]
         for expected_tool in expected_tools:
-            assert expected_tool in tool_names, (
-                f"Expected tool '{expected_tool}' not found in {tool_names}"
-            )
+            assert (
+                expected_tool in tool_names
+            ), f"Expected tool '{expected_tool}' not found in {tool_names}"
 
     # Test 1: run_python_code - Success cases
     @pytest.mark.parametrize(
@@ -418,9 +418,9 @@ class TestPythonServer:
             )
             assert upload_result is not None
             upload_str = str(upload_result).lower()
-            assert any(keyword in upload_str for keyword in ["uploaded", "success"]), (
-                f"File upload failed: {upload_result}"
-            )
+            assert any(
+                keyword in upload_str for keyword in ["uploaded", "success"]
+            ), f"File upload failed: {upload_result}"
 
             # Step 3: Run Python code that uses the uploaded file
             code_result = await tool_manager.execute_tool_call(
@@ -433,9 +433,9 @@ class TestPythonServer:
             )
             assert code_result is not None
             code_str = str(code_result).lower()
-            assert "hello from test file!" in code_str, (
-                f"Code execution failed: {code_result}"
-            )
+            assert (
+                "hello from test file!" in code_str
+            ), f"Code execution failed: {code_result}"
 
             # Step 4: Download a file from the internet
             download_result = await tool_manager.execute_tool_call(
@@ -503,9 +503,9 @@ class TestPythonServer:
 
         # Should contain expected keywords
         for keyword in expected_keywords:
-            assert keyword.lower() in result_str, (
-                f"Expected keyword '{keyword}' not found in result: {result}"
-            )
+            assert (
+                keyword.lower() in result_str
+            ), f"Expected keyword '{keyword}' not found in result: {result}"
 
     def _assert_error_result(self, result: Any, expected_error_keywords: List[str]):
         """Assert that result indicates an error and contains expected error keywords."""
@@ -532,9 +532,9 @@ class TestPythonServer:
             for keyword in expected_error_keywords
             if keyword.lower() in result_str
         ]
-        assert len(found_keywords) > 0, (
-            f"Expected error keywords {expected_error_keywords} not found in result: {result}"
-        )
+        assert (
+            len(found_keywords) > 0
+        ), f"Expected error keywords {expected_error_keywords} not found in result: {result}"
 
     @pytest.mark.asyncio
     async def test_invalid_tool_name(self):

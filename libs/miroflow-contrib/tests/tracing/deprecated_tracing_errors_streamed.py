@@ -404,9 +404,9 @@ async def test_handoffs_lead_to_correct_agent_spans():
     async for _ in result.stream_events():
         pass
 
-    assert result.last_agent == agent_3, (
-        f"should have ended on the third agent, got {result.last_agent.name}"
-    )
+    assert (
+        result.last_agent == agent_3
+    ), f"should have ended on the third agent, got {result.last_agent.name}"
 
     assert fetch_normalized_spans() == snapshot(
         [

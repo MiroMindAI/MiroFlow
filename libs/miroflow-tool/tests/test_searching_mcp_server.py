@@ -74,9 +74,9 @@ class TestSearchingMCPServer:
         available_tool_names = [tool["name"] for tool in tools]
 
         for expected_tool in expected_tools:
-            assert expected_tool in available_tool_names, (
-                f"Tool {expected_tool} not found in available tools"
-            )
+            assert (
+                expected_tool in available_tool_names
+            ), f"Tool {expected_tool} not found in available tools"
 
     @pytest.mark.parametrize(
         "test_case",
@@ -141,16 +141,16 @@ class TestSearchingMCPServer:
             # Test successful execution - should not contain error indicators
             error_indicators = ["error", "failed", "exception", "traceback"]
             for indicator in error_indicators:
-                assert indicator not in result_str, (
-                    f"Unexpected error indicator '{indicator}' found in successful test result: {result}"
-                )
+                assert (
+                    indicator not in result_str
+                ), f"Unexpected error indicator '{indicator}' found in successful test result: {result}"
 
             # Check for expected content if keywords provided
             if "expected_content_keywords" in test_case:
                 for keyword in test_case["expected_content_keywords"]:
-                    assert keyword.lower() in result_str, (
-                        f"Expected keyword '{keyword}' not found in result: {result}"
-                    )
+                    assert (
+                        keyword.lower() in result_str
+                    ), f"Expected keyword '{keyword}' not found in result: {result}"
 
     @pytest.mark.parametrize(
         "test_case",
@@ -211,9 +211,9 @@ class TestSearchingMCPServer:
             # Check for expected content if keywords provided
             if "expected_content_keywords" in test_case:
                 for keyword in test_case["expected_content_keywords"]:
-                    assert keyword.lower() in result_str, (
-                        f"Expected keyword '{keyword}' not found in result: {result}"
-                    )
+                    assert (
+                        keyword.lower() in result_str
+                    ), f"Expected keyword '{keyword}' not found in result: {result}"
 
     @pytest.mark.parametrize(
         "test_case",
@@ -279,9 +279,9 @@ class TestSearchingMCPServer:
             # Check for expected content if keywords provided
             if "expected_content_keywords" in test_case:
                 for keyword in test_case["expected_content_keywords"]:
-                    assert keyword.lower() in result_str, (
-                        f"Expected keyword '{keyword}' not found in result: {result}"
-                    )
+                    assert (
+                        keyword.lower() in result_str
+                    ), f"Expected keyword '{keyword}' not found in result: {result}"
 
     @pytest.mark.parametrize(
         "test_case",
@@ -350,9 +350,9 @@ class TestSearchingMCPServer:
             # Check for expected content if keywords provided
             if "expected_content_keywords" in test_case:
                 for keyword in test_case["expected_content_keywords"]:
-                    assert keyword.lower() in result_str, (
-                        f"Expected keyword '{keyword}' not found in result: {result}"
-                    )
+                    assert (
+                        keyword.lower() in result_str
+                    ), f"Expected keyword '{keyword}' not found in result: {result}"
 
     @pytest.mark.parametrize(
         "test_case",
@@ -398,9 +398,9 @@ class TestSearchingMCPServer:
             # Check for expected content if keywords provided
             if "expected_content_keywords" in test_case:
                 for keyword in test_case["expected_content_keywords"]:
-                    assert keyword.lower() in result_str, (
-                        f"Expected keyword '{keyword}' not found in result: {result}"
-                    )
+                    assert (
+                        keyword.lower() in result_str
+                    ), f"Expected keyword '{keyword}' not found in result: {result}"
 
     @pytest.mark.parametrize(
         "test_case",
@@ -437,16 +437,16 @@ class TestSearchingMCPServer:
             # Check for expected content if keywords provided
             if "expected_content_keywords" in test_case:
                 for keyword in test_case["expected_content_keywords"]:
-                    assert keyword.lower() in result_str, (
-                        f"Expected keyword '{keyword}' not found in result: {result}"
-                    )
+                    assert (
+                        keyword.lower() in result_str
+                    ), f"Expected keyword '{keyword}' not found in result: {result}"
         else:
             # Check for error indicators
             error_indicators = ["error", "failed", "exception", "traceback"]
             for indicator in error_indicators:
-                assert indicator in result_str, (
-                    f"Expected error indicator '{indicator}' not found in result: {result}"
-                )
+                assert (
+                    indicator in result_str
+                ), f"Expected error indicator '{indicator}' not found in result: {result}"
 
     @pytest.mark.asyncio
     async def test_tool_execution_timeout(self):
@@ -472,9 +472,9 @@ class TestSearchingMCPServer:
             assert result is not None
             # Check that it's not an error result
             result_str = str(result).lower()
-            assert "timeout" not in result_str, (
-                f"Tool execution reported timeout in result: {result}"
-            )
+            assert (
+                "timeout" not in result_str
+            ), f"Tool execution reported timeout in result: {result}"
         except asyncio.TimeoutError:
             pytest.fail(f"Tool execution timed out after {timeout_seconds} seconds")
 
@@ -491,9 +491,9 @@ class TestSearchingMCPServer:
         result_str = str(result).lower()
         # Should contain error information about the invalid tool
         error_indicators = ["error", "not found", "invalid", "unknown"]
-        assert any(indicator in result_str for indicator in error_indicators), (
-            f"Expected error indicators not found for invalid tool name in result: {result}"
-        )
+        assert any(
+            indicator in result_str for indicator in error_indicators
+        ), f"Expected error indicators not found for invalid tool name in result: {result}"
 
     @pytest.mark.asyncio
     async def test_invalid_server_name(self):
@@ -508,9 +508,9 @@ class TestSearchingMCPServer:
         result_str = str(result).lower()
         # Should contain error information about the invalid server
         error_indicators = ["error", "not found", "invalid", "server"]
-        assert any(indicator in result_str for indicator in error_indicators), (
-            f"Expected error indicators not found for invalid server name in result: {result}"
-        )
+        assert any(
+            indicator in result_str for indicator in error_indicators
+        ), f"Expected error indicators not found for invalid server name in result: {result}"
 
     @pytest.mark.parametrize(
         "invalid_args",
@@ -532,9 +532,9 @@ class TestSearchingMCPServer:
         result_str = str(result).lower()
         # Should contain error information about invalid arguments
         error_indicators = ["error", "invalid", "missing", "required", "empty"]
-        assert any(indicator in result_str for indicator in error_indicators), (
-            f"Expected error indicators not found for invalid arguments {invalid_args} in result: {result}"
-        )
+        assert any(
+            indicator in result_str for indicator in error_indicators
+        ), f"Expected error indicators not found for invalid arguments {invalid_args} in result: {result}"
 
     @pytest.mark.parametrize(
         "invalid_args",
@@ -556,9 +556,9 @@ class TestSearchingMCPServer:
         result_str = str(result).lower()
         # Should contain error information about invalid arguments
         error_indicators = ["error", "invalid", "missing", "required", "empty"]
-        assert any(indicator in result_str for indicator in error_indicators), (
-            f"Expected error indicators not found for invalid arguments {invalid_args} in result: {result}"
-        )
+        assert any(
+            indicator in result_str for indicator in error_indicators
+        ), f"Expected error indicators not found for invalid arguments {invalid_args} in result: {result}"
 
     @pytest.mark.integration
     @pytest.mark.asyncio
