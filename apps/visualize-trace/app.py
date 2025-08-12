@@ -72,7 +72,9 @@ def list_files():
                 }
             )
         except PermissionError:
-            return jsonify({"error": f"No permission to access directory: {directory}"}), 403
+            return jsonify(
+                {"error": f"No permission to access directory: {directory}"}
+            ), 403
         except Exception as e:
             return jsonify({"error": f"Failed to read directory: {str(e)}"}), 500
 

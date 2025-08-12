@@ -80,7 +80,7 @@ def test_api_endpoints():
             # Show summary of the first few steps
             for i, step in enumerate(flow[:3]):
                 print(
-                    f"  Step {i+1}: {step['agent']} ({step['role']}) - {step['content_preview'][:50]}..."
+                    f"  Step {i + 1}: {step['agent']} ({step['role']}) - {step['content_preview'][:50]}..."
                 )
                 if step["tool_calls"]:
                     for tool in step["tool_calls"]:
@@ -96,7 +96,9 @@ def test_api_endpoints():
         if perf_response.status_code == 200:
             perf = perf_response.json()
             if perf:
-                print(f"✓ Total execution time: {perf.get('total_wall_time', 0):.2f} seconds")
+                print(
+                    f"✓ Total execution time: {perf.get('total_wall_time', 0):.2f} seconds"
+                )
             else:
                 print("✓ No performance data")
         else:
@@ -105,7 +107,9 @@ def test_api_endpoints():
         print("\n" + "=" * 50)
         print("🎉 Testing completed!")
         print(f"📱 Web interface URL: {BASE_URL}")
-        print("💡 Open the above URL in your browser to view the complete interactive interface")
+        print(
+            "💡 Open the above URL in your browser to view the complete interactive interface"
+        )
 
         return True
 
@@ -118,6 +122,8 @@ if __name__ == "__main__":
     success = test_api_endpoints()
     if success:
         print("\n🚀 Web Demo started successfully!")
-        print("You can now access http://127.0.0.1:5000 in your browser to use the complete interactive interface")
+        print(
+            "You can now access http://127.0.0.1:5000 in your browser to use the complete interactive interface"
+        )
     else:
         print("\n❌ Test failed, please check if the application is running")

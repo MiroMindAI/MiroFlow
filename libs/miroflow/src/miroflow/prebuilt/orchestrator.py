@@ -313,7 +313,9 @@ class Orchestrator:
 
             # If there are no more dialogues to remove
             if len(message_history) <= 2:  # Only initial system-user messages remain
-                logger.warning("Removed all removable dialogues, but still unable to generate summary")
+                logger.warning(
+                    "Removed all removable dialogues, but still unable to generate summary"
+                )
                 break
 
             self.task_log.log_step(
@@ -351,7 +353,9 @@ class Orchestrator:
         )
 
         if not tool_definitions:
-            logger.debug("Warning: Failed to get any tool definitions. LLM may not be able to use tools.")
+            logger.debug(
+                "Warning: Failed to get any tool definitions. LLM may not be able to use tools."
+            )
             self.task_log.log_step(
                 f"{sub_agent_name}_no_tools",
                 f"No tool definitions available for {sub_agent_name}",
@@ -423,7 +427,9 @@ class Orchestrator:
             if tool_calls is None or (
                 len(tool_calls[0]) == 0 and len(tool_calls[1]) == 0
             ):
-                logger.debug(f"Sub Agent {sub_agent_name} did not request tool use, ending task.")
+                logger.debug(
+                    f"Sub Agent {sub_agent_name} did not request tool use, ending task."
+                )
                 self.task_log.log_step(
                     "sub_agent_no_tool_calls",
                     f"No tool calls found in sub agent {sub_agent_name}, ending on turn {turn_count}",
@@ -571,7 +577,9 @@ class Orchestrator:
 
         # Record browser agent loop end
         if turn_count >= max_turns:
-            if not task_failed:  # If not yet marked as failed and due to turn limit exceeded
+            if (
+                not task_failed
+            ):  # If not yet marked as failed and due to turn limit exceeded
                 task_failed = True
             self.task_log.log_step(
                 "sub_agent_max_turns_reached",
@@ -1243,7 +1251,9 @@ Your objective is maximum completeness, transparency, and detailed documentation
 
         # Record main loop end
         if turn_count >= max_turns:
-            if not task_failed:  # If not yet marked as failed and due to turn limit exceeded
+            if (
+                not task_failed
+            ):  # If not yet marked as failed and due to turn limit exceeded
                 task_failed = True
             self.task_log.log_step(
                 "max_turns_reached",

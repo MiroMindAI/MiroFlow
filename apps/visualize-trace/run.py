@@ -61,7 +61,11 @@ def main():
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Trace Analysis Web Demo")
     parser.add_argument(
-        "-p", "--port", type=int, default=5000, help="Specify port number (default: 5000)"
+        "-p",
+        "--port",
+        type=int,
+        default=5000,
+        help="Specify port number (default: 5000)",
     )
     args = parser.parse_args()
 
@@ -73,7 +77,9 @@ def main():
     if not check_dependencies():
         print("\nInstalling dependencies...")
         if not install_dependencies():
-            print("Please install dependencies manually: pip install -r requirements.txt")
+            print(
+                "Please install dependencies manually: pip install -r requirements.txt"
+            )
             return
 
     # Check JSON files
@@ -84,7 +90,9 @@ def main():
 
     if not json_files:
         print("\nWarning: No JSON files found in parent directory")
-        print("Please ensure there are trace JSON files in the trace_analyze/ directory")
+        print(
+            "Please ensure there are trace JSON files in the trace_analyze/ directory"
+        )
     else:
         print(f"\nFound {len(json_files)} JSON files:")
         for file in json_files[:5]:  # Show only first 5

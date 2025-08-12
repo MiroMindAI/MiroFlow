@@ -136,7 +136,9 @@ def fix_shell_syntax(content):
     # true/false are usually lowercase in shell
     content = re.sub(r"\bTrue\b", "true", content)
     content = re.sub(r"\bFalse\b", "false", content)
-    content = re.sub(r"\bNone\b", '""', content)  # None is usually empty string in shell
+    content = re.sub(
+        r"\bNone\b", '""', content
+    )  # None is usually empty string in shell
 
     # Fix common shell syntax issues
     # e.g.: ensure variable references are correct
@@ -409,7 +411,9 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
                     # Try to handle possible newlines and escape characters
                     arguments = robust_json_loads(arguments_str)
                 except json.JSONDecodeError:
-                    logger.debug(f"Warning: Unable to parse tool arguments JSON: {arguments_str}")
+                    logger.debug(
+                        f"Warning: Unable to parse tool arguments JSON: {arguments_str}"
+                    )
                     # Try more lenient parsing or log error
                     try:
                         # Try to replace some common error formats, e.g. Python dict strings
@@ -420,7 +424,9 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
                             .replace("False", "false")
                         )
                         arguments = robust_json_loads(arguments_str_fixed)
-                        logger.debug("Info: Attempted fix and successfully parsed arguments.")
+                        logger.debug(
+                            "Info: Attempted fix and successfully parsed arguments."
+                        )
                     except json.JSONDecodeError:
                         logger.debug(
                             f"Error: Still unable to parse tool arguments JSON after fix: {arguments_str}"
@@ -452,7 +458,9 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
                 # Try to handle possible newlines and escape characters
                 arguments = robust_json_loads(arguments_str)
             except json.JSONDecodeError:
-                logger.debug(f"Warning: Unable to parse tool arguments JSON: {arguments_str}")
+                logger.debug(
+                    f"Warning: Unable to parse tool arguments JSON: {arguments_str}"
+                )
                 # Try more lenient parsing or log error
                 try:
                     # Try to replace some common error formats, e.g. Python dict strings
@@ -463,7 +471,9 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
                         .replace("False", "false")
                     )
                     arguments = robust_json_loads(arguments_str_fixed)
-                    logger.debug("Info: Attempted fix and successfully parsed arguments.")
+                    logger.debug(
+                        "Info: Attempted fix and successfully parsed arguments."
+                    )
                 except json.JSONDecodeError:
                     logger.debug(
                         f"Error: Still unable to parse tool arguments JSON after fix: {arguments_str}"
@@ -553,7 +563,9 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
             # Try to handle possible newlines and escape characters
             arguments = robust_json_loads(arguments_str)
         except json.JSONDecodeError:
-            logger.debug(f"Warning: Unable to parse tool arguments JSON: {arguments_str}")
+            logger.debug(
+                f"Warning: Unable to parse tool arguments JSON: {arguments_str}"
+            )
             # Try more lenient parsing or log error
             try:
                 # Uniformly use smart JSON fixing, no longer special handling for specific tools
@@ -561,7 +573,9 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
                 arguments = robust_json_loads(arguments_str_fixed)
                 logger.debug("Info: Attempted fix and successfully parsed arguments.")
             except json.JSONDecodeError:
-                logger.debug(f"Error: Still unable to parse tool arguments JSON after fix: {arguments_str}")
+                logger.debug(
+                    f"Error: Still unable to parse tool arguments JSON after fix: {arguments_str}"
+                )
                 arguments = {"error": "Failed to parse arguments", "raw": arguments_str}
 
         tool_calls.append(
@@ -591,7 +605,9 @@ def parse_llm_response_for_tool_calls(llm_response_content_text):
                     # If no next tag, add </arguments> at the end
                     fixed_content = content + "</arguments>"
 
-                logger.info("Attempting to fix tool call with missing </arguments>, re-parsing...")
+                logger.info(
+                    "Attempting to fix tool call with missing </arguments>, re-parsing..."
+                )
                 # Recursively call self to re-parse fixed content
                 return parse_llm_response_for_tool_calls(fixed_content)
 

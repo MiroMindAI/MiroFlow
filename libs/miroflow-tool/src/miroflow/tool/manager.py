@@ -220,7 +220,9 @@ class ToolManager(ToolManagerProtocol):
                 all_servers_for_prompt.append(one_server_for_prompt)
 
             except Exception as e:
-                logger.error(f"Error: Cannot connect or get tools from server '{server_name}': {e}")
+                logger.error(
+                    f"Error: Cannot connect or get tools from server '{server_name}': {e}"
+                )
                 # Still add server entry, but mark tool list as empty or containing error information
                 one_server_for_prompt["tools"] = [
                     {"error": f"Failed to fetch tools: {e}"}
@@ -242,7 +244,9 @@ class ToolManager(ToolManagerProtocol):
         # Original remote server call logic
         server_params = self.get_server_params(server_name)
         if not server_params:
-            logger.error(f"Error: Attempting to call server '{server_name}' that was not found")
+            logger.error(
+                f"Error: Attempting to call server '{server_name}' that was not found"
+            )
             return {
                 "server_name": server_name,
                 "tool_name": tool_name,
@@ -304,7 +308,9 @@ class ToolManager(ToolManagerProtocol):
                                         text_content is not None
                                         and text_content.strip()
                                     ):
-                                        result_content = text_content  # Preserve original format!
+                                        result_content = (
+                                            text_content  # Preserve original format!
+                                        )
                                     else:
                                         result_content = f"Tool '{tool_name}' completed but returned empty text - this may be expected or indicate an issue"
                                 else:
@@ -345,7 +351,9 @@ class ToolManager(ToolManagerProtocol):
                                         text_content is not None
                                         and text_content.strip()
                                     ):
-                                        result_content = text_content  # Preserve original format!
+                                        result_content = (
+                                            text_content  # Preserve original format!
+                                        )
                                     else:
                                         result_content = f"Tool '{tool_name}' completed but returned empty text - this may be expected or indicate an issue"
                                 else:
@@ -372,7 +380,9 @@ class ToolManager(ToolManagerProtocol):
                         f"Unknown server params type for {server_name}: {type(server_params)}"
                     )
 
-                logger.info(f"Tool '{tool_name}' (server: '{server_name}') called successfully.")
+                logger.info(
+                    f"Tool '{tool_name}' (server: '{server_name}') called successfully."
+                )
 
                 return {
                     "server_name": server_name,

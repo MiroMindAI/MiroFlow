@@ -79,8 +79,8 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
             self.token_usage["total_cache_read_input_tokens"] += cached_tokens
 
             logger.debug(
-                f"Current round token usage - Input: {self.token_usage["total_input_tokens"]}, "
-                f"Output: {self.token_usage["total_output_tokens"]}"
+                f"Current round token usage - Input: {self.token_usage['total_input_tokens']}, "
+                f"Output: {self.token_usage['total_output_tokens']}"
             )
 
     def format_token_usage_summary(self):
@@ -432,7 +432,9 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
 
             return False
 
-        logger.debug(f"Context check passed: {estimated_total}/{self.max_context_length}")
+        logger.debug(
+            f"Context check passed: {estimated_total}/{self.max_context_length}"
+        )
         return True
 
     def handle_max_turns_reached_summary_prompt(self, message_history, summary_prompt):

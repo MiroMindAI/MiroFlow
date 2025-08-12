@@ -145,9 +145,9 @@ def test_batch_trace_processor_shutdown_flushes(mocked_exporter):
         batch = call_args[0][0]
         total_exported += len(batch)
 
-    assert (
-        total_exported == 2
-    ), "All items in the queue should be exported upon shutdown"
+    assert total_exported == 2, (
+        "All items in the queue should be exported upon shutdown"
+    )
 
 
 def test_batch_trace_processor_scheduled_export(mocked_exporter):
