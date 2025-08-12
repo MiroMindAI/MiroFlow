@@ -4,30 +4,30 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-/* 全局样式 */
+/* Global styles */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f8f9fa;
 }
 
-/* 为非工具调用的内容设置特殊字体 */
+/* Set special font for non-tool call content */
 .rendered-content, .preview-text, .browser-agent-content {
     font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
     font-size: 14px;
     line-height: 1.6;
 }
 
-/* 保持MCP工具调用使用原来的字体 */
+/* Keep MCP tool calls using original font */
 .mcp-tool-call {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* 确保MCP工具调用的内容使用原来的字体 */
+/* Ensure MCP tool call content uses original font */
 .mcp-tool-call * {
     font-family: inherit;
 }
 
-/* 导航按钮样式 */
+/* Navigation button styles */
 .nav-btn {
     transition: all 0.3s ease;
 }
@@ -41,7 +41,7 @@ body {
     cursor: not-allowed;
 }
 
-/* 文件选择输入组样式 */
+/* File selection input group styles */
 .file-navigation {
     display: flex;
     align-items: center;
@@ -64,7 +64,7 @@ body {
     border-bottom-left-radius: 0;
 }
 
-/* 加载覆盖层 */
+/* Loading overlay */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -78,7 +78,7 @@ body {
     z-index: 9999;
 }
 
-/* 卡片样式 */
+/* Card styles */
 .card {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     border: none;
@@ -91,7 +91,7 @@ body {
     font-weight: 500;
 }
 
-/* 顶部摘要面板样式 */
+/* Top summary panel styles */
 .summary-panel {
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
     border: none;
@@ -162,7 +162,7 @@ body {
     color: #495057;
 }
 
-/* 导航面板样式 */
+/* Navigation panel styles */
 .navigation-panel {
     position: sticky;
     top: 20px;
@@ -184,7 +184,7 @@ body {
 }
 
 .nav-item:hover {
-    /* 移除背景色变化，可以添加其他轻微的视觉反馈 */
+    /* Remove background color change, can add other subtle visual feedback */
 }
 
 .nav-item.active {
@@ -242,7 +242,7 @@ body {
     color: #e9ecef;
 }
 
-/* Browser子步骤导航样式 */
+/* Browser sub-step navigation styles */
 .nav-item.browser-sub-step {
     padding-left: 24px;
     font-size: 12px;
@@ -299,7 +299,7 @@ body {
     display: block;
 }
 
-/* 执行流程样式 */
+/* Execution flow styles */
 .execution-steps-container {
     display: flex;
     flex-direction: column;
@@ -309,7 +309,7 @@ body {
 .execution-step {
     border: 1px solid #dee2e6;
     border-radius: 6px;
-    margin-bottom: 0;  /* 移除底部边距，使用gap代替 */
+    margin-bottom: 0;  /* Remove bottom margin, use gap instead */
     background-color: white;
     transition: all 0.3s ease;
     position: relative;
@@ -319,13 +319,13 @@ body {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-/* 确保main agent步骤有明确的视觉分离 */
+/* Ensure main agent steps have clear visual separation */
 .execution-step[data-agent*="main_agent"] {
     border-left: 4px solid #007bff;
     z-index: 2;
 }
 
-/* browser session应该在main agent步骤内部缩进 */
+/* Browser session should be indented inside main agent steps */
 .browser-session {
     position: relative;
     margin-left: 20px;
@@ -388,7 +388,7 @@ body {
     color: #6c757d;
 }
 
-/* 工具调用样式 */
+/* Tool call styles */
 .tool-call {
     background-color: #fff3cd;
     border: 1px solid #ffeaa7;
@@ -412,7 +412,7 @@ body {
     color: #155724;
 }
 
-/* Browser会话样式 */
+/* Browser session styles */
 .browser-session {
     background-color: #f8f9fa;
     border: 1px solid #dee2e6;
@@ -455,7 +455,7 @@ body {
     border-left: 3px solid #6c757d;
 }
 
-/* 统计信息样式 */
+/* Statistics styles */
 .stat-item {
     display: flex;
     justify-content: space-between;
@@ -478,7 +478,7 @@ body {
     color: #007bff;
 }
 
-/* 徽章样式 */
+/* Badge styles */
 .badge-role {
     font-size: 11px;
     padding: 4px 8px;
@@ -512,14 +512,14 @@ body {
     color: white;
 }
 
-/* 时间戳样式 */
+/* Timestamp styles */
 .timestamp {
     font-size: 11px;
     color: #6c757d;
     font-family: monospace;
 }
 
-/* 内容预览样式 */
+/* Content preview styles */
 .content-preview {
     background-color: white;
     border-radius: 4px;
@@ -541,7 +541,7 @@ body {
     text-decoration: underline !important;
 }
 
-/* 步骤内容区域样式调整 */
+/* Step content area style adjustments */
 .step-content {
     padding: 16px;
     border-top: 1px solid #dee2e6;
@@ -555,13 +555,13 @@ body {
     font-size: 14px;
 }
 
-/* 按钮样式 */
+/* Button styles */
 .btn-sm {
     font-size: 12px;
     padding: 4px 12px;
 }
 
-/* 响应式样式 */
+/* Responsive styles */
 @media (max-width: 768px) {
     .container-fluid {
         padding: 0 10px;
@@ -584,7 +584,7 @@ body {
     }
 }
 
-/* 动画效果 */
+/* Animation effects */
 .collapse {
     transition: height 0.3s ease;
 }
@@ -604,12 +604,12 @@ body {
     }
 }
 
-/* 工具提示样式 */
+/* Tooltip styles */
 .tooltip {
     font-size: 12px;
 }
 
-/* 代码样式 */
+/* Code styles */
 .code-block {
     background-color: #f8f9fa;
     border: 1px solid #e9ecef;
@@ -642,7 +642,7 @@ body {
     color: inherit;
 }
 
-/* 错误样式 */
+/* Error styles */
 .error-message {
     color: #dc3545;
     font-size: 14px;
@@ -655,7 +655,7 @@ body {
     margin-top: 8px;
 }
 
-/* 滚动条样式 */
+/* Scrollbar styles */
 ::-webkit-scrollbar {
     width: 8px;
 }
@@ -673,7 +673,7 @@ body {
     background: #a8a8a8;
 }
 
-/* MCP工具调用样式 */
+/* MCP tool call styles */
 .mcp-tool-call {
     background-color: #ffffff;
     border: 2px solid #007bff;
@@ -773,7 +773,7 @@ body {
     font-size: 13px;
 }
 
-/* 格式标记样式 */
+/* Format badge styles */
 .badge-format {
     font-size: 10px;
     padding: 2px 6px;
@@ -786,16 +786,16 @@ body {
     color: white;
 }
 
-/* 格式标记默认样式，可以根据需要扩展 */
+/* Default format badge styles, can be extended as needed */
 
-/* 工具ID样式 */
+/* Tool ID styles */
 .tool-id {
     margin-top: 8px;
     padding-top: 8px;
     border-top: 1px solid #e9ecef;
 }
 
-/* 渲染内容样式 - 白色背景 */
+/* Rendered content styles - white background */
 .rendered-content {
     background-color: white;
     padding: 12px;
@@ -890,7 +890,7 @@ body {
     font-family: inherit;
 }
 
-/* 改善browser agent content的样式 */
+/* Improve browser agent content styles */
 .browser-agent-content {
     background-color: #f8fff8;
     border: 1px solid #d4edda;
@@ -899,7 +899,7 @@ body {
     margin: 8px 0;
 }
 
-/* 改善modal中的内容显示 */
+/* Improve content display in modal */
 .modal-body .rendered-content {
     max-height: 400px;
     overflow-y: auto;

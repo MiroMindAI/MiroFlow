@@ -2,13 +2,13 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-// 全局变量
+// Global variables
 let currentFlowData = null;
 let currentBasicInfo = null;
 let currentFileList = [];
 let currentFileIndex = -1;
 
-// DOM元素
+// DOM elements
 const elements = {
     directoryInput: document.getElementById('directoryInput'),
     browseDirectoryBtn: document.getElementById('browseDirectoryBtn'),
@@ -35,13 +35,13 @@ const elements = {
     navigationList: document.getElementById('navigationList')
 };
 
-// 初始化
+// Initialization
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
 });
 
 function initializeApp() {
-    // 绑定事件监听器
+    // Bind event listeners
     elements.browseDirectoryBtn.addEventListener('click', browseDirectory);
     elements.directoryInput.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
@@ -56,17 +56,17 @@ function initializeApp() {
     elements.expandAllBtn.addEventListener('click', expandAllSteps);
     elements.collapseAllBtn.addEventListener('click', collapseAllSteps);
     
-    // 设置默认目录路径
+    // Set default directory path
     setDefaultDirectory();
     
-    // 初始化按钮状态
+    // Initialize button state
     updateNavigationButtons();
     
-    // 添加键盘快捷键支持
+    // Add keyboard shortcut support
     document.addEventListener('keydown', handleKeyboardShortcuts);
 }
 
-// 工具函数
+// Utility functions
 function showLoading() {
     elements.loadingOverlay.classList.remove('d-none');
 }
@@ -91,7 +91,7 @@ function formatTimestamp(timestamp) {
     if (!timestamp) return '';
     try {
         const date = new Date(timestamp);
-        return date.toLocaleString('zh-CN');
+        return date.toLocaleString('en-US');
     } catch (e) {
         return timestamp;
     }
@@ -111,28 +111,28 @@ function formatFileSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// 处理MCP工具调用的显示
+// Handle MCP tool call display
 function formatMcpToolCallWithPlaceholders(text, placeholders) {
     if (!text || typeof text !== 'string') return text;
     
-    // MCP工具调用的正则表达式 - 更宽松的匹配，包括换行符
+    // MCP tool call regex - more lenient matching, including newlines
     const mcpPattern = /<use_mcp_tool>\s*<server_name>(.*?)<\/server_name>\s*<tool_name>(.*?)<\/tool_name>\s*<arguments>\s*(.*?)\s*<\/arguments>\s*<\/use_mcp_tool>/gs;
     
     let placeholderCounter = 0;
     
     return text.replace(mcpPattern, (match, serverName, toolName, args) => {
-        // 清理并格式化参数
+        // Clean and format parameters
         let formattedArgs = args.trim();
         
-        // 先将转义的换行符转换为真正的换行符
+        // First convert escaped newlines to actual newlines
         formattedArgs = formattedArgs.replace(/\\n/g, '\n');
         
         try {
-            // 尝试格式化JSON参数
+            // Try to format JSON parameters
             const parsed = JSON.parse(formattedArgs);
             formattedArgs = JSON.stringify(parsed, null, 2);
         } catch (e) {
-            // 如果不是JSON，保持原样但确保换行符正确
+            // If not JSON, keep as is but ensure newlines are correct
             formattedArgs = formattedArgs.replace(/\n/g, '\n');
         }
         
@@ -140,7 +140,7 @@ function formatMcpToolCallWithPlaceholders(text, placeholders) {
         const toolClass = isBrowserAgent ? 'browser-agent' : '';
         const iconClass = isBrowserAgent ? 'globe' : 'cog';
         
-        // 创建完整的MCP工具调用HTML结构
+        // Create complete MCP tool call HTML structure
         const mcpHtml = `<div class="mcp-tool-call ${toolClass}">
     <div class="mcp-tool-header">
         <i class="fas fa-${iconClass}"></i>
@@ -161,7 +161,7 @@ function formatMcpToolCallWithPlaceholders(text, placeholders) {
     </div>
 </div>`;
         
-        // 使用简单的占位符ID，避免复杂的JSON字符串
+        // Use simple placeholder ID to avoid complex JSON strings
         const placeholderId = `MCP_PLACEHOLDER_${placeholderCounter++}`;
         placeholders.set(placeholderId, mcpHtml);
         
@@ -169,13 +169,13 @@ function formatMcpToolCallWithPlaceholders(text, placeholders) {
     });
 }
 
-// 创建新格式工具调用的HTML
+// Create HTML for new format tool calls
 function createNewFormatToolCallHTML(tool) {
     const isBeowserAgent = tool.server_name.includes('browsing') || tool.server_name.includes('agent');
     const toolClass = isBeowserAgent ? 'browser-agent' : '';
     const iconClass = isBeowserAgent ? 'globe' : 'cog';
     
-    // 格式化参数
+    // Format parameters
     let formattedArgs;
     try {
         if (typeof tool.arguments === 'string') {
@@ -195,7 +195,7 @@ function createNewFormatToolCallHTML(tool) {
     </div>
     <div class="mcp-tool-content">
         <div class="mcp-tool-args">
-            <div class="mcp-args-label">参数:</div>
+            <div class="mcp-args-label">Parameters:</div>
             <div class="xml-arguments">${formattedArgs}</div>
         </div>
         ${tool.id ? `<div class="tool-id"><small class="text-muted">ID: ${tool.id}</small></div>` : ''}
@@ -203,27 +203,27 @@ function createNewFormatToolCallHTML(tool) {
 </div>`;
 }
 
-// 修改markdown渲染支持 - 保留markdown语法，只处理换行和MCP工具调用
+// Modified markdown rendering support - preserve markdown syntax, only handle line breaks and MCP tool calls
 function renderMarkdown(text) {
     if (!text || typeof text !== 'string') return '';
     
     let html = text;
     let placeholders = new Map();
     
-    // 首先处理MCP工具调用，在HTML转义之前
+    // First handle MCP tool calls before HTML escaping
     html = formatMcpToolCallWithPlaceholders(html, placeholders);
     
-    // 转义HTML特殊字符，但保护MCP工具调用占位符
+    // Escape HTML special characters but protect MCP tool call placeholders
     html = html.replace(/&/g, '&amp;')
                .replace(/</g, '&lt;')
                .replace(/>/g, '&gt;')
                .replace(/"/g, '&quot;')
                .replace(/'/g, '&#39;');
     
-    // 只处理换行，保留所有markdown语法
+    // Only handle line breaks, preserve all markdown syntax
     html = html.replace(/\n/g, '<br>');
     
-    // 最后处理MCP工具调用占位符，直接插入HTML
+    // Finally handle MCP tool call placeholders, insert HTML directly
     placeholders.forEach((htmlContent, placeholderId) => {
         html = html.replace(`[${placeholderId}]`, htmlContent);
     });
@@ -231,7 +231,7 @@ function renderMarkdown(text) {
     return html;
 }
 
-// 增强的内容渲染函数
+// Enhanced content rendering function
 function isJsonString(str) {
     try {
         const trimmed = str.trim();
@@ -260,15 +260,15 @@ function formatJsonContent(content) {
 function renderContent(content, isBrowserAgent = false) {
     if (!content) return '';
     
-    // 检查是否为纯JSON字符串
+    // Check if it's a pure JSON string
     if (isJsonString(content)) {
         return formatJsonContent(content);
     }
     
-    // 直接渲染Markdown（已包含MCP工具调用处理）
+    // Render Markdown directly (already includes MCP tool call handling)
     let processedContent = renderMarkdown(content);
     
-    // 如果是browser agent，添加特殊样式
+    // If it's browser agent, add special styling
     if (isBrowserAgent) {
         processedContent = `<div class="browser-agent-content">${processedContent}</div>`;
     }
@@ -276,7 +276,7 @@ function renderContent(content, isBrowserAgent = false) {
     return processedContent;
 }
 
-// API调用函数
+// API call function
 async function apiCall(url, options = {}) {
     try {
         const response = await fetch(url, {
@@ -298,18 +298,18 @@ async function apiCall(url, options = {}) {
     }
 }
 
-// 文件管理
+// File management
 function setDefaultDirectory() {
-    // 设置默认目录为上级目录
+    // Set default directory to parent directory
     elements.directoryInput.value = '../';
-    // 自动加载文件列表
+    // Automatically load file list
     refreshFileList();
 }
 
 async function browseDirectory() {
     const directory = elements.directoryInput.value.trim();
     if (!directory) {
-        showError('请输入目录路径');
+        showError('Please enter directory path');
         return;
     }
     
@@ -320,7 +320,7 @@ async function refreshFileList(directory = null) {
     try {
         const targetDirectory = directory || elements.directoryInput.value.trim();
         if (!targetDirectory) {
-            elements.fileSelect.innerHTML = '<option value="">请先输入目录路径...</option>';
+            elements.fileSelect.innerHTML = '<option value="">Please enter directory path first...</option>';
             currentFileList = [];
             currentFileIndex = -1;
             updateNavigationButtons();
@@ -332,18 +332,18 @@ async function refreshFileList(directory = null) {
         const url = `/api/list_files?directory=${encodeURIComponent(targetDirectory)}`;
         const data = await apiCall(url);
         
-        elements.fileSelect.innerHTML = '<option value="">选择Trace文件...</option>';
+        elements.fileSelect.innerHTML = '<option value="">Select Trace file...</option>';
         
         if (data.files.length === 0) {
-            elements.fileSelect.innerHTML = '<option value="">该目录下没有JSON文件</option>';
+            elements.fileSelect.innerHTML = '<option value="">No JSON files in this directory</option>';
             currentFileList = [];
             currentFileIndex = -1;
-            showSuccess(`目录 "${targetDirectory}" 下没有找到JSON文件`);
+            showSuccess(`No JSON files found in directory "${targetDirectory}"`);
             updateNavigationButtons();
             return;
         }
         
-        // 保存文件列表到全局变量
+        // Save file list to global variable
         currentFileList = data.files;
         currentFileIndex = -1;
         
@@ -352,17 +352,17 @@ async function refreshFileList(directory = null) {
             option.value = file.path;
             option.dataset.index = index;
             const fileSize = formatFileSize(file.size);
-            const modifiedDate = new Date(file.modified * 1000).toLocaleString('zh-CN');
+            const modifiedDate = new Date(file.modified * 1000).toLocaleString('en-US');
             option.textContent = `${file.name} (${fileSize}, ${modifiedDate})`;
             elements.fileSelect.appendChild(option);
         });
         
-        showSuccess(`在目录 "${targetDirectory}" 中找到 ${data.files.length} 个JSON文件`);
+        showSuccess(`Found ${data.files.length} JSON files in directory "${targetDirectory}"`);
         updateNavigationButtons();
         
     } catch (error) {
-        showError('获取文件列表失败: ' + error.message);
-        elements.fileSelect.innerHTML = '<option value="">获取文件列表失败</option>';
+        showError('Failed to get file list: ' + error.message);
+        elements.fileSelect.innerHTML = '<option value="">Failed to get file list</option>';
         currentFileList = [];
         currentFileIndex = -1;
         updateNavigationButtons();
@@ -371,7 +371,7 @@ async function refreshFileList(directory = null) {
     }
 }
 
-// 文件切换功能
+// File switching functionality
 function onFileSelect() {
     const selectedOption = elements.fileSelect.options[elements.fileSelect.selectedIndex];
     if (selectedOption && selectedOption.dataset.index !== undefined) {
@@ -398,7 +398,7 @@ function gotoNextFile() {
 
 function selectFileByIndex(index) {
     if (index >= 0 && index < currentFileList.length) {
-        elements.fileSelect.selectedIndex = index + 1; // +1 因为第一个选项是"选择Trace文件..."
+        elements.fileSelect.selectedIndex = index + 1; // +1 because first option is "Select Trace file..."
         currentFileIndex = index;
         updateNavigationButtons();
     }
@@ -411,27 +411,27 @@ function updateNavigationButtons() {
     elements.prevFileBtn.disabled = !hasPrev;
     elements.nextFileBtn.disabled = !hasNext;
     
-    // 更新按钮提示文本
+    // Update button tooltip text
     if (currentFileIndex >= 0 && currentFileList.length > 0) {
         const prevFile = hasPrev ? currentFileList[currentFileIndex - 1] : null;
         const nextFile = hasNext ? currentFileList[currentFileIndex + 1] : null;
         
-        elements.prevFileBtn.title = prevFile ? `上一个: ${prevFile.name}` : '没有上一个文件';
-        elements.nextFileBtn.title = nextFile ? `下一个: ${nextFile.name}` : '没有下一个文件';
+        elements.prevFileBtn.title = prevFile ? `Previous: ${prevFile.name}` : 'No previous file';
+        elements.nextFileBtn.title = nextFile ? `Next: ${nextFile.name}` : 'No next file';
     } else {
-        elements.prevFileBtn.title = '上一个文件';
-        elements.nextFileBtn.title = '下一个文件';
+        elements.prevFileBtn.title = 'Previous file';
+        elements.nextFileBtn.title = 'Next file';
     }
 }
 
-// 键盘快捷键处理
+// Keyboard shortcut handling
 function handleKeyboardShortcuts(event) {
-    // 只有在没有焦点在输入框时才处理快捷键
+    // Only handle shortcuts when no input field is focused
     if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.tagName === 'SELECT') {
         return;
     }
     
-    // 防止在模态框打开时触发
+    // Prevent triggering when modal is open
     if (elements.messageModal.classList.contains('show')) {
         return;
     }
@@ -468,20 +468,20 @@ function handleKeyboardShortcuts(event) {
 async function loadTraceFile() {
     const selectedFile = elements.fileSelect.value;
     if (!selectedFile) {
-        showError('请选择一个trace文件');
+        showError('Please select a trace file');
         return;
     }
     
     showLoading();
     
     try {
-        // 加载文件
+        // Load file
         await apiCall('/api/load_trace', {
             method: 'POST',
             body: JSON.stringify({ file_path: selectedFile })
         });
         
-        // 并行加载所有数据
+        // Load all data in parallel
         const [basicInfo, executionSummary, performanceSummary, executionFlow, spansStats, stepLogsStats] = await Promise.all([
             apiCall('/api/basic_info'),
             apiCall('/api/execution_summary'),
@@ -491,7 +491,7 @@ async function loadTraceFile() {
             apiCall('/api/step_logs_summary')
         ]);
         
-        // 更新界面
+        // Update interface
         updateBasicInfo(basicInfo);
         updateExecutionSummary(executionSummary);
         updatePerformanceSummary(performanceSummary);
@@ -499,43 +499,43 @@ async function loadTraceFile() {
         updateSpansStats(spansStats);
         updateStepLogsStats(stepLogsStats);
         
-        // 显示当前文件信息
+        // Display current file information
         const currentFile = currentFileList[currentFileIndex];
         if (currentFile) {
-            showSuccess(`文件加载成功: ${currentFile.name} (${currentFileIndex + 1}/${currentFileList.length})`);
+            showSuccess(`File loaded successfully: ${currentFile.name} (${currentFileIndex + 1}/${currentFileList.length})`);
         } else {
-            showSuccess('文件加载成功');
+            showSuccess('File loaded successfully');
         }
         
     } catch (error) {
-        showError('加载文件失败: ' + error.message);
+        showError('Failed to load file: ' + error.message);
     } finally {
         hideLoading();
     }
 }
 
-// 界面更新函数
+// Interface update functions
 function updateBasicInfo(data) {
     currentBasicInfo = data;
     
-    const finalAnswer = data.final_boxed_answer || '暂无答案';
-    const groundTruth = data.ground_truth || '暂无正确答案';
+    const finalAnswer = data.final_boxed_answer || 'No answer available';
+    const groundTruth = data.ground_truth || 'No correct answer available';
     
     const html = `
         <div class="stat-item">
-            <span class="stat-label">任务ID:</span>
+            <span class="stat-label">Task ID:</span>
             <span class="stat-value">${data.task_id || 'N/A'}</span>
         </div>
         <div class="answer-box final-answer">
-            <div class="answer-label">最终答案</div>
+            <div class="answer-label">Final Answer</div>
             <div class="answer-content">${finalAnswer}</div>
         </div>
         <div class="answer-box ground-truth">
-            <div class="answer-label">正确答案</div>
+            <div class="answer-label">Correct Answer</div>
             <div class="answer-content">${groundTruth}</div>
         </div>
         <div class="stat-item">
-            <span class="stat-label">判断结果:</span>
+            <span class="stat-label">Judgment Result:</span>
             <span class="stat-value badge ${data.llm_as_judge_result === 'CORRECT' ? 'bg-success' : 'bg-danger'}">${data.llm_as_judge_result || 'N/A'}</span>
         </div>
     `;
@@ -546,15 +546,15 @@ function updateBasicInfo(data) {
 function updateExecutionSummary(data) {
     const html = `
         <div class="stat-item">
-            <span class="stat-label">总步骤数:</span>
+            <span class="stat-label">Total Steps:</span>
             <span class="stat-value">${data.total_steps}</span>
         </div>
         <div class="stat-item">
-            <span class="stat-label">工具调用次数:</span>
+            <span class="stat-label">Tool Calls:</span>
             <span class="stat-value">${data.total_tool_calls}</span>
         </div>
         <div class="stat-item">
-            <span class="stat-label">Browser会话数:</span>
+            <span class="stat-label">Browser Sessions:</span>
             <span class="stat-value">${data.browser_sessions_count}</span>
         </div>
         <div class="stat-item">
@@ -568,13 +568,13 @@ function updateExecutionSummary(data) {
 
 function updatePerformanceSummary(data) {
     if (!data || Object.keys(data).length === 0) {
-        elements.performanceSummary.innerHTML = '<p class="text-muted">无性能数据</p>';
+        elements.performanceSummary.innerHTML = '<p class="text-muted">No performance data</p>';
         return;
     }
     
     const html = `
         <div class="stat-item">
-            <span class="stat-label">总执行时间:</span>
+            <span class="stat-label">Total Execution Time:</span>
             <span class="stat-value">${(data.total_wall_time || 0).toFixed(2)}s</span>
         </div>
         <div class="stat-item">
@@ -594,12 +594,12 @@ function updateExecutionFlow(data) {
     currentFlowData = data;
     
     if (!data || data.length === 0) {
-        elements.executionFlow.innerHTML = '<p class="text-muted">无执行流程数据</p>';
+        elements.executionFlow.innerHTML = '<p class="text-muted">No execution flow data</p>';
         updateNavigationList([]);
         return;
     }
     
-    // 确保每个步骤都是独立的顶级元素
+    // Ensure each step is an independent top-level element
     const stepsContainer = document.createElement('div');
     stepsContainer.className = 'execution-steps-container';
     
@@ -612,10 +612,10 @@ function updateExecutionFlow(data) {
     elements.executionFlow.innerHTML = '';
     elements.executionFlow.appendChild(stepsContainer);
     
-    // 更新导航列表
+    // Update navigation list
     updateNavigationList(data);
     
-    // 绑定事件监听器
+    // Bind event listeners
     bindStepEventListeners();
 }
 
@@ -626,7 +626,7 @@ function createStepHTML(step, index) {
                      'assistant-message';
     const agentClass = step.agent.includes('browser') ? 'browser-agent' : '';
     
-    // 渲染内容
+    // Render content
     const renderedPreview = renderContent(step.content_preview);
     const renderedFullContent = renderContent(step.full_content);
     
@@ -637,8 +637,8 @@ function createStepHTML(step, index) {
                     <div>
                         <span class="badge badge-role badge-${step.role}">${step.role}</span>
                         <span class="badge badge-browser ms-2">${step.agent}</span>
-                        ${step.tool_calls.length > 0 ? `<span class="badge bg-warning text-dark ms-2">${step.tool_calls.length} 工具调用</span>` : ''}
-                        ${step.browser_session ? `<span class="badge bg-success ms-2">Browser会话</span>` : ''}
+                        ${step.tool_calls.length > 0 ? `<span class="badge bg-warning text-dark ms-2">${step.tool_calls.length} Tool Calls</span>` : ''}
+                        ${step.browser_session ? `<span class="badge bg-success ms-2">Browser Session</span>` : ''}
                     </div>
                     <div class="d-flex align-items-center">
                         <span class="timestamp me-2">${formatTimestamp(step.timestamp)}</span>
@@ -656,23 +656,23 @@ function createStepHTML(step, index) {
             
             <div class="step-content collapse" id="step-content-${index}">
                 <div class="mb-3">
-                    <h6>完整内容:</h6>
+                    <h6>Full Content:</h6>
                     <div class="rendered-content">${renderedFullContent}</div>
                 </div>
                 
                 ${step.tool_calls.length > 0 ? `
                     <div class="mb-3">
-                        <h6>工具调用:</h6>
+                        <h6>Tool Calls:</h6>
                         ${step.tool_calls.map(tool => createToolCallHTML(tool)).join('')}
                     </div>
                 ` : ''}
                 
                 ${step.browser_flow && step.browser_flow.length > 0 ? `
                     <div class="mb-3">
-                        <h6>Browser会话流程:</h6>
+                        <h6>Browser Session Flow:</h6>
                         <div class="browser-session">
                             <div class="browser-session-header">
-                                <i class="fas fa-globe"></i> ${step.browser_session} (${step.browser_flow.length} 步骤)
+                                <i class="fas fa-globe"></i> ${step.browser_session} (${step.browser_flow.length} steps)
                             </div>
                             ${step.browser_flow.map(browserStep => createBrowserStepHTML(browserStep, index)).join('')}
                         </div>
@@ -681,7 +681,7 @@ function createStepHTML(step, index) {
                 
                 <div class="d-flex justify-content-end">
                     <button class="btn btn-outline-primary btn-sm" onclick="showFullMessage(${step.step_id})">
-                        <i class="fas fa-expand"></i> 查看详情
+                        <i class="fas fa-expand"></i> View Details
                     </button>
                 </div>
             </div>
@@ -690,12 +690,12 @@ function createStepHTML(step, index) {
 }
 
 function createToolCallHTML(tool) {
-    // 如果是新格式的工具调用，使用新的渲染方式
+    // If it's new format tool call, use new rendering method
     if (tool.format === 'new') {
         return createNewFormatToolCallHTML(tool);
     }
     
-    // 旧格式（MCP或其他）使用原有的渲染方式
+    // Old format (MCP or others) use original rendering method
     const isBeowserAgent = tool.server_name === 'browsing-agent' || tool.server_name.includes('agent');
     const toolClass = isBeowserAgent ? 'browser-agent' : '';
     
@@ -707,7 +707,7 @@ function createToolCallHTML(tool) {
                 <span class="badge badge-format ms-2">${tool.format || 'mcp'}</span>
             </div>
             <div class="tool-arguments">
-                <strong>参数:</strong>
+                <strong>Parameters:</strong>
                 <div class="code-block">${JSON.stringify(tool.arguments, null, 2)}</div>
             </div>
         </div>
@@ -715,13 +715,13 @@ function createToolCallHTML(tool) {
 }
 
 function createBrowserStepHTML(step, parentIndex) {
-    // 为browser step创建唯一的ID
+    // Create unique ID for browser step
     const browserId = `browser-${parentIndex}-${step.step_id}`;
     
-    // 判断内容是否被截断
+    // Check if content is truncated
     const isContentTruncated = step.full_content && step.content_preview.length < step.full_content.length;
     
-    // 渲染内容
+    // Render content
     const renderedPreview = renderContent(step.content_preview);
     const renderedFullContent = renderContent(step.full_content);
     
@@ -730,7 +730,7 @@ function createBrowserStepHTML(step, parentIndex) {
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <div>
                     <span class="badge badge-role badge-${step.role}">${step.role}</span>
-                    ${step.tool_calls.length > 0 ? `<span class="badge bg-warning text-dark ms-2">${step.tool_calls.length} 工具</span>` : ''}
+                    ${step.tool_calls.length > 0 ? `<span class="badge bg-warning text-dark ms-2">${step.tool_calls.length} Tools</span>` : ''}
                 </div>
                 <span class="timestamp">${formatTimestamp(step.timestamp)}</span>
             </div>
@@ -740,14 +740,14 @@ function createBrowserStepHTML(step, parentIndex) {
                     ${isContentTruncated ? `
                         <span class="text-muted">...</span>
                         <button class="btn btn-link btn-sm p-0 ms-2 expand-preview-btn" onclick="toggleBrowserPreview('${browserId}', ${parentIndex}, ${step.step_id})" data-expanded="false">
-                            <i class="fas fa-chevron-down"></i> 展开
+                            <i class="fas fa-chevron-down"></i> Expand
                         </button>
                     ` : ''}
                 </div>
             </div>
             ${step.tool_calls.length > 0 ? `
                 <div class="mt-2">
-                    <h7>工具调用:</h7>
+                    <h7>Tool Calls:</h7>
                     ${step.tool_calls.map(tool => createToolCallHTML(tool)).join('')}
                 </div>
             ` : ''}
@@ -757,30 +757,30 @@ function createBrowserStepHTML(step, parentIndex) {
 
 function updateSpansStats(data) {
     if (!data || Object.keys(data).length === 0) {
-        elements.spansStats.innerHTML = '<p class="text-muted">无Spans数据</p>';
+        elements.spansStats.innerHTML = '<p class="text-muted">No Spans data</p>';
         return;
     }
     
     const html = `
         <div class="stat-item">
-            <span class="stat-label">总Spans数:</span>
+            <span class="stat-label">Total Spans:</span>
             <span class="stat-value">${data.total_spans}</span>
         </div>
         <div class="stat-item">
-            <span class="stat-label">总时长:</span>
+            <span class="stat-label">Total Duration:</span>
             <span class="stat-value">${(data.total_duration || 0).toFixed(2)}s</span>
         </div>
         <div class="mt-3">
-            <h6>Agent统计:</h6>
+            <h6>Agent Statistics:</h6>
             ${Object.entries(data.agent_stats || {}).map(([agent, stats]) => `
                 <div class="mb-2">
                     <strong>${agent}:</strong>
                     <div class="stat-item">
-                        <span class="stat-label">数量:</span>
+                        <span class="stat-label">Count:</span>
                         <span class="stat-value">${stats.count}</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">时长:</span>
+                        <span class="stat-label">Duration:</span>
                         <span class="stat-value">${(stats.total_duration || 0).toFixed(2)}s</span>
                     </div>
                 </div>
@@ -793,17 +793,17 @@ function updateSpansStats(data) {
 
 function updateStepLogsStats(data) {
     if (!data || Object.keys(data).length === 0) {
-        elements.stepLogsStats.innerHTML = '<p class="text-muted">无步骤日志数据</p>';
+        elements.stepLogsStats.innerHTML = '<p class="text-muted">No step logs data</p>';
         return;
     }
     
     const html = `
         <div class="stat-item">
-            <span class="stat-label">总日志数:</span>
+            <span class="stat-label">Total Logs:</span>
             <span class="stat-value">${data.total_logs}</span>
         </div>
         <div class="mt-3">
-            <h6>状态分布:</h6>
+            <h6>Status Distribution:</h6>
             ${Object.entries(data.status_distribution || {}).map(([status, count]) => `
                 <div class="stat-item">
                     <span class="stat-label">${status}:</span>
@@ -812,7 +812,7 @@ function updateStepLogsStats(data) {
             `).join('')}
         </div>
         <div class="mt-3">
-            <h6>步骤类型分布:</h6>
+            <h6>Step Type Distribution:</h6>
             ${Object.entries(data.step_type_distribution || {}).map(([type, count]) => `
                 <div class="stat-item">
                     <span class="stat-label">${type}:</span>
@@ -825,9 +825,9 @@ function updateStepLogsStats(data) {
     elements.stepLogsStats.innerHTML = html;
 }
 
-// 事件处理函数
+// Event handling functions
 function bindStepEventListeners() {
-    // 步骤折叠/展开
+    // Step collapse/expand
     document.querySelectorAll('.step-header').forEach(header => {
         header.addEventListener('click', function() {
             const target = this.getAttribute('data-target');
@@ -846,7 +846,7 @@ function bindStepEventListeners() {
 }
 
 function expandAllSteps() {
-    // 展开main agent的步骤
+    // Expand main agent steps
     document.querySelectorAll('.step-content').forEach(content => {
         content.classList.add('show');
     });
@@ -854,7 +854,7 @@ function expandAllSteps() {
         icon.className = 'fas fa-chevron-up';
     });
     
-    // 展开browser agent的预览内容
+    // Expand browser agent preview content
     document.querySelectorAll('.expand-preview-btn').forEach(button => {
         const isExpanded = button.getAttribute('data-expanded') === 'true';
         if (!isExpanded) {
@@ -864,7 +864,7 @@ function expandAllSteps() {
 }
 
 function collapseAllSteps() {
-    // 收起main agent的步骤
+    // Collapse main agent steps
     document.querySelectorAll('.step-content').forEach(content => {
         content.classList.remove('show');
     });
@@ -872,7 +872,7 @@ function collapseAllSteps() {
         icon.className = 'fas fa-chevron-down';
     });
     
-    // 收起browser agent的预览内容
+    // Collapse browser agent preview content
     document.querySelectorAll('.expand-preview-btn').forEach(button => {
         const isExpanded = button.getAttribute('data-expanded') === 'true';
         if (isExpanded) {
@@ -881,8 +881,8 @@ function collapseAllSteps() {
     });
 }
 
-// 切换内容预览展开/收起
-// 切换browser预览展开/收起
+// Toggle content preview expand/collapse
+// Toggle browser preview expand/collapse
 function toggleBrowserPreview(browserId, parentIndex, browserStepId) {
     const previewElement = document.getElementById(`browser-preview-${browserId}`);
     const button = previewElement.querySelector('.expand-preview-btn');
@@ -897,22 +897,22 @@ function toggleBrowserPreview(browserId, parentIndex, browserStepId) {
     if (!browserStep) return;
     
     if (isExpanded) {
-        // 收起
+        // Collapse
         const renderedPreview = renderContent(browserStep.content_preview);
         previewElement.querySelector('.preview-text').innerHTML = `
             ${renderedPreview}
             <span class="text-muted">...</span>
             <button class="btn btn-link btn-sm p-0 ms-2 expand-preview-btn" onclick="toggleBrowserPreview('${browserId}', ${parentIndex}, ${browserStepId})" data-expanded="false">
-                <i class="fas fa-chevron-down"></i> 展开
+                <i class="fas fa-chevron-down"></i> Expand
             </button>
         `;
     } else {
-        // 展开
+        // Expand
         const renderedFullContent = renderContent(browserStep.full_content);
         previewElement.querySelector('.preview-text').innerHTML = `
             ${renderedFullContent}
             <button class="btn btn-link btn-sm p-0 ms-2 expand-preview-btn" onclick="toggleBrowserPreview('${browserId}', ${parentIndex}, ${browserStepId})" data-expanded="true">
-                <i class="fas fa-chevron-up"></i> 收起
+                <i class="fas fa-chevron-up"></i> Collapse
             </button>
         `;
     }
@@ -929,26 +929,26 @@ function showFullMessage(stepId) {
     const modal = new bootstrap.Modal(elements.messageModal);
     elements.messageContent.innerHTML = `
         <div class="mb-3">
-            <h6>步骤信息:</h6>
+            <h6>Step Information:</h6>
             <div class="row">
                 <div class="col-md-4"><strong>Step ID:</strong> ${step.step_id}</div>
                 <div class="col-md-4"><strong>Agent:</strong> ${step.agent}</div>
                 <div class="col-md-4"><strong>Role:</strong> ${step.role}</div>
             </div>
             <div class="row mt-2">
-                <div class="col-md-6"><strong>时间:</strong> ${formatTimestamp(step.timestamp)}</div>
-                <div class="col-md-6"><strong>工具调用:</strong> ${step.tool_calls.length}</div>
+                <div class="col-md-6"><strong>Time:</strong> ${formatTimestamp(step.timestamp)}</div>
+                <div class="col-md-6"><strong>Tool Calls:</strong> ${step.tool_calls.length}</div>
             </div>
         </div>
         
         <div class="mb-3">
-            <h6>完整内容:</h6>
+            <h6>Full Content:</h6>
             <div class="rendered-content">${renderedFullContent}</div>
         </div>
         
         ${step.tool_calls.length > 0 ? `
             <div class="mb-3">
-                <h6>工具调用详情:</h6>
+                <h6>Tool Call Details:</h6>
                 ${step.tool_calls.map(tool => `
                     <div class="card mb-2">
                         <div class="card-body">
@@ -962,7 +962,7 @@ function showFullMessage(stepId) {
         
         ${step.browser_flow && step.browser_flow.length > 0 ? `
             <div class="mb-3">
-                <h6>Browser会话详情:</h6>
+                <h6>Browser Session Details:</h6>
                 <div class="accordion" id="browserAccordion">
                     ${step.browser_flow.map((browserStep, index) => {
                         const renderedBrowserContent = renderContent(browserStep.full_content);
@@ -971,7 +971,7 @@ function showFullMessage(stepId) {
                                 <h2 class="accordion-header">
                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#browserStep${index}">
                                         Browser Step ${index + 1}: ${browserStep.role}
-                                        ${browserStep.tool_calls.length > 0 ? `(${browserStep.tool_calls.length} 工具调用)` : ''}
+                                        ${browserStep.tool_calls.length > 0 ? `(${browserStep.tool_calls.length} tool calls)` : ''}
                                     </button>
                                 </h2>
                                 <div id="browserStep${index}" class="accordion-collapse collapse">
@@ -979,7 +979,7 @@ function showFullMessage(stepId) {
                                         <div class="rendered-content">${renderedBrowserContent}</div>
                                         ${browserStep.tool_calls.length > 0 ? `
                                             <div class="mt-2">
-                                                <strong>工具调用:</strong>
+                                                <strong>Tool Calls:</strong>
                                                 ${browserStep.tool_calls.map(tool => `
                                                     <div class="small text-muted">
                                                         ${tool.server_name}.${tool.tool_name}
@@ -1000,18 +1000,18 @@ function showFullMessage(stepId) {
     modal.show();
 } 
 
-// ==================== 导航功能 ====================
+// ==================== Navigation Features ====================
 
 function updateNavigationList(data) {
     if (!data || data.length === 0) {
-        elements.navigationList.innerHTML = '<p class="text-muted p-3 mb-0">暂无步骤</p>';
+        elements.navigationList.innerHTML = '<p class="text-muted p-3 mb-0">No steps available</p>';
         return;
     }
     
     const navigationHTML = data.map((step, index) => {
         const summary = truncateText(step.content_preview, 50);
-        const toolsInfo = step.tool_calls.length > 0 ? ` (${step.tool_calls.length}工具)` : '';
-        const browserInfo = step.browser_session ? ' [浏览器]' : '';
+        const toolsInfo = step.tool_calls.length > 0 ? ` (${step.tool_calls.length} tools)` : '';
+        const browserInfo = step.browser_session ? ' [Browser]' : '';
         
         let html = `
             <div class="nav-item" data-step-index="${index}" onclick="scrollToStep(${index})">
@@ -1028,13 +1028,13 @@ function updateNavigationList(data) {
             </div>
         `;
         
-        // 添加browser子步骤
+        // Add browser sub-steps
         if (step.browser_flow && step.browser_flow.length > 0) {
             html += `
                 <div class="browser-sub-steps" id="browser-nav-${index}">
                     ${step.browser_flow.map((browserStep, browserIndex) => {
                         const browserSummary = truncateText(browserStep.content_preview, 40);
-                        const browserToolsInfo = browserStep.tool_calls.length > 0 ? ` (${browserStep.tool_calls.length}工具)` : '';
+                        const browserToolsInfo = browserStep.tool_calls.length > 0 ? ` (${browserStep.tool_calls.length} tools)` : '';
                         
                         return `
                             <div class="nav-item browser-sub-step" data-step-index="${index}" data-browser-step-id="${browserStep.step_id}" onclick="scrollToBrowserStep(${index}, ${browserStep.step_id})">
@@ -1064,10 +1064,10 @@ function scrollToStep(stepIndex) {
             block: 'start' 
         });
         
-        // 更新活跃的导航项
+        // Update active navigation item
         updateActiveNavItem(stepIndex);
         
-        // 如果步骤是收起的，自动展开
+        // Auto-expand if step is collapsed
         const stepContent = document.getElementById(`step-content-${stepIndex}`);
         if (stepContent && !stepContent.classList.contains('show')) {
             const collapseInstance = new bootstrap.Collapse(stepContent, {
@@ -1086,10 +1086,10 @@ function scrollToBrowserStep(parentIndex, browserStepId) {
             block: 'start' 
         });
         
-        // 更新活跃的导航项
+        // Update active navigation item
         updateActiveNavItem(parentIndex, browserStepId);
         
-        // 确保父步骤是展开的
+        // Ensure parent step is expanded
         const stepContent = document.getElementById(`step-content-${parentIndex}`);
         if (stepContent && !stepContent.classList.contains('show')) {
             const collapseInstance = new bootstrap.Collapse(stepContent, {
@@ -1101,7 +1101,7 @@ function scrollToBrowserStep(parentIndex, browserStepId) {
 }
 
 function toggleBrowserNav(stepIndex, event) {
-    event.stopPropagation(); // 阻止事件冒泡
+    event.stopPropagation(); // Prevent event bubbling
     
     const browserNavElement = document.getElementById(`browser-nav-${stepIndex}`);
     const toggleIcon = event.target.closest('.browser-toggle').querySelector('i');
@@ -1116,18 +1116,18 @@ function toggleBrowserNav(stepIndex, event) {
 }
 
 function updateActiveNavItem(activeIndex, browserStepId = null) {
-    // 移除所有活跃状态
+    // Remove all active states
     const navItems = elements.navigationList.querySelectorAll('.nav-item');
     navItems.forEach(item => item.classList.remove('active'));
     
     if (browserStepId) {
-        // 激活browser子步骤
+        // Activate browser sub-step
         const browserNavItem = elements.navigationList.querySelector(`[data-step-index="${activeIndex}"][data-browser-step-id="${browserStepId}"]`);
         if (browserNavItem) {
             browserNavItem.classList.add('active');
         }
     } else {
-        // 激活主步骤
+        // Activate main step
         const activeItem = elements.navigationList.querySelector(`[data-step-index="${activeIndex}"]:not([data-browser-step-id])`);
         if (activeItem) {
             activeItem.classList.add('active');
@@ -1135,7 +1135,7 @@ function updateActiveNavItem(activeIndex, browserStepId = null) {
     }
 }
 
-// 监听滚动事件，自动更新导航激活状态
+// Listen to scroll events and auto-update navigation active state
 let scrollTimeout;
 function handleScroll() {
     clearTimeout(scrollTimeout);
@@ -1151,7 +1151,7 @@ function handleScroll() {
         let activeBrowserStepId = null;
         let minDistance = Infinity;
         
-        // 检查browser子步骤
+        // Check browser sub-steps
         browserSteps.forEach((browserStep) => {
             const rect = browserStep.getBoundingClientRect();
             const distance = Math.abs(rect.top - windowHeight / 3);
@@ -1167,7 +1167,7 @@ function handleScroll() {
             }
         });
         
-        // 如果没有找到活跃的browser步骤，检查主步骤
+        // If no active browser step found, check main steps
         if (!activeBrowserStepId) {
             steps.forEach((step, index) => {
                 const rect = step.getBoundingClientRect();
@@ -1185,5 +1185,5 @@ function handleScroll() {
     }, 100);
 }
 
-// 绑定滚动事件
+// Bind scroll event
 window.addEventListener('scroll', handleScroll);
