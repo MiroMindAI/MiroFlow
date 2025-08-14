@@ -1,3 +1,5 @@
+[![MSeeP.ai Security Assessment Badge](https://mseep.net/pr/miromindai-miroflow-badge.png)](https://mseep.ai/app/miromindai-miroflow)
+
 <h1 align="center">
 <em>MiroFlow</em>: A Consistent Agent Framework with Reproducible Performance
 </h1>
