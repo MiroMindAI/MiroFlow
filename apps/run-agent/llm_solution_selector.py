@@ -15,7 +15,7 @@ from typing import Dict, List, Any, Optional, Tuple
 import dotenv
 from openai import AsyncOpenAI
 from openai import APIError, APIConnectionError, RateLimitError, APITimeoutError
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import stop_after_attempt, wait_exponential
 from tenacity.asyncio import AsyncRetrying
 
 from eval_utils import verify_answer_gaia
