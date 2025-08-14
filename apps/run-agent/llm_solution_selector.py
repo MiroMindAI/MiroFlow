@@ -29,6 +29,7 @@ RETRY_WAIT_MIN = 1  # seconds
 RETRY_WAIT_MAX = 10  # seconds
 MAX_CONCURRENT_REQUESTS = 5  # Maximum concurrent API requests
 SEMAPHORE_TIMEOUT = 300  # Timeout for acquiring semaphore in seconds
+VERBOSE = False
 
 dotenv.load_dotenv()
 
@@ -227,16 +228,18 @@ async def process_tasks(
 
             # Show progress indicator
             progress_percent = (completed_tasks / total_tasks) * 100
-            print(
-                f"Progress: {completed_tasks}/{total_tasks} ({progress_percent:.1f}%) - Completed task: {task_id}"
-            )
+            if VERBOSE:
+                print(
+                    f"Progress: {completed_tasks}/{total_tasks} ({progress_percent:.1f}%) - Completed task: {task_id}"
+                )
 
         except Exception as e:
             completed_tasks += 1
             progress_percent = (completed_tasks / total_tasks) * 100
-            print(
-                f"Progress: {completed_tasks}/{total_tasks} ({progress_percent:.1f}%) - Error processing task: {e}"
-            )
+            if VERBOSE:
+                print(
+                    f"Progress: {completed_tasks}/{total_tasks} ({progress_percent:.1f}%) - Error processing task: {e}"
+                )
             # Continue with other tasks instead of failing completely
             continue
 
