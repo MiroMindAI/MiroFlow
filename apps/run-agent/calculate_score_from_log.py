@@ -32,19 +32,19 @@ def calculate_majority_vote(task_score_dict):
     """Calculate majority vote results for each task."""
     majority_success_id = []
     majority_failed_id = []
-    
+
     for task, scores in task_score_dict.items():
         if len(scores) == 0:
             continue
         correct_count = sum(scores)
         total_count = len(scores)
-        
+
         # Majority vote: more than half of attempts are correct
         if correct_count > total_count / 2:
             majority_success_id.append(task)
         else:
             majority_failed_id.append(task)
-    
+
     return majority_success_id, majority_failed_id
 
 
@@ -71,7 +71,7 @@ def main(results_dir: str, pass_at_k: int = 3):
             success_id.append(task)
         else:
             failed_id.append(task)
-    
+
     # Calculate majority vote results
     majority_success_id, majority_failed_id = calculate_majority_vote(task_score_dict)
 
@@ -103,10 +103,12 @@ def main(results_dir: str, pass_at_k: int = 3):
         f.write(f"Failed id:\n{'\n'.join(failed_id)}\n")
 
     print(f"\nResults saved to: {output_file}")
-    
+
     # Save majority vote results
     print(f"Number of runs: {run_dirs}")
-    majority_output_file = os.path.join(results_dir, f"majority_vote_at_{len(run_dirs)}.txt")
+    majority_output_file = os.path.join(
+        results_dir, f"majority_vote_at_{len(run_dirs)}.txt"
+    )
     with open(majority_output_file, "w") as f:
         f.write("EVALUATION RESULTS\n")
         print("MAJORITY VOTE RESULTS\n")
@@ -138,7 +140,7 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: python calculate_score_from_log.py <results_dir> [pass_at_k]")
         sys.exit(1)
-    
+
     results_dir = sys.argv[1]
     pass_at_k = int(sys.argv[2]) if len(sys.argv) > 2 else 3
     main(results_dir, pass_at_k)

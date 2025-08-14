@@ -63,11 +63,18 @@ echo "=========================================="
 echo "All $NUM_RUNS runs completed!"
 echo "=========================================="
 
+
+echo "=========================================="
 echo "Calculating average scores..."
 uv run main.py avg-score "$RESULTS_DIR"
 
+echo "=========================================="
 echo "Calculating scores from logs..."
 uv run main.py score-from-log "$RESULTS_DIR"
+
+echo "=========================================="
+echo "Selecting best solutions..."
+uv run main.py llm-solution-selector "$RESULTS_DIR"
 
 echo "=========================================="
 echo "Multiple runs evaluation completed!"

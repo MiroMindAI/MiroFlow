@@ -9,6 +9,7 @@ import calculate_average_score
 import calculate_score_from_log
 import common_benchmark
 import eval_answer_from_log
+import llm_solution_selector
 import trace_single_task
 
 
@@ -30,5 +31,6 @@ if __name__ == "__main__":
             "eval-answer": eval_answer_from_log.main,
             "avg-score": calculate_average_score.main,
             "score-from-log": calculate_score_from_log.main,
+            "llm-solution-selector": llm_solution_selector.main,
         }
     )
