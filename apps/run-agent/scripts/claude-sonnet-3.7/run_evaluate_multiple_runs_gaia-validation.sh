@@ -73,6 +73,10 @@ echo "Calculating scores from logs..."
 uv run main.py score-from-log "$RESULTS_DIR"
 
 echo "=========================================="
+echo "Calculating majority vote results..."
+uv run main.py llm-majority-voter "$RESULTS_DIR"
+
+echo "=========================================="
 echo "Selecting best solutions..."
 uv run main.py llm-solution-selector "$RESULTS_DIR"
 
