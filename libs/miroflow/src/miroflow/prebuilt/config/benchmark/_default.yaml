@@ -4,6 +4,7 @@ name: "default"
 
 data:
   metadata_file: "standardized_data.jsonl"
+  # metadata_file: "standardized_data_single_sample.jsonl"
   field_mapping:
     task_id_field: "task_id"
     task_question_field: "task_question"

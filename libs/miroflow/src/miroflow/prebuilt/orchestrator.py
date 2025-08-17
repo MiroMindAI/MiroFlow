@@ -1320,7 +1320,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
                     final_answer_text = f"{final_answer_text}\n\nO3 Extracted Answer:\n{o3_extracted_answer}"
 
                 except Exception as e:
-                    logger.warning(
+                    logger.error(
                         f"O3 final answer extraction failed after retries: {str(e)}"
                     )
                     # Continue using original final_answer_text

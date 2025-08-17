@@ -8,9 +8,7 @@ import asyncio
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 ANTHROPIC_BASE_URL = os.environ.get("ANTHROPIC_BASE_URL", "https://api.anthropic.com")
 OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY", "")
-OPENROUTER_BASE_URL = os.environ.get(
-    "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1"
-)
+OPENROUTER_BASE_URL = os.environ.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
 
 # Initialize FastMCP server
 mcp = FastMCP("reasoning-mcp-server")
@@ -18,14 +16,24 @@ mcp = FastMCP("reasoning-mcp-server")
 
 @mcp.tool()
 async def reasoning(question: str) -> str:
-    """You can use this tool use solve hard math problem, puzzle, riddle and IQ test question that requries a lot of chain of thought efforts.
-    DO NOT use this tool for simple and obvious question.
+    """This tool is for pure text-based reasoning, analysis, and logical thinking. It integrates collected information, organizes final logic, and provides planning insights.
+    
+    IMPORTANT: This tool cannot access the internet, read files, program, or process multimodal content. It only performs pure text reasoning.
+    
+    Use this tool for:
+    - Integrating and synthesizing collected information
+    - Analyzing patterns and relationships in data
+    - Logical reasoning and problem-solving
+    - Planning and strategy development
+    - Complex math problems, puzzles, riddles, and IQ tests
+    
+    DO NOT use this tool for simple and obvious questions.
 
     Args:
-        question: The complex question or problem requiring step-by-step reasoning. Should include all relevant information needed to solve the problem..
+        question: The complex question or problem requiring step-by-step reasoning. Should include all relevant information needed to solve the problem.
 
     Returns:
-        The answer to the question.
+        The reasoned answer to the question.
     """
 
     messages_for_llm = [
