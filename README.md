@@ -160,8 +160,28 @@ uv sync
 
 **Step 2:** Set up environment dependencies:
 
+a. Set up `MiroFlow/apps/prepare-benchmark/.env` by:
+```bash
+## copy environment variable template and prepare yours in .env file
+cd MiroFlow/apps/prepare-benchmark
+cp .env.template .env
+vim .env 
+```
 Required environment variables:  
 - `HF_TOKEN` (for downloading datasets from Hugging Face) 
+
+Optional environment variables:
+- `DATA_DIR` (Data loading directory, by default `../../data`)
+
+
+b. Set up `MiroFlow/apps/run-agent/.env` by:
+```bash
+## copy environment variable template and prepare yours in .env file
+cd MiroFlow/apps/run-agent
+cp .env.template .env
+vim .env
+```
+Required environment variables:  
 - `OPENROUTER_API_KEY` (Using OpenRouter to provide primary agent model) 
 - `ANTHROPIC_API_KEY` (for vision tools)
 - `OPENAI_API_KEY` (for audio tools, intent recognition, and answer extraction)
@@ -176,15 +196,6 @@ Optional environment variables:
 
 If you wish to use a different LLM as the primary agent model, you will need to provide the corresponding API keys.
 
-```bash
-## copy environment variable template and prepare yours in .env file
-cd MiroFlow/apps/prepare-benchmark
-cp .env.template .env
-vim .env
-cd MiroFlow/apps/run-agent
-cp .env.template .env
-vim .env
-```
 
 **Step 3:** Prepare E2B Sandbox (Optional)
 
