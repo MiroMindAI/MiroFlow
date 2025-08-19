@@ -646,7 +646,7 @@ def main(cfg: DictConfig) -> None:
     # Register signal handlers for immediate response to Ctrl+C
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-    
+
     dotenv.load_dotenv()
     _ = bootstrap_logger()
     # Default to disable tracing, and don't set key
@@ -654,7 +654,7 @@ def main(cfg: DictConfig) -> None:
     set_tracing_export_api_key("fake-key")
     # Suppress trace provider warnings
     bootstrap_silent_trace_provider()
-    
+
     print("✅ Signal handler registered, press Ctrl+C to exit immediately")
     asyncio.run(entrypoint(cfg))
 
