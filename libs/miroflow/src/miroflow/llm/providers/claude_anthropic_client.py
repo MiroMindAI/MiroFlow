@@ -12,7 +12,7 @@ from anthropic import (
     DefaultAsyncHttpxClient,
     DefaultHttpxClient,
 )
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 from miroflow.llm.provider_client_base import LLMProviderClientBase
@@ -41,8 +41,8 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
         trace_id = get_trace_id()
         if trace_id is not None:
             http_client_args["headers"] = {"trace-id": trace_id}
-        if not OmegaConf.is_missing(config, "https_proxy"):
-            http_client_args["proxy"] = config.env.https_proxy
+        if (proxy := config.get("env.https_proxy", "???")) != "???":
+            http_client_args["proxy"] = proxy
             logger.debug(f"Info: Using proxy {http_client_args['proxy']}")
 
         if self.async_client:
