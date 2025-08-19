@@ -93,6 +93,8 @@ def create_mcp_server_parameters(
                     env={
                         "ANTHROPIC_API_KEY": cfg.env.anthropic_api_key,
                         "ANTHROPIC_BASE_URL": cfg.env.anthropic_base_url,
+                        "OPENROUTER_API_KEY": cfg.env.openrouter_api_key,
+                        "OPENROUTER_BASE_URL": cfg.env.openrouter_base_url,
                     },
                 ),
             }
