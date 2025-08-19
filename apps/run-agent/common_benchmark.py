@@ -6,7 +6,6 @@ import asyncio
 import json
 import os
 import signal
-import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import StrEnum

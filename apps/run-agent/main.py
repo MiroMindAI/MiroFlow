@@ -7,7 +7,6 @@ from rich.traceback import install
 
 import calculate_average_score
 import calculate_score_from_log
-import common_benchmark
 import eval_answer_from_log
 import trace_single_task
 
