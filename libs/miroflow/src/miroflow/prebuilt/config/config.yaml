@@ -6,7 +6,7 @@ defaults:
   - pricing: _default
   # disable hydra logging
   # see https://github.com/facebookresearch/hydra/issues/2902#issuecomment-2147121325
-  # - override hydra/hydra_logging: disabled
+  - override hydra/hydra_logging: disabled
   - override hydra/job_logging: none
   - _self_  # Allow defining variables at the top of this file
 
@@ -35,3 +35,7 @@ env:
 # Can define some top-level or default parameters here
 project_name: "miroflow"
 output_dir: logs/${benchmark.name}/${llm.provider}_${llm.model_name} 
+
+hydra:
+  run:
+    dir: ${output_dir}

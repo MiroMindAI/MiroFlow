@@ -640,20 +640,24 @@ def signal_handler(signum, frame):
     os._exit(1)  # Force immediate exit
 
 
-def main(*args):
+@hydra.main(version_base=None, config_path=config_path(), config_name=config_name())
+def main(cfg: DictConfig) -> None:
+    """Main entry point using Hydra decorator - automatically creates .hydra directory"""
     # Register signal handlers for immediate response to Ctrl+C
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     
     dotenv.load_dotenv()
-    with hydra.initialize_config_dir(config_dir=config_path(), version_base=None):
-        cfg = hydra.compose(config_name=config_name(), overrides=list(args))
-        _ = bootstrap_logger()
-        # Default to disable tracing, and don't set key
-        set_tracing_disabled(True)
-        set_tracing_export_api_key("fake-key")
-        # Suppress trace provider warnings
-        bootstrap_silent_trace_provider()
-        
-        print("✅ Signal handler registered, press Ctrl+C to exit immediately")
-        asyncio.run(entrypoint(cfg))
+    _ = bootstrap_logger()
+    # Default to disable tracing, and don't set key
+    set_tracing_disabled(True)
+    set_tracing_export_api_key("fake-key")
+    # Suppress trace provider warnings
+    bootstrap_silent_trace_provider()
+    
+    print("✅ Signal handler registered, press Ctrl+C to exit immediately")
+    asyncio.run(entrypoint(cfg))
+
+
+if __name__ == "__main__":
+    main()
