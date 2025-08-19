@@ -199,7 +199,7 @@ class BenchmarkEvaluator(ABC):
                             output_formatter=self.output_formatter,
                             ground_truth=task.ground_truth,
                             log_path=self.output_dir
-                            / f"{task.task_id}_attempt_{attempt}",
+                            / f"{task.task_id}_attempt_{attempt}.json",
                         )
 
                         attempt_result["model_response"] = response if response else ""
@@ -546,11 +546,11 @@ class JSONLDatasetEvaluator(BenchmarkEvaluator):
         path = Path(task.file_path)
         # check if task.file_path is a relative path
         if path.is_absolute():
-            return task.task_question, str(path.resolve())
+            return task.task_question, str(path)
 
         # Build complete file path: data directory + relative path
         full_file_path = Path(self.data_dir) / path
-        return task.task_question, str(full_file_path.resolve())
+        return task.task_question, str(full_file_path)
 
 
 async def entrypoint(cfg: DictConfig) -> float:
