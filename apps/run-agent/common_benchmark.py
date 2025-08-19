@@ -5,6 +5,8 @@
 import asyncio
 import json
 import os
+import signal
+import sys
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import StrEnum
@@ -631,7 +633,18 @@ async def entrypoint(cfg: DictConfig) -> float:
     return accuracy
 
 
+def signal_handler(signum, frame):
+    """Force exit signal handler"""
+    print(f"\n⚠️  Received interrupt signal {signum}, forcing immediate exit...")
+    print("Program will terminate all operations immediately")
+    os._exit(1)  # Force immediate exit
+
+
 def main(*args):
+    # Register signal handlers for immediate response to Ctrl+C
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
     dotenv.load_dotenv()
     with hydra.initialize_config_dir(config_dir=config_path(), version_base=None):
         cfg = hydra.compose(config_name=config_name(), overrides=list(args))
@@ -641,4 +654,6 @@ def main(*args):
         set_tracing_export_api_key("fake-key")
         # Suppress trace provider warnings
         bootstrap_silent_trace_provider()
+        
+        print("✅ Signal handler registered, press Ctrl+C to exit immediately")
         asyncio.run(entrypoint(cfg))
