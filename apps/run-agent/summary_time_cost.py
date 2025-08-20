@@ -130,8 +130,8 @@ def generate_summary(log_dir: Path):
         "summary_by_llm_judge_result": dict(summary_by_judge),
     }
 
-    summary_file = log_dir / "summary_time_cost.json"
-    with open(summary_file, "w", encoding="utf-8") as f:
-        json.dump(summary_data, f, indent=4)
+    # summary_file = log_dir / "summary_time_cost.json"
+    # with open(summary_file, "w", encoding="utf-8") as f:
+    #     json.dump(summary_data, f, indent=4)
 
-    print(f"Summary generated and saved to {summary_file}")
+    # print(f"Summary generated and saved to {summary_file}")

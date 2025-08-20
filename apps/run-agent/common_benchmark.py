@@ -632,6 +632,27 @@ async def entrypoint(cfg: DictConfig) -> float:
     return accuracy
 
 
+def setup_hydra_output_dir(cfg: DictConfig, overrides: List[str]) -> DictConfig:
+    """Manually creates a Hydra-like output directory and saves the configuration."""
+    # Get the base output directory from config
+    base_output_dir = Path(cfg.output_dir)
+
+    run_output_dir = base_output_dir
+    run_output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save the composed configuration
+    hydra_dir = run_output_dir / ".hydra"
+    hydra_dir.mkdir(exist_ok=True)
+
+    with open(hydra_dir / "config.yaml", "w", encoding="utf-8") as f:
+        f.write(OmegaConf.to_yaml(cfg, resolve=False))
+    with open(hydra_dir / "overrides.yaml", "w", encoding="utf-8") as f:
+        f.write(OmegaConf.to_yaml(overrides))
+
+    print(f"Hydra-like output directory created at: {run_output_dir}")
+    return cfg
+
+
 def signal_handler(signum, frame):
     """Force exit signal handler"""
     print(f"\n⚠️  Received interrupt signal {signum}, forcing immediate exit...")
@@ -639,24 +660,22 @@ def signal_handler(signum, frame):
     os._exit(1)  # Force immediate exit
 
 
-@hydra.main(version_base=None, config_path=config_path(), config_name=config_name())
-def main(cfg: DictConfig) -> None:
-    """Main entry point using Hydra decorator - automatically creates .hydra directory"""
+def main(*args):
     # Register signal handlers for immediate response to Ctrl+C
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
-
     dotenv.load_dotenv()
-    _ = bootstrap_logger()
-    # Default to disable tracing, and don't set key
-    set_tracing_disabled(True)
-    set_tracing_export_api_key("fake-key")
-    # Suppress trace provider warnings
-    bootstrap_silent_trace_provider()
 
-    print("✅ Signal handler registered, press Ctrl+C to exit immediately")
-    asyncio.run(entrypoint(cfg))
+    with hydra.initialize_config_dir(
+        config_dir=os.path.abspath(config_path()), version_base=None
+    ):
+        cfg = hydra.compose(config_name=config_name(), overrides=list(args))
+        cfg = setup_hydra_output_dir(cfg, list(args))
 
-
-if __name__ == "__main__":
-    main()
+        _ = bootstrap_logger()
+        # Default to disable tracing, and don't set key
+        set_tracing_disabled(True)
+        set_tracing_export_api_key("fake-key")
+        # Suppress trace provider warnings
+        bootstrap_silent_trace_provider()
+        asyncio.run(entrypoint(cfg))

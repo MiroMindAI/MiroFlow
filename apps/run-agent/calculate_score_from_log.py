@@ -12,9 +12,9 @@ import sys
 
 def extract_score_from_log(run_dir, task_score_dict):
     # Traverse all task_{task_id}_attempt_*.log files to extract score
-    log_files = glob.glob(os.path.join(run_dir, "task_*_attempt_*.json"))
+    log_files = glob.glob(os.path.join(run_dir, "*_attempt_*"))
     for log_file in log_files:
-        task_id = log_file.split("/")[-1].split("_")[1]
+        task_id = log_file.split("/")[-1].split("_")[0]
         with open(log_file, "r") as f:
             data = json.load(f)
             if "llm_as_judge_result" in data and data["llm_as_judge_result"] in (
