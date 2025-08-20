@@ -4,7 +4,8 @@ __pycache__/
 *$py.class
 
 # Data
-data/
+data/*
+!data/README.md
 
 # C extensions
 *.so
