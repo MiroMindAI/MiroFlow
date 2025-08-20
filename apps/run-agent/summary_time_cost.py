@@ -125,10 +125,10 @@ def generate_summary(log_dir: Path):
     for judge_result in summary_by_judge:
         _calculate_averages(summary_by_judge[judge_result])
 
-    summary_data = {
-        "overall_summary": overall_summary,
-        "summary_by_llm_judge_result": dict(summary_by_judge),
-    }
+    # summary_data = {
+    #     "overall_summary": overall_summary,
+    #     "summary_by_llm_judge_result": dict(summary_by_judge),
+    # }
 
     # summary_file = log_dir / "summary_time_cost.json"
     # with open(summary_file, "w", encoding="utf-8") as f:
