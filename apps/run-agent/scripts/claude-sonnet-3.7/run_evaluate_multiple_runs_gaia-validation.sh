@@ -66,6 +66,9 @@ echo "=========================================="
 echo "Calculating average scores..."
 uv run main.py avg-score "$RESULTS_DIR"
 
+echo "Calculating pass@k scores..."
+uv run main.py score-from-log "$RESULTS_DIR"
+
 echo "=========================================="
 echo "Multiple runs evaluation completed!"
 echo "Check results in: $RESULTS_DIR"
