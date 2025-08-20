@@ -122,7 +122,7 @@ class TaskTracer(BaseModel):
             if not self.log_path.exists():
                 self.log_path.parent.mkdir(exist_ok=True, parents=True)
             with open(self.log_path, mode="w") as dest:
-                dest.write(self.model_dump_json())
+                dest.write(self.model_dump_json(indent=2))
         except Exception as e:
             logger.error(e, stack_info=True, exc_info=True)
 

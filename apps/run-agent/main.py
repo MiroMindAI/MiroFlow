@@ -7,7 +7,6 @@ from rich.traceback import install
 
 import calculate_average_score
 import calculate_score_from_log
-import common_benchmark
 import eval_answer_from_log
 import trace_single_task
 
@@ -22,13 +21,37 @@ def print_config(*args):
 
 if __name__ == "__main__":
     install(suppress=[fire, hydra], show_locals=True)
-    fire.Fire(
-        {
-            "print-config": print_config,
-            "trace": trace_single_task.main,
-            "common-benchmark": common_benchmark.main,
-            "eval-answer": eval_answer_from_log.main,
-            "avg-score": calculate_average_score.main,
-            "score-from-log": calculate_score_from_log.main,
-        }
-    )
+    import sys
+
+    if len(sys.argv) < 2:
+        print("Available commands:")
+        print("  print-config    - Print configuration")
+        print("  trace          - Run single task trace")
+        print("  common-benchmark - Run benchmark evaluation")
+        print("  eval-answer    - Evaluate answers from log")
+        print("  avg-score      - Calculate average score")
+        print("  score-from-log - Calculate score from log")
+        print("\nExample: python main.py common-benchmark")
+        sys.exit(1)
+
+    command = sys.argv[1]
+    args = sys.argv[2:]
+
+    if command == "print-config":
+        print_config(*args)
+    elif command == "trace":
+        trace_single_task.main(*args)
+    elif command == "common-benchmark":
+        # For common-benchmark, call it directly - it will use @hydra.main
+        import subprocess
+
+        subprocess.run(["python", "common_benchmark.py"] + args)
+    elif command == "eval-answer":
+        eval_answer_from_log.main(*args)
+    elif command == "avg-score":
+        calculate_average_score.main(*args)
+    elif command == "score-from-log":
+        calculate_score_from_log.main(*args)
+    else:
+        print(f"Unknown command: {command}")
+        sys.exit(1)

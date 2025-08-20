@@ -5,6 +5,7 @@
 import asyncio
 import json
 import os
+import signal
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import StrEnum
@@ -197,7 +198,7 @@ class BenchmarkEvaluator(ABC):
                             output_formatter=self.output_formatter,
                             ground_truth=task.ground_truth,
                             log_path=self.output_dir
-                            / f"{task.task_id}_attempt_{attempt}",
+                            / f"{task.task_id}_attempt_{attempt}.json",
                         )
 
                         attempt_result["model_response"] = response if response else ""
@@ -544,11 +545,11 @@ class JSONLDatasetEvaluator(BenchmarkEvaluator):
         path = Path(task.file_path)
         # check if task.file_path is a relative path
         if path.is_absolute():
-            return task.task_question, str(path.resolve())
+            return task.task_question, str(path)
 
         # Build complete file path: data directory + relative path
         full_file_path = Path(self.data_dir) / path
-        return task.task_question, str(full_file_path.resolve())
+        return task.task_question, str(full_file_path)
 
 
 async def entrypoint(cfg: DictConfig) -> float:
@@ -631,14 +632,31 @@ async def entrypoint(cfg: DictConfig) -> float:
     return accuracy
 
 
-def main(*args):
+def signal_handler(signum, frame):
+    """Force exit signal handler"""
+    print(f"\n⚠️  Received interrupt signal {signum}, forcing immediate exit...")
+    print("Program will terminate all operations immediately")
+    os._exit(1)  # Force immediate exit
+
+
+@hydra.main(version_base=None, config_path=config_path(), config_name=config_name())
+def main(cfg: DictConfig) -> None:
+    """Main entry point using Hydra decorator - automatically creates .hydra directory"""
+    # Register signal handlers for immediate response to Ctrl+C
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+
     dotenv.load_dotenv()
-    with hydra.initialize_config_dir(config_dir=config_path(), version_base=None):
-        cfg = hydra.compose(config_name=config_name(), overrides=list(args))
-        _ = bootstrap_logger()
-        # Default to disable tracing, and don't set key
-        set_tracing_disabled(True)
-        set_tracing_export_api_key("fake-key")
-        # Suppress trace provider warnings
-        bootstrap_silent_trace_provider()
-        asyncio.run(entrypoint(cfg))
+    _ = bootstrap_logger()
+    # Default to disable tracing, and don't set key
+    set_tracing_disabled(True)
+    set_tracing_export_api_key("fake-key")
+    # Suppress trace provider warnings
+    bootstrap_silent_trace_provider()
+
+    print("✅ Signal handler registered, press Ctrl+C to exit immediately")
+    asyncio.run(entrypoint(cfg))
+
+
+if __name__ == "__main__":
+    main()

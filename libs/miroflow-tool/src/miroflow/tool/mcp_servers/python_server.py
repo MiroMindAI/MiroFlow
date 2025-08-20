@@ -13,7 +13,7 @@ LOGS_DIR = os.environ.get("LOGS_DIR")  # Directory where benchmark logs are stor
 
 # DEFAULT TEMPLATE ID
 # see README.md on how to build this
-DEFAULT_TEMPLATE_ID = "1av7fdjfvcparqo8efq6"
+DEFAULT_TEMPLATE_ID = "all_pip_apt_pkg"
 
 # DEFAULT CONFS
 DEFAULT_TIMEOUT = 1200  # seconds

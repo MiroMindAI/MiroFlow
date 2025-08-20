@@ -3,6 +3,10 @@ __pycache__/
 *.py[codz]
 *$py.class
 
+# Data
+data/*
+!data/README.md
+
 # C extensions
 *.so
 
