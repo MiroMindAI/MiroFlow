@@ -13,7 +13,7 @@ from omegaconf import DictConfig
 from openai import AsyncOpenAI, DefaultAsyncHttpxClient, DefaultHttpxClient, OpenAI
 from tenacity import (
     retry,
-    retry_if_exception_type,
+    retry_if_not_exception_type,
     stop_after_attempt,
     wait_exponential,
 )
@@ -121,7 +121,7 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
     @retry(
         wait=wait_exponential(multiplier=5),
         stop=stop_after_attempt(5),
-        retry=retry_if_exception_type(ContextLimitError),
+        retry=retry_if_not_exception_type(ContextLimitError),
     )
     async def _create_message(
         self,
