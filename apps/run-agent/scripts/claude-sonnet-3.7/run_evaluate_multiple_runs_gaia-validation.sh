@@ -9,6 +9,7 @@ BENCHMARK_NAME="gaia-validation"
 LLM_PROVIDER="claude_openrouter"
 LLM_MODEL="anthropic/claude-3.7-sonnet"
 AGENT_SET="miroflow"
+MAX_CONCURRENT=5
 
 RESULTS_DIR="logs/${BENCHMARK_NAME}/${LLM_PROVIDER}_${LLM_MODEL}_${AGENT_SET}"
 
@@ -32,7 +33,7 @@ for i in $(seq 1 $NUM_RUNS); do
             llm.model_name=$LLM_MODEL \
             llm.async_client=true \
             benchmark.execution.max_tasks=null \
-            benchmark.execution.max_concurrent=5 \
+            benchmark.execution.max_concurrent=$MAX_CONCURRENT \
             benchmark.execution.pass_at_k=1 \
             agent=$AGENT_SET \
             output_dir="$RESULTS_DIR/$RUN_ID" \
