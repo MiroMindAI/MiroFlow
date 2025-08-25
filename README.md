@@ -334,11 +334,26 @@ Run with default configuration:
 cd MiroFlow/apps/run-agent
 uv run main.py common-benchmark
 ```
-**Default Components**:
-- LLM: `claude_openrouter`
-- Agent: `miroflow`
-- Benchmark: `gaia-validation`
-- Pricing: `_default`
+
+Default configuration is defined in  
+`MiroFlow/libs/miroflow/src/miroflow/prebuilt/config/config.yaml`:
+
+```yaml
+# conf/config.yaml
+defaults:
+  - llm: claude_openrouter
+  - agent: miroflow
+  - benchmark: gaia-validation
+  - pricing: _default
+
+# Other configurations...
+```
+
+| Component  | Default Value         | File Path                                                                 |
+|------------|----------------------|---------------------------------------------------------------------------|
+| LLM        | `claude_openrouter`  | `libs/miroflow/src/miroflow/prebuilt/config/llm/claude_openrouter.yaml`                                   |
+| Agent      | `miroflow`           | `libs/miroflow/src/miroflow/prebuilt/config/agent/miroflow.yaml`                        |
+| Benchmark  | `gaia-validation`    | `libs/miroflow/src/miroflow/prebuilt/config/benchmark/gaia-validation.yaml`                                       |
 
 
 ## Override Configurations
