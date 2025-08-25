@@ -92,7 +92,37 @@ MiroFlow handles user queries through a multi-stage and agentic process designed
 
 ## Architecture Components
 
-All core components are located in the `libs/` directory.
+All core components are located in the `MiroFlow/libs/` directory.
+
+```
+MiroFlow/libs/
+├── miroflow/
+│   └── src/miroflow/
+│       ├── prebuilt/
+│       │   ├── pipeline.py              # Pipeline: coordinates task execution
+│       │   ├── orchestrator.py          # Orchestrator: manages LLM ↔ tool flow
+│       │   └── config/                  # Hydra configs for agents, LLMs, pricing
+│       ├── llm/
+│       │   └── client.py                # Unified LLM client
+│       ├── utils/
+│       │   ├── io_utils.py              # Output formatting utilities
+│       │   ├── prompt_utils.py          # Prompt definitions for agents
+│       │   └── tool_utils.py            # Tool configuration helpers
+│       └── logging/                     # Task logging & metrics
+│
+├── miroflow-tool/
+│   └── src/miroflow/tool/
+│       ├── manager.py                   # Tool Manager: MCP server connector
+│       └── mcp_servers/                 # Individual MCP tool servers
+│           ├── python_server.py         # Code execution
+│           ├── vision_mcp_server.py     # Visual perception
+│           ├── searching_mcp_server.py  # Web search & retrieval
+│           ├── audio_mcp_server.py      # Audio transcription
+│           ├── reasoning_mcp_server.py  # Enhanced reasoning
+│           └── reading_mcp_server.py    # Document processing
+```
+
+![Core Component Architecture](docs/figs/core_component_architecture.png)
 
 ### Core System 💻
 
@@ -126,6 +156,10 @@ Specialized agents designed for specific domains (e.g., `agent-browsing` for web
 - **Output Formatter** (`./miroflow/src/miroflow/utils/io_utils.py`) : Intelligent response formatting that adapts to various benchmark requirements
 
 - **Task Logger** (`./miroflow/src/miroflow/logging/`) : Comprehensive logging for agent interactions, tool executions, and performance metrics
+
+### Execution Pipeline Data Flow
+
+![Execution Pipeline Data Flow](docs/figs/execution_pipeline.png)
 
 <a id="get-start"></a>
 # 🚀 Getting Started
