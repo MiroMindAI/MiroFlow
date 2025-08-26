@@ -23,7 +23,7 @@
 - [📰 News & Updates](#-news--updates)
 - [📝 Introduction](#-introduction)
 - [✨ Performance on Benchmarks](#-performance-on-benchmarks)
-- [🚀 Quick Start](#-quick-start)
+- [🚀 Getting Started](#-getting-started)
 - [🌟 MiroThinker](#-mirothinker)
 - [📄 License](#-license)
 - [🙏 Acknowledgments](#-acknowledgments)
