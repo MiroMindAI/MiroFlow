@@ -39,11 +39,9 @@
 
 
 <div align="center">
-  <img src="https://github.com/MiroMindAI/miromindai.github.io/blob/assets/gif/MiroFlow-v0.1-deploy-4090.gif?raw=true" height="200" alt="MiroThinker Gradio Demo">
-  <a href="https://star-history.com/#MiroMindAI/MiroFlow&Date">
-    <img src="https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Date" alt="Star History Chart" height="210">
-  </a>
+  <img src="https://github.com/MiroMindAI/miromindai.github.io/blob/assets/gif/MiroFlow-v0.1-deploy-4090.gif?raw=true" height="300" alt="MiroThinker Gradio Demo">
 </div>
+
 
 
 ## 📝 Introduction
@@ -249,6 +247,11 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 - Issues: For questions or bug reports, please use [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues).
 - FAQ Documentation: See [faq.md](docs/faq.md) for additional guidelines
+
+
+<div align="center">
+    <img src="https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Date" alt="Star History Chart" height="300">
+</div>
 
 ### References
 
