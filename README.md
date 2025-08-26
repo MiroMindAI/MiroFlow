@@ -15,9 +15,20 @@
 [![RedNote](https://img.shields.io/badge/RedNote-FF2442?style=for-the-badge&logo=revoltdotchat&logoColor=white)](https://www.xiaohongshu.com/user/profile/663098830000000003033edc)
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-grey?style=for-the-badge&logo=deepwiki&logoColor=white)](https://deepwiki.com/MiroMindAI/MiroFlow)
 
-
-
 </div>
+
+
+## 📖 Table of Contents
+
+- [📰 News & Updates](#-news--updates)
+- [📝 Introduction](#-introduction)
+- [✨ Performance on Benchmarks](#-performance-on-benchmarks)
+- [🚀 Quick Start](#-quick-start)
+- [🌟 MiroThinker](#-mirothinker)
+- [📄 License](#-license)
+- [🙏 Acknowledgments](#-acknowledgments)
+- [🔧 Support](#-support)
+
 
 ## 📰 News & Updates
 
