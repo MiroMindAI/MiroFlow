@@ -7,19 +7,21 @@
 [![DEMO](https://img.shields.io/badge/Demo-FFB300?style=for-the-badge&logo=airplayvideo&logoColor=white)](https://dr.miromind.ai/)
 [![MODELS](https://img.shields.io/badge/Models-5EDDD2?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)
 [![DATA](https://img.shields.io/badge/Data-0040A1?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)
-[![Blog](https://img.shields.io/badge/Blog-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://miromind.ai/blog/miromind-open-deep-research)
 [![GITHUB](https://img.shields.io/badge/Github-24292F?style=for-the-badge&logo=github&logoColor=white)](https://github.com/MiroMindAI)
 [![WEBSITE](https://img.shields.io/badge/Website-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://miromind.ai/)
 
 [![DISCORD](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/GPqEnkzQZd)
 [![WeChat](https://img.shields.io/badge/WeChat-07C160?style=for-the-badge&logo=wechat&logoColor=white)](https://cdn-uploads.huggingface.co/production/uploads/68525b342230a897a65cc1c0/SGK70isvVpeJwk_fny9sb.png)
 [![RedNote](https://img.shields.io/badge/RedNote-FF2442?style=for-the-badge&logo=revoltdotchat&logoColor=white)](https://www.xiaohongshu.com/user/profile/663098830000000003033edc)
+[![DeepWiki](https://img.shields.io/badge/DeepWiki-grey?style=for-the-badge&logo=deepwiki&logoColor=white)](https://deepwiki.com/MiroMindAI/MiroFlow)
+
+
 
 </div>
 
 ## 📰 News & Updates
 
-- **2025-08-26**: 🎉 **New Open-Source SOTA Results** - MiroFlow has achieved superior or competitive results across multiple agentic benchmarks, including **HLE 27.2%**, **HLE-Text-Only 29.5%**, **BrowserComp-EN 33.2%**, **BrowserComp-ZH 44.3%**, and **xBench-DeepSearch 72.0%**.
+- **2025-08-26**: 🎉 **New Open-Source SOTA Results** - MiroFlow has achieved state-of-the-art or highly competitive performance across multiple agentic benchmarks: **HLE 27.2%**, **HLE-Text-Only 29.5%**, **BrowserComp-EN 33.2%**, **BrowserComp-ZH 44.3%**, and **xBench-DeepSearch 72.0%**. For comprehensive analysis and detailed results, please see our [Blog](https://miromind.ai/blog/miroflow).
 - **2025-08-25**: 🎉 **GAIA-Validation Trace Release** - We have released comprehensive MiroFlow execution traces achieving an overall accuracy of 73.94% (Pass@1) on the GAIA validation benchmark. This represents the best reproducible result we are aware of to date. Explore the traces at [Trace-GAIA-Validation](apps/public-trace/gaia-validation).
 - **2025-08-22**: 🎉 **Light-Weight Deployment** - Introducing streamlined deployment options for MiroThinker models with optimized resource usage and faster startup times. Experience the interactive demo: [🚀 Try Gradio Demo](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo)
 - **2025-08-08**: 🎉 **MiroFlow v0.1 Released** - Framework, model, and data are now fully open-sourced!
@@ -46,11 +48,31 @@
 - 🌟 **Baked-in observability and evaluation**: **MiroFlow** ships with scripts for benchmarking agents and a straightforward web-ui for visualizing and debugging agent trace data.
 
 
-### ✨ Performance on Benchmarks
+## ✨ Performance on Benchmarks
+
+<div align="center">
+  <img src="docs/figs/09xyHJV9dkbY2yacsv4zYTBbKM.avif" width="90%" alt="Comprehensive Benchmark Performance Comparison" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+</div>
+
+We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **BrowseComp** and **xBench-DeepSearch**. Meantime, we are working on more benchmarks.
+
+| Model/Framework | GAIA Val | HLE | HLE-Text | BrowserComp-EN | BrowserComp-ZH | xBench-DeepSearch |
+|----------------|----------|-----|----------|----------------|----------------|-------------------|
+| **MiroFlow** | **82.4%** | **27.2%** | 29.5% | **33.2%** | **44.3%** | **72.0%** |
+| OpenAI Deep Research | 67.4% | 26.6% | - | **51.5%** | 42.9% | - |
+| Gemini Deep Research | - | 26.9% | - | - | - | 50+% |
+| Kimi Researcher | - | - | 26.9% | - | - | 69.0% |
+| WebSailor-72B | 55.4% | - | - | - | 30.1% | 55.0% |
+| Manus | 73.3% | - | - | - | - | - |
+
+
+
+
+### GAIA-Validation
 
 <img src="docs/figs/gaia_score.png" width="40%" alt="GAIA Validation Performance" align="right">
 
-MiroFlow, equipped with Claude Sonnet 3.7 as its primary LLM, **achieved 81.8% pass@3, 82.4% maj. vote, 74.5% pass@1 (best@3), and 72.2% pass@1 (avg@3) on the GAIA validation set**. This represents **state-of-the-art (SOTA) performance** among open-source agent frameworks.
+MiroFlow **achieved 81.8% pass@3, 82.4% maj. vote, 74.5% pass@1 (best@3), and 72.2% pass@1 (avg@3) on the GAIA validation set**. This represents **state-of-the-art (SOTA) performance** among open-source agent frameworks.
 
 > [!NOTE]
 > Our pass@1 scores are reported as both the average across three runs (avg@3) and the best score among those runs (best@3). For most other reported pass@1 results, it is unclear whether they represent an average or a best score across multiple trials (indicated with *). 
@@ -59,13 +81,6 @@ To prevent agents from retrieving answers directly from Hugging Face, we disable
 
 *We have evaluated multiple agent frameworks on GAIA. Please note that some reported results may be overstated or lack clear definitions, and are not reproducible.*
 In contrast, reproducing MiroFlow's results is straightforward with just a few required API keys.
-
-
-#### More Benchmark Results
-
-<div align="center">
-  <img src="docs/figs/09xyHJV9dkbY2yacsv4zYTBbKM.avif" width="80%" alt="Comprehensive Benchmark Performance Comparison" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-</div>
 
 
 
@@ -94,97 +109,12 @@ In contrast, reproducing MiroFlow's results is straightforward with just a few r
 
 MiroFlow is a sophisticated, modular framework for building intelligent AI agents with multi-turn conversation capabilities, comprehensive tool integration, and hierarchical sub-agent support.
 
-![MiroFlow Architecture](./docs/figs/miroflow_architecture.png)
+<div align="center">
+<img src="docs/figs/miroflow_architecture.png" width="60%" alt="MiroFlow Architecture">
+</div>
 
-## Workflow Overview
+More information on our agent [workflow](docs/workflow.md).
 
-MiroFlow handles user queries through a multi-stage and agentic process designed for flexibility and depth. The workflow is organized as follows:
-
-1. **Intent Recognition & Query Augmentation**  
-   LLMs analyze user input to detect intent and refine the query.
-
-2. **Planning & Task Orchestration**  
-   The main agent drafts an execution plan, invokes tools, and coordinates sub-agents.
-
-3. **Delegation to Sub-Agents**  
-   Specialized agents (e.g., agent-browsing) handle complex or domain-specific tasks. Sub-agents independently plan, act, and execute tool calls as needed.
-
-4. **Tool Access via MCP Servers**  
-   When external capabilities are required, agents leverage specialized tools by connecting to MCP (Model Context Protocol) servers.
-
-5. **Result Synthesis & Output Alignment**  
-   After task completion, a dedicated summary process synthesizes results, ensuring the output is high-quality and aligned with user instructions (or benchmark formats).
-
-## Architecture Components
-
-All core components are located in the `MiroFlow/libs/` directory.
-
-```
-MiroFlow/libs/
-├── miroflow/
-│   └── src/miroflow/
-│       ├── prebuilt/
-│       │   ├── pipeline.py              # Pipeline: coordinates task execution
-│       │   ├── orchestrator.py          # Orchestrator: manages LLM ↔ tool flow
-│       │   └── config/                  # Hydra configs for agents, LLMs, pricing
-│       ├── llm/
-│       │   └── client.py                # Unified LLM client
-│       ├── utils/
-│       │   ├── io_utils.py              # Output formatting utilities
-│       │   ├── prompt_utils.py          # Prompt definitions for agents
-│       │   └── tool_utils.py            # Tool configuration helpers
-│       └── logging/                     # Task logging & metrics
-│
-├── miroflow-tool/
-│   └── src/miroflow/tool/
-│       ├── manager.py                   # Tool Manager: MCP server connector
-│       └── mcp_servers/                 # Individual MCP tool servers
-│           ├── python_server.py         # Code execution
-│           ├── vision_mcp_server.py     # Visual perception
-│           ├── searching_mcp_server.py  # Web search & retrieval
-│           ├── audio_mcp_server.py      # Audio transcription
-│           ├── reasoning_mcp_server.py  # Enhanced reasoning
-│           └── reading_mcp_server.py    # Document processing
-```
-
-![Core Component Architecture](docs/figs/core_component_architecture.png)
-
-### Core System 💻
-
-- **Pipeline** (`./miroflow/src/miroflow/prebuilt/pipeline.py`): Main entry point that creates and manages all components, handles error recovery, and returns final results
-
-- **Orchestrator** (`./miroflow/src/miroflow/prebuilt/orchestrator.py`): Manages multi-turn conversations, parses tool calls, executes tools, and delegates to sub-agents
-
-- **LLM Client** (`./miroflow/src/miroflow/llm/client.py`): Unified interface supporting Anthropic, OpenAI, Google, Qwen, DeepSeek, and local deployments
-
-### Tool Integration 🔧
-
-- **Tool Manager** (`./miroflow-tool/src/miroflow/tool/manager.py`) : Comprehensive MCP server connection manager with tool discovery, persistent connections, and error handling
-
-- **MCP Servers** (`./miroflow-tool/src/miroflow/tool/mcp_servers/`) : Individual tool implementations built on FastMCP. Provides extensive capabilities including:
-  - Code execution and analysis (`./python_server.py`)
-  - Visual perception (`./vision_mcp_server.py`)
-  - Web search and content retrieval (`./searching_mcp_server.py`)
-  - Audio transcription (`./audio_mcp_server.py`)
-  - Enhanced reasoning capabilities (`./reasoning_mcp_server.py`)
-  - Document processing and analysis (`./reading_mcp_server.py`)
-
-### Agent System 👷
-
-**Sub-Agents**  
-Specialized agents designed for specific domains (e.g., `agent-browsing` for web navigation). Each sub-agent maintains dedicated tool sets and custom prompts, allowing the main agent to delegate tasks requiring specialized expertise. Agent definitions are managed through configuration files with prompts and descriptions customized in `./miroflow/src/miroflow/utils/prompt_utils.py` and `tool_utils.py`.
-
-### Support Systems ⚙️
-
-- **Configuration System** (`./miroflow/src/miroflow/prebuilt/config/`) : Hydra-powered YAML configuration for agents, LLMs, benchmarks, and pricing
-
-- **Output Formatter** (`./miroflow/src/miroflow/utils/io_utils.py`) : Intelligent response formatting that adapts to various benchmark requirements
-
-- **Task Logger** (`./miroflow/src/miroflow/logging/`) : Comprehensive logging for agent interactions, tool executions, and performance metrics
-
-### Execution Pipeline Data Flow
-
-![Execution Pipeline Data Flow](docs/figs/execution_pipeline.png)
 
 <a id="get-start"></a>
 # 🚀 Getting Started
@@ -338,84 +268,14 @@ cd MiroFlow/apps/run-agent
 bash scripts/claude-sonnet-3.7/run_evaluate_multiple_runs_gaia-validation.sh
 ```
 
+
+
 ## [Optional] Customized Configuration
 
-MiroFlow uses [Hydra](https://hydra.cc/) for flexible configuration management, supporting different setups for LLMs, agents, benchmarks, and pricing models.
-
-## Structure
-
-```
-MiroFlow/libs/miroflow/src/miroflow/prebuilt/config
-├── config.yaml              # Main configuration with defaults
-├── agent/                   # Agent configurations (tools, limits)
-├── benchmark/               # Benchmark configurations (datasets, execution)
-└── llm/                     # Language model configurations (providers, models)
-```
-
-## Usage
-
-Run with default configuration:
-```bash
-cd MiroFlow/apps/run-agent
-uv run main.py common-benchmark
-```
-
-Default configuration is defined in  
-`MiroFlow/libs/miroflow/src/miroflow/prebuilt/config/config.yaml`:
-
-```yaml
-# conf/config.yaml
-defaults:
-  - llm: claude_openrouter
-  - agent: miroflow
-  - benchmark: gaia-validation
-  - pricing: _default
-
-# Other configurations...
-```
-
-| Component  | Default Value         | File Path                                                                 |
-|------------|----------------------|---------------------------------------------------------------------------|
-| LLM        | `claude_openrouter`  | `libs/miroflow/src/miroflow/prebuilt/config/llm/claude_openrouter.yaml`                                   |
-| Agent      | `miroflow`           | `libs/miroflow/src/miroflow/prebuilt/config/agent/miroflow.yaml`                        |
-| Benchmark  | `gaia-validation`    | `libs/miroflow/src/miroflow/prebuilt/config/benchmark/gaia-validation.yaml`                                       |
-
-
-## Override Configurations
-
-### Component Override
-Switch between existing configurations using the filename (without `.yaml`):
-```bash
-uv run main.py common-benchmark llm=<filename> agent=<filename> benchmark=<filename>
-```
-
-For example, if you have `conf/llm/claude_openrouter.yaml`, use `llm=claude_openrouter`
-
-
-### Parameter Override
-Override specific parameters:
-```bash
-cd MiroFlow/apps/run-agent
-uv run main.py common-benchmark llm.temperature=0.1 agent.main_agent.max_turns=30
-```
-
-## Create Custom Configurations
-
-1. **Create new config file** in the appropriate subdirectory (e.g., `conf/llm/my_config.yaml`)
-2. **Inherit from defaults** using Hydra's composition:
-   ```yaml
-   defaults:
-     - _default  # Inherit base configuration
-     - _self_    # Allow self-overrides
-   
-   # Your custom parameters
-   parameter: value
-   ```
-3. **Use your config**: `uv run main.py common-benchmark component=my_config`
+MiroFlow uses [Hydra](https://hydra.cc/) for flexible configuration management, enabling seamless switching between different LLMs, agents, benchmarks, and pricing models through YAML configuration files.
 
 
 # 🌟 MiroThinker
-
 
 [MiroThinker](https://github.com/MiroMindAI/MiroThinker) (7B/14B/32B) is our suite of open-source agentic models, designed to work seamlessly with the MiroFlow framework. Our models are specifically built to handle **complex, multi-tool tasks**, leveraging the reproducible and robust foundation that MiroFlow provides.
 
@@ -423,7 +283,7 @@ By combining MiroFlow’s reliable orchestration with MiroThinker’s advanced r
 These models are a direct result of our extensive data collection efforts, utilizing MiroFlow to generate high-quality, post-training agent trace data. This unique approach enables MiroThinker to excel in planning, executing, and reasoning through complex multi-step tasks.
 We invite the community to explore and build upon these models. For more details on the architecture and implementation, please take a look at our codebase.
 
-# ❓ FAQ
+# 🔧 FAQ
 
 **Q: What is the estimated cost of running the GAIA validation set for a single run?** <br>
 **A**: The cost is approximately **$450 USD** for a run without a cache. Enabling the cache can significantly reduce this cost by 50-67%, bringing it down to the **$150 - $225** range.
