@@ -100,7 +100,7 @@ More information on our agent [workflow](docs/workflow.md).
 > [!TIP]
 > we recommend using [`uv`](https://docs.astral.sh/uv/) with `python>= 3.12` 
 
-**Step 1:** Clone repo and prepare python environment:
+### Step 1: Clone repo and prepare python environment
 
 ```bash
 ## clone the repo
@@ -111,9 +111,10 @@ cd MiroFlow/apps/run-agent
 uv sync
 ```
 
-**Step 2:** Set up environment dependencies:
+### Step 2: Set up environment dependencies
 
-a. Set up `MiroFlow/apps/prepare-benchmark/.env` by:
+#### a. Set up `MiroFlow/apps/prepare-benchmark/.env`
+
 ```bash
 ## copy environment variable template and prepare yours in .env file
 cd MiroFlow/apps/prepare-benchmark
@@ -121,8 +122,10 @@ cd MiroFlow/apps/prepare-benchmark
 # Edit .env with your actual API keys
 cp .env.template .env
 ```
-Edit `.env` to configure environment variables:  
-```
+
+Edit `.env` to configure environment variables:
+
+```env
 # For downloading datasets from Hugging Face
 HF_TOKEN="<your-huggingface-token>"
 
@@ -130,7 +133,8 @@ HF_TOKEN="<your-huggingface-token>"
 DATA_DIR="../../data" # relative to this file 
 ```
 
-b. Set up `MiroFlow/apps/run-agent/.env` by:
+#### b. Set up `MiroFlow/apps/run-agent/.env`
+
 ```bash
 ## copy environment variable template and prepare yours in .env file
 cd MiroFlow/apps/run-agent
@@ -138,8 +142,10 @@ cd MiroFlow/apps/run-agent
 # Edit .env with your actual API keys
 cp .env.template .env
 ```
-Edit `.env` to configure environment variables:  
-```
+
+Edit `.env` to configure environment variables:
+
+```env
 # Using OpenRouter to provide primary agent model
 OPENROUTER_API_KEY=""
 OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
@@ -173,14 +179,14 @@ HTTPS_PROXY=""
 DATA_DIR="../../data"
 ```
 
-If you wish to use a different LLM as the primary agent model, you will need to provide the corresponding API keys.
+> [!NOTE]
+> If you wish to use a different LLM as the primary agent model, you will need to provide the corresponding API keys.
 
-**Optional Local E2B Sandbox**: If you prefer to use a local E2B Sandbox installation instead of the online service, please refer to our prepared [installation guide](docs/local_e2b.md).
+> [!TIP]
+> **Optional Local E2B Sandbox**: If you prefer to use a local E2B Sandbox installation instead of the online service, please refer to our prepared [installation guide](docs/local_e2b.md).
 
 
-## Runing a single task
-
-Run a single task:
+### Run a single task
 
 ```bash
 ## run a task with instruction
@@ -188,9 +194,7 @@ cd MiroFlow/apps/run-agent
 uv run main.py trace --task="your task description" --task_file_name="path to related task file"
 ```
 
-## Evaluate on Benchmark
-
-Run prebuilt agent on the benchmark data:
+### Evaluate on Benchmark
 
 ```bash
 ## download data
@@ -208,13 +212,12 @@ cd MiroFlow/apps/run-agent
 bash scripts/claude-sonnet-3.7/run_evaluate_multiple_runs_gaia-validation.sh
 ```
 
-
-## Customized Configuration
+### Customized Configuration
 
 MiroFlow leverages [Hydra](https://hydra.cc/) for powerful configuration management, allowing you to easily switch between different LLMs, agents, benchmarks, and pricing models using YAML configuration files. For detailed instructions on configuration management, see our [configuration guide](docs/hydra_config.md).
 
 
-# 🌟 MiroThinker
+## 🌟 MiroThinker
 
 [MiroThinker](https://github.com/MiroMindAI/MiroThinker) (7B/14B/32B) is our suite of open-source agentic models, designed to work seamlessly with the MiroFlow framework. Our models are specifically built to handle **complex, multi-tool tasks**, leveraging the reproducible and robust foundation that MiroFlow provides.
 
@@ -232,7 +235,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - **Open Source Community** for the tools and libraries that make this possible
 
 
-# 🔧 Support
+## 🔧 Support
 
 - Issues: For questions or bug reports, please use [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues).
 - FAQ Documentation: See [faq.md](docs/faq.md) for additional guidelines
