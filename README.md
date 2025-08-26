@@ -234,7 +234,6 @@ MiroFlow leverages [Hydra](https://hydra.cc/) for powerful configuration managem
 
 By combining MiroFlow’s reliable orchestration with MiroThinker’s advanced reasoning capabilities, we offer a powerful, end-to-end solution for building high-performing, reproducible AI agents.
 These models are a direct result of our extensive data collection efforts, utilizing MiroFlow to generate high-quality, post-training agent trace data. This unique approach enables MiroThinker to excel in planning, executing, and reasoning through complex multi-step tasks.
-We invite the community to explore and build upon these models. For more details on the architecture and implementation, please take a look at our codebase.
 
 ## 📄 License
 
