@@ -67,7 +67,6 @@ We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **B
 
 
 
-
 ### GAIA-Validation
 
 <img src="docs/figs/gaia_score.png" width="40%" alt="GAIA Validation Performance" align="right">
@@ -81,28 +80,6 @@ To prevent agents from retrieving answers directly from Hugging Face, we disable
 
 *We have evaluated multiple agent frameworks on GAIA. Please note that some reported results may be overstated or lack clear definitions, and are not reproducible.*
 In contrast, reproducing MiroFlow's results is straightforward with just a few required API keys.
-
-
-
-## 📚 Table of Contents
-
-- [🤖 MiroFlow: Modular AI Agent Framework](#-miroflow-modular-ai-agent-framework)
-  - [Workflow Overview](#workflow-overview)
-  - [Architecture Components](#architecture-components)
-    - [Core System 💻](#core-system-)
-    - [Tool Integration 🔧](#tool-integration-)
-    - [Agent System 👷](#agent-system-)
-    - [Support Systems ⚙️](#support-systems-️)
-- [🚀 Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Runing a single task](#runing-a-single-task)
-  - [Evaluate on Benchmark](#evaluate-on-benchmark)
-  - [[Optional] Customized Configuration](#optional-customized-configuration)
-- [🌟 MiroThinker](#-mirothinker)
-- [❓ FAQ](#-faq)
-
-
-
 
 
 # 🤖 MiroFlow: Modular AI Agent Framework
@@ -198,44 +175,7 @@ DATA_DIR="../../data"
 
 If you wish to use a different LLM as the primary agent model, you will need to provide the corresponding API keys.
 
-
-**Step 3:** Prepare E2B Sandbox (Optional)
-
-> [!TIP]
-> We provide a public E2B sandbox template. Follow this step if you want to reproduce.
->
-> For the E2B sandbox service, we recommend setting up a Linux Docker image with a comprehensive set of apt and Python packages pre-installed. Without these pre-installed packages, the agent will need to spend extra steps and context installing them, resulting in reduced token efficiency.
->
-> you need to have `npm` install and `docker` running locally.
-
-
-1. Install `e2b` command line and login:
-
-```shell
-## install e2b
-npm install -g @e2b/cli
-## check that it is available
-which e2b 
-```
-
-2. Download our pre-configured Dockerfile:
-[e2b.Dockerfile](https://github.com/MiroMindAI/MiroFlow/blob/main/docs/e2b.Dockerfile).
-
-```shell
-wget https://github.com/MiroMindAI/MiroFlow/blob/main/docs/e2b.Dockerfile
-```
-
-3. Run `e2b template build` command [check official doc here](https://e2b.dev/docs/sdk-reference/cli/v1.0.2/template), use `all_pip_apt_pkg` as the name of template.
-
-```shell
-## build the template with `docker build` locally
-E2B_ACCESS_TOKEN=${your-token}
-e2b template build -c "/root/.jupyter/start-up.sh" -n "all_pip_apt_pkg" -d ./e2b.Dockerfile
-## check that template is built successfully
-E2B_ACCESS_TOKEN=${your-token} e2b template list
-```
-
-For additional information, please see the [E2B Docker documentation](https://e2b.dev/docs/sandbox-template).
+**Optional Local E2B Sandbox**: If you prefer to use a local E2B Sandbox installation instead of the online service, please refer to our prepared [installation guide](docs/local_e2b.md).
 
 
 ## Runing a single task
@@ -269,10 +209,9 @@ bash scripts/claude-sonnet-3.7/run_evaluate_multiple_runs_gaia-validation.sh
 ```
 
 
+## Customized Configuration
 
-## [Optional] Customized Configuration
-
-MiroFlow uses [Hydra](https://hydra.cc/) for flexible configuration management, enabling seamless switching between different LLMs, agents, benchmarks, and pricing models through YAML configuration files.
+MiroFlow leverages [Hydra](https://hydra.cc/) for powerful configuration management, allowing you to easily switch between different LLMs, agents, benchmarks, and pricing models using YAML configuration files. For detailed instructions on configuration management, see our [configuration guide](docs/hydra_config.md).
 
 
 # 🌟 MiroThinker
@@ -283,23 +222,20 @@ By combining MiroFlow’s reliable orchestration with MiroThinker’s advanced r
 These models are a direct result of our extensive data collection efforts, utilizing MiroFlow to generate high-quality, post-training agent trace data. This unique approach enables MiroThinker to excel in planning, executing, and reasoning through complex multi-step tasks.
 We invite the community to explore and build upon these models. For more details on the architecture and implementation, please take a look at our codebase.
 
-# 🔧 FAQ
+## 📄 License
 
-**Q: What is the estimated cost of running the GAIA validation set for a single run?** <br>
-**A**: The cost is approximately **$450 USD** for a run without a cache. Enabling the cache can significantly reduce this cost by 50-67%, bringing it down to the **$150 - $225** range.
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
+## 🙏 Acknowledgments
 
-**Q: How long does it take to run the GAIA validation set for a single run?** <br>
-**A**: With the `max_concurrent` parameter set to 20, a full run takes about **5 hours** to complete.
-
-**Q: Are all the specified APIs required?** <br>
-**A**: **Yes.** To fully reproduce our published results, access to all the listed APIs is necessary.
+- **Benchmark Contributors** for the comprehensive evaluation datasets
+- **Open Source Community** for the tools and libraries that make this possible
 
 
-**Q: What is the difference between MiroFlow and MiroThinker?** <br>
-**A**:  **MiroFlow** is primarily focused on interacting with proprietary models; **MiroThinker** is designed for our own open-source models.
+# 🔧 Support
 
-We plan to merge these two projects in the future to create a single, unified platform.
+- Issues: For questions or bug reports, please use [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues).
+- FAQ Documentation: See [faq.md](docs/faq.md) for additional guidelines
 
 ### References
 
