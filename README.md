@@ -95,7 +95,7 @@ In contrast, reproducing MiroFlow's results is straightforward with just a few r
 
 # 🤖 MiroFlow: Modular AI Agent Framework
 
-MiroFlow is a sophisticated, modular framework for building intelligent AI agents with multi-turn conversation capabilities, comprehensive tool integration, and hierarchical sub-agent support.
+MiroFlow is a high-performance, modular framework for building intelligent AI agents that achieve state-of-the-art results on complex benchmarks. It features multi-turn conversation capabilities, comprehensive tool integration, and hierarchical sub-agent support for superior task completion.
 
 <div align="center">
 <img src="docs/figs/miroflow_architecture.png" width="60%" alt="MiroFlow Architecture">
@@ -107,7 +107,7 @@ More information on our agent [workflow](docs/workflow.md).
 <a id="get-start"></a>
 # 🚀 Getting Started
 
-## Prerequisites
+### Prerequisites
 > [!TIP]
 > we recommend using [`uv`](https://docs.astral.sh/uv/) with `python>= 3.12` 
 
@@ -122,7 +122,7 @@ cd MiroFlow/apps/run-agent
 uv sync
 ```
 
-### Step 2: Set up environment dependencies
+### Step 2: Set up environment variables
 
 #### a. Set up `MiroFlow/apps/prepare-benchmark/.env`
 
