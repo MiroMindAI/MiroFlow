@@ -8,9 +8,9 @@
 [![MODELS](https://img.shields.io/badge/Models-5EDDD2?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)
 [![DATA](https://img.shields.io/badge/Data-0040A1?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)
 [![Blog](https://img.shields.io/badge/Blog-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://miromind.ai/blog/miromind-open-deep-research)
-
 [![GITHUB](https://img.shields.io/badge/Github-24292F?style=for-the-badge&logo=github&logoColor=white)](https://github.com/MiroMindAI)
 [![WEBSITE](https://img.shields.io/badge/Website-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://miromind.ai/)
+
 [![DISCORD](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/GPqEnkzQZd)
 [![WeChat](https://img.shields.io/badge/WeChat-07C160?style=for-the-badge&logo=wechat&logoColor=white)](https://cdn-uploads.huggingface.co/production/uploads/68525b342230a897a65cc1c0/SGK70isvVpeJwk_fny9sb.png)
 [![RedNote](https://img.shields.io/badge/RedNote-FF2442?style=for-the-badge&logo=revoltdotchat&logoColor=white)](https://www.xiaohongshu.com/user/profile/663098830000000003033edc)
@@ -19,25 +19,58 @@
 
 ## 📰 News & Updates
 
+- **2025-08-26**: 🎉 **New Open-Source SOTA Results** - MiroFlow has achieved superior or competitive results across multiple agentic benchmarks, including **HLE 27.2%**, **HLE-Text-Only 29.5%**, **BrowserComp-EN 33.2%**, **BrowserComp-ZH 44.3%**, and **xBench-DeepSearch 72.0%**.
 - **2025-08-25**: 🎉 **GAIA-Validation Trace Release** - We have released comprehensive MiroFlow execution traces achieving an overall accuracy of 73.94% (Pass@1) on the GAIA validation benchmark. This represents the best reproducible result we are aware of to date. Explore the traces at [Trace-GAIA-Validation](apps/public-trace/gaia-validation).
 - **2025-08-22**: 🎉 **Light-Weight Deployment** - Introducing streamlined deployment options for MiroThinker models with optimized resource usage and faster startup times. Experience the interactive demo: [🚀 Try Gradio Demo](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo)
 - **2025-08-08**: 🎉 **MiroFlow v0.1 Released** - Framework, model, and data are now fully open-sourced!
 
 
-
 <div align="center">
   <img src="https://github.com/MiroMindAI/miromindai.github.io/blob/assets/gif/MiroFlow-v0.1-deploy-4090.gif?raw=true" height="200" alt="MiroThinker Gradio Demo">
   <a href="https://star-history.com/#MiroMindAI/MiroFlow&Date">
-    <img src="https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Date" alt="Star History Chart" height="200">
+    <img src="https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Date" alt="Star History Chart" height="210">
   </a>
+</div>
+
+
+## 📝 Introduction
+
+<img src="docs/figs/logo.png" alt="MiroFlow Logo" width="150" align="right">
+
+
+**MiroFlow** is a fully open-sourced agent framework that reliably completes complex tool-use tasks. Some key features are:
+
+- 🌟 **Reproducible SOTA**: **MiroFlow** consistently achieves 72.2% (pass@1 average@3) on GAIA validation set. Follow our [getting-started guide](#get-start) below, or view our many runs of gaia trace on huggingfaces. If you can't reproduce our result, please open a Github issue - We take reproducibility seriously.
+- 🌟 **High-quanlity Data Collection**: We enabled the agent workflow with data colleciton features to generate high-quality, post-training agent trace data. We also released partial data and model to public including [MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1) and [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1).
+- 🌟 **High Concurrency and Fault Tolerance**: **MiroFlow**  scales data collection efficiently and handles rate-limited APIs and unstable network connections with ease.
+- 🌟 **Baked-in observability and evaluation**: **MiroFlow** ships with scripts for benchmarking agents and a straightforward web-ui for visualizing and debugging agent trace data.
+
+
+### ✨ Performance on Benchmarks
+
+<img src="docs/figs/gaia_score.png" width="40%" alt="GAIA Validation Performance" align="right">
+
+MiroFlow, equipped with Claude Sonnet 3.7 as its primary LLM, **achieved 81.8% pass@3, 82.4% maj. vote, 74.5% pass@1 (best@3), and 72.2% pass@1 (avg@3) on the GAIA validation set**. This represents **state-of-the-art (SOTA) performance** among open-source agent frameworks.
+
+> [!NOTE]
+> Our pass@1 scores are reported as both the average across three runs (avg@3) and the best score among those runs (best@3). For most other reported pass@1 results, it is unclear whether they represent an average or a best score across multiple trials (indicated with *). 
+
+To prevent agents from retrieving answers directly from Hugging Face, we disabled access to it during the inference and trace collection.
+
+*We have evaluated multiple agent frameworks on GAIA. Please note that some reported results may be overstated or lack clear definitions, and are not reproducible.*
+In contrast, reproducing MiroFlow's results is straightforward with just a few required API keys.
+
+
+#### More Benchmark Results
+
+<div align="center">
+  <img src="docs/figs/09xyHJV9dkbY2yacsv4zYTBbKM.avif" width="80%" alt="Comprehensive Benchmark Performance Comparison" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
 </div>
 
 
 
 ## 📚 Table of Contents
 
-- [🎯 Overview](#-overview)
-- [✨ MiroFlow SOTA Performance](#-miroflow-sota-performance)
 - [🤖 MiroFlow: Modular AI Agent Framework](#-miroflow-modular-ai-agent-framework)
   - [Workflow Overview](#workflow-overview)
   - [Architecture Components](#architecture-components)
@@ -52,31 +85,10 @@
   - [[Optional] Customized Configuration](#optional-customized-configuration)
 - [🌟 MiroThinker](#-mirothinker)
 - [❓ FAQ](#-faq)
-- [🎉 Join Our Communities!](#-join-our-communities)
 
-# 🎯 Overview 
 
-<img src="docs/figs/logo.png" alt="MiroFlow Logo" width="150" align="right">
 
-**MiroFlow** is a **battle-tested** agent framework that reliably completes complex tool-use tasks. We have extensively used it to generate high-quality, post-training agent trace data for **[MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)**, our suite of open-source agentic models. Some key features are:
 
-- 🌟 **Reproducible SOTA**: **MiroFlow** consistently achieves 72.2% (pass@1 average@3) on GAIA validation set. Follow our [getting-started guide](#get-start) below, or view our many runs of gaia trace on huggingfaces. If you can't reproduce our result, please open a Github issue - We take reproducibility seriously.
-- 🌟 **High Concurrency and Fault Tolerance**: **MiroFlow**  scales data collection efficiently and handles rate-limited APIs and unstable network connections with ease.
-- 🌟 **Baked-in observability and evaluation**: **MiroFlow** ships with scripts for benchmarking agents and a straightforward web-ui for visualizing and debugging agent trace data.
-
-# ✨ MiroFlow SOTA Performance
-
-MiroFlow, equipped with Claude Sonnet 3.7 as its primary LLM, **achieved 81.8% pass@3, 82.4% maj. vote, 74.5% pass@1 (best@3), and 72.2% pass@1 (avg@3) on the GAIA validation set**. This represents **state-of-the-art (SOTA) performance** among open-source agent frameworks.
-
-![GAIA Validation Performance](docs/figs/gaia_score.png)
-
-> [!NOTE]
-> Our pass@1 scores are reported as both the average across three runs (avg@3) and the best score among those runs (best@3). For most other reported pass@1 results, it is unclear whether they represent an average or a best score across multiple trials (indicated with *). 
-
-To prevent agents from retrieving answers directly from Hugging Face, we disabled access to it during the inference and trace collection.
-
-*We have evaluated multiple agent frameworks on GAIA. Please note that some reported results may be overstated or lack clear definitions, and are not reproducible.*
-In contrast, reproducing MiroFlow's results is straightforward with just a few required API keys.
 
 # 🤖 MiroFlow: Modular AI Agent Framework
 
