@@ -61,13 +61,13 @@ We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **B
 
 | Model/Framework | GAIA Val | HLE | HLE-Text | BrowserComp-EN | BrowserComp-ZH | xBench-DeepSearch |
 |----------------|----------|-----|----------|----------------|----------------|-------------------|
-| **MiroFlow** | **82.4%** | 27.2% | **29.5%** | 33.2% | **47.1%** | **72.0%** |
+| **MiroFlow** | **82.4%** | **27.2%** | 29.5% | 33.2% | **47.1%** | **72.0%** |
 | OpenAI Deep Research | 67.4% | 26.6% | - | **51.5%** | 42.9% | - |
 | Gemini Deep Research | - | 26.9% | - | - | - | 50+% |
 | Kimi Researcher | - | - | 26.9% | - | - | 69.0% |
 | WebSailor-72B | 55.4% | - | - | - | 30.1% | 55.0% |
 | Manus | 73.3% | - | - | - | - | - |
-| DeepSeek v3.1 | - | **29.8%** | - | - | - | 71.2% |
+| DeepSeek v3.1 | - | - | **29.8%** | - | - | 71.2% |
 
 
 
