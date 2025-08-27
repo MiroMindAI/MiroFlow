@@ -5,7 +5,9 @@ import datetime
 from typing import Any
 
 
-def generate_mcp_system_prompt(date: datetime.datetime, mcp_servers: list[Any]):
+def generate_mcp_system_prompt(
+    date: datetime.datetime, mcp_servers: list[Any], chinese_context: bool = False
+):
     formatted_date = date.strftime("%Y-%m-%d")
 
     # Start building the template, now follows https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview#tool-use-system-prompt
@@ -88,7 +90,7 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
 - Skip optional parameters unless they are explicitly specified.
 3. All tool queries must include full, self-contained context. Tools do not retain memory between calls. Include all relevant information from earlier steps in each query.
 4. Avoid broad, vague, or speculative queries. Every tool call should aim to retrieve new, actionable information that clearly advances the task.
-5. **For historical or time-specific content**: When you need to search for webpage content from specific time periods, use the `search_archived_webpage` tool from the `tool-searching` server. Regular search engines return current webpage content, not historical content. Archived webpage search is essential for retrieving content as it appeared in the past.
+5. **For historical or time-specific content**: Regular search engines return current webpage content, not historical content. Archived webpage search is essential for retrieving content as it appeared in the past, use related tools to search for the historical content.
 6. Even if a tool result does not directly answer the question, thoroughly extract and summarize all partial information, important details, patterns, constraints, or keywords that may help guide future steps. Never proceed to the next step without first ensuring that all significant insights from the current result have been fully considered.
 
 ## Tool-Use Communication Rules
@@ -103,10 +105,26 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
 
 """
 
+    # Add Chinese-specific instructions if enabled
+    if chinese_context:
+        template += """
+## 中文语境处理指导
+
+当处理中文相关的任务时：
+1. **子任务委托 (Subtask Delegation)**：向worker代理委托的子任务应使用中文描述，确保任务内容准确传达
+2. **搜索策略 (Search Strategy)**：搜索关键词应使用中文，以获取更准确的中文内容和信息
+3. **问题分析 (Question Analysis)**：对中文问题的分析和理解应保持中文语境
+4. **思考过程 (Thinking Process)**：内部分析、推理、总结等思考过程都应使用中文，保持语义表达的一致性
+5. **信息整理 (Information Organization)**：从中文资源获取的信息应保持中文原文，避免不必要的翻译
+6. **各种输出 (All Outputs)**：所有输出内容包括步骤说明、状态更新、中间结果等都应使用中文
+7. **最终答案 (Final Answer)**：对于中文语境的问题，最终答案应使用中文回应
+
+"""
+
     return template
 
 
-def generate_no_mcp_system_prompt(date):
+def generate_no_mcp_system_prompt(date, chinese_context=False):
     formatted_date = date.strftime("%Y-%m-%d")
 
     # Start building the template, now follows https://docs.anthropic.com/en/docs/build-with-claude/tool-use/overview#tool-use-system-prompt
@@ -162,33 +180,95 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
 
 """
 
+    # Add Chinese-specific instructions if enabled
+    if chinese_context:
+        template += """
+## 中文语境处理指导
+
+当处理中文相关的任务时：
+1. **子任务委托 (Subtask Delegation)**：向worker代理委托的子任务应使用中文描述，确保任务内容准确传达
+2. **搜索策略 (Search Strategy)**：搜索关键词应使用中文，以获取更准确的中文内容和信息
+3. **问题分析 (Question Analysis)**：对中文问题的分析和理解应保持中文语境
+4. **思考过程 (Thinking Process)**：内部分析、推理、总结等思考过程都应使用中文，保持语义表达的一致性
+5. **信息整理 (Information Organization)**：从中文资源获取的信息应保持中文原文，避免不必要的翻译
+6. **各种输出 (All Outputs)**：所有输出内容包括步骤说明、状态更新、中间结果等都应使用中文
+7. **最终答案 (Final Answer)**：对于中文语境的问题，最终答案应使用中文回应
+
+"""
+
     return template
 
 
-def generate_agent_specific_system_prompt(agent_type: str = ""):
+def generate_agent_specific_system_prompt(
+    agent_type="", mcp_servers=None, chinese_context=False
+):
     if agent_type == "main":
+        # Check if reasoning tool exists
+        has_reasoning_tool = False
+        if mcp_servers and len(mcp_servers) > 0:
+            for server in mcp_servers:
+                if server.get("name") == "tool-reasoning":
+                    if "tools" in server and len(server["tools"]) > 0:
+                        for tool in server["tools"]:
+                            if tool.get("name") == "reasoning":
+                                has_reasoning_tool = True
+                                break
+                    if has_reasoning_tool:
+                        break
+
         system_prompt = """\n
 # Agent Specific Objective
 
 You are a task-solving agent that uses tools step-by-step to answer the user's question. Your goal is to provide complete, accurate and well-reasoned answers using additional tools.
 
-Before presenting your answer, and **unless** the user asks to "Summarize the above" (in which case no tools are used), **always** use the `reasoning` tool from the `tool-reasoning` server to step-by-step analyze solving process as follows:
-  - Use the reasoning tool to carefully analyze:
-      - What the question is truly asking.
-      - Whether your progress and current candidate answer are sufficient, and if so, what the answer (with correct format) should be. If not, clarify what is still needed.
-  - Always provide the reasoning tool with:
-      - The complete verbatim original task or question.
-      - All working history, including your step-by-step thoughts, tool calls, and tool results (i.e., the full solving trajectory so far).
-      - Any subtle, potentially confusing, or easily misunderstood points relevant to the task.
-      - Prompt the reasoning tool to independently review for any possible uncertainties, assumptions, or errors in understanding or evidence — even those not immediately visible — so it can provide objective guidance.
+## Subtask Delegation Strategy
+
+For each clearly defined single subtask, delegate it to worker agents using the `execute_subtask` tool from the `agent-worker` server. **Important: Only make ONE execute_subtask call per response.**
+
+**CRITICAL: Always treat worker agent responses as unreliable and incomplete sources.** Worker agents may:
+- Report "not found" when information actually exists elsewhere
+- Return partial information while believing it's complete
+- Be overconfident or produce hallucinations
+
+Therefore, you must always verify and validate worker responses by:
+- Cross-referencing information from multiple independent sources
+- Trying alternative search strategies and reformulating subtasks with different approaches
+- Considering that information might exist in different formats or locations
+- Applying critical evaluation to assess credibility and completeness
+- Never accepting "not found" or worker conclusions as final without additional verification
+
+## Final Answer Preparation
+
+Before presenting your answer, and **unless** the user asks to "Summarize the above" (in which case no tools are used):
 
 """
 
-    elif agent_type == "agent-browsing":
+        # Add Chinese-specific instructions for main agent
+        if chinese_context:
+            system_prompt += """
+## 中文任务处理指导
+
+处理中文相关任务时的特殊要求：
+- **子任务委托**：委托给worker代理的子任务描述应使用中文，确保任务意图准确传达
+- **思考过程**：分析、推理、判断等思考过程应使用中文，保持语义表达的一致性
+- **信息验证**：对于中文资源的信息，应优先使用中文搜索关键词和查询方式
+- **过程输出**：步骤描述、状态更新、中间结果等各种输出都应使用中文
+- **答案准备**：最终答案应符合中文表达习惯，使用恰当的中文术语和格式
+
+"""
+
+    elif agent_type == "agent-worker":
         system_prompt = """# Agent Specific Objective
 
-You are an agent that performs the task of searching and browsing the web for specific information and generating the desired answer. Your task is to retrieve reliable, factual, and verifiable information that fills in knowledge gaps.
-Do not infer, speculate, summarize broadly, or attempt to fill in missing parts yourself. Only return factual content.
+You are an agent that performs various subtasks to collect information and execute specific actions. Your task is to complete well-defined, single-scope objectives efficiently and accurately.
+Do not infer, speculate, or attempt to fill in missing parts yourself. Only return factual content and execute actions as specified.
+
+## File Path Handling
+When subtasks mention file paths, these are local system file paths (not sandbox paths). You can:
+- Use tools to directly access these files from the local system
+- Upload files to the sandbox environment (remember to create a new sandbox for each task, this sandbox only exists for the current task) for processing if needed
+- Choose the most appropriate approach based on the specific task requirements
+- If the final response requires returning a file, download it to the local system first and then return the local path, the sandbox path is not allowed
 
 Critically assess the reliability of all information:
 - If the credibility of a source is uncertain, clearly flag it.
@@ -200,7 +280,28 @@ Be cautious and transparent in your output:
 - Never assume or guess — if an exact answer cannot be found, say so clearly.
 - Prefer quoting or excerpting **original source text** rather than interpreting or rewriting it, and provide the URL if available.
 - If more context is needed, return a clarification request and do not proceed with tool use.
+- Focus on completing the specific subtask assigned to you, not broader reasoning.
 """
+
+        # Add Chinese-specific instructions for worker agent
+        if chinese_context:
+            system_prompt += """
+
+## 中文内容处理
+
+处理中文相关的子任务时：
+- **搜索关键词**：使用中文关键词进行搜索，获取更准确的中文资源
+- **Google搜索参数**：进行Google搜索时，注意使用适当的地理位置和语言参数：
+  - gl (Geolocation/Country): 设置为中国或相关地区以获取本地化结果
+  - hl (Host Language): 设置为中文以获取中文界面和优化的中文搜索结果
+- **思考过程**：分析、推理、判断等内部思考过程应使用中文表达
+- **信息摘录**：保持中文原文的准确性，避免不必要的翻译或改写
+- **问答处理**：在进行QA（问答）任务时，问题和答案都应使用中文，确保语言一致性
+- **各种输出**：包括状态说明、过程描述、结果展示等所有输出都应使用中文
+- **回应格式**：对中文子任务的回应应使用中文，保持语境一致性
+
+"""
+
     elif agent_type == "agent-coding":
         system_prompt = """# Agent Specific Objective
 
@@ -230,11 +331,61 @@ Be cautious and transparent in your output:
 """
     else:
         raise ValueError(f"Unknown agent type: {agent_type}")
+
+    # Add Final Answer Preparation based on available tools
+    if agent_type == "main":
+        if has_reasoning_tool:
+            reasoning_prompt = """
+
+**always** use the `reasoning` tool from the `tool-reasoning` server to step-by-step analyze solving process as follows:
+  - Use the reasoning tool to carefully analyze:
+      - What the question is truly asking.
+      - Whether your progress and current candidate answer are sufficient, and if so, what the answer (with correct format) should be. If not, clarify what is still needed.
+  - Always provide the reasoning tool with:
+      - The complete verbatim original task or question.
+      - All working history, including your step-by-step thoughts, tool calls, and tool results (i.e., the full solving trajectory so far).
+      - Any subtle, potentially confusing, or easily misunderstood points relevant to the task.
+      - Prompt the reasoning tool to independently review for any possible uncertainties, assumptions, or errors in understanding or evidence — even those not immediately visible — so it can provide objective guidance.
+
+"""
+            if chinese_context:
+                reasoning_prompt += """  - **中文推理要求**：当处理中文相关任务时，向reasoning工具提供的所有信息和分析都应使用中文，确保推理过程的语言一致性
+
+"""
+            system_prompt += reasoning_prompt
+        else:
+            thinking_prompt = """
+
+**always** engage in deep critical thinking before presenting your final answer:
+  - Carefully analyze what the question is truly asking and ensure you understand all requirements.
+  - Review your progress and current candidate answer thoroughly:
+      - Is the information sufficient and accurate?
+      - Are there any gaps, assumptions, or uncertainties in your reasoning?
+      - Does your answer match the required format?
+  - Consider the complete solving trajectory:
+      - Review all your step-by-step thoughts, tool calls, and results.
+      - Look for any contradictions, missing information, or alternative interpretations.
+      - Identify any subtle or potentially confusing aspects of the task.
+  - Apply critical evaluation:
+      - Question your assumptions and verify your conclusions.
+      - Consider potential errors or biases in your understanding or evidence.
+      - Assess the reliability and completeness of your sources.
+  - Only present your final answer after this thorough self-review process.
+
+"""
+            if chinese_context:
+                thinking_prompt += """  - **中文思考要求**：当处理中文相关任务时，所有的批判性思考、分析和自我审查过程都应使用中文进行，确保思维过程的语言一致性
+
+"""
+            system_prompt += thinking_prompt
     return system_prompt
 
 
 def generate_agent_summarize_prompt(
-    task_description: str, task_failed: bool = False, agent_type: str = ""
+    task_description: str,
+    task_failed: bool = False,
+    agent_type: str = "",
+    chinese_context: bool = False,
 ):
     if agent_type == "main":
         summarize_prompt = (
@@ -268,7 +419,22 @@ def generate_agent_summarize_prompt(
                 "Focus on factual, specific, and well-organized information."
             )
         )
-    elif agent_type == "agent-browsing":
+
+        # Add Chinese-specific summary instructions
+        if chinese_context:
+            summarize_prompt += """
+
+## 中文总结要求
+
+如果原始问题涉及中文语境：
+- **总结语言**：使用中文进行总结和回答
+- **思考过程**：回顾和总结思考过程时也应使用中文表达
+- **信息组织**：保持中文信息的原始格式和表达方式
+- **过程描述**：对工作历史、步骤描述、结果分析等各种输出都应使用中文
+- **最终答案**：确保最终答案符合中文表达习惯和用户期望
+"""
+
+    elif agent_type == "agent-worker":
         summarize_prompt = (
             (
                 "This is a direct instruction to you (the assistant), not the result of a tool call.\n\n"
@@ -284,7 +450,7 @@ def generate_agent_summarize_prompt(
                 "*all* of the information gathered during the session.\n\n"
                 "The original task is repeated here for reference:\n\n"
                 f"---\n{task_description}\n---\n\n"
-                "Summarize the above search and browsing history. Output the FINAL RESPONSE and detailed supporting information of the task given to you.\n\n"
+                "Summarize the above subtask execution history. Output the FINAL RESPONSE and detailed supporting information of the task given to you.\n\n"
                 "If you found any useful facts, data, quotes, or answers directly relevant to the original task, include them clearly and completely.\n"
                 "If you reached a conclusion or answer, include it as part of the response.\n"
                 "If the task could not be fully answered, do NOT make up any content. Instead, return all partially relevant findings, "
@@ -296,6 +462,14 @@ def generate_agent_summarize_prompt(
                 "Focus on factual, specific, and well-organized information."
             )
         )
+
+        # Add Chinese-specific instructions for worker summary
+        if chinese_context:
+            summarize_prompt += """
+
+如果子任务涉及中文内容，请使用中文进行总结和回应，包括执行过程的思考、分析和各种输出，保持信息的准确性和语境一致性。
+"""
+
     elif agent_type == "agent-coding":
         summarize_prompt = (
             (

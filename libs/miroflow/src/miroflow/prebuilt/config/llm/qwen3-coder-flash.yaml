@@ -1,0 +1,27 @@
+# config/llm/qwen3-coder.yaml - Main Agent LLM Configuration
+provider: "claude_openrouter"
+model_name: "Qwen3-Coder-30B-A3B-Instruct"
+
+# Basic LLM parameters
+async_client: true
+temperature: 0.7
+top_p: 0.8
+min_p: 0.0
+top_k: 20
+repetition_penalty: 1.05  # Only added to request if not equal to 1.0
+max_tokens: 32000
+# max_context_length: 130000  # deprecated, no longer used
+
+# Provider specific settings
+openrouter_base_url: # the deployment url
+openrouter_api_key: ??? # the deployment api key
+openrouter_provider: ""  # Force provider
+disable_cache_control: true  # qwen models don't support cache control
+
+# Base URLs
+openai_base_url: null
+anthropic_base_url: https://api.anthropic.com
+
+# Other settings
+keep_tool_result: -1
+oai_tool_thinking: false

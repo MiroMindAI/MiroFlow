@@ -1,0 +1,14 @@
+# config/benchmark/hle.yaml
+defaults:
+  - default
+  - _self_
+
+name: "hle"
+
+data:
+  data_dir: "${env.data_dir}/hle"
+
+
+execution:
+  max_tasks: 850  # null means no limit
+  max_concurrent: 5

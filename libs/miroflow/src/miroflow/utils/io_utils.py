@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
-import re
 
 from miroflow.logging.logger import bootstrap_logger
 
@@ -49,7 +48,9 @@ def process_input(task_description, task_file_name):
             file_type = "Zip"
         else:
             file_type = file_extension
-        updated_task_description += f"\nNote: A {file_type} file '{task_file_name}' is associated with this task. You should use available tools to read its content if necessary through {task_file_name}. Additionally, if you need to analyze this file by Linux commands or python codes, you should upload it to the sandbox first. Files in the sandbox cannot be accessed by other tools.\n\n"
+        # Get the absolute path of the file
+        absolute_file_path = os.path.abspath(task_file_name)
+        updated_task_description += f"\nNote: A {file_type} file '{task_file_name}' is associated with this task. If you need worker agent to read its content, you should provide the complete local system file path: {absolute_file_path}.\n\n"
 
         logger.info(
             f"Info: Detected {file_type} file {task_file_name}, added hint to description."
@@ -67,20 +68,49 @@ class OutputFormatter:
     def _extract_boxed_content(self, text: str) -> str:
         """
         Extract content from \\boxed{} patterns in the text.
-        Uses safe regex patterns to avoid catastrophic backtracking.
+        Uses balanced brace counting to handle arbitrary levels of nested braces correctly.
         Returns the last matched content, or empty string if no match found.
         """
         if not text:
             return ""
 
-        # Primary pattern: handles single-level brace nesting
-        primary_pattern = r"\\boxed\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}"
-        matches = re.findall(primary_pattern, text, re.DOTALL)
+        matches = []
+        i = 0
 
-        # Fallback pattern: simpler match for any content until first closing brace
-        if not matches:
-            fallback_pattern = r"\\boxed\{([^}]+)\}"
-            matches = re.findall(fallback_pattern, text, re.DOTALL)
+        while i < len(text):
+            # Find the next \boxed{ pattern
+            boxed_start = text.find(r"\boxed{", i)
+            if boxed_start == -1:
+                break
+
+            # Start after the opening brace
+            content_start = boxed_start + 7  # len(r'\boxed{') = 7
+            if content_start >= len(text):
+                break
+
+            # Count balanced braces
+            brace_count = 1
+            content_end = content_start
+
+            while content_end < len(text) and brace_count > 0:
+                char = text[content_end]
+                if char == "{":
+                    brace_count += 1
+                elif char == "}":
+                    brace_count -= 1
+                content_end += 1
+
+            # If we found a balanced match (brace_count == 0)
+            if brace_count == 0:
+                content = text[
+                    content_start : content_end - 1
+                ]  # -1 to exclude the closing brace
+                matches.append(content)
+                # Continue searching from after this complete match
+                i = content_end
+            else:
+                # If braces are unbalanced, skip this \boxed{ and continue searching
+                i = content_start
 
         return matches[-1] if matches else ""
 

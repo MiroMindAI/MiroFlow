@@ -5,7 +5,7 @@
 import pathlib
 import traceback
 from datetime import datetime
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 
 from miroflow.contrib.tracing import trace
 from miroflow.llm.client import LLMClient
@@ -67,17 +67,50 @@ async def execute_task_pipeline(
 
     traces = []
     llm_client = None
+    sub_agent_llm_client = None
     final_answer, final_boxed_answer = "", ""
     try:
         with trace(workflow_name="benchmark_workflow", trace_id=task_id):
-            # Initialize LLM client
-            llm_client = LLMClient(task_id=task_id, cfg=cfg)
+            # Initialize main agent LLM client
+            main_agent_llm_config = cfg.agent.get("main_agent_llm", None)
+            if main_agent_llm_config:
+                config_path = (
+                    pathlib.Path(__file__).parent
+                    / "config"
+                    / "llm"
+                    / f"{main_agent_llm_config}.yaml"
+                )
+                main_agent_cfg = OmegaConf.load(config_path)
+                # Create a config that includes both the LLM config and the env section
+                combined_cfg = OmegaConf.create({"llm": main_agent_cfg, "env": cfg.env})
+                llm_client = LLMClient(task_id=task_id, cfg=combined_cfg)
+            else:
+                llm_client = LLMClient(task_id=task_id, cfg=cfg)
+
+            # Initialize sub agent LLM client
+            sub_agent_llm_config = cfg.agent.get("sub_agent_llm", None)
+            if sub_agent_llm_config:
+                config_path = (
+                    pathlib.Path(__file__).parent
+                    / "config"
+                    / "llm"
+                    / f"{sub_agent_llm_config}.yaml"
+                )
+                sub_agent_cfg = OmegaConf.load(config_path)
+                # Create a config that includes both the LLM config and the env section
+                combined_cfg = OmegaConf.create({"llm": sub_agent_cfg, "env": cfg.env})
+                sub_agent_llm_client = LLMClient(
+                    task_id=f"{task_id}_sub", cfg=combined_cfg
+                )
+            else:
+                sub_agent_llm_client = llm_client  # Use the same client
 
             # Initialize orchestrator
             orchestrator = Orchestrator(
                 main_agent_tool_manager=main_agent_tool_manager,
                 sub_agent_tool_managers=sub_agent_tool_managers,
                 llm_client=llm_client,
+                sub_agent_llm_client=sub_agent_llm_client,
                 output_formatter=output_formatter,
                 task_log=task_log,
                 cfg=cfg,
@@ -116,6 +149,8 @@ async def execute_task_pipeline(
     finally:
         if llm_client is not None:
             llm_client.close()
+        if sub_agent_llm_client != llm_client and sub_agent_llm_client is not None:
+            sub_agent_llm_client.close()
         task_log.end_time = datetime.now()
         # log.update_cost_estimate()  # Update cost estimate
 

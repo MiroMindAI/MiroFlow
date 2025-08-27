@@ -174,6 +174,7 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
 
             # build extra_body if self.openrouter_provider
             provider_config = (self.openrouter_provider or "").strip().lower()
+            logger.info(f"provider_config: {provider_config}")
             if provider_config == "google":
                 extra_body = {
                     "provider": {
@@ -186,41 +187,82 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
                 }
             elif provider_config == "anthropic":
                 extra_body = {"provider": {"only": ["anthropic"]}}
+                # extra_body["provider"]["ignore"] = ["google-vertex/us", "google-vertex/europe", "google-vertex/global"]
             elif provider_config == "amazon":
                 extra_body = {"provider": {"only": ["amazon-bedrock"]}}
+            elif provider_config != "":
+                extra_body = {"provider": {"only": [provider_config]}}
             else:
                 extra_body = {}
+
+            # Add top_k and min_p through extra_body for OpenRouter
+            if self.top_k != -1:
+                extra_body["top_k"] = self.top_k
+            if self.min_p != 0.0:
+                extra_body["min_p"] = self.min_p
+            if self.repetition_penalty != 1.0:
+                extra_body["repetition_penalty"] = self.repetition_penalty
 
             params = {
                 "model": self.model_name,
                 "temperature": temperature,
-                "top_p": self.top_p if self.top_p != 1.0 else None,
                 "max_tokens": self.max_tokens,
                 "messages": processed_messages,
                 "stream": False,
                 "extra_body": extra_body,
             }
 
+            # Add optional parameters only if they have non-default values
+            if self.top_p != 1.0:
+                params["top_p"] = self.top_p
+
             response = await self._create_completion(params, self.async_client)
 
             # Update token count
             self._update_token_usage(getattr(response, "usage", None))
-            if response.choices is None:
-                logger.debug(f"LLM call failed, response: {response}")
-            else:
+
+            if (
+                response is None
+                or response.choices is None
+                or len(response.choices) == 0
+            ):
+                logger.debug(f"LLM call failed: response = {response}")
+                raise Exception(f"LLM call failed [rare case]: response = {response}")
+
+            if response.choices and response.choices[0].finish_reason == "length":
                 logger.debug(
-                    f"LLM call status: {getattr(response.choices[0], 'finish_reason', 'N/A')}"
+                    "LLM finish_reason is 'length', triggering ContextLimitError"
                 )
+                raise ContextLimitError(
+                    "(finish_reason=length) Response truncated due to maximum context length"
+                )
+
+            if (
+                response.choices
+                and response.choices[0].finish_reason == "stop"
+                and response.choices[0].message.content.strip() == ""
+            ):
+                logger.debug(
+                    "LLM finish_reason is 'stop', but content is empty, triggering Error"
+                )
+                raise Exception("LLM finish_reason is 'stop', but content is empty")
+
+            logger.debug(
+                f"LLM call finish_reason: {getattr(response.choices[0], 'finish_reason', 'N/A')}"
+            )
             return response
         except asyncio.CancelledError:
             logger.debug("[WARNING] LLM API call was cancelled during execution")
-            raise
+            raise Exception("LLM API call was cancelled during execution")
         except Exception as e:
             error_str = str(e)
             if (
                 "Input is too long for requested model" in error_str
                 or "input length and `max_tokens` exceed context limit" in error_str
                 or "maximum context length" in error_str
+                or "prompt is too long" in error_str
+                or "exceeds the maximum length" in error_str
+                or "exceeds the maximum allowed length" in error_str
             ):
                 logger.debug(f"OpenRouter LLM Context limit exceeded: {error_str}")
                 raise ContextLimitError(f"Context limit exceeded: {error_str}")
@@ -253,7 +295,7 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
 
         if not llm_response or not llm_response.choices:
             error_msg = "LLM did not return a valid response."
-            logger.debug(f"Error: {error_msg}")
+            logger.error(f"Should never happen: {error_msg}")
             return "", True  # Exit loop
 
         # Extract LLM response text
@@ -263,7 +305,6 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
             assistant_response_text = self._clean_user_content_from_response(
                 assistant_response_text
             )
-            assistant_response_text = llm_response.choices[0].message.content or ""
             message_history.append(
                 {"role": "assistant", "content": assistant_response_text}
             )
@@ -279,8 +320,15 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
                 {"role": "assistant", "content": assistant_response_text}
             )
         else:
-            raise ValueError(
+            logger.error(
                 f"Unsupported finish reason: {llm_response.choices[0].finish_reason}"
+            )
+            assistant_response_text = (
+                "Successful response, but unsupported finish reason: "
+                + llm_response.choices[0].finish_reason
+            )
+            message_history.append(
+                {"role": "assistant", "content": assistant_response_text}
             )
         logger.debug(f"LLM Response: {assistant_response_text}")
 
@@ -298,9 +346,6 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
     ):
         """Update message history with tool calls data (llm client specific)"""
 
-        merged_text = "\n".join(
-            [item[1]["text"] for item in tool_call_info if item[1]["type"] == "text"]
-        )
         # Filter tool call results with type "text"
         tool_call_info = [item for item in tool_call_info if item[1]["type"] == "text"]
 
@@ -357,8 +402,8 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
         )
         return message_history
 
-    def generate_agent_system_prompt(self, date, mcp_servers) -> str:
-        return generate_mcp_system_prompt(date, mcp_servers)
+    def generate_agent_system_prompt(self, date, mcp_servers, chinese_context) -> str:
+        return generate_mcp_system_prompt(date, mcp_servers, chinese_context)
 
     def parse_llm_response(self, llm_response) -> str:
         """Parse OpenAI LLM response to get text content"""
@@ -381,61 +426,6 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
         except Exception:
             # If encoding fails, use simple estimation: about 1 token per 4 characters
             return len(text) // 4
-
-    def ensure_summary_context(
-        self, message_history: list, summary_prompt: str
-    ) -> bool:
-        """
-        Check if current message_history + summary_prompt would exceed context
-        If it would exceed, remove last assistant-user pair and return False
-        Return True means can continue, False means messages have been rolled back
-        """
-        # Get token usage from last LLM call
-        last_prompt_tokens = self.last_call_tokens.get("prompt_tokens", 0)
-        last_completion_tokens = self.last_call_tokens.get("completion_tokens", 0)
-        buffer_factor = 1.2
-
-        # Calculate token count of summary prompt
-        summary_tokens = self._estimate_tokens(summary_prompt) * buffer_factor
-
-        # Calculate token count of last user message in message_history (if exists and not sent)
-        last_user_tokens = 0
-        if message_history[-1]["role"] == "user":
-            content = message_history[-1]["content"][0]["text"]
-            last_user_tokens = self._estimate_tokens(content) * buffer_factor
-
-        # Calculate total token count: last prompt + completion + last user message + summary + reserved response space
-        estimated_total = (
-            last_prompt_tokens
-            + last_completion_tokens
-            + last_user_tokens
-            + summary_tokens
-            + self.max_tokens
-        )
-
-        if estimated_total >= self.max_context_length:
-            logger.debug(
-                f"Current context + summary would exceed limit: {estimated_total} >= {self.max_context_length}"
-            )
-
-            # Remove last user message (tool call results)
-            if message_history[-1]["role"] == "user":
-                message_history.pop()
-
-            # Remove second-to-last assistant message (tool call request)
-            if message_history[-1]["role"] == "assistant":
-                message_history.pop()
-
-            logger.debug(
-                f"Removed last assistant-user pair, current message_history length: {len(message_history)}"
-            )
-
-            return False
-
-        logger.debug(
-            f"Context check passed: {estimated_total}/{self.max_context_length}"
-        )
-        return True
 
     def handle_max_turns_reached_summary_prompt(self, message_history, summary_prompt):
         """Handle max turns reached summary prompt"""

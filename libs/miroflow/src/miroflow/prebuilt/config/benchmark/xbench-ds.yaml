@@ -1,0 +1,14 @@
+# config/benchmark/browsecomp.yaml
+defaults:
+  - default
+  - _self_
+
+name: "xbench-ds"
+
+data:
+  data_dir: "${env.data_dir}/xbench-ds"
+
+
+execution:
+  max_tasks: null  # null means no limit
+  max_concurrent: 5

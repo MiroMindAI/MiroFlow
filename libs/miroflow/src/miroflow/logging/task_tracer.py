@@ -54,7 +54,7 @@ class TaskTracer(BaseModel):
 
     # record task result. hydrdrated AFTER task execution.
     final_boxed_answer: str = ""
-    llm_as_judge_result: str = ""
+    judge_result: str = ""
     error: str = ""
 
     # record task exection detail. hydrated DURING task_execution.

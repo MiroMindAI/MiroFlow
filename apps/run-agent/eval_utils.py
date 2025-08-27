@@ -2,7 +2,6 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import os
 import re
 import string
 import warnings
@@ -10,6 +9,7 @@ from typing import Any, Literal
 
 from openai import AsyncOpenAI
 from pydantic import BaseModel
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 EVALUATION_PROMPT_SIMPLEQA = """
 Your job is to look at a question, a gold target, and a predicted answer, and then assign a grade of either ["CORRECT", "INCORRECT", "NOT_ATTEMPTED"].
@@ -93,6 +93,7 @@ Just return the letters "A", "B", or "C", with no text around it.
 """.strip()
 
 
+@retry(wait=wait_exponential(multiplier=5), stop=stop_after_attempt(5))
 async def verify_answer_llm_simpleqa(
     openai_client: AsyncOpenAI, question: str, target: str, predicted_answer: str
 ) -> str:
@@ -110,23 +111,85 @@ async def verify_answer_llm_simpleqa(
     ]
     CHOICE_MAP = {"A": "CORRECT", "B": "INCORRECT", "C": "NOT_ATTEMPTED"}
 
-    try:
-        llm_response = await openai_client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=messages,  # type: ignore
-            max_completion_tokens=2,
-        )
-        content = llm_response.choices[0].message.content
-        if not isinstance(content, str):
-            raise ValueError("llm failed to return")
+    llm_response = await openai_client.chat.completions.create(
+        model="gpt-4o-mini", messages=messages, max_completion_tokens=2
+    )
+    content = llm_response.choices[0].message.content
+    match = re.search(r"(A|B|C)", content)
+    if match:
+        return CHOICE_MAP[match.group(0)]
+    else:
+        raise Exception(f"SimpleQA LLM evaluation failed: {content}")
 
-        match = re.search(r"(A|B|C)", content)
-        if match:
-            return CHOICE_MAP[match.group(0)]
-    except Exception as e:
-        print(f"LLM evaluation failed: {e}")
 
-    return "NOT_ATTEMPTED"
+# XBench LLM Judge prompt template (Chinese)
+XBENCH_LLM_JUDGE_PROMPT = """
+你是一个通用人工智能助手。根据下面给出的[正确答案], 判断以下对[原问题]的[回答]的回答是否正确。
+
+[原问题]: {question}
+
+[正确答案]: {correct_answer}
+
+[回答]:{response}
+
+你的判断必须按照以下格式和标准进行:
+
+最终答案: 从[回答]中提取出的最终准确答案。如果[回答]中没有明确的最终答案, 则填写'无'。
+
+解释: 根据[原问题]解释为什么[最终答案]是正确的或错误的。只关注[最终答案]与[正确答案]之间是否存在实质性差异, 不要评论题目的背景, 不要尝试重新解题, 不要为任何不同于[正确答案]的答案辩护, 只专注于判断答案是否一致。
+
+结论: 如果[最终答案]与上方给出的[正确答案]一致, 或者在数值题目中处于可接受的微小误差范围内, 则填写'正确'; 否则（即存在任何不一致、歧义、不等价或提取出的答案错误的情况）填写'错误'。
+""".strip()
+
+
+class XBenchExtractedAnswer(BaseModel):
+    最终答案: str
+    解释: str
+    结论: Literal["正确", "错误"]
+    strict: Literal[True] = True  # 100% reliability
+
+
+@retry(wait=wait_exponential(multiplier=5), stop=stop_after_attempt(5))
+async def verify_answer_llm_xbench(
+    openai_client: AsyncOpenAI, question: str, target: str, predicted_answer: str
+) -> str:
+    """
+    Use XBench-style LLM judge (o3) to verify if the predicted answer is correct.
+    Uses structured output format similar to verify_answer_llm_hle.
+
+    Args:
+        question: The question being answered
+        target: The correct/target answer
+        predicted_answer: The model's predicted answer
+
+    Returns:
+        String indicating the evaluation result: "CORRECT", "INCORRECT", or "NOT_ATTEMPTED"
+    """
+    prompt = XBENCH_LLM_JUDGE_PROMPT.format(
+        question=question, correct_answer=target, response=predicted_answer
+    )
+
+    response = await openai_client.beta.chat.completions.parse(
+        model="o3",  # xbench by default uses deepseek-v3 ?
+        max_completion_tokens=4096,
+        messages=[{"role": "user", "content": prompt}],
+        response_format=XBenchExtractedAnswer,
+    )
+
+    content = response.choices[0].message.parsed
+
+    # Print XBench reasoning
+    print(f"XBench LLM Judge Extracted Answer: {content.最终答案}")
+    print(f"XBench LLM Judge Reasoning: {content.解释}")
+    print(f"XBench LLM Judge Result: {content.结论}")
+
+    # Convert XBench format to eval_utils format
+    if content.结论 == "正确":
+        return "CORRECT"
+    elif content.结论 == "错误":
+        return "INCORRECT"
+    else:
+        raise Exception(f"XBench LLM evaluation failed: {content}")
 
 
 # HLE Judge prompt and model
@@ -146,9 +209,18 @@ reasoning: Explain why the extracted_final_answer is correct or incorrect based 
 
 correct: Answer 'yes' if extracted_final_answer matches the [correct_answer] given above, or is within a small margin of error for numerical problems. Answer 'no' otherwise, i.e. if there if there is any inconsistency, ambiguity, non-equivalency, or if the extracted answer is incorrect.
 
-confidence: The extracted confidence score between 0|\\%| and 100|\\%| from [response]. Put 100 if there is no confidence score available."""
+confidence: The extracted confidence score between 0|%| and 100|%| from [response]. Put 100 if there is no confidence score available."""
 
 
+class HLEExtractedAnswer(BaseModel):
+    extracted_final_answer: str
+    reasoning: str
+    correct: Literal["yes", "no"]
+    confidence: int
+    strict: Literal[True] = True  # 100% reliability
+
+
+@retry(wait=wait_exponential(multiplier=5), stop=stop_after_attempt(5))
 async def verify_answer_llm_hle(
     openai_client: AsyncOpenAI, question: str, target: str, predicted_answer: str
 ) -> str:
@@ -164,48 +236,31 @@ async def verify_answer_llm_hle(
     Returns:
         String indicating the evaluation result
     """
-
-    class HLEExtractedAnswer(BaseModel):
-        extracted_final_answer: str
-        reasoning: str
-        correct: Literal["yes", "no"]
-        confidence: int
-        strict: Literal[True] = True  # 100% reliability
-
     prompt = HLE_JUDGE_PROMPT.format(
         question=question, correct_answer=target, response=predicted_answer
     )
 
-    try:
-        response = await openai_client.beta.chat.completions.parse(
-            model="o3-mini-2025-01-31",
-            max_completion_tokens=4096,
-            messages=[{"role": "user", "content": prompt}],
-            response_format=HLEExtractedAnswer,
-        )
+    response = await openai_client.beta.chat.completions.parse(
+        model="o3-mini-2025-01-31",
+        max_completion_tokens=4096,
+        messages=[{"role": "user", "content": prompt}],
+        response_format=HLEExtractedAnswer,
+    )
 
-        content = response.choices[0].message.parsed
+    content = response.choices[0].message.parsed
 
-        if not isinstance(content, HLEExtractedAnswer):
-            return "INCORRECT"
+    # Print HLE reasoning
+    print(f"LLM as Judge Reasoning: {content.reasoning}")
+    print(f"LLM as Judge Result: {content.correct}")
+    print(f"LLM as Judge Confidence: {content.confidence}%")
 
-        # Print HLE reasoning
-        print(f"LLM as Judge Reasoning: {content.reasoning}")
-        print(f"LLM as Judge Result: {content.correct}")
-        print(f"LLM as Judge Confidence: {content.confidence}%")
-
-        # Convert HLE format to eval_utils format
-        if content.correct == "yes":
-            return "CORRECT"
-        else:
-            return "INCORRECT"
-
-    except Exception as e:
-        if "Incorrect API key provided" in str(e):
-            print(f"LLM evaluation failed: {e}")
-            os._exit(1)
-        print(f"LLM evaluation failed: {e}")
-        return "NOT_ATTEMPTED"
+    # Convert HLE format to eval_utils format
+    if content.correct == "yes":
+        return "CORRECT"
+    elif content.correct == "no":
+        return "INCORRECT"
+    else:
+        raise Exception(f"HLE LLM evaluation failed: {content}")
 
 
 async def verify_answer_gaia(target: str, predicted_answer: str) -> str:
@@ -330,21 +385,35 @@ async def verify_answer_for_datasets(
     Verify the answer for a given dataset.
     """
 
-    # for all questions, do gaia scorer first, if not return CORRECT, then do others
-    gaia_scorer_answer = await verify_answer_gaia(target, predicted_answer)
+    try:
+        # for all questions, do gaia scorer first, if not return CORRECT, then do others
+        gaia_scorer_answer = await verify_answer_gaia(target, predicted_answer)
 
-    if gaia_scorer_answer == "CORRECT":
-        return "CORRECT"
+        if gaia_scorer_answer == "CORRECT":
+            return "CORRECT"
 
-    elif "gaia-validation-text" not in benchmark_name and "gaia" in benchmark_name:
-        return gaia_scorer_answer
+        elif "gaia-validation-text" not in benchmark_name and "gaia" in benchmark_name:
+            return gaia_scorer_answer
 
-    elif benchmark_name == "simpleqa":
-        return await verify_answer_llm_simpleqa(
-            openai_client, question, target, predicted_answer
-        )
+        elif benchmark_name == "simpleqa":
+            return await verify_answer_llm_simpleqa(
+                openai_client, question, target, predicted_answer
+            )
 
-    else:
-        return await verify_answer_llm_hle(
-            openai_client, question, target, predicted_answer
-        )
+        elif "xbench" in benchmark_name:
+            return await verify_answer_llm_xbench(
+                openai_client, question, target, predicted_answer
+            )
+
+        elif "browsecomp-zh" in benchmark_name:
+            return await verify_answer_llm_hle(
+                openai_client, question, target, predicted_answer
+            )
+
+        else:
+            return await verify_answer_llm_hle(
+                openai_client, question, target, predicted_answer
+            )
+    except Exception as e:
+        print(f"Evaluation failed: {e}")
+        return "NOT_ATTEMPTED"

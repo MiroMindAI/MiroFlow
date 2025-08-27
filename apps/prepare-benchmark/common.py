@@ -18,7 +18,7 @@ class Task:
     metadata: MutableMapping[str, Any] = dataclasses.field(default_factory=dict)
 
     def to_json(self) -> bytes:
-        return json.dumps(dataclasses.asdict(self)).encode()
+        return json.dumps(dataclasses.asdict(self), ensure_ascii=False).encode()
 
     @classmethod
     def from_json(cls, b: bytes):

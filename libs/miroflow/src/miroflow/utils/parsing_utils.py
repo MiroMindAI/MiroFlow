@@ -368,6 +368,16 @@ def _legacy_escape_method(raw_str):
     return corrected_json
 
 
+def _escape_for_json(value: str) -> str:
+    # Do not escape \" and \uXXXX
+    fixed = re.sub(r'(?<!\\)\\(?!["]|u[0-9a-fA-F]{4})', r"\\\\", value)
+
+    # Then escape newlines, order is important: \r\n → \n → \r
+    fixed = fixed.replace("\r\n", "\\r\\n").replace("\n", "\\n").replace("\r", "\\r")
+
+    return fixed
+
+
 def _conservative_escape_fallback(raw_str):
     """
     Conservative fallback strategy: only fix the most obvious issues
@@ -380,7 +390,7 @@ def _conservative_escape_fallback(raw_str):
         value = match.group(2)
 
         # Only escape newlines, keep it simple
-        fixed_value = value.replace("\n", "\\n").replace("\r", "\\r")
+        fixed_value = _escape_for_json(value)
         return f'"{key}": "{fixed_value}"'
 
     # Use most conservative regex pattern

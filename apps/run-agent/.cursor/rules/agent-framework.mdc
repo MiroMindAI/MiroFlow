@@ -10,15 +10,15 @@ The primary agent framework is located in `apps/reorg-modular-structure/` - this
 - **Entry Points**: 
   - [main.py](mdc:apps/reorg-modular-structure/main.py) - Main application entry point
   - [main_gaia_example.py](mdc:apps/reorg-modular-structure/main_gaia_example.py) - GAIA benchmark example
-- **Configuration**: `conf/` directory contains YAML configs for agents, benchmarks, and LLM providers
+- **Configuration**: `config/` directory contains YAML configs for agents, benchmarks, and LLM providers
 - **Source Code**: `src/mirage_agent/` contains the core agent implementation
 - **Scripts**: `scripts/` contains benchmark execution scripts
 
 ## Configuration Structure
-- `conf/agent/` - Agent configurations (default.yaml, for_debug.yaml, etc.)
-- `conf/benchmark/` - Benchmark configurations (gaia-validation.yaml, bbeh.yaml, etc.)
-- `conf/llm/` - LLM provider configurations (claude.yaml, openai.yaml, etc.)
-- `conf/pricing/` - Pricing configurations
+- `config/agent/` - Agent configurations (default.yaml, for_debug.yaml, etc.)
+- `config/benchmark/` - Benchmark configurations (gaia-validation.yaml, bbeh.yaml, etc.)
+- `config/llm/` - LLM provider configurations (claude.yaml, openai.yaml, etc.)
+- `config/pricing/` - Pricing configurations
 
 ## Development Workflow
 1. **Setup**: `cd apps/reorg-modular-structure && uv sync`

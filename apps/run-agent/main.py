@@ -1,15 +1,18 @@
-import dotenv
-import fire
-import hydra
-from miroflow.logging.logger import bootstrap_logger
-from miroflow.prebuilt.config import config_name, config_path, debug_config
-from rich.traceback import install
+# SPDX-FileCopyrightText: 2025 MiromindAI
+#
+# SPDX-License-Identifier: Apache-2.0
 
 import calculate_average_score
 import calculate_score_from_log
 import common_benchmark
+import dotenv
 import eval_answer_from_log
+import fire
+import hydra
 import trace_single_task
+from miroflow.logging.logger import bootstrap_logger
+from miroflow.prebuilt.config import config_name, config_path, debug_config
+from rich.traceback import install
 
 
 def print_config(*args):

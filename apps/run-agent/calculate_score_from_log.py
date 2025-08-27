@@ -17,15 +17,13 @@ def extract_score_from_log(run_dir, task_score_dict):
         task_id = log_file.split("/")[-1].split("_")[0]
         with open(log_file, "r") as f:
             data = json.load(f)
-            if "llm_as_judge_result" in data and data["llm_as_judge_result"] in (
+            if "judge_result" in data and data["judge_result"] in (
                 "CORRECT",
                 "INCORRECT",
             ):
                 if task_id not in task_score_dict:
                     task_score_dict[task_id] = []
-                task_score_dict[task_id].append(
-                    data["llm_as_judge_result"] == "CORRECT"
-                )
+                task_score_dict[task_id].append(data["judge_result"] == "CORRECT")
 
 
 def main(results_dir: str, pass_at_k: int = 3):

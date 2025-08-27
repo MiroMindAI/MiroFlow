@@ -231,7 +231,7 @@ class ToolManager(ToolManagerProtocol):
 
         return all_servers_for_prompt
 
-    @with_timeout(600)
+    @with_timeout(900)
     async def execute_tool_call(self, server_name, tool_name, arguments) -> Any:
         """
         Execute a single tool call.
@@ -247,10 +247,57 @@ class ToolManager(ToolManagerProtocol):
             logger.error(
                 f"Error: Attempting to call server '{server_name}' that was not found"
             )
+
+            # Try to find the tool in all available servers
+            suggested_servers = await self._find_servers_with_tool(tool_name)
+
+            error_message = f"Server '{server_name}' not found."
+
+            if len(suggested_servers) == 1:
+                # Auto-correction: only one server contains the tool, try to auto-correct and execute
+                correct_server = suggested_servers[0]
+                logger.info(
+                    f"Auto-correction: Server '{server_name}' not found, but found tool '{tool_name}' in '{correct_server}', trying to auto-correct and execute"
+                )
+
+                try:
+                    # Recursive call, using the correct server name
+                    corrected_result = await self.execute_tool_call(
+                        correct_server, tool_name, arguments
+                    )
+
+                    # If auto-correction is successful, add a note in the result
+                    if "result" in corrected_result:
+                        # Add auto-correction note in the result, including the reason for the correction
+                        correction_note = f"[Auto-corrected: Server '{server_name}' not found, but tool '{tool_name}' was found only in server '{correct_server}', so automatically used '{correct_server}' instead] "
+                        corrected_result["result"] = correction_note + str(
+                            corrected_result["result"]
+                        )
+                        return corrected_result
+                    elif "error" in corrected_result:
+                        # If there is an error after auto-correction, add a note in the error message
+                        correction_note = f"[Auto-corrected: Server '{server_name}' not found, but tool '{tool_name}' was found only in server '{correct_server}', attempted auto-correction but still failed] "
+                        corrected_result["error"] = correction_note + str(
+                            corrected_result["error"]
+                        )
+                        return corrected_result
+
+                except Exception as auto_correct_error:
+                    logger.error(f"Auto-correction failed: {auto_correct_error}")
+                    error_message += f" Found tool '{tool_name}' in server '{correct_server}' and attempted auto-correction, but it failed: {str(auto_correct_error)}"
+
+            elif len(suggested_servers) > 1:
+                error_message += f" However, found tool '{tool_name}' in these servers: {', '.join(suggested_servers)}. You may want to use one of these servers instead."
+            else:
+                error_message += (
+                    " It is possible that the server_name and tool_name were confused or mixed up. "
+                    "You should try again and carefully check the server name and tool name provided in the system prompt."
+                )
+
             return {
                 "server_name": server_name,
                 "tool_name": tool_name,
-                "error": f"Server '{server_name}' not found.",
+                "error": error_message,
             }
 
         logger.info(

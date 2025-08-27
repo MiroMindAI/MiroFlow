@@ -11,10 +11,12 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypedDict
-import dotenv
+import random
 
+import dotenv
 import hydra
 import openai
+from eval_utils import verify_answer_for_datasets
 from miroflow.contrib.tracing import set_tracing_disabled, set_tracing_export_api_key
 from miroflow.contrib.tracing.otlp_setup import bootstrap_silent_trace_provider
 from miroflow.logging.logger import bootstrap_logger
@@ -24,9 +26,6 @@ from miroflow.prebuilt.pipeline import (
     execute_task_pipeline,
 )
 from omegaconf import DictConfig, OmegaConf
-from pydantic import BaseModel, Field
-
-from eval_utils import verify_answer_for_datasets
 from summary_time_cost import generate_summary
 
 
@@ -58,12 +57,13 @@ class AttemptStats(TypedDict):
     model_boxed_answer: str
     status: TaskStatus
     log_file_path: Optional[Path]
-    llm_as_judge_result: Optional[str]
+    judge_result: Optional[str]
     is_correct: bool
     error_message: Optional[str]
 
 
-class BenchmarkResult(BaseModel):
+@dataclass
+class BenchmarkResult:
     """Generic benchmark evaluation result structure"""
 
     task_id: str
@@ -73,14 +73,28 @@ class BenchmarkResult(BaseModel):
     model_response: str
     model_boxed_answer: str
     status: str
-    metadata: Dict[str, Any] = Field(default_factory=dict)
+    metadata: Dict[str, Any] = field(default_factory=dict)
     error_message: str = ""
-    llm_as_judge_result: Optional[str] = None
+    judge_result: Optional[str] = None
     log_file_path: Optional[Path] = None
     # Pass@K support fields
-    attempts: List[AttemptStats] = Field(default_factory=list)  # Store all attempts
+    attempts: List[AttemptStats] = field(default_factory=list)  # Store all attempts
     pass_at_k_success: bool = False  # Whether task passed using pass@k evaluation
     k_value: int = 1  # The k value used for this evaluation
+
+    def to_dict(self):
+        """Convert the object to a serializable dictionary."""
+        result = self.__dict__.copy()  # Copy the object's dictionary
+        # Convert Path objects to string
+        if isinstance(result.get("log_file_path"), Path):
+            result["log_file_path"] = str(result["log_file_path"])
+        if isinstance(result.get("file_path"), Path):
+            result["file_path"] = str(result["file_path"])
+        # Convert any Path objects inside the attempts list
+        for attempt in result.get("attempts", []):
+            if isinstance(attempt.get("log_file_path"), Path):
+                attempt["log_file_path"] = str(attempt["log_file_path"])
+        return result
 
 
 class BenchmarkEvaluator(ABC):
@@ -160,6 +174,11 @@ class BenchmarkEvaluator(ABC):
             model_boxed_answer="",
             status="pending",
             metadata=task.metadata.copy(),
+            error_message="",
+            judge_result=None,
+            log_file_path=None,
+            attempts=[],
+            pass_at_k_success=False,
             k_value=self.pass_at_k,
         )
 
@@ -198,7 +217,7 @@ class BenchmarkEvaluator(ABC):
                             output_formatter=self.output_formatter,
                             ground_truth=task.ground_truth,
                             log_path=self.output_dir
-                            / f"{task.task_id}_attempt_{attempt}.json",
+                            / f"task_{task.task_id}_attempt_{attempt}.json",
                         )
 
                         attempt_result["model_response"] = response if response else ""
@@ -216,7 +235,11 @@ class BenchmarkEvaluator(ABC):
                         print(f"    Error in attempt {attempt}: {e}")
 
                 # Perform LLM verification if we have an answer and haven't verified yet
-                if attempt_result["status"] == TaskStatus.RUN_COMPLETED:
+                if (
+                    attempt_result["status"] == TaskStatus.RUN_COMPLETED
+                    or attempt_result["judge_result"] == "NOT_ATTEMPTED"
+                ):
+                    # if attempt_result["status"] == TaskStatus.RUN_COMPLETED:
                     print(f"    Verifying answer for attempt {attempt}...")
                     try:
                         evaluation_result = await verify_answer_for_datasets(
@@ -226,7 +249,7 @@ class BenchmarkEvaluator(ABC):
                             target=task.ground_truth,
                             predicted_answer=attempt_result["model_boxed_answer"],
                         )
-                        attempt_result["llm_as_judge_result"] = evaluation_result
+                        attempt_result["judge_result"] = evaluation_result
                         attempt_result["is_correct"] = evaluation_result == "CORRECT"
 
                         # Update the log file with verification result
@@ -247,15 +270,15 @@ class BenchmarkEvaluator(ABC):
 
                     except Exception as e:
                         print(f"    Error verifying attempt {attempt}: {e}")
-                        attempt_result["llm_as_judge_result"] = "ERROR"
+                        attempt_result["judge_result"] = "ERROR"
                         attempt_result["is_correct"] = False
 
                 if attempt_result["is_correct"]:
                     print(f"    ✅ Attempt {attempt}: CORRECT (cached)")
                     found_correct_answer = True
-                elif attempt_result["llm_as_judge_result"]:
+                elif attempt_result["judge_result"]:
                     print(
-                        f"    ❌ Attempt {attempt}: INCORRECT (cached: {attempt_result['llm_as_judge_result']})"
+                        f"    ❌ Attempt {attempt}: INCORRECT (cached: {attempt_result['judge_result']})"
                     )
                 else:
                     print(f"    ⚠️  Attempt {attempt}: No valid answer to verify")
@@ -291,9 +314,9 @@ class BenchmarkEvaluator(ABC):
 
             # Set main result LLM judge result based on pass@k outcome
             if found_correct_answer:
-                result.llm_as_judge_result = "PASS_AT_K_SUCCESS"
+                result.judge_result = "PASS_AT_K_SUCCESS"
             else:
-                result.llm_as_judge_result = "PASS_AT_K_FAILED"
+                result.judge_result = "PASS_AT_K_FAILED"
 
             print(f"Task {task.task_id} completed with {len(result.attempts)} attempts")
             print(
@@ -310,11 +333,11 @@ class BenchmarkEvaluator(ABC):
             "model_boxed_answer": "",
             "status": TaskStatus.PENDING,
             "log_file_path": None,
-            "llm_as_judge_result": None,
+            "judge_result": None,
             "is_correct": False,
             "error_message": None,
         }
-        trace_filename_pattern = f"task_{task.task_id}_attempt_{attempt}_*.json"
+        trace_filename_pattern = f"task_{task.task_id}_attempt_{attempt}.json"
         matched_logs = self.output_dir.glob(trace_filename_pattern)
         sorted_logs = sorted(matched_logs, reverse=True)
         if len(sorted_logs) == 0:
@@ -331,14 +354,10 @@ class BenchmarkEvaluator(ABC):
                 attempt_result["model_boxed_answer"] = log_data["final_boxed_answer"]
                 attempt_result["model_response"] = log_data.get("output", "")
                 # Check if we already have LLM judge result in log
-                if log_data.get("llm_as_judge_result"):
+                if log_data.get("judge_result"):
                     attempt_result["status"] = TaskStatus.RESULT_JUDGED
-                    attempt_result["llm_as_judge_result"] = log_data[
-                        "llm_as_judge_result"
-                    ]
-                    attempt_result["is_correct"] = (
-                        log_data["llm_as_judge_result"] == "CORRECT"
-                    )
+                    attempt_result["judge_result"] = log_data["judge_result"]
+                    attempt_result["is_correct"] = log_data["judge_result"] == "CORRECT"
                 print(
                     f"    Loaded existing result: {attempt_result['model_boxed_answer']}"
                 )
@@ -358,26 +377,36 @@ class BenchmarkEvaluator(ABC):
             async with semaphore:
                 return await self.run_single_task(task)
 
+        # Shuffle tasks to avoid order bias and improve balancing
+        shuffled_tasks = tasks.copy()
+        random.shuffle(shuffled_tasks)
+
         # Run tasks in parallel
         results = await asyncio.gather(
-            *[run_with_semaphore(task) for task in tasks], return_exceptions=True
+            *[run_with_semaphore(task) for task in shuffled_tasks],
+            return_exceptions=True,
         )
 
         # Handle exceptions
         processed_results = []
         for i, result in enumerate(results):
             if isinstance(result, Exception):
-                print(f"Exception in task {tasks[i].task_id}: {result}")
+                print(f"Exception in task {shuffled_tasks[i].task_id}: {result}")
                 error_result = BenchmarkResult(
-                    task_id=tasks[i].task_id,
-                    task_question=tasks[i].task_question,
-                    ground_truth=tasks[i].ground_truth,
-                    file_path=tasks[i].file_path,
+                    task_id=shuffled_tasks[i].task_id,
+                    task_question=shuffled_tasks[i].task_question,
+                    ground_truth=shuffled_tasks[i].ground_truth,
+                    file_path=shuffled_tasks[i].file_path,
                     model_response="",
                     model_boxed_answer="",
                     status="failed",
-                    metadata=tasks[i].metadata.copy(),
+                    metadata=shuffled_tasks[i].metadata.copy(),
                     error_message=str(result),
+                    judge_result=None,
+                    log_file_path=None,
+                    attempts=[],
+                    pass_at_k_success=False,
+                    k_value=self.pass_at_k,
                 )
                 processed_results.append(error_result)
             else:
@@ -392,7 +421,7 @@ class BenchmarkEvaluator(ABC):
 
         with open(output_path, "w", encoding="utf-8") as f:
             for result in self.results:
-                f.write(result.model_dump_json() + "\n")
+                f.write(json.dumps(result.to_dict(), ensure_ascii=False) + "\n")
 
         print(f"Results saved to {output_path}")
         return output_path
@@ -423,7 +452,7 @@ class BenchmarkEvaluator(ABC):
             # Show details of each attempt
             for attempt in result.attempts:
                 attempt_num = attempt.get("attempt_number", "?")
-                judge_result = attempt.get("llm_as_judge_result", "NOT_VERIFIED")
+                judge_result = attempt.get("judge_result", "NOT_VERIFIED")
                 is_correct = attempt.get("is_correct", False)
                 status_icon = (
                     "✅"
@@ -462,12 +491,12 @@ class BenchmarkEvaluator(ABC):
                 log_data = json.load(f)
 
             # Update with evaluation result
-            log_data["llm_as_judge_result"] = evaluation_result
+            log_data["judge_result"] = evaluation_result
 
             # Write to a temporary file and then atomically replace
             temp_log_file = log_file.with_suffix(f"{log_file.suffix}.tmp")
             with open(temp_log_file, "w", encoding="utf-8") as f:
-                json.dump(log_data, f, indent=2)
+                json.dump(log_data, f, indent=2, ensure_ascii=False)
 
             os.replace(temp_log_file, log_file)
             print(f"    Updated log file {log_file.name} with evaluation result.")

@@ -1,6 +1,9 @@
+# SPDX-FileCopyrightText: 2025 MiromindAI
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import base64
 import os
-import time
 import random
 
 from anthropic import Anthropic
@@ -84,7 +87,7 @@ async def call_claude_vision(image_path_or_url: str, question: str) -> str:
 
             messages_for_llm[0]["content"][0]["source"] = dict(type="url", url=url)
 
-        max_retries = 5
+        max_retries = 4
         for attempt in range(1, max_retries + 1):
             try:
                 client = Anthropic(
@@ -105,9 +108,9 @@ async def call_claude_vision(image_path_or_url: str, question: str) -> str:
                 break  # Success, exit retry loop
             except Exception as e:
                 if attempt == max_retries:
-                    result = f"Visual Question Answering (Claude Client) failed after {max_retries} retries: {e}\n"
+                    result = f"[ERROR]: Visual Question Answering (Claude Client) failed after {max_retries} retries: {e}\n"
                     break
-                time.sleep(4**attempt)  # Exponential backoff
+                await asyncio.sleep(4**attempt)  # Exponential backoff
 
         return result
 
@@ -280,7 +283,7 @@ Remember: Your extraction will be used by someone who cannot see the image thems
 
 Return only the extracted text content, maintaining the original formatting and structure as much as possible. If there is no text in the image, respond with 'No text found'. If there are areas where text may exist but is unreadable or ambiguous, describe these as well."""
 
-    gemini_ocr_result = await call_claude_vision(image_path_or_url, ocr_prompt)
+    ocr_result = await call_claude_vision(image_path_or_url, ocr_prompt)
 
     vqa_prompt = f"""You are a highly attentive visual analysis assistant. Your task is to carefully examine the image and provide a thorough, accurate answer to the question.
 
@@ -296,7 +299,7 @@ IMPORTANT INSTRUCTIONS:
 Remember: Your analysis will be used by someone who cannot see the image themselves. Any possible guess, uncertainty, or ambiguity should be reported in words rather than left out, so that nothing is omitted or lost.
 
 The OCR result of this image is as follows (may be incomplete or missing some text):
-{gemini_ocr_result}
+{ocr_result}
 
 Question to answer: {question}
 
@@ -304,9 +307,9 @@ Please provide a comprehensive analysis that demonstrates careful observation an
 """
     # Before answering, carefully analyze both the question and the image. Identify and briefly list potential subtle or easily overlooked VQA pitfalls or ambiguities that could arise in interpreting this question or image (e.g., confusing similar objects, missing small details, misreading text, ambiguous context, etc.). For each, suggest a method or strategy to avoid or mitigate these issues. Only after this analysis, proceed to answer the question, providing a thorough and detailed observation and reasoning process.
 
-    gemini_vqa_result = await call_claude_vision(image_path_or_url, vqa_prompt)
+    vqa_result = await call_claude_vision(image_path_or_url, vqa_prompt)
 
-    return f"OCR results:\n{gemini_ocr_result}\n\nVQA result:\n{gemini_vqa_result}"
+    return f"OCR results:\n{ocr_result}\n\nVQA result:\n{vqa_result}"
 
 
 # The tool visual_audio_youtube_analyzing only support single YouTube URL as input for now, though GEMINI can support multiple URLs up to 10 per request.
@@ -404,6 +407,7 @@ async def visual_audio_youtube_analyzing(
     else:
         transcribe_content = ""
 
+    answer_content = ""
     if question != "":
         prompt = f"Answer the following question: {question}"
         retry_count = 0
@@ -465,8 +469,6 @@ async def visual_audio_youtube_analyzing(
                 else:
                     answer_content = f"[ERROR]: Failed to answer the question: {str(e)}"
                     break
-    else:
-        answer_content = ""
 
     hint = "\n\nHint: Large videos may trigger rate limits causing failures. If you need more website information rather than video visual content itself (such as video subtitles, titles, descriptions, key moments), you can also call tool `scrape_website` tool."
     return transcribe_content + answer_content + hint
