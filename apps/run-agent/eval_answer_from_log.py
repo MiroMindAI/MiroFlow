@@ -34,8 +34,8 @@ async def main(input_dir: str, benchmark_name: str):
             ground_truth = data.get("ground_truth", "")
             predicted_answer = data.get("final_boxed_answer", "")
             # If already has judge result, skip
-            # if "llm_as_judge_result" in data and data["llm_as_judge_result"] in ("CORRECT", "INCORRECT"):
-            #     print(f"Log {log_file} already has judge result: {data['llm_as_judge_result']}")
+            # if "judge_result" in data and data["judge_result"] in ("CORRECT", "INCORRECT"):
+            #     print(f"Log {log_file} already has judge result: {data['judge_result']}")
             #     continue
             # Call LLM judge
             result = await verify_answer_for_datasets(
@@ -47,7 +47,7 @@ async def main(input_dir: str, benchmark_name: str):
             )
             print(f"{os.path.basename(log_file)}: {result}")
             # Optionally, update the log file with the result
-            # data["llm_as_judge_result"] = result
+            # data["judge_result"] = result
             # with open(log_file, "w", encoding="utf-8") as f:
             #     json.dump(data, f, ensure_ascii=False, indent=2)
             if result == "CORRECT":

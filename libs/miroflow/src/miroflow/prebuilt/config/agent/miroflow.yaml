@@ -1,27 +1,26 @@
-# conf/agent/default.yaml
-# The name of tools and sub-agents defined in: mirage/apps/reorg-modular-structure/src/mirage_agent/config/settings.py
+# config/agent/default.yaml
+# The name of tools and sub-agents defined in: ./miroflow/src/miroflow/utils/prompt_utils.py and tool_utils.py
 # Each sub-agent prompt is written in: mirage/apps/reorg-modular-structure/src/mirage_agent/utils/prompt_utils.py
 defaults:
-  - _default
+  - default
   - _self_
 
 main_agent:
   tools:
-    - tool-vqa
-    - tool-reading
-    - tool-code
     - tool-reasoning
-    - tool-transcribe
   max_turns: 20  # Maximum number of turns for main agent execution
+  max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
 # Trival reproduce of OWL:
 sub_agents:
-  agent-browsing:
+  agent-worker:
     tools:
       - tool-searching
-      - tool-vqa
+      - tool-image-video
+      - tool-audio
       - tool-reading
       - tool-code
     max_turns: 20
+    max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
 
 o3_hint: true
 o3_final_answer: true

@@ -61,15 +61,24 @@ class LLMProviderClientBase(ABC):
         self.top_p: float = self.cfg.llm.top_p
         self.min_p: float = self.cfg.llm.min_p
         self.top_k: int = self.cfg.llm.top_k
+        self.repetition_penalty: float = self.cfg.llm.get("repetition_penalty", 1.0)
         self.max_tokens: int = self.cfg.llm.max_tokens
-        self.max_context_length: int = self.cfg.llm.max_context_length
+        self.max_context_length: int = self.cfg.llm.get("max_context_length", -1)
         self.oai_tool_thinking: bool = self.cfg.llm.oai_tool_thinking
         self.async_client: bool = self.cfg.llm.async_client
         self.keep_tool_result: int = self.cfg.llm.keep_tool_result
         self.anthropic_base_url: str | None = self.cfg.env.anthropic_base_url
         self.openai_base_url: str | None = self.cfg.env.openai_base_url
         self.newapi_base_url: str | None = self.cfg.env.newapi_base_url
-        self.openrouter_base_url: str | None = self.cfg.env.openrouter_base_url
+        self.openrouter_base_url: str | None = (
+            self.cfg.llm.get("openrouter_base_url") or self.cfg.env.openrouter_base_url
+        )
+        # Handle special empty value for openrouter_api_key
+        openrouter_api_key_config = self.cfg.llm.get("openrouter_api_key")
+        if openrouter_api_key_config is not None:
+            self.openrouter_api_key: Optional[str] = openrouter_api_key_config
+        else:
+            self.openrouter_api_key: Optional[str] = self.cfg.env.openrouter_api_key
         self.use_tool_calls: Optional[bool] = self.cfg.llm.get("use_tool_calls")
         self.openrouter_provider: Optional[str] = self.cfg.llm.get(
             "openrouter_provider"
@@ -85,6 +94,21 @@ class LLMProviderClientBase(ABC):
 
         logger.info(
             f"openrouter_provider config value: {self.openrouter_provider} (type: {type(self.openrouter_provider)})"
+        )
+        logger.info(
+            f"openrouter_base_url config value: {self.openrouter_base_url} (source: {'config file' if self.cfg.llm.get('openrouter_base_url') else 'environment variable'})"
+        )
+        api_key_masked = (
+            f"{self.openrouter_api_key[:10]}..."
+            if self.openrouter_api_key and len(self.openrouter_api_key) > 10
+            else self.openrouter_api_key
+        )
+        if openrouter_api_key_config is not None:
+            api_key_source = "config file"
+        else:
+            api_key_source = "environment variable"
+        logger.info(
+            f"openrouter_api_key config value: {api_key_masked} (source: {api_key_source})"
         )
         logger.info(
             f"disable_cache_control config value: {disable_cache_control_val} (type: {type(disable_cache_control_val)}) -> parsed as: {self.disable_cache_control}"
@@ -318,17 +342,13 @@ class LLMProviderClientBase(ABC):
         response = None
 
         # Unified LLM call handling
-        try:
-            response = await self._create_message(
-                system_prompt,
-                filtered_history,
-                tool_definitions,
-                keep_tool_result=keep_tool_result,
-            )
-        except Exception as e:
-            logger.exception(e)
-        finally:
-            return response
+        response = await self._create_message(
+            system_prompt,
+            filtered_history,
+            tool_definitions,
+            keep_tool_result=keep_tool_result,
+        )
+        return response
 
     @staticmethod
     async def convert_tool_definition_to_tool_call(tools_definitions):
@@ -433,13 +453,6 @@ class LLMProviderClientBase(ABC):
 
         return formatted
 
-    # required by orchestrator.py
-    # @abstractmethod
-    def ensure_summary_context(
-        self, message_history: list[dict[str, Any]], summary_prompt: str
-    ) -> bool:
-        return True
-
     @abstractmethod
     def update_message_history(
         self,
@@ -451,7 +464,10 @@ class LLMProviderClientBase(ABC):
 
     @abstractmethod
     def generate_agent_system_prompt(
-        self, date: datetime.datetime, mcp_servers: list[dict]
+        self,
+        date: datetime.datetime,
+        mcp_servers: list[dict],
+        chinese_context: bool = False,
     ) -> str:
         raise NotImplementedError("must implement in subclass")
 

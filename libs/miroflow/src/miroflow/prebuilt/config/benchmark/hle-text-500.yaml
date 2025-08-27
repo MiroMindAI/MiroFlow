@@ -1,0 +1,14 @@
+# config/benchmark/hle-text-500.yaml
+defaults:
+  - default
+  - _self_
+
+name: "hle-text-500"
+
+data:
+  data_dir: "${env.data_dir}/hle-text-500"
+
+
+execution:
+  max_tasks: null  # null means no limit
+  max_concurrent: 5

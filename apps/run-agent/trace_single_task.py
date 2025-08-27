@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 MiromindAI
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import asyncio
 import logging
 import pathlib

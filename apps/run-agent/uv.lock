@@ -1230,7 +1230,7 @@ requires-dist = [
     { name = "json5", specifier = ">=0.12.0" },
     { name = "miroflow-contrib", editable = "../../libs/miroflow-contrib" },
     { name = "miroflow-tool", editable = "../../libs/miroflow-tool" },
-    { name = "openai", specifier = ">=1.98.0" },
+    { name = "openai", specifier = "==1.78.1" },
     { name = "pyyaml", specifier = ">=6.0.2" },
     { name = "rich", specifier = ">=14.1.0" },
     { name = "tenacity", specifier = ">=8.2.3,<9.0.0" },
@@ -1302,7 +1302,7 @@ requires-dist = [
     { name = "markitdown-mcp", specifier = ">=0.0.1a3" },
     { name = "mcp", specifier = ">=1.12.2" },
     { name = "mutagen", specifier = ">=1.47.0" },
-    { name = "openai", specifier = ">=1.98.0" },
+    { name = "openai", specifier = "==1.78.1" },
     { name = "requests", specifier = ">=2.32.0" },
     { name = "rich", specifier = ">=14.1.0" },
     { name = "wikipedia", specifier = ">=1.4.0" },
@@ -1550,7 +1550,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "1.98.0"
+version = "1.78.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -1562,9 +1562,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d8/9d/52eadb15c92802711d6b6cf00df3a6d0d18b588f4c5ba5ff210c6419fc03/openai-1.98.0.tar.gz", hash = "sha256:3ee0fcc50ae95267fd22bd1ad095ba5402098f3df2162592e68109999f685427", size = 496695, upload-time = "2025-07-30T12:48:03.701Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a4/3f/4e5e7b0548a15eabc4a755c93cd5f9564887e3d2fd45b6ff531352e5859d/openai-1.78.1.tar.gz", hash = "sha256:8b26b364531b100df1b961d03560042e5f5be11301d7d49a6cd1a2b9af824dca", size = 442985, upload-time = "2025-05-12T09:59:51.098Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/a8/fe/f64631075b3d63a613c0d8ab761d5941631a470f6fa87eaaee1aa2b4ec0c/openai-1.98.0-py3-none-any.whl", hash = "sha256:b99b794ef92196829120e2df37647722104772d2a74d08305df9ced5f26eae34", size = 767713, upload-time = "2025-07-30T12:48:01.264Z" },
+    { url = "https://files.pythonhosted.org/packages/3c/4c/3889bc332a6c743751eb78a4bada5761e50a8a847ff0e46c1bd23ce12362/openai-1.78.1-py3-none-any.whl", hash = "sha256:7368bf147ca499804cc408fe68cdb6866a060f38dec961bbc97b04f9d917907e", size = 680917, upload-time = "2025-05-12T09:59:48.948Z" },
 ]
 
 [[package]]
@@ -2370,6 +2370,8 @@ dependencies = [
     { name = "miroflow" },
     { name = "miroflow-contrib" },
     { name = "miroflow-tool" },
+    { name = "openpyxl" },
+    { name = "pandas" },
 ]
 
 [package.dev-dependencies]
@@ -2392,6 +2394,8 @@ requires-dist = [
     { name = "miroflow", editable = "../../libs/miroflow" },
     { name = "miroflow-contrib", editable = "../../libs/miroflow-contrib" },
     { name = "miroflow-tool", editable = "../../libs/miroflow-tool" },
+    { name = "openpyxl", specifier = ">=3.1.5" },
+    { name = "pandas", specifier = ">=2.3.0" },
 ]
 
 [package.metadata.requires-dev]

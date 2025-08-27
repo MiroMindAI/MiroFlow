@@ -82,7 +82,7 @@ def generate_summary(log_dir: Path):
     """
     Generates a summary of benchmark results by reading log files from a directory,
     calculating total and average trace data, both overall and grouped by
-    llm_as_judge_result.
+    judge_result.
 
     Args:
         log_dir: The directory where the individual result log files are and where
@@ -115,7 +115,7 @@ def generate_summary(log_dir: Path):
         _update_summary_data(overall_summary, perf_summary, tool_workload)
 
         # Update summary by judge result
-        judge_result = result.get("llm_as_judge_result", "unknown")
+        judge_result = result.get("judge_result", "unknown")
         _update_summary_data(
             summary_by_judge[judge_result], perf_summary, tool_workload
         )

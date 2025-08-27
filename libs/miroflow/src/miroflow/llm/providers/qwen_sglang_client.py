@@ -191,8 +191,8 @@ class QwenSGLangClient(LLMProviderClientBase):
 
         return message_history
 
-    def generate_agent_system_prompt(self, date, mcp_servers) -> str:
-        return generate_mcp_system_prompt(date, mcp_servers)
+    def generate_agent_system_prompt(self, date, mcp_servers, chinese_context) -> str:
+        return generate_mcp_system_prompt(date, mcp_servers, chinese_context)
 
     def handle_max_turns_reached_summary_prompt(self, message_history, summary_prompt):
         """Handle max turns reached summary prompt"""

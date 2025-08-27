@@ -1,4 +1,9 @@
+# SPDX-FileCopyrightText: 2025 MiromindAI
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import os
+import json
 import requests
 import datetime
 import calendar
@@ -13,8 +18,64 @@ SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
 JINA_API_KEY = os.environ.get("JINA_API_KEY", "")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 
+# Google search result filtering environment variables
+REMOVE_SNIPPETS = os.environ.get("REMOVE_SNIPPETS", "").lower() in ("true", "1", "yes")
+REMOVE_KNOWLEDGE_GRAPH = os.environ.get("REMOVE_KNOWLEDGE_GRAPH", "").lower() in (
+    "true",
+    "1",
+    "yes",
+)
+REMOVE_ANSWER_BOX = os.environ.get("REMOVE_ANSWER_BOX", "").lower() in (
+    "true",
+    "1",
+    "yes",
+)
+
 # Initialize FastMCP server
 mcp = FastMCP("searching-mcp-server")
+
+
+def filter_google_search_result(result_content: str) -> str:
+    """Filter google search result content based on environment variables.
+
+    Args:
+        result_content: The JSON string result from google search
+
+    Returns:
+        Filtered JSON string result
+    """
+    try:
+        # Parse JSON
+        data = json.loads(result_content)
+
+        # Remove knowledgeGraph if requested
+        if REMOVE_KNOWLEDGE_GRAPH and "knowledgeGraph" in data:
+            del data["knowledgeGraph"]
+
+        # Remove answerBox if requested
+        if REMOVE_ANSWER_BOX and "answerBox" in data:
+            del data["answerBox"]
+
+        # Remove snippets if requested
+        if REMOVE_SNIPPETS:
+            # Remove snippets from organic results
+            if "organic" in data:
+                for item in data["organic"]:
+                    if "snippet" in item:
+                        del item["snippet"]
+
+            # Remove snippets from peopleAlsoAsk
+            if "peopleAlsoAsk" in data:
+                for item in data["peopleAlsoAsk"]:
+                    if "snippet" in item:
+                        del item["snippet"]
+
+        # Return filtered JSON
+        return json.dumps(data, ensure_ascii=False, indent=2)
+
+    except (json.JSONDecodeError, Exception):
+        # If filtering fails, return original content
+        return result_content
 
 
 @mcp.tool()
@@ -32,7 +93,9 @@ async def google_search(
 
     Args:
         q: Search query string.
-        location: Location for search results (e.g., 'SoHo, New York, United States', 'California, United States').
+        gl: Country context for search (e.g., 'us' for United States, 'cn' for China, 'uk' for United Kingdom). Influences regional results priority. Default is 'us'.
+        hl: Google interface language (e.g., 'en' for English, 'zh' for Chinese, 'es' for Spanish). Affects snippet language preference. Default is 'en'.
+        location: City-level location for search results (e.g., 'SoHo, New York, United States', 'California, United States').
         num: The number of results to return (default: 10).
         tbs: Time-based search filter ('qdr:h' for past hour, 'qdr:d' for past day, 'qdr:w' for past week, 'qdr:m' for past month, 'qdr:y' for past year).
         page: The page number of results to return (default: 1).
@@ -41,7 +104,9 @@ async def google_search(
         The search results.
     """
     if SERPER_API_KEY == "":
-        return "SERPER_API_KEY is not set, google_search tool is not available."
+        return (
+            "[ERROR]: SERPER_API_KEY is not set, google_search tool is not available."
+        )
     tool_name = "google_search"
     arguments = {
         "q": q,
@@ -80,11 +145,13 @@ async def google_search(
                     assert (
                         result_content is not None and result_content.strip() != ""
                     ), "Empty result from google_search tool, please try again."
-                    return result_content  # Success, exit retry loop
+                    # Apply filtering based on environment variables
+                    filtered_result = filter_google_search_result(result_content)
+                    return filtered_result  # Success, exit retry loop
         except Exception as error:
             retry_count += 1
             if retry_count >= max_retries:
-                return f"[ERROR]: Tool execution failed after {max_retries} attempts: {str(error)}"
+                return f"[ERROR]: google_search tool execution failed after {max_retries} attempts: {str(error)}"
             # Wait before retrying
             await asyncio.sleep(min(2**retry_count, 60))
 

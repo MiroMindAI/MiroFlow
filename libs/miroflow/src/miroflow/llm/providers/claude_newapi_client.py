@@ -282,8 +282,8 @@ class ClaudeNewAPIClient(LLMProviderClientBase):
 
         return message_history
 
-    def generate_agent_system_prompt(self, date, mcp_servers) -> str:
-        return generate_mcp_system_prompt(date, mcp_servers)
+    def generate_agent_system_prompt(self, date, mcp_servers, chinese_context) -> str:
+        return generate_mcp_system_prompt(date, mcp_servers, chinese_context)
 
     def parse_llm_response(self, llm_response) -> str:
         """Parse OpenAI LLM response to get text content"""

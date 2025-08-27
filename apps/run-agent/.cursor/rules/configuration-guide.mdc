@@ -5,29 +5,29 @@ alwaysApply: false
 # Configuration Management Guide
 
 ## Configuration Structure
-The project uses Hydra for configuration management with YAML files organized in `apps/reorg-modular-structure/conf/`.
+The project uses Hydra for configuration management with YAML files organized in `apps/reorg-modular-structure/config/`.
 
 ## Configuration Categories
-- **Agent Configs** (`conf/agent/`): Define agent behavior and capabilities
-  - [default.yaml](mdc:apps/reorg-modular-structure/conf/agent/default.yaml) - Default agent configuration
-  - [for_debug.yaml](mdc:apps/reorg-modular-structure/conf/agent/for_debug.yaml) - Debug configuration
-  - [owl_set.yaml](mdc:apps/reorg-modular-structure/conf/agent/owl_set.yaml) - OWL-specific configuration
+- **Agent Configs** (`config/agent/`): Define agent behavior and capabilities
+  - [default.yaml](mdc:apps/reorg-modular-structure/config/agent/default.yaml) - Default agent configuration
+  - [for_debug.yaml](mdc:apps/reorg-modular-structure/config/agent/for_debug.yaml) - Debug configuration
+  - [owl_set.yaml](mdc:apps/reorg-modular-structure/config/agent/owl_set.yaml) - OWL-specific configuration
 
-- **Benchmark Configs** (`conf/benchmark/`): Define benchmark datasets and evaluation
-  - [gaia-validation.yaml](mdc:apps/reorg-modular-structure/conf/benchmark/gaia-validation.yaml) - GAIA validation
-  - [bbeh.yaml](mdc:apps/reorg-modular-structure/conf/benchmark/bbeh.yaml) - BBEH benchmark
-  - [browsecomp.yaml](mdc:apps/reorg-modular-structure/conf/benchmark/browsecomp.yaml) - BrowseComp benchmark
+- **Benchmark Configs** (`config/benchmark/`): Define benchmark datasets and evaluation
+  - [gaia-validation.yaml](mdc:apps/reorg-modular-structure/config/benchmark/gaia-validation.yaml) - GAIA validation
+  - [bbeh.yaml](mdc:apps/reorg-modular-structure/config/benchmark/bbeh.yaml) - BBEH benchmark
+  - [browsecomp.yaml](mdc:apps/reorg-modular-structure/config/benchmark/browsecomp.yaml) - BrowseComp benchmark
 
-- **LLM Configs** (`conf/llm/`): Define language model providers and settings
-  - [claude.yaml](mdc:apps/reorg-modular-structure/conf/llm/claude.yaml) - Anthropic Claude
-  - [openai.yaml](mdc:apps/reorg-modular-structure/conf/llm/openai.yaml) - OpenAI models
-  - [qwen3-32b.yaml](mdc:apps/reorg-modular-structure/conf/llm/qwen3-32b.yaml) - Qwen models
+- **LLM Configs** (`config/llm/`): Define language model providers and settings
+  - [claude.yaml](mdc:apps/reorg-modular-structure/config/llm/claude.yaml) - Anthropic Claude
+  - [openai.yaml](mdc:apps/reorg-modular-structure/config/llm/openai.yaml) - OpenAI models
+  - [qwen3-32b.yaml](mdc:apps/reorg-modular-structure/config/llm/qwen3-32b.yaml) - Qwen models
 
-- **Pricing Configs** (`conf/pricing/`): Define cost tracking and pricing models
-  - [default.yaml](mdc:apps/reorg-modular-structure/conf/pricing/default.yaml) - Default pricing
+- **Pricing Configs** (`config/pricing/`): Define cost tracking and pricing models
+  - [default.yaml](mdc:apps/reorg-modular-structure/config/pricing/default.yaml) - Default pricing
 
 ## Configuration Usage
-- **Main Config**: [config.yaml](mdc:apps/reorg-modular-structure/conf/config.yaml) - Root configuration
+- **Main Config**: [config.yaml](mdc:apps/reorg-modular-structure/config/config.yaml) - Root configuration
 - **Hydra Integration**: Configurations are injected into [main.py](mdc:apps/reorg-modular-structure/main.py)
 - **Override Syntax**: Use Hydra's override syntax for runtime configuration changes
 

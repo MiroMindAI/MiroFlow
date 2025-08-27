@@ -4,12 +4,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-NUM_RUNS=3
+NUM_RUNS=1
+MAX_CONCURRENT=20
 BENCHMARK_NAME="gaia-validation"
 LLM_PROVIDER="claude_openrouter"
 LLM_MODEL="anthropic/claude-3.7-sonnet"
 AGENT_SET="miroflow"
-MAX_CONCURRENT=5
+ADD_MESSAGE_ID="true"  # Set to true to add random message ID to all messages sent to LLM
+MAX_TURNS=-1
+TEMPERATURE=0.3
 
 RESULTS_DIR="logs/${BENCHMARK_NAME}/${LLM_PROVIDER}_${LLM_MODEL}_${AGENT_SET}"
 
@@ -31,11 +34,15 @@ for i in $(seq 1 $NUM_RUNS); do
             llm=claude_openrouter \
             llm.provider=$LLM_PROVIDER \
             llm.model_name=$LLM_MODEL \
+            llm.temperature=$TEMPERATURE \
             llm.async_client=true \
             benchmark.execution.max_tasks=null \
             benchmark.execution.max_concurrent=$MAX_CONCURRENT \
             benchmark.execution.pass_at_k=1 \
             agent=$AGENT_SET \
+            agent.add_message_id=$ADD_MESSAGE_ID \
+            agent.main_agent.max_turns=$MAX_TURNS \
+            agent.sub_agents.agent-worker.max_turns=$MAX_TURNS \
             output_dir="$RESULTS_DIR/$RUN_ID" \
             > "$RESULTS_DIR/${RUN_ID}_output.log" 2>&1
         

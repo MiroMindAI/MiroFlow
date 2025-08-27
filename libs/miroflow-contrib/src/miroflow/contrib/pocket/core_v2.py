@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2025 MiromindAI
+# SPDX-FileCopyrightText: 2025 OpenAI
+#
+# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: MIT
+
 from typing import Any, Protocol, TypeVar
 from dataclasses import dataclass
 import copy

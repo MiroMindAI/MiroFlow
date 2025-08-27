@@ -93,7 +93,7 @@ class TraceAnalyzer:
             "end_time": self.data.get("end_time"),
             "final_boxed_answer": self.data.get("final_boxed_answer"),
             "ground_truth": self.data.get("ground_truth"),
-            "llm_as_judge_result": self.data.get("llm_as_judge_result"),
+            "judge_result": self.data.get("judge_result"),
             "error": self.data.get("error", ""),
         }
 

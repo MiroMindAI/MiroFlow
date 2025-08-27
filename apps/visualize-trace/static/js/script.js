@@ -536,7 +536,7 @@ function updateBasicInfo(data) {
         </div>
         <div class="stat-item">
             <span class="stat-label">Judgment Result:</span>
-            <span class="stat-value badge ${data.llm_as_judge_result === 'CORRECT' ? 'bg-success' : 'bg-danger'}">${data.llm_as_judge_result || 'N/A'}</span>
+            <span class="stat-value badge ${data.judge_result === 'CORRECT' ? 'bg-success' : 'bg-danger'}">${data.judge_result || 'N/A'}</span>
         </div>
     `;
     

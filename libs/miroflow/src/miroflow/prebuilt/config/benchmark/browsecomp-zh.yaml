@@ -1,0 +1,14 @@
+# config/benchmark/browsecomp.yaml
+defaults:
+  - default
+  - _self_
+
+name: "browsecomp-zh"
+
+data:
+  data_dir: "${env.data_dir}/browsecomp-zh-test"
+
+
+execution:
+  max_tasks: null  # null means no limit
+  max_concurrent: 5

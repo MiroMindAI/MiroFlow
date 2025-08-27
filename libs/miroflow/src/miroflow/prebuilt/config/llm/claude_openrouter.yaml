@@ -1,6 +1,6 @@
-# conf/llm/claude.yaml
+# config/llm/claude.yaml
 defaults:
-  - _default
+  - default
   - _self_
 
 provider: "claude_openrouter"

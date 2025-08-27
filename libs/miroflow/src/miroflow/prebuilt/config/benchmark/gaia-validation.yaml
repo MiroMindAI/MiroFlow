@@ -1,6 +1,6 @@
-# conf/benchmark/gaia-validation.yaml
+# config/benchmark/gaia-validation.yaml
 defaults:
-  - _default
+  - default
   - _self_
 
 name: "gaia-validation"

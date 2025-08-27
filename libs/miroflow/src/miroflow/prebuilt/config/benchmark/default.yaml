@@ -1,4 +1,4 @@
-# conf/benchmark/default.yaml - Default benchmark configuration
+# config/benchmark/default.yaml - Default benchmark configuration
 # This is a base configuration for benchmarks. Specific benchmarks can override these defaults.
 name: "default"
 

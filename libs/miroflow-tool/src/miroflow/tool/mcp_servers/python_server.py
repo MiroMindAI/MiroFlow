@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 MiromindAI
+#
+# SPDX-License-Identifier: Apache-2.0
+
 import asyncio
 import os
 
@@ -16,7 +20,7 @@ LOGS_DIR = os.environ.get("LOGS_DIR")  # Directory where benchmark logs are stor
 DEFAULT_TEMPLATE_ID = "all_pip_apt_pkg"
 
 # DEFAULT CONFS
-DEFAULT_TIMEOUT = 1200  # seconds
+DEFAULT_TIMEOUT = 1800  # seconds
 
 # Common packages to install in sandbox
 COMMON_PACKAGES = [

@@ -8,10 +8,11 @@ import pathlib
 import dotenv
 import fire
 
-from gen_browsecomp import gen_browsecomp_test
+from gen_browsecomp import gen_browsecomp_test, gen_browsecomp_zh_test
 from gen_frames import gen_frames_test
 from gen_gaia import gen_gaia_validation
 from gen_gaia_text_only import gen_gaia_text_only
+from gen_hle import gen_hle_test
 from gen_webwalkerqa import gen_webwalkerqa
 
 
@@ -23,6 +24,8 @@ class _Env:
         "frames-test",
         "webwalkerqa",
         "browsecomp-test",
+        "browsecomp-zh-test",
+        "hle",
     )
     meta_filename = "standardized_data.jsonl"
     data_dir: pathlib.Path
@@ -57,6 +60,13 @@ def _prepare_dataset(env: _Env, dataset: str):
                     yield x
 
             return gen
+        case "browsecomp-zh-test":
+
+            def gen():
+                for x in gen_browsecomp_zh_test(env.hf_token):
+                    yield x
+
+            return gen
         case "frames-test":
 
             def gen():
@@ -77,6 +87,13 @@ def _prepare_dataset(env: _Env, dataset: str):
 
             def gen():
                 for x in gen_webwalkerqa(env.hf_token):
+                    yield x
+
+            return gen
+        case "hle":
+
+            def gen():
+                for x in gen_hle_test(env.hf_token, env.data_dir):
                     yield x
 
             return gen

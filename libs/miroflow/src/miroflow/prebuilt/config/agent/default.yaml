@@ -1,26 +1,26 @@
-# conf/agent/default.yaml
-# The name of tools and sub-agents defined in: mirage/apps/reorg-modular-structure/src/mirage_agent/config/settings.py
+# config/agent/default.yaml
+# The name of tools and sub-agents defined in: ./miroflow/src/miroflow/utils/prompt_utils.py and tool_utils.py
 # Each sub-agent prompt is written in: mirage/apps/reorg-modular-structure/src/mirage_agent/utils/prompt_utils.py
 main_agent:
   tools:
-    - tool-code
-    - tool-vqa
-    - tool-transcribe
     - tool-reasoning
-    - tool-markitdown
+    # - tool-code
+    # - tool-image-video
+    # - tool-audio
+    # - tool-markitdown
   # tool_blacklist:
   #   - ["name-of-tool", "name-of-method"]  # tool blacklist example
   max_turns: 20  # Maximum number of turns for main agent execution
   max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
-sub_agents:
-  agent-browsing:
-    tools:
-      - tool-serper-search
-      - tool-vqa
-      - tool-markitdown
-      - tool-code
-    max_turns: 20
-    max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
+# sub_agents:
+  # agent-browsing:
+  #   tools:
+  #     - tool-serper-search
+  #     - tool-image-video
+  #     - tool-markitdown
+  #     - tool-code
+  #   max_turns: 20
+  #   max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
   # agent-coding:
   #   tools:
   #     - tool-code
@@ -32,7 +32,7 @@ sub_agents:
   #   max_turns: 20
 
 tool_config:
-  tool-vqa:
+  tool-image-video:
     enable_claude_vision: "true"
     enable_openai_vision: "true"
 

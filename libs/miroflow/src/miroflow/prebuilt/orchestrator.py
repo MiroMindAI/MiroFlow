@@ -7,12 +7,9 @@ import datetime
 import sys
 import time
 import uuid
-import re
-from typing import Any
+from typing import Any, Optional
 
 from omegaconf import DictConfig
-from openai import AsyncOpenAI
-from tenacity import retry, stop_after_attempt, wait_exponential
 
 from miroflow.contrib.tracing import function_span, generation_span
 from miroflow.llm.provider_client_base import LLMProviderClientBase
@@ -26,6 +23,11 @@ from miroflow.utils.prompt_utils import (
     generate_agent_summarize_prompt,
 )
 from miroflow.utils.tool_utils import expose_sub_agents_as_tools
+from miroflow.utils.summary_utils import (
+    o3_extract_hints,
+    o3_extract_gaia_final_answer,
+    o3_extract_browsecomp_zh_final_answer,
+)
 
 logger = bootstrap_logger()
 
@@ -63,15 +65,21 @@ class Orchestrator:
         output_formatter: OutputFormatter,
         cfg: DictConfig,
         task_log: TaskTracer,
+        sub_agent_llm_client: Optional[LLMProviderClientBase] = None,
     ):
         self.main_agent_tool_manager = main_agent_tool_manager
         self.sub_agent_tool_managers = sub_agent_tool_managers
         self.llm_client = llm_client
+        self.sub_agent_llm_client = (
+            sub_agent_llm_client or llm_client
+        )  # Use client from main agent if not provided
         self.output_formatter = output_formatter
         self.cfg = cfg
         self.task_log = task_log
         # call this once, then use cache value
         self._list_sub_agent_tools = _list_tools(sub_agent_tool_managers)
+
+        self.chinese_context = self.cfg.env.chinese_context.lower().strip() == "true"
 
         # Handle add_message_id configuration, support string to bool conversion
         add_message_id_val = self.cfg.agent.get("add_message_id", False)
@@ -86,14 +94,12 @@ class Orchestrator:
         # Pass task_log to llm_client
         if self.llm_client and task_log:
             self.llm_client.task_log = task_log
-
-    # Could be removed, use task_log.log_step instead, will be removed in the future
-    # def _log_step(
-    #     self, step_name: str, message: str, status: str = "info", level: str = "info"
-    # ):
-    #     """Log step information"""
-    #     # Use TaskLog's log_step method to record to structured log
-    #     self.task_log.log_step(step_name, message, status)
+        if (
+            self.sub_agent_llm_client
+            and task_log
+            and self.sub_agent_llm_client != self.llm_client
+        ):
+            self.sub_agent_llm_client.task_log = task_log
 
     async def _handle_llm_call_with_logging(
         self,
@@ -109,6 +115,11 @@ class Orchestrator:
         Returns:
             tuple[Optional[str], bool, Optional[object]]: (response_text, should_break, tool_calls_info)
         """
+
+        # Select correct LLM client based on agent_type
+        current_llm_client = (
+            self.llm_client if agent_type == "main" else self.sub_agent_llm_client
+        )
 
         # Add message ID to user messages (if configured and message doesn't have ID yet)
         if self.add_message_id:
@@ -145,9 +156,9 @@ class Orchestrator:
 
         try:
             with generation_span(
-                input=message_history, model=self.llm_client.model_name
+                input=message_history, model=current_llm_client.model_name
             ) as span:
-                response = await self.llm_client.create_message(
+                response = await current_llm_client.create_message(
                     system_prompt=system_prompt,
                     message_history=message_history,
                     tool_definitions=tool_definitions,
@@ -164,7 +175,7 @@ class Orchestrator:
             if response:
                 # Use client's response processing method
                 assistant_response_text, should_break = (
-                    self.llm_client.process_llm_response(
+                    current_llm_client.process_llm_response(
                         response, message_history, agent_type
                     )
                 )
@@ -186,7 +197,7 @@ class Orchestrator:
                     self.task_log.save()
 
                 # Use client's tool call information extraction method
-                tool_calls_info = self.llm_client.extract_tool_calls_info(
+                tool_calls_info = current_llm_client.extract_tool_calls_info(
                     response, assistant_response_text
                 )
 
@@ -269,10 +280,14 @@ class Orchestrator:
                 task_description + task_guidence,
                 task_failed=task_failed,
                 agent_type=agent_type,
+                chinese_context=self.chinese_context,
             )
 
             # Handle merging of message history and summary prompt
-            summary_prompt = self.llm_client.handle_max_turns_reached_summary_prompt(
+            current_llm_client = (
+                self.llm_client if agent_type == "main" else self.sub_agent_llm_client
+            )
+            summary_prompt = current_llm_client.handle_max_turns_reached_summary_prompt(
                 message_history, summary_prompt
             )
 
@@ -281,14 +296,31 @@ class Orchestrator:
                 {"role": "user", "content": [{"type": "text", "text": summary_prompt}]}
             )
 
-            response_text, _, tool_calls = await self._handle_llm_call_with_logging(
-                system_prompt,
-                message_history,
-                tool_definitions,
-                999,
-                purpose,
-                agent_type=agent_type,
-            )
+            for network_retry_count in range(5):
+                (
+                    response_text,
+                    _,
+                    tool_calls_info,
+                ) = await self._handle_llm_call_with_logging(
+                    system_prompt,
+                    message_history,
+                    tool_definitions,
+                    999,
+                    purpose,
+                    agent_type=agent_type,
+                )
+                if response_text or tool_calls_info == "context_limit":
+                    break
+                else:
+                    logger.error(
+                        f"LLM summary process call failed, attempt {network_retry_count+1}/5, retrying after 60 seconds..."
+                    )
+                    self.task_log.log_step(
+                        f"{agent_type}_summary_retry",
+                        f"LLM summary process call failed, attempt {network_retry_count+1}/5, retrying after 60 seconds...",
+                        "warning",
+                    )
+                    await asyncio.sleep(60)
 
             if response_text:
                 # Call successful: return generated summary text
@@ -297,27 +329,22 @@ class Orchestrator:
             # Context limit exceeded or network issues: try removing messages and retry
             retry_count += 1
             logger.debug(
-                f"LLM call failed, attempt {retry_count} retry, removing recent assistant-user dialogue"
+                f"LLM call failed (context_limit), attempt {retry_count} retry, removing recent assistant-user dialogue"
             )
-
             # First remove the just-added summary prompt
             if message_history and message_history[-1]["role"] == "user":
                 message_history.pop()
-
             # Remove the most recent assistant message (tool call request)
             if message_history and message_history[-1]["role"] == "assistant":
                 message_history.pop()
-
             # Once assistant-user dialogue needs to be removed, task fails (information is lost)
             task_failed = True
-
             # If there are no more dialogues to remove
             if len(message_history) <= 2:  # Only initial system-user messages remain
                 logger.warning(
                     "Removed all removable dialogues, but still unable to generate summary"
                 )
                 break
-
             self.task_log.log_step(
                 f"{agent_type}_summary_context_retry",
                 f"Removed assistant-user pair, retry {retry_count}, task marked as failed",
@@ -325,8 +352,15 @@ class Orchestrator:
             )
 
         # If still fails after removing all dialogues
-        logger.error("Summary failed after removing all possible messages")
-        return "Unable to generate final summary due to persistent network issues. You should try again."
+        logger.error(
+            "Summary failed after several attempts (removing all possible messages)"
+        )
+        self.task_log.log_step(
+            f"{agent_type}_summary_failed",
+            "Summary failed after several attempts (removing all possible messages)",
+            "failed",
+        )
+        return "[ERROR] Unable to generate final summary due to context limit or network issues. You should try again."
 
     async def run_sub_agent(
         self, sub_agent_name, task_description, keep_tool_result: int = -1
@@ -363,10 +397,13 @@ class Orchestrator:
             )
 
         # Generate sub-agent system prompt
-        system_prompt = self.llm_client.generate_agent_system_prompt(
+        system_prompt = self.sub_agent_llm_client.generate_agent_system_prompt(
             date=datetime.datetime.today(),
             mcp_servers=tool_definitions,
-        ) + generate_agent_specific_system_prompt(agent_type=sub_agent_name)
+            chinese_context=self.chinese_context,
+        ) + generate_agent_specific_system_prompt(
+            agent_type=sub_agent_name, chinese_context=self.chinese_context
+        )
 
         # Limit sub-agent turns
         max_turns = self.cfg.agent.sub_agents[sub_agent_name].max_turns
@@ -497,7 +534,7 @@ class Orchestrator:
 
                     # Handle empty error messages, especially for TimeoutError
                     error_msg = str(e) or (
-                        "Tool execution timeout"
+                        "[ERROR]: Tool execution timeout"
                         if isinstance(e, TimeoutError)
                         else f"Tool execution failed: {type(e).__name__}"
                     )
@@ -546,29 +583,9 @@ class Orchestrator:
                 )
                 all_tool_results_content_with_id.append(("FAILED", tool_result_for_llm))
 
-            message_history = self.llm_client.update_message_history(
+            message_history = self.sub_agent_llm_client.update_message_history(
                 message_history, all_tool_results_content_with_id, tool_calls_exceeded
             )
-
-            # Generate summary_prompt to check token limit
-            temp_summary_prompt = generate_agent_summarize_prompt(
-                task_description,
-                task_failed=True,  # Set to True here to simulate potential task failure for context checking
-                agent_type=sub_agent_name,
-            )
-
-            # Check if current context would exceed limit, auto rollback messages and trigger summary if exceeded
-            if not self.llm_client.ensure_summary_context(
-                message_history, temp_summary_prompt
-            ):
-                # Context estimated to exceed limit, jump to summary stage
-                task_failed = True  # Mark task as failed
-                self.task_log.log_step(
-                    f"{sub_agent_name}_context_limit_reached",
-                    "Context limit reached, triggering summary",
-                    "warning",
-                )
-                break
 
         # Continue execution
         logger.debug(
@@ -641,342 +658,6 @@ class Orchestrator:
         # Return final answer instead of dialogue log, so main agent can use directly
         return final_answer_text
 
-    @retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
-    async def _o3_extract_hints(self, question: str) -> str:
-        """Use O3 model to extract task hints"""
-        client = AsyncOpenAI(api_key=self.cfg.env.openai_api_key, timeout=600)
-
-        instruction = """Carefully analyze the given task description (question) without attempting to solve it directly. Your role is to identify potential challenges and areas that require special attention during the solving process, and provide practical guidance for someone who will solve this task by actively gathering and analyzing information from the web.
-
-Identify and concisely list key points in the question that could potentially impact subsequent information collection or the accuracy and completeness of the problem solution, especially those likely to cause mistakes, carelessness, or confusion during problem-solving.
-
-The question author does not intend to set traps or intentionally create confusion. Interpret the question in the most common, reasonable, and straightforward manner, without speculating about hidden meanings or unlikely scenarios. However, be aware that mistakes, imprecise wording, or inconsistencies may exist due to carelessness or limited subject expertise, rather than intentional ambiguity.
-
-Additionally, when considering potential answers or interpretations, note that question authors typically favor more common and familiar expressions over overly technical, formal, or obscure terminology. They generally prefer straightforward and common-sense interpretations rather than being excessively cautious or academically rigorous in their wording choices.
-
-Also, consider additional flagging issues such as:
-- Potential mistakes or oversights introduced unintentionally by the question author due to his misunderstanding, carelessness, or lack of attention to detail.
-- Terms or instructions that might have multiple valid interpretations due to ambiguity, imprecision, outdated terminology, or subtle wording nuances.
-- Numeric precision, rounding requirements, formatting, or units that might be unclear, erroneous, or inconsistent with standard practices or provided examples.
-- Contradictions or inconsistencies between explicit textual instructions and examples or contextual clues provided within the question itself.
-
-Do NOT attempt to guess or infer correct answers, as complete factual information is not yet available. Your responsibility is purely analytical, proactively flagging points that deserve special attention or clarification during subsequent information collection and task solving. Avoid overanalyzing or listing trivial details that would not materially affect the task outcome.
-
-Here is the question:
-
-"""
-
-        # Add message ID for O3 messages (if configured)
-        content = instruction + question
-        if self.add_message_id:
-            message_id = _generate_message_id()
-            content = f"[{message_id}] {content}"
-
-        response = await client.chat.completions.create(
-            model="o3",
-            messages=[{"role": "user", "content": content}],
-            reasoning_effort="high",
-        )
-        result = response.choices[0].message.content
-
-        # Check if result is empty, raise exception to trigger retry if empty
-        if not result or not result.strip():
-            raise ValueError("O3 hints extraction returned empty result")
-
-        return result
-
-    @retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
-    async def _get_gaia_answer_type(self, task_description: str) -> str:
-        client = AsyncOpenAI(api_key=self.cfg.env.openai_api_key, timeout=600)
-        instruction = f"""Input:
-`{task_description}`
-
-Question:
-Determine the expected data type of the answer. For questions asking to "identify" something, focus on the final answer type, not the identification process. Format requirements in the question often hint at the expected data type. If the question asks you to write a specific word, return string. Choose only one of the four types below:
-- number — a pure number (may include decimals or signs), e.g., price, distance, length
-- date   — a specific calendar date (e.g., 2025-08-05 or August 5, 2025)
-- time   — a specific time of day or formated time cost (e.g., 14:30 or 1:30.12)
-- string — any other textual answer
-
-Output:
-Return exactly one of the [number, date, time, string], nothing else.
-"""
-        print(f"Answer type instruction: {instruction}")
-
-        message_id = _generate_message_id()
-        response = await client.chat.completions.create(
-            model="gpt-4.1",
-            messages=[{"role": "user", "content": f"[{message_id}] {instruction}"}],
-        )
-        answer_type = response.choices[0].message.content
-        # Check if result is empty, raise exception to trigger retry if empty
-        if not answer_type or not answer_type.strip():
-            raise ValueError("answer type returned empty result")
-
-        print(f"Answer type: {answer_type}")
-
-        return answer_type.strip()
-
-    @retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
-    async def _o3_extract_gaia_final_answer(
-        self, answer_type: str, task_description_detail: str, summary: str
-    ) -> str:
-        """Use O3 model to extract final answer from summary"""
-        client = AsyncOpenAI(api_key=self.cfg.env.openai_api_key, timeout=600)
-
-        full_prompts = {
-            "time": f"""# Inputs
-
-* **Original Question**: `{task_description_detail}`
-* **Agent Summary**: `{summary}`
-
----
-
-# Task
-
-1. **Independently derive** the best possible answer, step by step, based solely on evidence and reasoning from the Agent Summary. **Ignore the summary's "Final Answer" field** at this stage.
-2. **Compare** your derived answer to the final answer provided in the Agent Summary (ignoring formatting and phrasing requirements at this stage).  
-   – If both are well supported by the summary's evidence, choose the one with stronger or clearer support.  
-   – If only one is well supported, use that one.
-3. **Revise** your chosen answer to fully satisfy all formatting and phrasing requirements listed below (**Formatting rules**, **Additional constraints**, **Common pitfalls to avoid**, and **Quick reference examples**). These requirements override those in the original question if there is any conflict.
-
-If no answer is clearly supported by the evidence, provide a well-justified educated guess. **Always wrap your final answer in a non-empty \\boxed{{...}}.**
-
----
-
-# Output Guidelines
-
-1. **Box the answer**
-   Wrap the answer in `\\boxed{{}}`.
-
-2. **Answer type**
-   The boxed content must be a time.
-
-3. **Formatting rules**
-   * Follow every formatting instruction in the original question (units, rounding, decimal places, etc.).
-   * Do **not** add any units (e.g., "s", "second", "seconds"), unless required.
-   * Ensure the correct unit (e.g., hours versus thousand hours); if the question specifies "thousand hours" or "1000 hours", treat it as the required unit — output a number like 13 (thousand hours) instead of 13000 (hours).
-   * If the question's written instructions for precision or rounding differ from the examples, treat the examples as authoritative — match their number of decimal places and rounding style.
-   
-4. **Additional constraints**
-   * If the **Agent Summary** is incomplete or unclear, provide the best possible answer (educated guess).
-
-5. **Common pitfalls to avoid**
-   * Minor mismatches in the required format.
-   * Unit-conversion errors, especially with uncommon units.
-   * Incorrect precision, rounding or scale (e.g., 0.01 vs 0.001), **double-check the required level**.
-   * Conflicts between textual instructions and example formatting, just follow the example: if the question says to "retain the percentile" but the example shows 0.001, use 0.001 rather than 0.01.
-   
----
-
-# Quick reference examples
-
-* If the question says to "rounding the seconds to the nearest hundredth", but the example shows "0.001", 1:23.4567 → 1:23.457
-* If the question says to "rounding the seconds to the nearest hundredth", but the example shows "0.001", 10:08.47445 → 10:08.474
-* If the question says to "round to one decimal place", but the example shows "0.01", 2:17.456 → 2:17.46
-* If the question says to "round to the nearest minute", but the example keeps seconds ("0:45"), 3:44.8 → 3:45
-* If the question says "keep three decimal places", but the example shows "0.1", 1:03.987 → 1:03.1
-* If the question asks for "thousand hours", 13000 -> 13 
-
----
-
-# Output
-
-Return the step-by-step process and your final answer wrapped in \\boxed{{...}}, check the **Formatting rules**, **Additional constraints**, **Common pitfalls to avoid** and **Quick reference examples** step by step, and ensure the answer meet the requirements.
-""",
-            "number": f"""# Inputs
-
-* **Original Question**: `{task_description_detail}`
-* **Agent Summary**: `{summary}`
-
----
-
-# Task
-
-1. **Independently derive** the best possible answer, step by step, based solely on evidence and reasoning from the Agent Summary. **Ignore the summary's "Final Answer" field** at this stage.
-2. **Compare** your derived answer to the final answer provided in the Agent Summary (ignoring formatting and phrasing requirements at this stage).  
-   – If both are well supported by the summary's evidence, choose the one with stronger or clearer support.  
-   – If only one is well supported, use that one.
-   – For questions involving calculations, if your answer and the Agent Summary's final answer are numerically similar, prefer the summary's answer.
-3. **Revise** your chosen answer to fully satisfy all formatting and phrasing requirements listed below (**Formatting rules**, **Additional constraints**, **Common pitfalls to avoid**, and **Quick reference examples**). These requirements override those in the original question if there is any conflict.
-
-If no answer is clearly supported by the evidence, provide a well-justified educated guess. **Always wrap your final answer in a non-empty \\boxed{{...}}.**
-
----
-
-# Output Guidelines
-
-1. **Box the answer**
-   Wrap the answer in `\\boxed{{}}`.
-
-2. **Answer type**
-   The boxed content must be a single number.
-
-3. **Formatting rules**
-   * Follow every formatting instruction in the original question (units, rounding, decimal places, etc.).
-   * Use digits only; do **not** use words, commas or symbols (e.g., "$", "!", "?", "/").
-   * Do **not** add any units (e.g., "%", "$", "USD", "Å", "m", "m^2", "m^3"), unless required.
-   * Ensure the correct unit (e.g., grams versus kilograms, meters versus kilometers, hours versus thousand hours); if the question specifies "thousand hours" or "1000 hours", treat it as the required unit — output a number like 13 (thousand hours) instead of 13000 (hours).
-   
-4. **Additional constraints**
-   * If the **Agent Summary** is incomplete or unclear, provide the best possible answer (educated guess).
-
-5. **Common pitfalls to avoid**
-   * Minor mismatches in the required format.
-   * Unit-conversion errors, especially with uncommon units.
-   * Incorrect precision, rounding or scale (e.g., 0.01 vs 0.001), **double-check the required level**.
-   * Conflicts between textual instructions and example formatting, just follow the example: if the question says to "retain the percentile" but the example shows 0.001, use 0.001 rather than 0.01.
-   * Do not partially convert text-based numbers—ensure full and accurate conversion (e.g., "one hundred million" → 100000000, not 100).
-
----
-
-# Quick reference examples
-
-* $100 → 100
-* 100 USD → 100
-* €50 → 50
-* £75 → 75
-* ¥1,000 → 1000
-* 1,234 m → 1234
-* 3,456,789 kg → 3456789
-* 70% → 70
-* 12.5% → 12.5
-* 0.045 m³ → 0.045
-* 0.045 m^3 → 0.045
-* −40 °C → -40
-* 100 km/h → 100
-* 5000 m^2 → 5000
-* 2.54 cm → 2.54
-* 50 kg → 50
-* 4.0 L → 4
-* 13 thousand hours → 13
-* Page 123/456 → 123/456
-* 100 million → 100000000
-* 200 Ω → 200
-* 200 Å → 200
-* 9.81 m/s² → 9.81
-* 0 dB → 0
-
----
-
-# Output
-
-Return the step-by-step process and your final answer wrapped in \\boxed{{...}}, check the **Formatting rules**, **Additional constraints**, **Common pitfalls to avoid** and **Quick reference examples** step by step, and ensure the answer meet the requirements.
-""",
-            "string": f"""# Inputs
-
-* **Original Question**: `{task_description_detail}`
-* **Agent Summary**: `{summary}`
-
----
-
-# Task
-
-1. **Independently derive** the best possible answer, step by step, based solely on evidence and reasoning from the Agent Summary. **Ignore the summary's "Final Answer" field** at this stage.
-2. **Compare** your derived answer to the final answer provided in the Agent Summary (ignoring formatting and phrasing requirements at this stage).  
-   – If both are well supported by the summary's evidence, choose the one with stronger or clearer support.  
-   – If only one is well supported, use that one.
-3. **Revise** your chosen answer to fully satisfy all formatting and phrasing requirements listed below (**Formatting rules**, **Additional constraints**, **Common pitfalls to avoid**, and **Quick reference examples**). These requirements override those in the original question if there is any conflict.
-
-If no answer is clearly supported by the evidence, provide a well-justified educated guess. **Always wrap your final answer in a non-empty \\boxed{{...}}.**
-
----
-
-# Output Guidelines
-
-1. **Box the answer**
-   Wrap the final answer in \\boxed{{...}}.
-   
-2. **Answer type**
-   The boxed content must be **one** of:
-   * a single short phrase (fewest words possible)
-   * a comma-separated list of numbers and/or strings
-   
-3. **Formatting rules**
-   * Follow every formatting instruction in the original question (alphabetization, sequencing, units, rounding, decimal places, etc.).
-   * Omit articles and abbreviations unless explicitly present in the expected answer.
-   * If a string contains numeric information, spell out the numbers **unless** the question itself shows them as digits.
-   * Do **not** end the answer with ".", "!", "?", or any other punctuation.
-   * Use only standard ASCII quotation marks ("" and ''), **not** stylized or curly quotation marks (such as “ ” ‘ ’).
-   * Remove invisible or non-printable characters.
-   * If the output is lists, apply the rules item-by-item.
-   * Avoid unnecessary elaboration - keep the answer as short as possible
-     - Do **not** add "count", "number", "count of", "total", or similar quantifying words when the noun itself already refers to the quantity (e.g., use the bare noun form only).
-     - No geographical modifiers (e.g., "Western", "Southern"), 
-     - Use the simplest, most commonly accepted term for a substance or object (e.g., "diamond" instead of "crystalline diamond", "silicon" instead of "silicon crystals")
-   * For mathematical symbols, match the symbol style in the question; never substitute LaTeX commands (e.g., use ≤, not \leq).
-   * For birthplaces, give the name as it was at the time of birth, not the current name.
-
-4. **Additional constraints**
-   * If the Agent Summary is incomplete or unclear, provide the best possible answer (educated guess).
-   * Keep the answer as short and direct as possible—no explanations or parenthetical notes.
-   
-5. **Common pitfalls to avoid**
-   * Minor mismatches between required and produced formats.
-   * Conflicts between textual instructions and example formatting—follow the example.
-   * **Names**: give only the commonly used first + last name (no middle name unless requested).
-   * **Countries**: use the common name (e.g., "China", "Brunei")
-   * **Locations**: output only the requested location name, without including time, modifiers (e.g., "The Castle", "The Hotel")
-   * When the question provides examples of expected format (e.g., "ripe strawberries" not "strawberries"), follow the exact wording style shown in the examples, preserving all descriptive terms and adjectives as demonstrated.
-   * Answer with historically location names when the Agent Summary provides. Never override a historically location name. For example, a birthplace should be referred to by the name it had at the time of birth (i.e., answer the original name).
-   * For questions asking to "identify" something, focus on the final answer, not the identification process.
-
----
-
-# Quick reference examples
-
-* INT. THE CASTLE – DAY 1 → The Castle
-* INT. THE HOTEL – NIGHT → The Hotel
-* INT. THE SPACESHIP – DAWN → The Spaceship
-* INT. THE LIBRARY – EVENING → The Library
-* INT. CLASSROOM #3 – MORNING → Classroom #3
-* People's Republic of China → China
-* citation count → citations
-* Brunei Darussalam → Brunei
-* United States of America → United States
-* Republic of Korea → South Korea
-* New York City, USA → New York City
-* São Paulo (Brazil) → São Paulo
-* John Michael Doe → John Doe
-* Mary Anne O'Neil → Mary O'Neil
-* Dr. Richard Feynman → Richard Feynman
-* INT. ZONE 42 – LEVEL B2 → Zone 42 – Level B2
-* INT. THE UNDERWATER BASE – MIDNIGHT → The Underwater Base
-* Sam’s Home → Sam's Home
-* Mike’s phone → Mike's phone
-
---- 
-# Output
-Return the step-by-step process and your final answer wrapped in \\boxed{{...}}, check the **Formatting rules**, **Additional constraints**, **Common pitfalls to avoid** and **Quick reference examples** step by step, and ensure the answer meet the requirements.
-""",
-        }
-        full_prompt = full_prompts.get(
-            answer_type if answer_type in ["number", "time"] else "string"
-        )
-
-        print("O3 Extract Final Answer Prompt:")
-        print(full_prompt)
-
-        message_id = _generate_message_id()
-        response = await client.chat.completions.create(
-            model="o3",
-            messages=[{"role": "user", "content": f"[{message_id}] {full_prompt}"}],
-            reasoning_effort="medium",
-        )
-        result = response.choices[0].message.content
-
-        # Check if result is empty, raise exception to trigger retry if empty
-        if not result or not result.strip():
-            raise ValueError("O3 final answer extraction returned empty result")
-
-        match = re.search(r"\\boxed{([^}]*)}", result)
-        if not match:
-            raise ValueError("O3 final answer extraction returned empty answer")
-
-        print("response:", result)
-
-        return result
-
     async def run_main_agent(
         self, task_description, task_file_name=None, task_id="default_task"
     ):
@@ -1006,11 +687,28 @@ Important considerations:
 - Present every possible candidate answer identified during your information gathering, regardless of uncertainty, ambiguity, or incomplete verification. Avoid premature conclusions or omission of any discovered possibility.
 - Explicitly document detailed facts, evidence, and reasoning steps supporting each candidate answer, carefully preserving intermediate analysis results.
 - Clearly flag and retain any uncertainties, conflicting interpretations, or alternative understandings identified during information gathering. Do not arbitrarily discard or resolve these issues on your own.
-- If the question’s explicit instructions (e.g., numeric precision, formatting, specific requirements) appear inconsistent, unclear, erroneous, or potentially mismatched with general guidelines or provided examples, explicitly record and clearly present all plausible interpretations and corresponding candidate answers.  
+- If the question's explicit instructions (e.g., numeric precision, formatting, specific requirements) appear inconsistent, unclear, erroneous, or potentially mismatched with general guidelines or provided examples, explicitly record and clearly present all plausible interpretations and corresponding candidate answers.  
 
-Recognize that the original task description might itself contain mistakes, imprecision, inaccuracies, or conflicts introduced unintentionally by the user due to carelessness, misunderstanding, or limited expertise. Do NOT try to second-guess or “correct” these instructions internally; instead, transparently present findings according to every plausible interpretation.
+Recognize that the original task description might itself contain mistakes, imprecision, inaccuracies, or conflicts introduced unintentionally by the user due to carelessness, misunderstanding, or limited expertise. Do NOT try to second-guess or "correct" these instructions internally; instead, transparently present findings according to every plausible interpretation.
 
-Your objective is maximum completeness, transparency, and detailed documentation to empower the user to judge and select their preferred answer independently. Even if uncertain, explicitly documenting the existence of possible answers significantly enhances the user’s experience, ensuring no plausible solution is irreversibly omitted due to early misunderstanding or premature filtering.
+Your objective is maximum completeness, transparency, and detailed documentation to empower the user to judge and select their preferred answer independently. Even if uncertain, explicitly documenting the existence of possible answers significantly enhances the user's experience, ensuring no plausible solution is irreversibly omitted due to early misunderstanding or premature filtering.
+"""
+
+        # Add Chinese-specific guidance if enabled
+        if self.chinese_context:
+            task_guidence += """
+
+## 中文任务处理指导
+
+如果任务涉及中文语境，请遵循以下指导：
+
+- **信息收集策略**：使用中文关键词进行网络搜索，优先浏览中文网页，以获取更准确和全面的中文资源
+- **思考过程**：所有分析、推理、判断等思考过程都应使用中文表达，保持语义的一致性
+- **候选答案收集**：对于中文问题，收集所有可能的中文答案选项，包括不同的表达方式和格式
+- **证据文档化**：保持中文资源的原始格式，避免不必要的翻译或改写，确保信息的准确性
+- **不确定性标注**：使用中文清晰地标记任何不确定性、冲突信息或需要进一步验证的内容
+- **结果组织**：以中文组织和呈现最终报告，使用恰当的中文术语和表达习惯
+- **过程透明化**：所有步骤描述、状态更新、中间结果等都应使用中文，确保用户理解
 """
 
         initial_user_content[0]["text"] = (
@@ -1021,7 +719,12 @@ Your objective is maximum completeness, transparency, and detailed documentation
         if self.cfg.agent.o3_hint:
             # Execute O3 hints extraction
             try:
-                o3_hints = await self._o3_extract_hints(task_description)
+                o3_hints = await o3_extract_hints(
+                    task_description,
+                    self.cfg.env.openai_api_key,
+                    self.chinese_context,
+                    self.add_message_id,
+                )
                 o3_notes = (
                     "\n\nBefore you begin, please review the following preliminary notes highlighting subtle or easily misunderstood points in the question, which might help you avoid common pitfalls during your analysis (for reference only; these may not be exhaustive):\n\n"
                     + o3_hints
@@ -1051,7 +754,12 @@ Your objective is maximum completeness, transparency, and detailed documentation
         system_prompt = self.llm_client.generate_agent_system_prompt(
             date=datetime.datetime.today(),
             mcp_servers=tool_definitions,
-        ) + generate_agent_specific_system_prompt(agent_type="main")
+            chinese_context=self.chinese_context,
+        ) + generate_agent_specific_system_prompt(
+            agent_type="main",
+            mcp_servers=tool_definitions,
+            chinese_context=self.chinese_context,
+        )
 
         # 4. Main loop: LLM <-> Tools
         max_turns = self.cfg.agent.main_agent.max_turns
@@ -1175,7 +883,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
 
                     # Handle empty error messages, especially for TimeoutError
                     error_msg = str(e) or (
-                        "Tool execution timeout"
+                        "[ERROR]: Tool execution timeout"
                         if isinstance(e, TimeoutError)
                         else f"Tool execution failed: {type(e).__name__}"
                     )
@@ -1229,26 +937,6 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 message_history, all_tool_results_content_with_id, tool_calls_exceeded
             )
 
-            # Generate summary_prompt to check token limit
-            temp_summary_prompt = generate_agent_summarize_prompt(
-                task_description + task_guidence,
-                task_failed=True,  # Set to True here to simulate possible task failure for context checking
-                agent_type="main",
-            )
-
-            # Check if current context would exceed limit, auto rollback messages and trigger summary if exceeded
-            if not self.llm_client.ensure_summary_context(
-                message_history, temp_summary_prompt
-            ):
-                # Context limit exceeded, jump to summary stage
-                task_failed = True  # Mark task as failed
-                self.task_log.log_step(
-                    "main_context_limit_reached",
-                    "Context limit reached, triggering summary",
-                    "warning",
-                )
-                break
-
         # Record main loop end
         if turn_count >= max_turns:
             if (
@@ -1293,34 +981,60 @@ Your objective is maximum completeness, transparency, and detailed documentation
             )
 
             # Use O3 model to extract final answer
+            o3_extracted_answer = ""
             if self.cfg.agent.o3_final_answer:
                 # Execute O3 final answer extraction
                 try:
-                    answer_type = await self._get_gaia_answer_type(task_description)
+                    # For browsecomp-zh, we use another Chinese prompt to extract the final answer
+                    if "browsecomp-zh" in self.cfg.benchmark.name:
+                        o3_extracted_answer = (
+                            await o3_extract_browsecomp_zh_final_answer(
+                                task_description,
+                                final_answer_text,
+                                self.cfg.env.openai_api_key,
+                                self.chinese_context,
+                            )
+                        )
 
-                    o3_extracted_answer = await self._o3_extract_gaia_final_answer(
-                        answer_type,
-                        task_description,
-                        final_answer_text,
-                    )
+                        # Disguise O3 extracted answer as assistant returned result and add to message history
+                        assistant_o3_message = {
+                            "role": "assistant",
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": f"O3 extracted final answer:\n{o3_extracted_answer}",
+                                }
+                            ],
+                        }
+                        message_history.append(assistant_o3_message)
 
-                    # Disguise O3 extracted answer as assistant returned result and add to message history
-                    assistant_o3_message = {
-                        "role": "assistant",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": f"O3 extracted final answer:\n{o3_extracted_answer}",
-                            }
-                        ],
-                    }
-                    message_history.append(assistant_o3_message)
+                        # o3 answer as final result
+                        final_answer_text = o3_extracted_answer
+                    else:
+                        o3_extracted_answer = await o3_extract_gaia_final_answer(
+                            task_description,
+                            final_answer_text,
+                            self.cfg.env.openai_api_key,
+                            self.chinese_context,
+                        )
 
-                    # Concatenate original summary and o3 answer as final result
-                    final_answer_text = f"{final_answer_text}\n\nO3 Extracted Answer:\n{o3_extracted_answer}"
+                        # Disguise O3 extracted answer as assistant returned result and add to message history
+                        assistant_o3_message = {
+                            "role": "assistant",
+                            "content": [
+                                {
+                                    "type": "text",
+                                    "text": f"O3 extracted final answer:\n{o3_extracted_answer}",
+                                }
+                            ],
+                        }
+                        message_history.append(assistant_o3_message)
+
+                        # Concatenate original summary and o3 answer as final result
+                        final_answer_text = f"{final_answer_text}\n\nO3 Extracted Answer:\n{o3_extracted_answer}"
 
                 except Exception as e:
-                    logger.warning(
+                    logger.error(
                         f"O3 final answer extraction failed after retries: {str(e)}"
                     )
                     # Continue using original final_answer_text
@@ -1355,4 +1069,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
             "task_completed", f"Main agent task {task_id} completed successfully"
         )
 
-        return final_summary, final_boxed_answer
+        if "browsecomp-zh" in self.cfg.benchmark.name:
+            return final_summary, final_summary
+        else:
+            return final_summary, final_boxed_answer
