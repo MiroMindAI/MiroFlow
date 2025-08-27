@@ -734,7 +734,12 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 original_text = initial_user_content[0]["text"]
                 initial_user_content[0]["text"] = original_text + o3_notes
             except Exception as e:
-                logger.warning(f"O3 hints extraction failed after retries: {str(e)}")
+                logger.error(f"O3 hints extraction failed after retries: {str(e)}")
+                self.task_log.log_step(
+                    step_name="o3_hint",
+                    message=f"[ERROR] O3 hint generation failed: {str(e)}",
+                    status="failed",
+                )
                 o3_notes = ""  # Continue execution but without O3 hints
 
         logger.info("Initial user input content: %s", initial_user_content)
@@ -992,7 +997,6 @@ Your objective is maximum completeness, transparency, and detailed documentation
                                 task_description,
                                 final_answer_text,
                                 self.cfg.env.openai_api_key,
-                                self.chinese_context,
                             )
                         )
 
@@ -1036,6 +1040,11 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 except Exception as e:
                     logger.error(
                         f"O3 final answer extraction failed after retries: {str(e)}"
+                    )
+                    self.task_log.log_step(
+                        step_name="o3_final_answer",
+                        message=f"[ERROR] O3 final answer extraction failed: {str(e)}",
+                        status="failed",
                     )
                     # Continue using original final_answer_text
 
