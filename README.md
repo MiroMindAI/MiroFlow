@@ -19,7 +19,7 @@
 
 </div>
 
-# MiroFlow: A Leading Open-Source Deep Research Project
+# MiroFlow: A Leading "Open Deep Research" Project
 
 <img src="docs/figs/logo.png" alt="MiroFlow Logo" width="150" align="right">
 
