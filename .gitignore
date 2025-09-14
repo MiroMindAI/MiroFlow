@@ -3,10 +3,6 @@ __pycache__/
 *.py[codz]
 *$py.class
 
-# Data
-data/*
-!data/README.md
-
 # C extensions
 *.so
 
@@ -157,6 +153,7 @@ venv.bak/
 
 # mkdocs documentation
 /site
+site/
 
 # mypy
 .mypy_cache/
@@ -214,3 +211,7 @@ logs/
 
 data/*
 !data/README.md
+!data/FSI-2023-DOWNLOAD.xlsx
+
+debug.py
+**/debug.py

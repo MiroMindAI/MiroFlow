@@ -1,0 +1,24 @@
+# config/config.yaml
+defaults:
+  - agent: miroflow
+  - benchmark: gaia-validation
+  # disable hydra logging
+  # see https://github.com/facebookresearch/hydra/issues/2902#issuecomment-2147121325
+  # - override hydra/hydra_logging: disabled
+  - override hydra/job_logging: none
+  - _self_  # Allow defining variables at the top of this file
+
+env:
+  # openai_api_key is used for llm judge in common_benchmark.py and o3 final answer extraction
+  # thinker better not to put here
+  openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
+
+  # points to where data is
+  data_dir: "${oc.env:DATA_DIR,data/}"
+  
+  # whether using chinese context
+  chinese_context: "${oc.env:CHINESE_CONTEXT,false}"
+
+# Can define some top-level or default parameters here
+project_name: "miroflow"
+output_dir: logs/${benchmark.name}/${llm.provider_class}_${llm.model_name} 

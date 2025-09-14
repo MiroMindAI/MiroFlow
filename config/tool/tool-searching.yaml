@@ -1,0 +1,12 @@
+name: "tool-searching"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.searching_mcp_server"
+env:
+# Search API keys - these values will be loaded from the .env file at runtime
+  SERPER_API_KEY: "${oc.env:SERPER_API_KEY}"
+  JINA_API_KEY: "${oc.env:JINA_API_KEY}"
+  REMOVE_SNIPPETS: "${oc.env:REMOVE_SNIPPETS,false}"
+  REMOVE_KNOWLEDGE_GRAPH: "${oc.env:REMOVE_KNOWLEDGE_GRAPH,false}"
+  REMOVE_ANSWER_BOX: "${oc.env:REMOVE_ANSWER_BOX,false}"

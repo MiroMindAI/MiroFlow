@@ -1,0 +1,68 @@
+site_name: MiroFlow
+
+theme:
+  name: material
+  user_color_mode_toggle: true
+  highlightjs: true
+  hljs_languages:
+    - yaml
+    - rust
+  locale: en
+  # favicon: assets/m_logo.png
+
+  features:
+    - header.autohide
+    - navigation.tabs
+
+
+repo_name: MiroFlow
+repo_url: https://github.com/MiroMindAI/MiroFlow
+
+
+nav:
+  - Introduction: 
+    - News & Updates: index.md
+    - License: license.md
+
+  - Overview:
+    - Quickstart: quickstart.md
+    - Core Concepts: core_concepts.md
+    - YAML Configuration: yaml_config.md
+
+  - Evaluation:
+    - Overview: evaluation_overview.md
+    - Benchmarks: 
+      - GAIA-Validation: gaia_validation.md
+      - GAIA-Test: gaia_test.md
+      - Prepare Benchmark Data from Original Source: prepare_benchmark_data_from_original_source.md
+    - Add New Benchmarks: contribute_benchmarks.md
+
+  - Tools: 
+    - Overview: tool_overview.md
+    - Tools:
+      - tool-reasoning: tool_reasoning.md
+      - tool-vqa: tool_vqa.md
+      - e2b-extension: e2b_extension.md
+    - Add New Tools: contribute_tools.md
+
+  - LLM Clients: 
+    - Overview: llm_clients_overview.md
+    - Models:
+      - MiroThinker: mirothinker.md
+      - Claude-3.7-Sonnet: 
+        - Official SDK: claude-3.7-sonnet.md
+        - OpenRouter: openrouter-claude-3.7-sonnet.md
+      - OpenAI-GPT: openai-gpt.md
+    - Add New LLM Clients: contribute_llm_clients.md
+
+  - Resources: 
+    - 📚 All About Agents: all_about_agents.md
+    - 📊 Open Source Data: data.md
+    - 📱 Applications: applications.md
+    - 🐛 FAQs and Known Issues: faq_and_known_issues.md
+    - 📝 Contributors: contributors.md
+
+
+extra:
+  version:
+    provider: mike

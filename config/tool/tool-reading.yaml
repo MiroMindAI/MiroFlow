@@ -1,0 +1,5 @@
+name: "tool-reading"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.reading_mcp_server"

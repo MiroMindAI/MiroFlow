@@ -8,7 +8,7 @@ SPDX-License-Identifier = "Apache-2.0"
 
 # hydra configs
 [[annotations]]
-path = "libs/miroflow/src/miroflow/prebuilt/config/**.yaml"
+path = ["config/**.yaml", "config/**.py"]
 SPDX-FileCopyrightText = "MiromindAI"
 SPDX-License-Identifier = "Apache-2.0"
 
@@ -21,11 +21,5 @@ SPDX-License-Identifier = "Apache-2.0"
 # docs
 [[annotations]]
 path = ["**/*.md"]
-SPDX-FileCopyrightText = "MiromindAI"
-SPDX-License-Identifier = "Apache-2.0"
-
-# testing file. TODO find original license
-[[annotations]]
-path = ["libs/miroflow-tool/tests/files-for-tests/*"]
 SPDX-FileCopyrightText = "MiromindAI"
 SPDX-License-Identifier = "Apache-2.0"

@@ -1,0 +1,8 @@
+name: "tool-serper-search"
+tool_command: "npx"
+args:
+  - "-y"
+  - "serper-search-scrape-mcp-server"
+env:
+# Search API key - this value will be loaded from the .env file at runtime
+  SERPER_API_KEY: "${oc.env:SERPER_API_KEY}"

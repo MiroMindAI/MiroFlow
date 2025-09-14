@@ -1,0 +1,11 @@
+name: "tool-code"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.python_server"
+env:
+# Code execution environment configuration - these values will be loaded from the .env file at runtime
+  E2B_API_KEY: "${oc.env:E2B_API_KEY}"
+  LOGS_DIR: "./logs"
+  DEFAULT_TEMPLATE_ID: "all_pip_apt_pkg"
+  DEFAULT_TIMEOUT: "1800"

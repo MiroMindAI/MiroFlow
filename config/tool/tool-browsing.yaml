@@ -1,0 +1,13 @@
+name: "tool-browsing"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.browsing_mcp_server"
+env:
+# Browsing AI API configuration - these values will be loaded from the .env file at runtime
+  ANTHROPIC_API_KEY: "${oc.env:ANTHROPIC_API_KEY}"
+  ANTHROPIC_BASE_URL: "${oc.env:ANTHROPIC_BASE_URL,https://api.anthropic.com}"
+  ANTHROPIC_MODEL_NAME: "${oc.env:ANTHROPIC_MODEL_NAME,claude-3-7-sonnet-20250219}"
+  OPENAI_API_KEY: "${oc.env:OPENAI_API_KEY}"
+  OPENAI_BASE_URL: "${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}"
+  OPENAI_MODEL_NAME: "${oc.env:OPENAI_MODEL_NAME,gpt-4o}"

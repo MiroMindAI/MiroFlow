@@ -1,0 +1,37 @@
+# config/agent/deepseek_nohint_claude_dual.yaml
+# Agent configuration with DeepSeek R1 for main agent and Claude 3.7 Sonnet for sub agents
+# The name of tools and sub-agents defined in: ./miroflow/src/miroflow/utils/prompt_utils.py and tool_utils.py
+defaults:
+  - default
+  - _self_
+
+# LLM configuration for different agent types
+main_agent_llm: "deepseek-r1-0528"         # Main agent uses DeepSeek R1
+sub_agent_llm: "claude-3.7-sonnet_temp03"    # Sub agents use Claude 3.7 Sonnet
+
+main_agent:
+  prompt_class: MainAgentGaiaPrompt
+  tool_config:
+    - tool-reasoning
+  max_turns: -1  # Maximum number of turns for main agent execution
+  max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
+
+sub_agents:
+  agent-worker:
+    prompt_class: SubAgentWorkerPrompt
+    tool_config:
+      - tool-searching
+      - tool-image-video
+      - tool-reading
+      - tool-code
+      - tool-audio
+    max_turns: -1
+    max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
+
+o3_hint: false
+o3_final_answer: true  # Use O3 to extract final answer from summary
+
+# Message ID configuration
+add_message_id: true  # Add random message ID to all messages sent to LLM
+
+keep_tool_result: -1

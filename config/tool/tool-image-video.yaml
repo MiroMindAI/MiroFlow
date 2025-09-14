@@ -1,0 +1,19 @@
+name: "tool-image-video"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.vision_mcp_server"
+env:
+# Visual Question Answering (VQA) provider selection order:
+# 1. If ANTHROPIC_API_KEY is set, Anthropic will be used for VQA.
+# 2. If not, but OPENAI_API_KEY is set, OpenAI will be used for VQA.
+# 3. If neither is set, Gemini will be used for VQA (requires GEMINI_API_KEY).
+# 4. Gemini key is a must to use YouTube video analysis.
+# These values will be loaded from the .env file at runtime
+  ANTHROPIC_API_KEY: "${oc.env:ANTHROPIC_API_KEY}"
+  ANTHROPIC_BASE_URL: "${oc.env:ANTHROPIC_BASE_URL,https://api.anthropic.com}"
+  ANTHROPIC_MODEL_NAME: "${oc.env:ANTHROPIC_MODEL_NAME,claude-3-7-sonnet-20250219}"
+  OPENAI_API_KEY: "${oc.env:OPENAI_API_KEY}"
+  OPENAI_BASE_URL: "${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}"
+  OPENAI_MODEL_NAME: "${oc.env:OPENAI_MODEL_NAME,gpt-4o}"
+  GEMINI_API_KEY: "${oc.env:GEMINI_API_KEY}"

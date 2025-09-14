@@ -1,3 +1,0 @@
-# TODO
-
-guideline on contributing.

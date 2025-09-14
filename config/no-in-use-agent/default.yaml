@@ -1,0 +1,44 @@
+# config/agent/default.yaml
+# This is the default agent configuration.
+# Commented parts are mainly for example.
+main_agent:
+  prompt_class: MainAgentGaiaPrompt
+  tool_config:
+    - tool-reasoning
+    # - tool-code
+    # - tool-image-video
+    # - tool-audio
+    # - tool-markitdown
+  # tool_blacklist:
+  #   - ["name-of-tool", "name-of-method"]  # tool blacklist example
+  max_turns: 20  # Maximum number of turns for main agent execution
+  max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
+# sub_agents:
+  # agent-browsing:
+  #   prompt_class: SubAgentBrowsingPrompt
+  #   tool_config:
+  #     - tool-serper-search
+  #     - tool-image-video
+  #     - tool-markitdown
+  #     - tool-code
+  #   max_turns: 20
+  #   max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
+  # agent-coding:
+  #   prompt_class: SubAgentCodingPrompt
+  #   tool_config:
+  #     - tool-code
+  #     - tool-reasoning
+  #   max_turns: 20
+  # agent-reading:
+  #   prompt_class: SubAgentReadingPrompt
+  #   tool_config:
+  #     - tool-reading
+  #   max_turns: 20
+
+o3_hint: false
+o3_final_answer: true  # Use O3 to extract final answer from summary
+
+# Message ID configuration
+add_message_id: false  # Add random message ID to all messages sent to LLM
+
+keep_tool_result: -1 

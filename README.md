@@ -1,63 +1,93 @@
 <div align="center">
-  <img src="docs/figs/MiroFlow_logo.png" width="65%" alt="MiroFlow" />
+  <img src="docs/mkdocs/docs/assets/miroflow_logo.png" width="100%" alt="MiroFlow" />
 </div>
 
 <br> 
 
 <div align="center">
 
-[![MODELS](https://img.shields.io/badge/MiroThinker_Models-5EDDD2?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)
-[![DATA](https://img.shields.io/badge/MiroVerse_Data-0040A1?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)
-[![WEBSITE](https://img.shields.io/badge/MiroMind_Website-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://miromind.ai/)
+[![DOCS](https://img.shields.io/badge/Documentation-4285F4?style=for-the-badge&logo=gitbook&logoColor=white)](https://miromindai.github.io/MiroFlow/)
+[![DEMO](https://img.shields.io/badge/Demo-FFB300?style=for-the-badge&logo=airplayvideo&logoColor=white)](https://dr.miromind.ai/)
+[![MODELS](https://img.shields.io/badge/Models-5EDDD2?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/collections/miromind-ai/mirothinker-v02-68af084a18035f57b17cd902)
+[![DATA](https://img.shields.io/badge/Data-0040A1?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)
 
+[![GITHUB](https://img.shields.io/badge/Github-24292F?style=for-the-badge&logo=github&logoColor=white)](https://github.com/MiroMindAI)
+[![WEBSITE](https://img.shields.io/badge/Website-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://miromind.ai/)
 [![DISCORD](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/GPqEnkzQZd)
 [![WeChat](https://img.shields.io/badge/WeChat-07C160?style=for-the-badge&logo=wechat&logoColor=white)](https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/assets/wechat.png)
 [![RedNote](https://img.shields.io/badge/RedNote-FF2442?style=for-the-badge&logo=revoltdotchat&logoColor=white)](https://www.xiaohongshu.com/user/profile/5e353bd80000000001000239)
-[![DeepWiki](https://img.shields.io/badge/DeepWiki-grey?style=for-the-badge&logo=deepwiki&logoColor=white)](https://deepwiki.com/MiroMindAI/MiroFlow)
-
-# 🚀[Please try our Demo!](https://dr.miromind.ai/)🚀
 
 </div>
 
-# MiroFlow: A Leading "Open Deep Research" Project
+<div align="center">
 
-<img src="docs/figs/logo.png" alt="MiroFlow Logo" width="150" align="right">
+# 🚀 [Try our Demo!](https://dr.miromind.ai/) | 📚 [Full Documentation](https://miromindai.github.io/MiroFlow/)
 
+</div>
+
+<table align="center" style="border: 1px solid #ccc; border-radius: 8px; padding: 12px; background-color: #f9f9f9; width: 60%;">
+  <tr>
+    <td style="text-align: center; padding: 10px;">
+      <strong>Research Assistant Demo</strong> - 
+      <span style="font-size: 0.9em; color: #555;">Read CVPR 2025 Best Paper and Provide Research Advice</span>
+      <br>
+      <video src="https://github.com/user-attachments/assets/99ed3172-6e9a-467a-9ccb-be45957fe2e4"
+             controls muted preload="metadata"
+             width="50%" height="50%"
+      </video>
+    </td>
+  </tr>
+</table>
+
+
+## 📋 Table of Contents
 
 - [📰 News & Updates](#-news--updates)
-- [📝 Introduction](#-introduction)
+- [🤖 What is MiroFlow?](#-what-is-miroflow)
 - [✨ Performance on Benchmarks](#-performance-on-benchmarks)
-- [🚀 Getting Started](#-getting-started)
-- [🌟 MiroThinker](docs/mirothinker.md)
+- [🚀 Get Started in Under 5 Minutes](#-get-started-in-under-5-minutes)
+- [🤖 MiroFlow Framework](#-miroflow-ai-agentic-foundation-framework)
+- [🤝 Contributing](#-contributing)
+- [❓ FAQ](#-faq)
 - [📄 License & Support](#-license--support)
+- [👥 Acknowledgments](#-acknowledgments-and-contributors)
 
 
 ## 📰 News & Updates
 
-- **2025-08-27**: 🎉 **MiroFlow v0.2** - Achieves SOTA performance across [multiple agentic benchmarks](https://miromind.ai/blog/miroflow). Highlights include **HLE 27.2%**, **HLE-Text-Only 29.5%**, **BrowserComp-EN 33.2%**, **BrowserComp-ZH 47.1%**, and **xBench-DeepSearch 72.0%**.
-- **2025-08-26**: 🎉 [GAIA Validation Trace](apps/public-trace/gaia-validation) released (73.94% with pass@1) and [Gradio Demo](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo) released for local deployment.
-- **2025-08-08**: 🎉 **MiroFlow v0.1** - Framework, model, and data are now fully open-sourced!
+- **[2025-09-15]**: 🎉🎉 **MiroFlow v0.3** - Enhanced codebase architecture and significantly improved benchmark performance. MiroFlow now ranks #1 in the future prediction benchmark.
+- **[2025-08-27]**: **MiroFlow v0.2** - Achieves state-of-the-art performance across [multiple agentic benchmarks](https://miromind.ai/blog/miroflow), including HLE (27.2%), HLE-Text-Only (29.5%), BrowserComp-EN (33.2%), BrowserComp-ZH (47.1%), and xBench-DeepSearch (72.0%)
+- **[2025-08-26]**: Released [GAIA Validation Trace](docs/public_trace.md) (73.94% pass@1) and [Gradio Demo](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo) for local deployment
+- **[2025-08-08]**: 🎉 **MiroFlow v0.1** - Complete open-source release of framework, models, and training data
+
+---
+
+## 🤖 What is MiroFlow?
+
+**MiroFlow** is a comprehensive framework for building intelligent AI agents that achieve state-of-the-art performance on complex reasoning tasks. It provides enhanced conversation management, flexible tool integration, and extensive benchmark evaluations across multiple datasets. 
+
+**MiroThinker** is the open-source agentic model series built on this framework.
+
+### 🌟 Key Highlights
+
+- 🏆 **State-of-the-Art Performance**: #1 ranking across [multiple agentic benchmarks](https://miromindai.github.io/miroflow-private/v0.3/evaluation_overview/)
+- 📊 **Premium Training Data**: Curated datasets via [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)
+- 🤖 **Open Models**: Complete collection at [MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)
+- 🔧 **Full Training Stack**: SFT/DPO recipes at [MiroTrain](https://github.com/MiroMindAI/MiroTrain)
+- 🎯 **Advanced RL**: Reinforcement learning via [MiroRL](https://github.com/MiroMindAI/MiroRL)
 
 
-## 📝 Introduction
+### ✨ Performance on Benchmarks
 
-**MiroFlow** is a fully open-sourced agent framework designed to reliably complete complex tool-use tasks. Our comprehensive ecosystem includes the following key components:
+<img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
 
-- 🌟 **Reproducible SOTA Performance**: MiroFlow consistently achieves 72.2% (pass@1 average@3) on the GAIA benchmark. Follow our detailed guide to reproduce our released GAIA traces and verify results.
-- 🌟 **Advanced Data Collection**: Our framework features sophisticated data collection capabilities that generate high-quality, post-training agent trace data. We've open-sourced extensive datasets through [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1).
-- 🌟 **Open Source Models**: We provide fully open-sourced models that you can deploy locally and fine-tune for your specific needs. Explore our model collection at [MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1).
-- 🌟 **Comprehensive Training Framework**: We've open-sourced our complete SFT and DPO training recipes, available at [MiroTrain](https://github.com/MiroMindAI/MiroTrain).
-- 🌟 **Reinforcement Learning Framework**: Our RL training exploration and methodologies are fully available through [MiroRL](https://github.com/MiroMindAI/MiroRL).
-
-
-
-## ✨ Performance on Benchmarks
+We achieved the #1 ranking on the FutureX Benchmark Leaderboard as of September 10, 2025.
 
 <div align="center">
-  <img src="docs/figs/09xyHJV9dkbY2yacsv4zYTBbKM.avif" width="90%" alt="Comprehensive Benchmark Performance Comparison" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+  <img src="docs/mkdocs/docs/assets/miroflow-0.2-performance_short.png" width="90%" alt="Comprehensive Benchmark Performance Comparison" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(3, 3, 3, 0.1);">
 </div>
 
-We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **BrowseComp** and **xBench-DeepSearch**. Meantime, we are working on more benchmarks.
+We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **BrowseComp** and **xBench-DeepSearch** and achieved SOTA results.
 
 | Model/Framework | GAIA Val | HLE | HLE-Text | BrowserComp-EN | BrowserComp-ZH | xBench-DeepSearch |
 |----------------|----------|-----|----------|----------------|----------------|-------------------|
@@ -70,189 +100,90 @@ We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **B
 | DeepSeek v3.1 | - | - | **29.8%** | - | - | 71.2% |
 
 
+# 🚀 Get Started in Under 5 Minutes
 
-### GAIA-Validation
+Clone the repository, configure your API key, and run your first intelligent agent. You'll just need one `OPENROUTER_API_KEY`.
 
-<img src="docs/figs/gaia_score.png" width="40%" alt="GAIA Validation Performance" align="right">
+## 📋 Prerequisites
 
-MiroFlow **achieved 81.8% pass@3, 82.4% maj. vote, 74.5% pass@1 (best@3), and 72.2% pass@1 (avg@3) on the GAIA validation set**. This represents **state-of-the-art (SOTA) performance** among open-source agent frameworks.
+- **Python**: 3.12 or higher
+- **Package Manager**: [`uv`](https://docs.astral.sh/uv/)
+- **Operating System**: Linux, macOS
 
-> [!NOTE]
-> Our pass@1 scores are reported as both the average across three runs (avg@3) and the best score among those runs (best@3). For most other reported pass@1 results, it is unclear whether they represent an average or a best score across multiple trials (indicated with *). 
+## ⚡ Quick Setup
 
-To prevent agents from retrieving answers directly from Hugging Face, we disabled access to it during the inference and trace collection.
+**Example**: Intelligent document analysis with file processing capabilities.
 
-*We have evaluated multiple agent frameworks on GAIA. Please note that some reported results may be overstated or lack clear definitions, and are not reproducible.*
-In contrast, reproducing MiroFlow's results is straightforward with just a few required API keys.
+```bash
+# 1. Clone and setup
+git clone https://github.com/MiroMindAI/MiroFlow && cd MiroFlow
+uv sync
 
+# 2. Configure API key
+cp .env.template .env
+# Edit .env and add your OPENROUTER_API_KEY
 
-# 🤖 MiroFlow: Modular AI Agent Framework
+# 3. Run your first agent
+uv run main.py trace --config_file_name=agent_quickstart_1 --task="What is the first country listed in the XLSX file that have names starting with Co?" --task_file_name="data/FSI-2023-DOWNLOAD.xlsx"
+```
 
-MiroFlow is a high-performance, modular framework for building intelligent AI agents that achieve state-of-the-art results on complex benchmarks. It features multi-turn conversation capabilities, comprehensive tool integration, and hierarchical sub-agent support for superior task completion.
+🎉 **Expected Output:** Your agent should return **\boxed{Congo Democratic Republic}** 😊
+
+> **💡 Tip:** If you encounter issues, check that your API key is correctly set in the `.env` file and that all dependencies are installed.
+
+**🎯 Comprehensive Benchmark Suite**:
+- **GAIA Validation**: A benchmark for General AI Assistants. ([paper](https://arxiv.org/abs/2311.12983))
+- **GAIA-Text-103**: A subset of GAIA Validation for text-only tasks. ([paper](https://arxiv.org/abs/2505.22648))
+- **HLE**: Humanity's Last Exam. ([paper](https://arxiv.org/abs/2501.14249))
+- **HLE-Text-500**: A subset of HLE for text-only tasks. ([paper](https://arxiv.org/pdf/2504.21776))
+
+Follow our detailed guides to reproduce benchmark results in our [Benchmarks Documentation](https://miromindai.github.io/MiroFlow/v0.3/evaluation_overview/)
+
+# 🤖 MiroFlow: AI Agentic Foundation Framework
+
+MiroFlow is a high-performance, modular framework for building intelligent AI agents that deliver state-of-the-art results on complex reasoning tasks. The framework features advanced multi-turn conversation capabilities, extensive tool ecosystem integration, and hierarchical sub-agent orchestration for optimal task completion. Learn more about our agent [workflow architecture](https://miromindai.github.io/MiroFlow/v0.3/core_concepts/).
 
 <div align="center">
-<img src="docs/figs/miroflow_architecture.png" width="60%" alt="MiroFlow Architecture">
+<img src="docs/mkdocs/docs/assets/miroflow_architecture.png" width="100%" alt="MiroFlow Architecture">
 </div>
 
-More information on our agent [workflow](docs/workflow.md).
+## 🤝 Contributing
 
+We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 
-<a id="get-start"></a>
-# 🚀 Getting Started
+- 📋 **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues)
+- 🔀 **Pull Requests**: Submit improvements via pull requests
+- 💬 **Discussions**: Join our [Discord community](https://discord.com/invite/GPqEnkzQZd) for questions and discussions
 
-### Prerequisites
-> [!TIP]
-> we recommend using [`uv`](https://docs.astral.sh/uv/) with `python>= 3.12` 
+## ❓ FAQ
 
-### Step 1: Clone repo and prepare python environment
+<details>
+<summary><strong>What API keys do I need?</strong></summary>
+<br>
+You only need an OpenRouter API key to get started. OpenRouter provides access to multiple language models through a single API.
+</details>
 
-```bash
-## clone the repo
-git clone https://github.com/MiroMindAI/MiroFlow
-cd MiroFlow/apps/run-agent
+<details>
+<summary><strong>Can I use other language models besides OpenRouter?</strong></summary>
+<br>
+Yes, MiroFlow supports various language models. Check our documentation for configuration details.
+</details>
 
-## prepare python environment
-uv sync
-```
+<details>
+<summary><strong>How do I reproduce the benchmark results?</strong></summary>
+<br>
+Follow our detailed <a href="https://miromindai.github.io/MiroFlow/v0.3/evaluation_overview/">Benchmarks Documentation</a> for step-by-step reproduction guides.
+</details>
 
-### Step 2: Set up environment variables
-
-#### a. Set up `MiroFlow/apps/prepare-benchmark/.env`
-
-```bash
-## copy environment variable template and prepare yours in .env file
-cd MiroFlow/apps/prepare-benchmark
-
-# Edit .env with your actual API keys
-cp .env.template .env
-```
-
-Edit `.env` to configure environment variables:
-
-```env
-# For downloading datasets from Hugging Face
-HF_TOKEN="<your-huggingface-token>"
-
-# [Optional] Data loading directory, by default `../../data`
-DATA_DIR="../../data" # relative to this file 
-```
-
-#### b. Set up `MiroFlow/apps/run-agent/.env`
-
-```bash
-## copy environment variable template and prepare yours in .env file
-cd MiroFlow/apps/run-agent
-
-# Edit .env with your actual API keys
-cp .env.template .env
-```
-
-Edit `.env` to configure environment variables:
-
-```env
-# Using OpenRouter to provide primary agent model
-OPENROUTER_API_KEY=""
-OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
-
-# Anthropic, for vision tools
-ANTHROPIC_API_KEY=""
-ANTHROPIC_BASE_URL="https://api.anthropic.com"
-
-# OpenAI, for audio tools, intent recognition, and answer extraction
-OPENAI_API_KEY=""
-OPENAI_BASE_URL="https://api.openai.com/v1"
-
-# Gemini, for YouTube tasks
-GEMINI_API_KEY=""
-
-# Third party API keys
-# For Google search and website scraping
-SERPER_API_KEY=""
-# For website scraping
-JINA_API_KEY=""
-# For the Linux sandbox
-E2B_API_KEY=""
-
-# [Optional] NewAPI, alternative to OpenRouter 
-NEWAPI_API_KEY=""
-NEWAPI_BASE_URL=""
-
-# [Optional] for network proxy, null by default
-HTTPS_PROXY=""
-# [Optional] Data loading directory, by default `../../data`
-DATA_DIR="../../data"
-```
-
-> [!NOTE]
-> If you wish to use a different LLM as the primary agent model, you will need to provide the corresponding API keys.
-
-### Step 3: Local E2B Sandbox Deployment
-To achieve our best benchmark results, we recommend using a pre-defined sandbox template that includes the most commonly used Python and apt packages. Please see our [installation guide](docs/local_e2b.md) for detailed instructions.
-
-If you prefer not to use a sandbox template, you can disable it by commenting out the line `template=DEFAULT_TEMPLATE_ID,` in `libs/miroflow-tool/src/miroflow/tool/mcp_servers/python_server.py` (line 145).
-
-
-### Run a single task
-
-```bash
-## run a task with instruction
-cd MiroFlow/apps/run-agent
-uv run main.py trace --task="your task description" --task_file_name="path to related task file"
-```
-
-### Evaluate on Benchmark
-
-Prepare datasets according to your requirements. Some datasets may need to be downloaded manually into the `/data/<benchmark>` folder, and you should also create a corresponding `standardized_data.jsonl` metafile. We will support as many datasets as possible as soon as we can.
-```bash
-## supported benchmarks
-cd MiroFlow/apps/prepare-benchmark
-uv run main.py get gaia-val
-uv run main.py get browsecomp-test
-uv run main.py get browsecomp-zh-test
-uv run main.py get hle
-```
-
-Run evaluation using the default settings. (Not parallelized; not recommended.)
-```bash
-## run the code
-cd MiroFlow/apps/run-agent
-uv run main.py common-benchmark benchmark=gaia-validation
-uv run main.py common-benchmark benchmark=browsecomp
-uv run main.py common-benchmark benchmark=browsecomp-zh
-uv run main.py common-benchmark benchmark=hle
-```
-
-For parallel and multi-run evaluations, and to gain better control over environment settings using Hydra, **we recommend using the provided script**:
-
-```bash
-cd MiroFlow/apps/run-agent
-bash ./scripts/main-worker-dual/run_evaluate_multiple_runs_gaia-validation.sh
-bash ./scripts/main-worker-dual/run_evaluate_multiple_runs_browsecomp.sh
-bash ./scripts/main-worker-dual/run_evaluate_multiple_runs_browsecomp-zh.sh
-bash ./scripts/main-worker-dual/run_evaluate_multiple_runs_hle.sh
-```
-
-You can easily modify and customize these scripts to suit your needs. See [Customized Configuration](#customized-configuration) for more details.
-
-### Customized Configuration
-
-MiroFlow leverages [Hydra](https://hydra.cc/) for powerful configuration management, allowing you to easily switch between different LLMs, agents, benchmarks, and pricing models using YAML configuration files. For detailed instructions on configuration management, see our [configuration guide](docs/hydra_config.md).
-
-
+<details>
+<summary><strong>Is there commercial support available?</strong></summary>
+<br>
+For commercial inquiries and enterprise support, please contact us through our <a href="https://miromind.ai/">website</a>.
+</details>
 
 ## 📄 License & Support
 
-This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details. Some components may have different licenses as specified in their respective file headers.
-
-### 🙏 Acknowledgments
-
-- **Benchmark Contributors** for the comprehensive evaluation datasets
-- **Open Source Community** for the tools and libraries that make this possible
-
-### 🔧 Support
-
-- Issues: For questions or bug reports, please use [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues).
-- FAQ Documentation: See [faq.md](docs/faq.md) for additional guidelines
+This project is licensed under the Apache License 2.0.
 
 
 <div align="center">
@@ -260,6 +191,8 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 </div>
 
 ### References
+
+Technical report is coming soon!
 
 ```
 @misc{2025mirothinker,
@@ -269,3 +202,18 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
     year={2025}
 }
 ```
+
+
+
+## 👥 Acknowledgments and Contributors
+
+- **Benchmark Contributors** for the comprehensive evaluation datasets
+- **Open Source Community** for the tools and libraries that make this possible
+
+We thank all contributors who have helped make MiroFlow better:
+
+<a href="https://github.com/MiroMindAI/MiroFlow/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=MiroMindAI/MiroFlow" />
+</a>
+
+Join our community and help us build the future of AI agents!
