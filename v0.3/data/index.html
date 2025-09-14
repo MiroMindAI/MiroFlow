@@ -1,0 +1,2505 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../all_about_agents/">
+      
+      
+        <link rel="next" href="../applications/">
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.19">
+    
+    
+      
+        <title>📊 Open Source Data - MiroFlow</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.7e37652d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#data" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="MiroFlow" class="md-header__button md-logo" aria-label="MiroFlow" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MiroFlow
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              📊 Open Source Data
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/MiroMindAI/MiroFlow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MiroFlow
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+          
+  
+  
+  Introduction
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../quickstart/" class="md-tabs__link">
+          
+  
+  
+  Overview
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../evaluation_overview/" class="md-tabs__link">
+          
+  
+  
+  Evaluation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../tool_overview/" class="md-tabs__link">
+          
+  
+  
+  Tools
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../llm_clients_overview/" class="md-tabs__link">
+          
+  
+  
+  LLM Clients
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../all_about_agents/" class="md-tabs__link">
+          
+  
+  
+  Resources
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="MiroFlow" class="md-nav__button md-logo" aria-label="MiroFlow" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MiroFlow
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/MiroMindAI/MiroFlow" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    MiroFlow
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Introduction
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            Introduction
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    News & Updates
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    License
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Overview
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quickstart
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../core_concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Core Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../yaml_config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    YAML Configuration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Evaluation
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Evaluation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../evaluation_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Benchmarks
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Benchmarks
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gaia_validation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GAIA-Validation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gaia_test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GAIA-Test
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prepare_benchmark_data_from_original_source/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Prepare Benchmark Data from Original Source
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contribute_benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Add New Benchmarks
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Tools
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Tools
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Tools
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_reasoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    tool-reasoning
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_vqa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    tool-vqa
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../e2b_extension/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    e2b-extension
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contribute_tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Add New Tools
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    LLM Clients
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            LLM Clients
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm_clients_overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Models
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Models
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mirothinker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MiroThinker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2_2" id="__nav_5_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Claude-3.7-Sonnet
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_5_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Claude-3.7-Sonnet
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../claude-3.7-sonnet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Official SDK
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../openrouter-claude-3.7-sonnet/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OpenRouter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../openai-gpt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OpenAI-GPT
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contribute_llm_clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Add New LLM Clients
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Resources
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Resources
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../all_about_agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    📚 All About Agents
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    📊 Open Source Data
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    📊 Open Source Data
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#news-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔥 News &amp; Updates
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-batch-of-miroverse" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔥 First Batch of MiroVerse
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataset-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      📦 Dataset Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-were-different" class="md-nav__link">
+    <span class="md-ellipsis">
+      🆚 Why We're Different
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      📈 Benchmark Performance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📈 Benchmark Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gaia-benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      GAIA Benchmark
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#more-benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      More Benchmarks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧩 Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧩 Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#case-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Case 1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Case 2
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#free-trace-rollout-let-us-help-you-train" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Free Trace Rollout: Let Us Help You Train
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ Free Trace Rollout: Let Us Help You Train">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How It Works:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      🤝 License
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#citation" class="md-nav__link">
+    <span class="md-ellipsis">
+      📜 Citation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contact-us" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contact Us
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../applications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    📱 Applications
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../faq_and_known_issues/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    🐛 FAQs and Known Issues
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    📝 Contributors
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#news-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔥 News &amp; Updates
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#first-batch-of-miroverse" class="md-nav__link">
+    <span class="md-ellipsis">
+      🔥 First Batch of MiroVerse
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dataset-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      📦 Dataset Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-were-different" class="md-nav__link">
+    <span class="md-ellipsis">
+      🆚 Why We're Different
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#benchmark-performance" class="md-nav__link">
+    <span class="md-ellipsis">
+      📈 Benchmark Performance
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="📈 Benchmark Performance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gaia-benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      GAIA Benchmark
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#more-benchmarks" class="md-nav__link">
+    <span class="md-ellipsis">
+      More Benchmarks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      🧩 Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🧩 Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#case-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Case 1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#case-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Case 2
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#free-trace-rollout-let-us-help-you-train" class="md-nav__link">
+    <span class="md-ellipsis">
+      🛠️ Free Trace Rollout: Let Us Help You Train
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🛠️ Free Trace Rollout: Let Us Help You Train">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      How It Works:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license" class="md-nav__link">
+    <span class="md-ellipsis">
+      🤝 License
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#citation" class="md-nav__link">
+    <span class="md-ellipsis">
+      📜 Citation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contact-us" class="md-nav__link">
+    <span class="md-ellipsis">
+      Contact Us
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="data">📊 Data</h1>
+<h2 id="news-updates"><strong>🔥 News &amp; Updates</strong></h2>
+<ul>
+<li>The data is released over <a href="https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1">Huggingface</a>.</li>
+<li>MiroVerse v0.1 has been released. This dataset can be used with our training framework, <a href="https://github.com/MiroMindAI/MiroTrain">MiroTrain</a>. In MiroVerse v0.1, we provide both SFT and DPO data, making it easy to reproduce <a href="https://github.com/MiroMindAI/MiroThinker">MiroThinker-v0.1</a>’s benchmark performance on Qwen3. Give it a try!</li>
+</ul>
+<h2 id="first-batch-of-miroverse"><strong>🔥 First Batch of MiroVerse</strong></h2>
+<p>✨ <strong>What makes this release special:</strong></p>
+<ul>
+<li>📚 <strong>Diverse Verified Open Source Data</strong> — Carefully curated and validated community datasets</li>
+<li>🧠 <strong>Fresh Large-Scale Deep Research Data</strong> — Generated by our proprietary data engine</li>
+<li>🔄 <strong>Complete Trajectory Coverage</strong> — Every single sample includes full rollout trajectories</li>
+<li>✅ <strong>Quality Assurance:</strong> — Each trajectory has been verified, ensuring high-quality training data for your models.</li>
+<li>🌱 <strong>Always Growing, Always Open</strong> — Regular updates, powered by collaboration with the community</li>
+</ul>
+<hr />
+<h2 id="dataset-overview"><strong>📦 Dataset Overview</strong></h2>
+<p><img alt="image/png" src="https://cdn-uploads.huggingface.co/production/uploads/6582d86e58df0a2e21db80b8/9zMcm0U25foLNjNh0w_fk.png" /></p>
+<p><strong>MiroVerse-v0.1</strong> is a large-scale agent dataset with <strong>147K+</strong> samples featuring <strong>full rollout trajectories</strong> across diverse AI agent tasks including multi-hop QA, web navigation, and scientific reasoning. Every single sample includes complete execution traces with <strong>1.9B+</strong> tokens and <strong>602K+</strong> tool interactions, providing comprehensive training data for tool-using and web-browsing AI agents.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Split</strong></th>
+<th><strong>#Sample</strong></th>
+<th><strong>#Main Trace</strong></th>
+<th><strong>#Browse Trace</strong></th>
+<th><strong>#Token</strong></th>
+<th><strong>#Turns</strong></th>
+<th><strong>#Tools</strong></th>
+<th><strong>License</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MiroVerse-Voyager1.0</strong></td>
+<td>59097</td>
+<td>19115</td>
+<td>39982</td>
+<td>1129113893</td>
+<td>444723</td>
+<td>325537</td>
+<td>CC-BY-NC-4.0</td>
+</tr>
+<tr>
+<td>MiroVerse-MuSiQue</td>
+<td>29572</td>
+<td>10422</td>
+<td>19150</td>
+<td>294351053</td>
+<td>143080</td>
+<td>90486</td>
+<td>CC-BY-4.0</td>
+</tr>
+<tr>
+<td>MiroVerse-HotpotQA</td>
+<td>12942</td>
+<td>6553</td>
+<td>6389</td>
+<td>67352039</td>
+<td>46320</td>
+<td>20524</td>
+<td>CC-BY-SA-4.0</td>
+</tr>
+<tr>
+<td>MiroVerse-WebWalkerQA-Silver</td>
+<td>10817</td>
+<td>4961</td>
+<td>5856</td>
+<td>107650324</td>
+<td>67846</td>
+<td>46215</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td>MiroVerse-MegaScience</td>
+<td>10615</td>
+<td>8270</td>
+<td>2345</td>
+<td>111120264</td>
+<td>63594</td>
+<td>42443</td>
+<td>CC-BY-NC-SA-4.0</td>
+</tr>
+<tr>
+<td>MiroVerse-TaskCraft</td>
+<td>8890</td>
+<td>4277</td>
+<td>4613</td>
+<td>95518109</td>
+<td>35013</td>
+<td>17236</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>MiroVerse-QA-Expert-Multi-Hop-V1.0</td>
+<td>6187</td>
+<td>2091</td>
+<td>4096</td>
+<td>63983151</td>
+<td>31957</td>
+<td>19585</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td>MiroVerse-OneGen-TrainDataset-MultiHopQA</td>
+<td>3289</td>
+<td>1347</td>
+<td>1942</td>
+<td>33214386</td>
+<td>17187</td>
+<td>11449</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>MiroVerse-2WikiMultihopQA</td>
+<td>3001</td>
+<td>1410</td>
+<td>1591</td>
+<td>28977451</td>
+<td>13982</td>
+<td>7981</td>
+<td>Apache 2.0</td>
+</tr>
+<tr>
+<td>MiroVerse-WikiTables</td>
+<td>1606</td>
+<td>1288</td>
+<td>318</td>
+<td>16461870</td>
+<td>12089</td>
+<td>8877</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>MiroVerse-WebShaper</td>
+<td>1514</td>
+<td>486</td>
+<td>1028</td>
+<td>31240265</td>
+<td>12126</td>
+<td>9578</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>MiroVerse-WebDancer</td>
+<td>455</td>
+<td>192</td>
+<td>263</td>
+<td>7817689</td>
+<td>3170</td>
+<td>2268</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><strong>MiroVerse-v0.1</strong></td>
+<td><strong>147985</strong></td>
+<td><strong>60412</strong></td>
+<td><strong>87573</strong></td>
+<td><strong>1993099086</strong></td>
+<td><strong>891087</strong></td>
+<td><strong>602179</strong></td>
+<td>/</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Every sample includes successful MiroFlow rollout trajactories that reached the verified answer—one JSON line, zero secrets.
+MiroVerse-v0.1 dataset follows a hybrid licensing model: query and answer data retain their original source licenses, while all trace data is licensed under CC-BY-NC-4.0; for commercial use, please contact us to request a commercial license.</p>
+</blockquote>
+<hr />
+<h2 id="why-were-different"><strong>🆚 Why We're Different</strong></h2>
+<p>While high-quality data is essential for training advanced models and often kept private, we believe that the path to truly general-purpose agents is still long. That’s why we’re committed to open-sourcing as much of our data as possible—including raw samples and exploration traces—to support and accelerate progress across the community.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Org</strong></th>
+<th><strong>Work</strong></th>
+<th><strong>Samples</strong></th>
+<th><strong>Trace Data</strong></th>
+<th><strong>Reproducible?</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI</td>
+<td>Deep Research</td>
+<td>—</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Gemini</td>
+<td>Gemini Deep Research</td>
+<td>—</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Tencent</td>
+<td>Cognitive Kernel-Pro</td>
+<td>7 k</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Tongyi</td>
+<td>WebShaper</td>
+<td>500</td>
+<td>❌</td>
+<td>❌</td>
+</tr>
+<tr>
+<td><strong>MiroMind</strong> (ours)</td>
+<td><em>this repo</em></td>
+<td><strong>147 k+</strong></td>
+<td>✅</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="benchmark-performance"><strong>📈 Benchmark Performance</strong></h2>
+<p>MiroVerse-v0.1 is used in the training of our <a href="https://github.com/MiroMindAI/MiroThinker">MiroThinker-v0.1</a> models.</p>
+<p>By using this dataset, we achieved the following benchmark performance.</p>
+<h3 id="gaia-benchmark">GAIA Benchmark</h3>
+<table>
+<thead>
+<tr>
+<th><strong>Method</strong></th>
+<th style="text-align: center;">Text-103<br>Best Pass@1</th>
+<th style="text-align: center;">Text-103<br>Pass@1 (Avg@8)</th>
+<th style="text-align: center;">Val-165<br>Best Pass@1</th>
+<th style="text-align: center;">Val-165<br>Pass@1 (Avg@8)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Search-o1-7B</td>
+<td style="text-align: center;">17.5</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td>R1-Searcher-7B</td>
+<td style="text-align: center;">20.4</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td>WebDancer-7B</td>
+<td style="text-align: center;">31.0</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td>WebSailor-7B</td>
+<td style="text-align: center;">37.9</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td>CK-Pro-8B</td>
+<td style="text-align: center;">43.7</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">35.2</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td><strong>MiroThinker-8B-SFT-v0.1</strong></td>
+<td style="text-align: center;">44.7</td>
+<td style="text-align: center;">40.1</td>
+<td style="text-align: center;">34.6</td>
+<td style="text-align: center;">31.8</td>
+</tr>
+<tr>
+<td>+ Commercial Tools</td>
+<td style="text-align: center;">46.6</td>
+<td style="text-align: center;">42.1</td>
+<td style="text-align: center;">37.6</td>
+<td style="text-align: center;">33.9</td>
+</tr>
+<tr>
+<td><strong>MiroThinker-8B-DPO-v0.1</strong></td>
+<td style="text-align: center;">46.6</td>
+<td style="text-align: center;">44.8</td>
+<td style="text-align: center;">37.0</td>
+<td style="text-align: center;">35.4</td>
+</tr>
+<tr>
+<td>+ Commercial Tools</td>
+<td style="text-align: center;"><strong>50.5</strong></td>
+<td style="text-align: center;"><strong>46.7</strong></td>
+<td style="text-align: center;"><strong>38.2</strong></td>
+<td style="text-align: center;"><strong>35.9</strong></td>
+</tr>
+<tr>
+<td></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td><strong>MiroThinker-14B-SFT-v0.1</strong></td>
+<td style="text-align: center;">47.6</td>
+<td style="text-align: center;">44.4</td>
+<td style="text-align: center;">37.0</td>
+<td style="text-align: center;">34.4</td>
+</tr>
+<tr>
+<td>+ Commercial Tools</td>
+<td style="text-align: center;">49.5</td>
+<td style="text-align: center;">47.5</td>
+<td style="text-align: center;">41.8</td>
+<td style="text-align: center;">39.8</td>
+</tr>
+<tr>
+<td><strong>MiroThinker-14B-DPO-v0.1</strong></td>
+<td style="text-align: center;">48.5</td>
+<td style="text-align: center;">46.6</td>
+<td style="text-align: center;">42.4</td>
+<td style="text-align: center;">39.2</td>
+</tr>
+<tr>
+<td>+ Commercial Tools</td>
+<td style="text-align: center;"><strong>52.4</strong></td>
+<td style="text-align: center;"><strong>48.5</strong></td>
+<td style="text-align: center;"><strong>45.5</strong></td>
+<td style="text-align: center;"><strong>42.0</strong></td>
+</tr>
+<tr>
+<td></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>Qwen3-32B</td>
+<td style="text-align: center;">31.1</td>
+<td style="text-align: center;">26.7</td>
+<td style="text-align: center;">29.7</td>
+<td style="text-align: center;">26.4</td>
+</tr>
+<tr>
+<td>Search-o1-32B</td>
+<td style="text-align: center;">28.2</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td>WebThinker-32B-RL</td>
+<td style="text-align: center;">48.5</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td>WebDancer-QwQ-32B</td>
+<td style="text-align: center;">51.5</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td>WebSailor-32B</td>
+<td style="text-align: center;">53.2</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td>WebShaper-QwQ-32B</td>
+<td style="text-align: center;">53.3</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td><strong>MiroThinker-32B-SFT-v0.1</strong></td>
+<td style="text-align: center;">55.3</td>
+<td style="text-align: center;">51.3</td>
+<td style="text-align: center;">44.9</td>
+<td style="text-align: center;">42.7</td>
+</tr>
+<tr>
+<td>+ Commercial Tools</td>
+<td style="text-align: center;">58.3</td>
+<td style="text-align: center;">54.2</td>
+<td style="text-align: center;">48.5</td>
+<td style="text-align: center;">45.8</td>
+</tr>
+<tr>
+<td><strong>MiroThinker-32B-DPO-v0.1</strong></td>
+<td style="text-align: center;">57.3</td>
+<td style="text-align: center;">54.1</td>
+<td style="text-align: center;">48.5</td>
+<td style="text-align: center;">45.9</td>
+</tr>
+<tr>
+<td>+ Commercial Tools</td>
+<td style="text-align: center;"><strong>60.2</strong></td>
+<td style="text-align: center;"><strong>57.9</strong></td>
+<td style="text-align: center;"><strong>50.9</strong></td>
+<td style="text-align: center;"><strong>48.9</strong></td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p>Following the practices of WebThinker, WebAgents, and CognitiveKernel, we report the Best Pass@1, the highest score across three runs, which often reflects stronger performance, though it may exhibit some variability. To provide a more stable measure, we additionally report Pass@1 (Avg@8), which offers greater consistency at the cost of slightly lower scores.</p>
+</li>
+<li>
+<p>For consistency with prior open-source works, we evaluate GAIA-Text-103 using the WebAgents LLM-as-judge template, and report results on GAIA-Val-165 using the official GAIA scorer script.</p>
+</li>
+<li>
+<p>By default, we use open-source tools wherever possible, except for the code tool <a href="https://github.com/e2b-dev/E2B">E2B</a> and the Google search tool <a href="https://serper.dev/">Serper</a>. We use <a href="https://huggingface.co/openai/whisper-large-v3-turbo">Whisper</a>, <a href="https://huggingface.co/Qwen/Qwen2.5-VL-72B-Instruct">Qwen2.5-VL-72B-Instruct</a>, and <a href="https://huggingface.co/Qwen/Qwen3-235B-A22B-Thinking-2507">Qwen3-235B-A22B-Thinking-2507</a> in our implementation. The framework can be easily extended to other open-source tools of your choice.</p>
+</li>
+<li>
+<p>Replacing these open-source tools with commercial alternatives can yield performance gains. Commercial tools were mainly used for multimodal capabilities and certain complex reasoning subtasks. The majority of tasks, including planning, browsing, refinement, navigation, and more, were handled by our models.</p>
+</li>
+</ol>
+<h3 id="more-benchmarks">More Benchmarks</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th style="text-align: center;">HLE<br>Pass@1</th>
+<th style="text-align: center;">Frames<br>Pass@1</th>
+<th style="text-align: center;">BrowseComp<br>Pass@1</th>
+<th style="text-align: center;"><span style="white-space:nowrap;">BrowseComp-ZH</span><br>Pass@1</th>
+<th style="text-align: center;">WebWalkerQA<br>Pass@1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI Deep Research</td>
+<td style="text-align: center;">26.6</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">51.5</td>
+<td style="text-align: center;">42.9</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td>Gemini Deep Research</td>
+<td style="text-align: center;">26.9</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td>Kimi-Researcher</td>
+<td style="text-align: center;">26.9</td>
+<td style="text-align: center;">78.8</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>WebDancer-7B</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">36.0</td>
+</tr>
+<tr>
+<td>WebSailor-7B</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">6.7</td>
+<td style="text-align: center;">14.2</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td><strong>MiroThinker-8B-SFT-v0.1</strong></td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">58.0</td>
+<td style="text-align: center;">5.5</td>
+<td style="text-align: center;">9.3</td>
+<td style="text-align: center;">41.3</td>
+</tr>
+<tr>
+<td><strong>MiroThinker-8B-DPO-v0.1</strong></td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">64.4</td>
+<td style="text-align: center;">8.7</td>
+<td style="text-align: center;">13.5</td>
+<td style="text-align: center;">45.7</td>
+</tr>
+<tr>
+<td></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td>WebThinker-32B-RL</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">46.5</td>
+</tr>
+<tr>
+<td>WebDancer-QwQ-32B</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">3.8</td>
+<td style="text-align: center;">18.0</td>
+<td style="text-align: center;">47.9</td>
+</tr>
+<tr>
+<td>WebSailor-32B</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">10.5</td>
+<td style="text-align: center;">25.5</td>
+<td style="text-align: center;">-</td>
+</tr>
+<tr>
+<td>WebShaper-32B</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">-</td>
+<td style="text-align: center;">51.4</td>
+</tr>
+<tr>
+<td><strong>MiroThinker-32B-SFT-v0.1</strong></td>
+<td style="text-align: center;">10.2</td>
+<td style="text-align: center;">70.4</td>
+<td style="text-align: center;">10.6</td>
+<td style="text-align: center;">13.8</td>
+<td style="text-align: center;">45.7</td>
+</tr>
+<tr>
+<td><strong>MiroThinker-32B-DPO-v0.1</strong></td>
+<td style="text-align: center;">11.8</td>
+<td style="text-align: center;">71.7</td>
+<td style="text-align: center;">13.0</td>
+<td style="text-align: center;">17.0</td>
+<td style="text-align: center;">49.3</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>
+<p>MiroThinker’s performance was tested with this repository and open-source tools; other models’ results are from their papers and official sites.</p>
+</li>
+<li>
+<p>As <a href="https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1">MiroVerse-v0.1</a> mainly contains English data, the model’s Chinese capability is limited. We plan to add more Chinese data to improve performance in the next version.</p>
+</li>
+</ol>
+<hr />
+<h2 id="examples"><strong>🧩 Examples</strong></h2>
+<p>Below are two QA examples synthesized by our data engine (MiroVerse-Voyager1.0).</p>
+<h3 id="case-1"><strong>Case 1</strong></h3>
+<p><strong>Q:</strong> A female lead actress received her first major annual Hindi film performance award for best actress for her role in a late-2000s comedy-drama, directed by the filmmaker who later created a sports-themed drama released in 2023 starring an actress known for completing an athletic triathlon event in Berlin. What is the title of the film for which this actress first won that award?</p>
+<p><strong>A:</strong> Paa</p>
+<h3 id="case-2"><strong>Case 2</strong></h3>
+<p><strong>Q:</strong> Identify the agricultural practice, unique to a mountain range that forms a border including an independent principality and known for spectacular geologic landforms, that was one of the key reasons for part of the range's inscription as a UNESCO World Heritage Site in the decade before the 21st century. This region's history features a brief early-1800s reorganization of provincial boundaries after a liberal revolution in the southern country, and the northern country is globally recognized as the leading tourist destination with the fourth-largest number of heritage sites. What is this traditional agricultural system called?</p>
+<p><strong>A:</strong> transhumance</p>
+<h2 id="free-trace-rollout-let-us-help-you-train"><strong>🛠️ Free Trace Rollout: Let Us Help You Train</strong></h2>
+<p>Generating high-quality training trajectories is expensive — on average, <strong>$1.50 per sample</strong> using top-tier commercial models.</p>
+<p>To empower the community, we’re offering <strong>free rollout services</strong> for qualifying seed data:</p>
+<h3 id="how-it-works"><strong>How It Works:</strong></h3>
+<ol>
+<li>
+<p><strong>Submit a Request</strong></p>
+<p>Open a ticket via <a href="https://docs.google.com/forms/d/e/1FAIpQLSfN_DjJohfuMls3IjqFbFRX7BSGMHjgbwucspHIw9-ZgA2djQ/viewform?usp=header">this template</a> and provide the basic info, rollout requirements, and up to 100 sample rows in one go.</p>
+</li>
+<li>
+<p><strong>Review &amp; Rollout</strong></p>
+<p>We’ll review your submission within 48 hours. Once approved, we’ll reach out to you for the full dataset and then launch the complete trace rollout using top-tier commercial models.</p>
+</li>
+<li>
+<p><strong>Delivery &amp; Recognition</strong></p>
+<p>Upon completion, we’ll send the augmented dataset to you via email.</p>
+<p>With your <strong>explicit consent</strong>, we’ll also publish it publicly and credit you as a <strong>Community Contributor</strong> — with a permanent badge in this README.</p>
+</li>
+</ol>
+<h2 id="license"><strong>🤝 License</strong></h2>
+<p>This project is released under the CC BY-NC 4.0. Parts of this project contain code and models from other sources, which are subject to their respective licenses. For <strong>commercial use cases</strong>, please contact us at: <a href="mailto:service@miromind.ai">service@miromind.ai</a>.</p>
+<h2 id="citation"><strong>📜 Citation</strong></h2>
+<p>If you find this project useful in your research, please consider cite:</p>
+<pre><code class="language-latex">@misc{miromind2024opendata,
+  title={MiroVerse V0.1: A Reproducible, Full-Trajectory, Ever-Growing Deep Research Dataset},
+  author={MiroMind Data Team},
+  year={2025},
+  url={https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1}
+}
+</code></pre>
+<hr />
+<h2 id="contact-us">Contact Us</h2>
+<p>MiroVerse is developed by the MiroMind Data Team.
+If you would like to leave us a message, feel free to get in touch. 
+In addition to <a href="https://github.com/MiroMindAI/">GitHub</a>, 
+<a href="https://discord.com/invite/GPqEnkzQZd">Discord</a>, 
+<a href="https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/assets/wechat.png">WeChat</a>, 
+and <a href="https://www.xiaohongshu.com/user/profile/5e353bd80000000001000239">RedNote</a>, 
+you can also reach us via email at service@miromind.ai.</p>
+<hr />
+<p><strong>Last Updated:</strong> Sep 2025<br />
+<strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "..", "features": ["header.autohide", "navigation.tabs"], "search": "../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>
