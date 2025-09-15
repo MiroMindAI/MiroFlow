@@ -1334,27 +1334,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-register-provider" class="md-nav__link">
+  <a href="#2-create-config" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Register Provider
+      2. Create Config
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-create-config" class="md-nav__link">
+  <a href="#3-set-environment" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Create Config
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-set-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. Set Environment
+      3. Set Environment
     </span>
   </a>
   
@@ -1617,27 +1608,18 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-register-provider" class="md-nav__link">
+  <a href="#2-create-config" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Register Provider
+      2. Create Config
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-create-config" class="md-nav__link">
+  <a href="#3-set-environment" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Create Config
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-set-environment" class="md-nav__link">
-    <span class="md-ellipsis">
-      4. Set Environment
+      3. Set Environment
     </span>
   </a>
   
@@ -1709,11 +1691,7 @@ class YourProviderClient(LLMProviderClientBase):
         # Parse tool calls, return (tool_calls, tool_names)
         pass
 </code></pre>
-<h3 id="2-register-provider">2. Register Provider</h3>
-<p>Add to <code>src/llm/providers/__init__.py</code>:</p>
-<pre><code class="language-python">from .your_provider_client import YourProviderClient
-</code></pre>
-<h3 id="3-create-config">3. Create Config</h3>
+<h3 id="2-create-config">2. Create Config</h3>
 <pre><code class="language-yaml">main_agent:
   llm: 
     provider_class: &quot;YourProviderClient&quot;
@@ -1721,7 +1699,7 @@ class YourProviderClient(LLMProviderClientBase):
     your_api_key: &quot;${oc.env:YOUR_API_KEY,???}&quot;
     your_base_url: &quot;${oc.env:YOUR_BASE_URL,https://api.yourprovider.com/v1}&quot;
 </code></pre>
-<h3 id="4-set-environment">4. Set Environment</h3>
+<h3 id="3-set-environment">3. Set Environment</h3>
 <pre><code class="language-bash">export YOUR_API_KEY=&quot;your-key&quot;
 export YOUR_BASE_URL=&quot;https://api.yourprovider.com/v1&quot;  # optional if using default
 </code></pre>
