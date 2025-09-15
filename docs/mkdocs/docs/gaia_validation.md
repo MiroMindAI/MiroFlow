@@ -24,7 +24,9 @@ This section provides step-by-step instructions to reproduce our GAIA validation
 
 ### Step 1: Prepare the GAIA Validation Dataset
 
-First, download and prepare the GAIA validation dataset:
+Please follow the Dataset Download Instructions from previous section.
+
+Alternatively, you can manually download and set up the dataset as follows:
 ```bash
 cd data
 wget https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/gaia-val.zip

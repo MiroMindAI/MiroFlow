@@ -31,6 +31,7 @@ nav:
 
   - Evaluation:
     - Overview: evaluation_overview.md
+    - Download Datasets: download_datasets.md
     - Benchmarks: 
       - GAIA-Validation: gaia_validation.md
       - GAIA-Test: gaia_test.md
