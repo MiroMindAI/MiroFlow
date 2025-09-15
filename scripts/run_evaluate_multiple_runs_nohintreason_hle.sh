@@ -48,6 +48,7 @@ for i in $(seq 1 $NUM_RUNS); do
             benchmark.execution.max_tasks=null \
             benchmark.execution.max_concurrent=$MAX_CONCURRENT \
             benchmark.execution.pass_at_k=1 \
+            output_dir="$RESULTS_DIR/$RUN_ID" \
             hydra.run.dir=${RESULTS_DIR}/$RUN_ID \
             > "$RESULTS_DIR/${RUN_ID}_output.log" 2>&1
         
