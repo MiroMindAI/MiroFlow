@@ -38,13 +38,7 @@ class YourProviderClient(LLMProviderClientBase):
         pass
 ```
 
-### 2. Register Provider
-Add to `src/llm/providers/__init__.py`:
-```python
-from .your_provider_client import YourProviderClient
-```
-
-### 3. Create Config
+### 2. Create Config
 ```yaml
 main_agent:
   llm: 
@@ -54,7 +48,7 @@ main_agent:
     your_base_url: "${oc.env:YOUR_BASE_URL,https://api.yourprovider.com/v1}"
 ```
 
-### 4. Set Environment
+### 3. Set Environment
 ```bash
 export YOUR_API_KEY="your-key"
 export YOUR_BASE_URL="https://api.yourprovider.com/v1"  # optional if using default
