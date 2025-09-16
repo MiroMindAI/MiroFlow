@@ -35,7 +35,6 @@ nav:
     - Benchmarks: 
       - GAIA-Validation: gaia_validation.md
       - GAIA-Test: gaia_test.md
-      - Prepare Benchmark Data from Original Source: prepare_benchmark_data_from_original_source.md
     - Add New Benchmarks: contribute_benchmarks.md
 
   - Tools: 

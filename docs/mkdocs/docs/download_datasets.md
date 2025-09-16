@@ -34,12 +34,32 @@ Before downloading the datasets, you need to:
 
 ## Download and Prepare Datasets
 
-Once you have been granted access to the required datasets, run the following script to download and prepare all benchmark datasets:
+Once you have been granted access to the required datasets, run the script `bash scripts/run_prepare_benchmark.sh` shown below to download and prepare all benchmark datasets. You may comment out any unwanted datasets:
 
-```bash
-bash scripts/run_prepare_benchmark.sh
 ```
+#!/bin/bash
+echo "Please grant access to these datasets:"
+echo "- https://huggingface.co/datasets/gaia-benchmark/GAIA"
+echo "- https://huggingface.co/datasets/cais/hle"
+echo
 
+read -p "Have you granted access? [Y/n]: " answer
+answer=${answer:-Y}
+if [[ ! $answer =~ ^[Yy] ]]; then
+    echo "Please grant access to the datasets first"
+    exit 1
+fi
+echo "Access confirmed"
+
+# Comment out any unwanted datasets by adding # at the start of the line
+uv run main.py prepare-benchmark get gaia-val
+uv run main.py prepare-benchmark get gaia-val-text-only
+uv run main.py prepare-benchmark get frames-test
+uv run main.py prepare-benchmark get webwalkerqa
+uv run main.py prepare-benchmark get browsecomp-test
+uv run main.py prepare-benchmark get browsecomp-zh-test
+uv run main.py prepare-benchmark get hle
+```
 This script will:
 1. Confirm that you have access to the required datasets
 2. Download and prepare the following benchmark datasets:
