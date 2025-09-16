@@ -21,7 +21,7 @@
 
 <div align="center">
 
-# 🚀 [Try our Demo!](https://dr.miromind.ai/) | 📚 [Full Documentation](https://miromindai.github.io/MiroFlow/)
+### 🚀 [Try our Demo!](https://dr.miromind.ai/) | 📚 [Full Documentation](https://miromindai.github.io/MiroFlow/)｜[中文](README_zh.md)｜[日本語](README_ja.md)
 
 </div>
 
