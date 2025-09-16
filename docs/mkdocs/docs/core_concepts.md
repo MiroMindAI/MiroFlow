@@ -2,35 +2,38 @@
 
 MiroFlow provides a flexible framework for building and deploying intelligent agents capable of complex reasoning and tool use.
 
+---
+
 ## Workflow Overview
 
-<div align="center">
-  <img src="../assets/miroflow_architecture.png" width="80%" alt="MiroFlow Architecture" />
+<div align="center" markdown="1">
+  ![MiroFlow Architecture](../assets/miroflow_architecture.png){ width="80%" }
 </div>
 
+!!! abstract "Multi-Stage Agentic Process"
+    MiroFlow handles user queries through a multi-stage and agentic process designed for flexibility and depth. The workflow is organized as follows:
 
-MiroFlow handles user queries through a multi-stage and agentic process designed for flexibility and depth. The workflow is organized as follows:
+    1. **Intent Recognition & Query Augmentation**  
+       LLMs analyze user input to detect intent and refine the query.
 
-1. **Intent Recognition & Query Augmentation**  
-   LLMs analyze user input to detect intent and refine the query.
+    2. **Planning & Task Orchestration**  
+       The main agent drafts an execution plan, invokes tools, and coordinates sub-agents.
 
-2. **Planning & Task Orchestration**  
-   The main agent drafts an execution plan, invokes tools, and coordinates sub-agents.
+    3. **Delegation to Sub-Agents**  
+       Specialized agents (e.g., agent-browsing) handle complex or domain-specific tasks. Sub-agents independently plan, act, and execute tool calls as needed.
 
-3. **Delegation to Sub-Agents**  
-   Specialized agents (e.g., agent-browsing) handle complex or domain-specific tasks. Sub-agents independently plan, act, and execute tool calls as needed.
+    4. **Tool Access via MCP Servers**  
+       When external capabilities are required, agents leverage specialized tools by connecting to MCP (Model Context Protocol) servers.
 
-4. **Tool Access via MCP Servers**  
-   When external capabilities are required, agents leverage specialized tools by connecting to MCP (Model Context Protocol) servers.
-
-5. **Result Synthesis & Output Alignment**  
-   After task completion, a dedicated summary process synthesizes results, ensuring the output is high-quality and aligned with user instructions (or benchmark formats).
+    5. **Result Synthesis & Output Alignment**  
+       After task completion, a dedicated summary process synthesizes results, ensuring the output is high-quality and aligned with user instructions (or benchmark formats).
 
 ## Architecture Components
 
-All core components are located in the `src/` directory.
+!!! info "Directory Structure"
+    All core components are located in the `src/` directory.
 
-```
+```bash title="Source Code Structure"
 src/
 ├── core/
 │   ├── pipeline.py                      # Pipeline: coordinates task execution
@@ -74,20 +77,36 @@ src/
     └── task_tracer.py                   # Task execution tracing
 ```
 
+---
 
 ### Core System 💻
 
-- **Pipeline** (`src/core/pipeline.py`): Main entry point that coordinates task execution, creates and manages all components, handles error recovery, and returns final results. Initializes LLM clients, tool managers, and orchestrator for complete task processing.
+!!! abstract "Core Components"
 
-- **Orchestrator** (`src/core/orchestrator.py`): Central coordination hub that manages multi-turn conversations, parses tool calls, executes tools, delegates to sub-agents, and handles the complete agent workflow. Supports features like message ID generation, Chinese context handling, and output formatting.
+    **Pipeline** (`src/core/pipeline.py`)
+    
+    Main entry point that coordinates task execution, creates and manages all components, handles error recovery, and returns final results. Initializes LLM clients, tool managers, and orchestrator for complete task processing.
 
-- **LLM Client** (`src/llm/client.py`): Unified interface supporting multiple language model providers including Anthropic Claude, OpenAI GPT, Google Gemini, Qwen, DeepSeek, and MiroThinker models. Provider-specific implementations in `src/llm/providers/` handle different API formats and capabilities.
+    **Orchestrator** (`src/core/orchestrator.py`)
+    
+    Central coordination hub that manages multi-turn conversations, parses tool calls, executes tools, delegates to sub-agents, and handles the complete agent workflow. Supports features like message ID generation, Chinese context handling, and output formatting.
+
+    **LLM Client** (`src/llm/client.py`)
+    
+    Unified interface supporting multiple language model providers including Anthropic Claude, OpenAI GPT, Google Gemini, Qwen, DeepSeek, and MiroThinker models. Provider-specific implementations in `src/llm/providers/` handle different API formats and capabilities.
 
 ### Tool Integration 🔧
 
-- **Tool Manager** (`src/tool/manager.py`): Comprehensive MCP server connection manager that handles tool discovery, maintains persistent connections, manages tool blacklisting, and provides error handling. Supports both local and remote MCP servers with automatic tool definition retrieval.
+!!! note "Tool System Components"
 
-- **MCP Servers** (`src/tool/mcp_servers/`): Individual tool implementations built on FastMCP protocol. Provides extensive capabilities including:
+    **Tool Manager** (`src/tool/manager.py`)
+    
+    Comprehensive MCP server connection manager that handles tool discovery, maintains persistent connections, manages tool blacklisting, and provides error handling. Supports both local and remote MCP servers with automatic tool definition retrieval.
+
+    **MCP Servers** (`src/tool/mcp_servers/`)
+    
+    Individual tool implementations built on FastMCP protocol. Provides extensive capabilities including:
+    
     - **Code Execution** (`python_server.py`): E2B-powered Python sandbox for safe code execution with pre-installed packages
     - **Visual Perception** (`vision_mcp_server.py`): Image and video analysis capabilities with format detection
     - **Web Search** (`searching_mcp_server.py`): Google search integration with content filtering and retrieval
@@ -99,38 +118,58 @@ src/
 
 ### Agent System 👷
 
-**Main Agent**  
-The primary agent that receives user tasks and coordinates the overall execution. It can directly use reasoning tools and delegate complex tasks to specialized sub-agents. Main agents support different prompt classes for various benchmarks and use cases.
+!!! example "Agent Architecture"
 
-**Sub-Agents**  
-Specialized agents designed for specific domains and capabilities:
-- **`agent-worker`**: General-purpose sub-agent with access to comprehensive tool sets including web search, file processing, code execution, audio/video analysis, and document reading
-- Each sub-agent maintains dedicated tool configurations and custom prompts
-- Sub-agents can operate independently with their own LLM configurations and turn limits
-- Agent definitions and prompts are managed through the configuration system in `config/agent_prompts/`
+    **Main Agent**
+    
+    The primary agent that receives user tasks and coordinates the overall execution. It can directly use reasoning tools and delegate complex tasks to specialized sub-agents. Main agents support different prompt classes for various benchmarks and use cases.
+
+    **Sub-Agents**
+    
+    Specialized agents designed for specific domains and capabilities:
+    
+    - **`agent-worker`**: General-purpose sub-agent with access to comprehensive tool sets including web search, file processing, code execution, audio/video analysis, and document reading
+    - Each sub-agent maintains dedicated tool configurations and custom prompts
+    - Sub-agents can operate independently with their own LLM configurations and turn limits
+    - Agent definitions and prompts are managed through the configuration system in `config/agent_prompts/`
+
+---
 
 ### Support Systems ⚙️
 
-- **Configuration System** (`config/`): Hydra-powered YAML configuration for agents, LLMs, and benchmarks
+!!! tip "Supporting Infrastructure"
 
-- **Output Formatter** (`src/utils/io_utils.py`): Intelligent response formatting that adapts to various benchmark requirements
+    **Configuration System** (`config/`)
+    
+    Hydra-powered YAML configuration for agents, LLMs, and benchmarks
 
-- **Parsing Utilities** (`src/utils/parsing_utils.py`): Text parsing and processing utilities
+    **Output Formatter** (`src/utils/io_utils.py`)
+    
+    Intelligent response formatting that adapts to various benchmark requirements
 
-- **Summary Utilities** (`src/utils/summary_utils.py`): Summary generation and processing utilities
+    **Parsing Utilities** (`src/utils/parsing_utils.py`)
+    
+    Text parsing and processing utilities
 
-- **Task Logger** (`src/logging/`): Comprehensive logging for agent interactions, tool executions, and performance metrics
+    **Summary Utilities** (`src/utils/summary_utils.py`)
+    
+    Summary generation and processing utilities
+
+    **Task Logger** (`src/logging/`)
+    
+    Comprehensive logging for agent interactions, tool executions, and performance metrics
 
 
 
 
 ## Configuration
 
-MiroFlow uses a flat Hydra-based configuration system with agent configurations directly in the `config/` directory. Each agent configuration combines LLM settings, tool configurations, and agent behavior parameters.
+!!! info "Configuration System"
+    MiroFlow uses a flat Hydra-based configuration system with agent configurations directly in the `config/` directory. Each agent configuration combines LLM settings, tool configurations, and agent behavior parameters.
 
 ### Configuration Structure
 
-```
+```bash title="Configuration Directory"
 config/
 ├── agent_quickstart_1.yaml       # Quick start agent configuration
 ├── agent_gaia-validation.yaml    # GAIA validation agent configuration  
@@ -154,136 +193,156 @@ config/
 └── no-in-use-*/                  # Archive of legacy configurations
 ```
 
-### Agent Configuration Example (`config/agent_quickstart_1.yaml`)
+---
 
-```yaml
-defaults:
-  - benchmark: gaia-validation
-  - override hydra/job_logging: none
-  - _self_
+### Agent Configuration Example
 
-main_agent:
-  prompt_class: MainAgentPromptBoxedAnswer
-  llm: 
-    provider_class: "ClaudeOpenRouterClient"
-    model_name: "anthropic/claude-3.7-sonnet"
-    temperature: 0.3
-    max_tokens: 32000
-    openrouter_api_key: "${oc.env:OPENROUTER_API_KEY,???}"
-    openrouter_base_url: "${oc.env:OPENROUTER_BASE_URL,https://openrouter.ai/api/v1}"
-  
-  tool_config: []  # Main agent with no tools (basic setup)
-  max_turns: -1
-  max_tool_calls_per_turn: 10
-  add_message_id: true
-  chinese_context: "${oc.env:CHINESE_CONTEXT,false}"
+!!! example "Basic Agent Configuration - `config/agent_quickstart_1.yaml`"
 
-sub_agents:
-  agent-worker:
-    prompt_class: SubAgentWorkerPrompt
-    llm: 
-      provider_class: "ClaudeOpenRouterClient"
-      model_name: "anthropic/claude-3.7-sonnet"
-      temperature: 0.3
-      max_tokens: 32000
-      openrouter_api_key: "${oc.env:OPENROUTER_API_KEY,???}"
+    ```yaml title="agent_quickstart_1.yaml"
+    defaults:
+      - benchmark: gaia-validation
+      - override hydra/job_logging: none
+      - _self_
     
-    tool_config:
-      - tool-reading  # Document processing capability
-    max_turns: -1
-    max_tool_calls_per_turn: 10
+    main_agent:
+      prompt_class: MainAgentPromptBoxedAnswer
+      llm: 
+        provider_class: "ClaudeOpenRouterClient"
+        model_name: "anthropic/claude-3.7-sonnet"
+        temperature: 0.3
+        max_tokens: 32000
+        openrouter_api_key: "${oc.env:OPENROUTER_API_KEY,???}"
+        openrouter_base_url: "${oc.env:OPENROUTER_BASE_URL,https://openrouter.ai/api/v1}"
+      
+      tool_config: []  # Main agent with no tools (basic setup)
+      max_turns: -1
+      max_tool_calls_per_turn: 10
+      add_message_id: true
+      chinese_context: "${oc.env:CHINESE_CONTEXT,false}"
+    
+    sub_agents:
+      agent-worker:
+        prompt_class: SubAgentWorkerPrompt
+        llm: 
+          provider_class: "ClaudeOpenRouterClient"
+          model_name: "anthropic/claude-3.7-sonnet"
+          temperature: 0.3
+          max_tokens: 32000
+          openrouter_api_key: "${oc.env:OPENROUTER_API_KEY,???}"
+        
+        tool_config:
+          - tool-reading  # Document processing capability
+        max_turns: -1
+        max_tool_calls_per_turn: 10
+    
+    output_dir: logs/
+    data_dir: "${oc.env:DATA_DIR,data}"
+    ```
 
-output_dir: logs/
-data_dir: "${oc.env:DATA_DIR,data}"
-```
+### Advanced Agent Configuration
 
-### Advanced Agent Configuration (`config/agent_gaia-validation.yaml`)
+!!! example "Advanced Configuration - `config/agent_gaia-validation.yaml`"
 
-```yaml
-main_agent:
-  prompt_class: MainAgentPrompt_GAIA
-  llm: 
-    provider_class: "ClaudeOpenRouterClient"
-    model_name: "anthropic/claude-3.7-sonnet"
-    temperature: 0.3
-    max_tokens: 32000
-  
-  tool_config:
-    - tool-reasoning  # Enhanced reasoning capabilities
-  
-  input_process:
-    o3_hint: true      # Use O3 hints for better performance
-  output_process:
-    o3_final_answer: true  # Extract final answers using O3
+    ```yaml title="agent_gaia-validation.yaml"
+    main_agent:
+      prompt_class: MainAgentPrompt_GAIA
+      llm: 
+        provider_class: "ClaudeOpenRouterClient"
+        model_name: "anthropic/claude-3.7-sonnet"
+        temperature: 0.3
+        max_tokens: 32000
+      
+      tool_config:
+        - tool-reasoning  # Enhanced reasoning capabilities
+      
+      input_process:
+        o3_hint: true      # Use O3 hints for better performance
+      output_process:
+        o3_final_answer: true  # Extract final answers using O3
+    
+    sub_agents:
+      agent-worker:
+        tool_config:
+          - tool-searching     # Web search capabilities
+          - tool-image-video   # Visual content processing
+          - tool-reading       # Document processing
+          - tool-code         # Code execution
+          - tool-audio        # Audio processing
+    ```
 
-sub_agents:
-  agent-worker:
-    tool_config:
-      - tool-searching     # Web search capabilities
-      - tool-image-video   # Visual content processing
-      - tool-reading       # Document processing
-      - tool-code         # Code execution
-      - tool-audio        # Audio processing
-```
+### Tool Configuration
 
-### Tool Configuration (`config/tool/tool-searching.yaml`)
+!!! note "Tool Configuration Example - `config/tool/tool-searching.yaml`"
 
-```yaml
-name: "tool-searching"
-tool_command: "python"
-args:
-  - "-m"
-  - "src.tool.mcp_servers.searching_mcp_server"
-env:
-  SERPER_API_KEY: "${oc.env:SERPER_API_KEY}"
-  JINA_API_KEY: "${oc.env:JINA_API_KEY}"
-  REMOVE_SNIPPETS: "${oc.env:REMOVE_SNIPPETS,false}"
-  REMOVE_KNOWLEDGE_GRAPH: "${oc.env:REMOVE_KNOWLEDGE_GRAPH,false}"
-  REMOVE_ANSWER_BOX: "${oc.env:REMOVE_ANSWER_BOX,false}"
-```
+    ```yaml title="tool-searching.yaml"
+    name: "tool-searching"
+    tool_command: "python"
+    args:
+      - "-m"
+      - "src.tool.mcp_servers.searching_mcp_server"
+    env:
+      SERPER_API_KEY: "${oc.env:SERPER_API_KEY}"
+      JINA_API_KEY: "${oc.env:JINA_API_KEY}"
+      REMOVE_SNIPPETS: "${oc.env:REMOVE_SNIPPETS,false}"
+      REMOVE_KNOWLEDGE_GRAPH: "${oc.env:REMOVE_KNOWLEDGE_GRAPH,false}"
+      REMOVE_ANSWER_BOX: "${oc.env:REMOVE_ANSWER_BOX,false}"
+    ```
 
-### Benchmark Configuration (`config/benchmark/gaia-validation.yaml`)
+### Benchmark Configuration
 
-```yaml
-defaults:
-  - default
-  - _self_
+!!! tip "Benchmark Configuration Example - `config/benchmark/gaia-validation.yaml`"
 
-name: "gaia-validation"
+    ```yaml title="gaia-validation.yaml"
+    defaults:
+      - default
+      - _self_
+    
+    name: "gaia-validation"
+    
+    data:
+      data_dir: "${oc.env:DATA_DIR,data}/gaia-val"
+    
+    execution:
+      max_tasks: null  # null means no limit
+      max_concurrent: 5
+    ```
 
-data:
-  data_dir: "${oc.env:DATA_DIR,data}/gaia-val"
-
-execution:
-  max_tasks: null  # null means no limit
-  max_concurrent: 5
-```
+---
 
 ## Key Features
 
-### Multi-Agent Architecture
-- **Main Agent**: Coordinates overall task execution and reasoning
-- **Sub-Agents**: Specialized agents with dedicated tool sets for specific domains
-- **Dynamic Delegation**: Intelligent task routing based on capability requirements
+!!! success "Architecture Highlights"
 
-### Advanced Configuration
-- **Flexible LLM Support**: Multiple provider integrations with unified interface
-- **Tool Modularity**: Mix and match tools based on task requirements  
-- **Benchmark Integration**: Pre-configured setups for popular AI benchmarks
-- **Environment Management**: Secure API key and environment variable handling
+    **Multi-Agent Architecture**
+    
+    - **Main Agent**: Coordinates overall task execution and reasoning
+    - **Sub-Agents**: Specialized agents with dedicated tool sets for specific domains
+    - **Dynamic Delegation**: Intelligent task routing based on capability requirements
 
-### Production Features
-- **Error Recovery**: Robust error handling and graceful degradation
-- **Logging & Tracing**: Comprehensive task execution monitoring
-- **Concurrent Execution**: Parallel task processing capabilities
-- **Resource Management**: Efficient tool connection pooling and cleanup
+    **Advanced Configuration**
+    
+    - **Flexible LLM Support**: Multiple provider integrations with unified interface
+    - **Tool Modularity**: Mix and match tools based on task requirements  
+    - **Benchmark Integration**: Pre-configured setups for popular AI benchmarks
+    - **Environment Management**: Secure API key and environment variable handling
+
+    **Production Features**
+    
+    - **Error Recovery**: Robust error handling and graceful degradation
+    - **Logging & Tracing**: Comprehensive task execution monitoring
+    - **Concurrent Execution**: Parallel task processing capabilities
+    - **Resource Management**: Efficient tool connection pooling and cleanup
+
+---
 
 ## Examples
 
 Check out our [example applications](applications.md) to see agents in action.
 
 ---
-**Last Updated:** Sep 2025  
-**Doc Contributor:** Team @ MiroMind AI
+
+!!! info "Documentation Info"
+    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
 
 

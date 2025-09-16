@@ -2,23 +2,36 @@
 
 MiroFlow achieves state-of-the-art performance across multiple agentic benchmarks, demonstrating its effectiveness in complex reasoning and tool-use tasks.
 
+---
+
 ## Performance on Future Prediction
 
-<div align="center">
-  <img src="../assets/futurex-09-12.png" width="100%" alt="Future X Performance Results" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+!!! success "Future X Benchmark Results"
+    MiroFlow demonstrates exceptional performance in future prediction tasks.
+
+<div align="center" markdown="1">
+  ![Future X Performance Results](../assets/futurex-09-12.png){ width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" }
 </div>
 
+---
 
 ## ✨ Performance on Benchmarks
 
-<div align="center">
-  <img src="../assets/miroflow-0.2-performance_short.png" width="100%" alt="Comprehensive Benchmark Performance Comparison" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+!!! abstract "Comprehensive Benchmark Analysis"
+    We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **BrowseComp** and **xBench-DeepSearch**.
+
+<div align="center" markdown="1">
+  ![Comprehensive Benchmark Performance Comparison](../assets/miroflow-0.2-performance_short.png){ width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" }
 </div>
 
-We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **BrowseComp** and **xBench-DeepSearch**.
+---
 
 ## Other Benchmark Results
 
+!!! info "Detailed Performance Comparison"
+    Comprehensive comparison across multiple benchmark categories and competing frameworks.
+
+### Reasoning & Language Understanding
 
 | Model/Framework | GAIA Val | HLE | HLE-Text |
 |----------------|----------|-----|----------|
@@ -30,6 +43,7 @@ We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **B
 | Manus | 73.3% | - | - |
 | DeepSeek v3.1 | - | - | **29.8%** |
 
+### Web Browsing & Search Tasks
 
 | Model/Framework | BrowserComp-EN | BrowserComp-ZH | xBench-DeepSearch |
 |----------------|----------------|----------------|-------------------|
@@ -40,8 +54,10 @@ We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **B
 | WebSailor-72B | - | 30.1% | 55.0% |
 | DeepSeek v3.1 | - | - | 71.2% |
 
+
 ---
-**Last Updated:** Sep 2025  
-**Doc Contributor:** Team @ MiroMind AI
+
+!!! info "Documentation Info"
+    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
 
 

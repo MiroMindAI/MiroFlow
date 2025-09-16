@@ -1,33 +1,42 @@
 # GAIA Validation
 
+MiroFlow's performance on the GAIA validation benchmark demonstrates state-of-the-art capabilities in complex reasoning tasks.
+
+---
+
 ## Performance Comparison
 
-MiroFlow achieves **state-of-the-art (SOTA) performance** among open-source agent frameworks on the GAIA validation set:
+!!! success "State-of-the-Art Performance"
+    MiroFlow achieves **state-of-the-art (SOTA) performance** among open-source agent frameworks on the GAIA validation set.
 
-
-<div align="center">
-  <img src="../assets/gaia_score.png" width="100%" alt="GAIA Validation Performance" />
+<div align="center" markdown="1">
+  ![GAIA Validation Performance](../assets/gaia_score.png){ width="100%" }
 </div>
 
-**Key Performance Metrics:**
+!!! abstract "Key Performance Metrics"
+    - **Pass@3**: **81.8%**
+    - **Majority Vote**: **82.4%**
+    - **Pass@1 (best@3)**: **74.5%**
+    - **Pass@1 (avg@3)**: **72.2%**
 
-- **Pass@3**: **81.8%**
-- **Majority Vote**: **82.4%**
-- **Pass@1 (best@3)**: **74.5%**
-- **Pass@1 (avg@3)**: **72.2%**
+!!! info "Reproducibility Guarantee"
+    Unlike other frameworks with unclear evaluation methods, MiroFlow's results are **fully reproducible**. Note that Hugging Face access was disabled during inference to prevent direct answer retrieval.
 
-Unlike other frameworks with unclear evaluation methods, MiroFlow's results are **fully reproducible**. Note that Hugging Face access was disabled during inference to prevent direct answer retrieval
+---
 
 ## Reproduction Guide
 
-This section provides step-by-step instructions to reproduce our GAIA validation benchmark results. All results are fully reproducible using our open-source framework.
+!!! note "Reproducibility Instructions"
+    This section provides step-by-step instructions to reproduce our GAIA validation benchmark results. All results are fully reproducible using our open-source framework.
 
 ### Step 1: Prepare the GAIA Validation Dataset
 
-Please follow the Dataset Download Instructions from previous section.
+!!! tip "Dataset Setup"
+    Please follow the Dataset Download Instructions from previous section.
 
 Alternatively, you can manually download and set up the dataset as follows:
-```bash
+
+```bash title="Manual Dataset Download"
 cd data
 wget https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/gaia-val.zip
 unzip gaia-val.zip
@@ -37,10 +46,10 @@ unzip gaia-val.zip
 
 ### Step 2: Configure API Keys
 
-Set up the required API keys for model access and tool functionality. Update the `.env` file to include the following keys:
+!!! warning "API Key Configuration"
+    Set up the required API keys for model access and tool functionality. Update the `.env` file to include the following keys:
 
-```
-
+```env title=".env Configuration"
 # For searching and scraping
 SERPER_API_KEY="xxx"
 JINA_API_KEY="xxx"
@@ -61,37 +70,46 @@ GEMINI_API_KEY="xxx"
 # Use for llm judge, reasoning, o3 hints, etc.
 OPENAI_API_KEY="xxx"
 OPENAI_BASE_URL="https://api.openai.com/v1"
-
-
 ```
 
 
 ### Step 3: Run the Evaluation
 
-Execute the following command to run a single evaluation pass on the GAIA validation dataset:
+!!! example "Evaluation Execution"
+    Execute the following command to run a single evaluation pass on the GAIA validation dataset:
 
-```
+```bash title="Run GAIA Validation"
 uv run main.py common-benchmark --config_file_name=agent_gaia-validation output_dir="logs/gaia-validation/$(date +"%Y%m%d_%H%M")"
 ```
 
-To check the progress while running:
-```
-uv run uv run utils/progress_check/check_gaia_progress.py $PATH_TO_LOG
-```
+!!! tip "Progress Monitoring and Resume"
+    To check the progress while running:
+    
+    ```bash title="Check Progress"
+    uv run uv run utils/progress_check/check_gaia_progress.py $PATH_TO_LOG
+    ```
+    If you need to resume an interrupted evaluation, specify the same output directory to continue from where you left off.
 
+    ```bash title="Resume Evaluation, e.g."
+    uv run main.py common-benchmark --config_file_name=agent_gaia-validation --output_dir="logs/gaia-validation/20251225_1430"
+    ```
+
+---
 
 ## Traces
 
-We have released our complete execution traces for the `gaia-validation` dataset on Hugging Face. This comprehensive collection includes a full run of 165 tasks with an overall accuracy of 73.94%. You can download them using the following command:
+!!! info "Complete Execution Traces"
+    We have released our complete execution traces for the `gaia-validation` dataset on Hugging Face. This comprehensive collection includes a full run of 165 tasks with an overall accuracy of 73.94%.
 
-```bash
+You can download them using the following command:
+
+```bash title="Download Execution Traces"
 wget https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/gaia_validation_miroflow_trace_public_20250825.zip
 unzip gaia_validation_miroflow_trace_public_20250825.zip
 # The unzip passcode is: `pf4*`.
 ```
 
-
-
 ---
-**Last Updated:** Sep 2025  
-**Doc Contributor:** Team @ MiroMind AI
+
+!!! info "Documentation Info"
+    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI

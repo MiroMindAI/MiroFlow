@@ -14,6 +14,23 @@ theme:
     - header.autohide
     - navigation.tabs
 
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - attr_list
+  - md_in_html
+  - tables
+
 
 repo_name: MiroFlow
 repo_url: https://github.com/MiroMindAI/MiroFlow
@@ -42,7 +59,8 @@ nav:
     - Tools:
       - tool-reasoning: tool_reasoning.md
       - tool-vqa: tool_vqa.md
-      - e2b-extension: e2b_extension.md
+    - Advanced Features:
+      - E2B Advanced Features: e2b_advanced_features.md
     - Add New Tools: contribute_tools.md
 
   - LLM Clients: 
@@ -59,7 +77,7 @@ nav:
     - 📚 All About Agents: all_about_agents.md
     - 📊 Open Source Data: data.md
     - 📱 Applications: applications.md
-    - 🐛 FAQs and Known Issues: faq_and_known_issues.md
+    - 🐛 FAQs: faqs.md
     - 📝 Contributors: contributors.md
 
 
