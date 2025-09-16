@@ -1540,12 +1540,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../faq_and_known_issues/" class="md-nav__link">
+      <a href="../faqs/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    🐛 FAQs and Known Issues
+    🐛 FAQs
     
   </span>
   
@@ -1692,33 +1692,52 @@
 
 
 <h1 id="gaia-validation">GAIA Validation</h1>
+<p>MiroFlow's performance on the GAIA validation benchmark demonstrates state-of-the-art capabilities in complex reasoning tasks.</p>
+<hr />
 <h2 id="performance-comparison">Performance Comparison</h2>
-<p>MiroFlow achieves <strong>state-of-the-art (SOTA) performance</strong> among open-source agent frameworks on the GAIA validation set:</p>
-<div align="center">
-  <img src="../assets/gaia_score.png" width="100%" alt="GAIA Validation Performance" />
+<div class="admonition success">
+<p class="admonition-title">State-of-the-Art Performance</p>
+<p>MiroFlow achieves <strong>state-of-the-art (SOTA) performance</strong> among open-source agent frameworks on the GAIA validation set.</p>
 </div>
-
-<p><strong>Key Performance Metrics:</strong></p>
+<div align="center">
+<p><img alt="GAIA Validation Performance" src="../assets/gaia_score.png" width="100%" /></p>
+</div>
+<div class="admonition abstract">
+<p class="admonition-title">Key Performance Metrics</p>
 <ul>
 <li><strong>Pass@3</strong>: <strong>81.8%</strong></li>
 <li><strong>Majority Vote</strong>: <strong>82.4%</strong></li>
 <li><strong>Pass@1 (best@3)</strong>: <strong>74.5%</strong></li>
 <li><strong>Pass@1 (avg@3)</strong>: <strong>72.2%</strong></li>
 </ul>
-<p>Unlike other frameworks with unclear evaluation methods, MiroFlow's results are <strong>fully reproducible</strong>. Note that Hugging Face access was disabled during inference to prevent direct answer retrieval</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Reproducibility Guarantee</p>
+<p>Unlike other frameworks with unclear evaluation methods, MiroFlow's results are <strong>fully reproducible</strong>. Note that Hugging Face access was disabled during inference to prevent direct answer retrieval.</p>
+</div>
+<hr />
 <h2 id="reproduction-guide">Reproduction Guide</h2>
+<div class="admonition note">
+<p class="admonition-title">Reproducibility Instructions</p>
 <p>This section provides step-by-step instructions to reproduce our GAIA validation benchmark results. All results are fully reproducible using our open-source framework.</p>
+</div>
 <h3 id="step-1-prepare-the-gaia-validation-dataset">Step 1: Prepare the GAIA Validation Dataset</h3>
+<div class="admonition tip">
+<p class="admonition-title">Dataset Setup</p>
 <p>Please follow the Dataset Download Instructions from previous section.</p>
-<p>Alternatively, you can manually download and set up the dataset as follows:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>data
+</div>
+<p>Alternatively, you can manually download and set up the dataset as follows:</p>
+<div class="highlight"><span class="filename">Manual Dataset Download</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>data
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>wget<span class="w"> </span>https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/gaia-val.zip
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>unzip<span class="w"> </span>gaia-val.zip
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># The unzip passcode is: `pf4*`</span>
-</code></pre></div></p>
+</code></pre></div>
 <h3 id="step-2-configure-api-keys">Step 2: Configure API Keys</h3>
+<div class="admonition warning">
+<p class="admonition-title">API Key Configuration</p>
 <p>Set up the required API keys for model access and tool functionality. Update the <code>.env</code> file to include the following keys:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># For searching and scraping
+</div>
+<div class="highlight"><span class="filename">.env Configuration</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># For searching and scraping
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>SERPER_API_KEY=&quot;xxx&quot;
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>JINA_API_KEY=&quot;xxx&quot;
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
@@ -1740,21 +1759,37 @@
 <a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>OPENAI_BASE_URL=&quot;https://api.openai.com/v1&quot;
 </code></pre></div>
 <h3 id="step-3-run-the-evaluation">Step 3: Run the Evaluation</h3>
+<div class="admonition example">
+<p class="admonition-title">Evaluation Execution</p>
 <p>Execute the following command to run a single evaluation pass on the GAIA validation dataset:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv run main.py common-benchmark --config_file_name=agent_gaia-validation output_dir=&quot;logs/gaia-validation/$(date +&quot;%Y%m%d_%H%M&quot;)&quot;
+</div>
+<div class="highlight"><span class="filename">Run GAIA Validation</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span>--config_file_name<span class="o">=</span>agent_gaia-validation<span class="w"> </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/gaia-validation/</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y%m%d_%H%M&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
 </code></pre></div>
-<p>To check the progress while running:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv run uv run utils/progress_check/check_gaia_progress.py $PATH_TO_LOG
-</code></pre></div></p>
+<div class="admonition tip">
+<p class="admonition-title">Progress Monitoring and Resume</p>
+<p>To check the progress while running:</p>
+<p><div class="highlight"><span class="filename">Check Progress</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>utils/progress_check/check_gaia_progress.py<span class="w"> </span><span class="nv">$PATH_TO_LOG</span>
+</code></pre></div>
+If you need to resume an interrupted evaluation, specify the same output directory to continue from where you left off.</p>
+<div class="highlight"><span class="filename">Resume Evaluation, e.g.</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span>--config_file_name<span class="o">=</span>agent_gaia-validation<span class="w"> </span>--output_dir<span class="o">=</span><span class="s2">&quot;logs/gaia-validation/20251225_1430&quot;</span>
+</code></pre></div>
+</div>
+<hr />
 <h2 id="traces">Traces</h2>
-<p>We have released our complete execution traces for the <code>gaia-validation</code> dataset on Hugging Face. This comprehensive collection includes a full run of 165 tasks with an overall accuracy of 73.94%. You can download them using the following command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>wget<span class="w"> </span>https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/gaia_validation_miroflow_trace_public_20250825.zip
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>unzip<span class="w"> </span>gaia_validation_miroflow_trace_public_20250825.zip
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># The unzip passcode is: `pf4*`.</span>
+<div class="admonition info">
+<p class="admonition-title">Complete Execution Traces</p>
+<p>We have released our complete execution traces for the <code>gaia-validation</code> dataset on Hugging Face. This comprehensive collection includes a full run of 165 tasks with an overall accuracy of 73.94%.</p>
+</div>
+<p>You can download them using the following command:</p>
+<div class="highlight"><span class="filename">Download Execution Traces</span><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>wget<span class="w"> </span>https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/gaia_validation_miroflow_trace_public_20250825.zip
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>unzip<span class="w"> </span>gaia_validation_miroflow_trace_public_20250825.zip
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># The unzip passcode is: `pf4*`.</span>
 </code></pre></div>
 <hr />
-<p><strong>Last Updated:</strong> Sep 2025<br />
-<strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<div class="admonition info">
+<p class="admonition-title">Documentation Info</p>
+<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+</div>
 
 
 
