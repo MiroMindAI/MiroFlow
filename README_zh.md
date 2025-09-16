@@ -68,7 +68,7 @@
 
 ### 🌟 核心亮点
 
-- 🏆 **最先进的性能**: 在[多个智能体基准测试](https://miromindai.github.io/miroflow-private/v0.3/evaluation_overview/)中排名第一
+- 🏆 **最先进的性能**: 在[多个智能体基准测试](https://miromindai.github.io/MiroFlow/evaluation_overview/)中排名第一
 - 📊 **优质训练数据**: 通过 [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1) 精选的数据集
 - 🤖 **开源模型**: 在 [MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1) 的完整集合
 - 🔧 **完整训练栈**: 在 [MiroTrain](https://github.com/MiroMindAI/MiroTrain) 的 SFT/DPO 配方
@@ -133,11 +133,11 @@ uv run main.py trace --config_file_name=agent_quickstart_1 --task="What is the f
 - **HLE**: 人类最后的考试。([论文](https://arxiv.org/abs/2501.14249))
 - **HLE-Text-500**: HLE 的纯文本任务子集。([论文](https://arxiv.org/pdf/2504.21776))
 
-按照我们的详细指南在我们的[基准测试文档](https://miromindai.github.io/MiroFlow/v0.3/evaluation_overview/)中重现基准测试结果
+按照我们的详细指南在我们的[基准测试文档](https://miromindai.github.io/MiroFlow/evaluation_overview/)中重现基准测试结果
 
 # 🤖 MiroFlow: AI 智能体基础框架
 
-MiroFlow 是一个高性能、模块化的框架，用于构建在复杂推理任务上提供最先进结果的智能 AI 智能体。该框架具有先进的多轮对话功能、广泛的工具生态系统集成以及分层子智能体编排，以实现最佳任务完成。了解更多关于我们的智能体[工作流架构](https://miromindai.github.io/MiroFlow/v0.3/core_concepts/)。
+MiroFlow 是一个高性能、模块化的框架，用于构建在复杂推理任务上提供最先进结果的智能 AI 智能体。该框架具有先进的多轮对话功能、广泛的工具生态系统集成以及分层子智能体编排，以实现最佳任务完成。了解更多关于我们的智能体[工作流架构](https://miromindai.github.io/MiroFlow/core_concepts/)。
 
 <div align="center">
 <img src="docs/mkdocs/docs/assets/miroflow_architecture.png" width="100%" alt="MiroFlow 架构">
@@ -168,7 +168,7 @@ MiroFlow 是一个高性能、模块化的框架，用于构建在复杂推理�
 <details>
 <summary><strong>如何重现基准测试结果？</strong></summary>
 <br>
-按照我们详细的<a href="https://miromindai.github.io/MiroFlow/v0.3/evaluation_overview/">基准测试文档</a>获取逐步重现指南。
+按照我们详细的<a href="https://miromindai.github.io/MiroFlow/evaluation_overview/">基准测试文档</a>获取逐步重现指南。
 </details>
 
 <details>

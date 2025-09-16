@@ -68,7 +68,7 @@
 
 ### 🌟 主要ハイライト
 
-- 🏆 **最先端の性能**: [複数のエージェントベンチマーク](https://miromindai.github.io/miroflow-private/v0.3/evaluation_overview/)で1位ランキング
+- 🏆 **最先端の性能**: [複数のエージェントベンチマーク](https://miromindai.github.io/MiroFlow/evaluation_overview/)で1位ランキング
 - 📊 **プレミアムトレーニングデータ**: [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)による厳選されたデータセット
 - 🤖 **オープンモデル**: [MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)での完全なコレクション
 - 🔧 **完全なトレーニングスタック**: [MiroTrain](https://github.com/MiroMindAI/MiroTrain)でのSFT/DPOレシピ
@@ -133,11 +133,11 @@ uv run main.py trace --config_file_name=agent_quickstart_1 --task="What is the f
 - **HLE**: 人類最後の試験。([論文](https://arxiv.org/abs/2501.14249))
 - **HLE-Text-500**: テキストのみのタスクのためのHLEのサブセット。([論文](https://arxiv.org/pdf/2504.21776))
 
-詳細なガイドに従って、[ベンチマークドキュメント](https://miromindai.github.io/MiroFlow/v0.3/evaluation_overview/)でベンチマーク結果を再現してください
+詳細なガイドに従って、[ベンチマークドキュメント](https://miromindai.github.io/MiroFlow/evaluation_overview/)でベンチマーク結果を再現してください
 
 # 🤖 MiroFlow: AIエージェント基盤フレームワーク
 
-MiroFlowは、複雑な推論タスクで最先端の結果を提供する知的AIエージェントを構築するための高性能でモジュラーなフレームワークです。このフレームワークは、高度なマルチターン会話機能、広範囲なツールエコシステム統合、最適なタスク完了のための階層的サブエージェントオーケストレーションを特徴としています。エージェントの[ワークフローアーキテクチャ](https://miromindai.github.io/MiroFlow/v0.3/core_concepts/)についてもっと学んでください。
+MiroFlowは、複雑な推論タスクで最先端の結果を提供する知的AIエージェントを構築するための高性能でモジュラーなフレームワークです。このフレームワークは、高度なマルチターン会話機能、広範囲なツールエコシステム統合、最適なタスク完了のための階層的サブエージェントオーケストレーションを特徴としています。エージェントの[ワークフローアーキテクチャ](https://miromindai.github.io/MiroFlow/core_concepts/)についてもっと学んでください。
 
 <div align="center">
 <img src="docs/mkdocs/docs/assets/miroflow_architecture.png" width="100%" alt="MiroFlowアーキテクチャ">
@@ -168,7 +168,7 @@ MiroFlowは、複雑な推論タスクで最先端の結果を提供する知的
 <details>
 <summary><strong>ベンチマーク結果を再現するにはどうすればよいですか？</strong></summary>
 <br>
-ステップバイステップの再現ガイドについては、詳細な<a href="https://miromindai.github.io/MiroFlow/v0.3/evaluation_overview/">ベンチマークドキュメント</a>に従ってください。
+ステップバイステップの再現ガイドについては、詳細な<a href="https://miromindai.github.io/MiroFlow/evaluation_overview/">ベンチマークドキュメント</a>に従ってください。
 </details>
 
 <details>

@@ -70,7 +70,7 @@
 
 ### 🌟 Key Highlights
 
-- 🏆 **State-of-the-Art Performance**: #1 ranking across [multiple agentic benchmarks](https://miromindai.github.io/miroflow-private/v0.3/evaluation_overview/)
+- 🏆 **State-of-the-Art Performance**: #1 ranking across [multiple agentic benchmarks](https://miromindai.github.io/MiroFlow/evaluation_overview/)
 - 📊 **Premium Training Data**: Curated datasets via [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)
 - 🤖 **Open Models**: Complete collection at [MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)
 - 🔧 **Full Training Stack**: SFT/DPO recipes at [MiroTrain](https://github.com/MiroMindAI/MiroTrain)
@@ -137,11 +137,11 @@ uv run main.py trace --config_file_name=agent_quickstart_1 --task="What is the f
 - **HLE**: Humanity's Last Exam. ([paper](https://arxiv.org/abs/2501.14249))
 - **HLE-Text-500**: A subset of HLE for text-only tasks. ([paper](https://arxiv.org/pdf/2504.21776))
 
-Follow our detailed guides to reproduce benchmark results in our [Benchmarks Documentation](https://miromindai.github.io/MiroFlow/v0.3/evaluation_overview/)
+Follow our detailed guides to reproduce benchmark results in our [Benchmarks Documentation](https://miromindai.github.io/MiroFlow/evaluation_overview/)
 
 # 🤖 MiroFlow: AI Agentic Foundation Framework
 
-MiroFlow is a high-performance, modular framework for building intelligent AI agents that deliver state-of-the-art results on complex reasoning tasks. The framework features advanced multi-turn conversation capabilities, extensive tool ecosystem integration, and hierarchical sub-agent orchestration for optimal task completion. Learn more about our agent [workflow architecture](https://miromindai.github.io/MiroFlow/v0.3/core_concepts/).
+MiroFlow is a high-performance, modular framework for building intelligent AI agents that deliver state-of-the-art results on complex reasoning tasks. The framework features advanced multi-turn conversation capabilities, extensive tool ecosystem integration, and hierarchical sub-agent orchestration for optimal task completion. Learn more about our agent [workflow architecture](https://miromindai.github.io/MiroFlow/core_concepts/).
 
 <div align="center">
 <img src="docs/mkdocs/docs/assets/miroflow_architecture.png" width="100%" alt="MiroFlow Architecture">
@@ -172,7 +172,7 @@ Yes, MiroFlow supports various language models. Check our documentation for conf
 <details>
 <summary><strong>How do I reproduce the benchmark results?</strong></summary>
 <br>
-Follow our detailed <a href="https://miromindai.github.io/MiroFlow/v0.3/evaluation_overview/">Benchmarks Documentation</a> for step-by-step reproduction guides.
+Follow our detailed <a href="https://miromindai.github.io/MiroFlow/evaluation_overview/">Benchmarks Documentation</a> for step-by-step reproduction guides.
 </details>
 
 <details>
