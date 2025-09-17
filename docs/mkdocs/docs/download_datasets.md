@@ -78,6 +78,7 @@ uv run main.py prepare-benchmark get webwalkerqa
 uv run main.py prepare-benchmark get browsecomp-test
 uv run main.py prepare-benchmark get browsecomp-zh-test
 uv run main.py prepare-benchmark get hle
+uv run main.py prepare-benchmark get xbench-ds
 ```
 
 ### What This Script Does
@@ -92,6 +93,7 @@ uv run main.py prepare-benchmark get hle
         - `browsecomp-test` - English BrowseComp test set
         - `browsecomp-zh-test` - Chinese BrowseComp test set
         - `hle` - HLE dataset
+        - `xbench-ds` - xbench-DeepSearch dataset
 
 ### Customizing Dataset Selection
 
