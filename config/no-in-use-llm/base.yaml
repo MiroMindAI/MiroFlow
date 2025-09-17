@@ -1,5 +1,0 @@
-# config/llm/base.yaml - Default LLM configuration
-
-# General configurations
-async_client: true
-

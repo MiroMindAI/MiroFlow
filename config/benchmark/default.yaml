@@ -4,11 +4,6 @@ name: "default"
 
 data:
   metadata_file: "standardized_data.jsonl"
-  field_mapping:
-    task_id_field: "task_id"
-    task_question_field: "task_question"
-    ground_truth_field: "ground_truth"
-    file_name_field: "file_name"
   whitelist: []
 
 execution:

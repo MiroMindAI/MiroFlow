@@ -1,49 +1,57 @@
-# MiroFlow Documentation Commands
+# MiroFlow Documentation
 
-## Setup (one-time)
-```bash
-uv pip install mkdocs 
-uv pip install "mkdocs-material[imaging]"
-uv pip install mike
-```
+This directory contains the MkDocs documentation site using the Material theme.
 
-## How to add docs:
-https://squidfunk.github.io/mkdocs-material/setup/setting-up-versioning/?h=version
+## Setup
+
+Install required dependencies:
 
 ```bash
-
-# must run
-uv run mike set-default v0.3
-
-# to view locally
-uv run mike serve -a localhost:9999
-
-# to push to remote
-uv run mike deploy --push --update-aliases v0.3 latest
-
-# Other commands - may not be useful
-# uv run mike delete --all
-uv run mike set-default --push latest
-uv run mike build
-uv run mike deploy v0.3
+uv pip install mkdocs "mkdocs-material[imaging]"
 ```
-
-
-
-# Material Theme (no longer needed)
 
 ## Local Development
+
+Build and serve the documentation locally:
+
 ```bash
 cd docs/mkdocs
 uv run mkdocs build
 uv run mkdocs serve -a localhost:9999
 ```
-View at: http://localhost:8000
 
-## Deploy to GitHub Pages
+View at: http://localhost:9999
+
+## Deployment
+
+Deploy to GitHub Pages:
+
 ```bash
-cd docs/mkdocs/miroflow-project
+cd docs/mkdocs
 uv run mkdocs gh-deploy --force
 ```
+
 Live site: https://miromindai.github.io/MiroFlow/
+
+## Versioning (Optional, currently not in use)
+
+This function is not in use as we found that some theme functions are not available under `mike`.
+
+For versioned documentation using Mike:
+
+```bash
+# Install Mike
+uv pip install mike
+
+# Set default version
+uv run mike set-default v0.3
+
+# Deploy with version
+uv run mike deploy --push --update-aliases v0.3 latest
+
+# Serve versioned docs locally
+uv run mike serve -a localhost:9999
+```
+
+
 
