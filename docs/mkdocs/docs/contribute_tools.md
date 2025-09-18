@@ -62,13 +62,7 @@ sub_agents:
       - tool-audio
       - new-tool-name # 👈 Add your new tool here
     ...
-```
-
-
-## Examples
-- `tool-reasoning` – reasoning utilities  
-- `tool-image-video` – visual understanding  
-- `new-tool-name` – your custom tool  
+``` 
 
 ---
 

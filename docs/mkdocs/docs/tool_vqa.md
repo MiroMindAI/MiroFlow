@@ -2,30 +2,35 @@
 
 The Vision MCP Server enables OCR + Visual Question Answering (VQA) over images and multimodal understanding of YouTube videos, with pluggable backends (Anthropic, OpenAI, Google Gemini).
 
+---
+
 ## Environment Variables
-- `ENABLE_CLAUDE_VISION`: `"true"` to allow Anthropic Vision backend.
-- `ENABLE_OPENAI_VISION`: `"true"` to allow OpenAI Vision backend.
-- Anthropic related keys:
-  - `ANTHROPIC_API_KEY`
-  -  `ANTHROPIC_BASE_URL` : default = `https://api.anthropic.com`
-  -  `ANTHROPIC_MODEL_NAME` : default = `claude-3-7-sonnet-20250219`
-
-- OpenAI related keys:
-  - `OPENAI_API_KEY`
-  -  `OPENAI_BASE_URL` : default = `https://api.openai.com/v1`
-  -  `OPENAI_MODEL_NAME` : default = `gpt-4o`
-
-- Gemini related keys:
-  - `GEMINI_API_KEY`
-  -  `GEMINI_MODEL_NAME` : default = `gemini-2.5-pro`
+!!! warning "Where to Modify"
+    The `vision_mcp_server.py` reads environment variables that are passed through the `tool-image-video.yaml` configuration file, not directly from `.env` file.
+- Vision Backend Control:
+    - `ENABLE_CLAUDE_VISION`: `"true"` to allow Anthropic Vision backend.
+    - `ENABLE_OPENAI_VISION`: `"true"` to allow OpenAI Vision backend.
+- Anthropic Configuration:
+    - `ANTHROPIC_API_KEY`
+    -  `ANTHROPIC_BASE_URL` : default = `https://api.anthropic.com`
+    -  `ANTHROPIC_MODEL_NAME` : default = `claude-3-7-sonnet-20250219`
+- OpenAI Configuration:
+    - `OPENAI_API_KEY`
+    -  `OPENAI_BASE_URL` : default = `https://api.openai.com/v1`
+    -  `OPENAI_MODEL_NAME` : default = `gpt-4o`
+- Gemini Configuration:
+    - `GEMINI_API_KEY`
+    -  `GEMINI_MODEL_NAME` : default = `gemini-2.5-pro`
 
 
 ---
 
 ## `visual_question_answering(image_path_or_url: str, question: str)`
 Ask questions about an image. Runs **two passes**:
-1) **OCR pass** using the selected vision backend with a meticulous extraction prompt.
-2) **VQA pass** that analyzes the image and cross-checks against OCR text.
+
+1. **OCR pass** using the selected vision backend with a meticulous extraction prompt.
+
+2. **VQA pass** that analyzes the image and cross-checks against OCR text.
 
 **Parameters**
 
@@ -35,8 +40,8 @@ Ask questions about an image. Runs **two passes**:
 **Returns**
 
 - `str`: Concatenated text with:
-  - `OCR results: ...`
-  - `VQA result: ...`
+    - `OCR results: ...`
+    - `VQA result: ...`
 
 **Features**
 
@@ -45,7 +50,8 @@ Ask questions about an image. Runs **two passes**:
 ---
 
 ## `visual_audio_youtube_analyzing(url: str, question: str = "", provide_transcribe: bool = False)`
-Analyze **public YouTube videos** (audio + visual). Supports watch pages, Shorts, and Live VODs:
+Analyze **public YouTube videos** (audio + visual). Supports watch pages, Shorts, and Live VODs.
+
 - Accepted URL patterns: `youtube.com/watch`, `youtube.com/shorts`, `youtube.com/live`.
 
 **Parameters**
@@ -55,6 +61,7 @@ Analyze **public YouTube videos** (audio + visual). Supports watch pages, Shorts
 - `provide_transcribe` (optional, default `False`): If `True`, returns a **timestamped transcription** including salient events and brief visual descriptions.
 
 **Returns**
+
 - `str`: transcription of the video (if asked) and answer to the question.
 
 **Features**

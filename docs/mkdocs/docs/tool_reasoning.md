@@ -3,16 +3,17 @@
 The Reasoning MCP Server provides a **pure text-based reasoning engine**. It supports logical analysis, problem solving, and planning, using LLM backends (OpenAI or Anthropic) with retry and exponential backoff for robustness.
 
 ## Environment Variables
+!!! warning "Where to Modify"
+    The `reasoning_mcp_server.py` reads environment variables that are passed through the `tool-reasoning.yaml` configuration file, not directly from `.env` file.
+- OpenAI Configuration:
+    - `OPENAI_API_KEY`
+    - `OPENAI_BASE_URL` : default = `https://api.openai.com/v1`
+    - `OPENAI_MODEL_NAME` : default = `o3`
 
-- OpenAI related keys:
-  - `OPENAI_API_KEY`
-  - `OPENAI_BASE_URL` : default = `https://api.openai.com/v1`
-  - `OPENAI_MODEL_NAME` : default = `o3`
-
-- Anthropic related keys:
-  - `ANTHROPIC_API_KEY`
-  - `ANTHROPIC_BASE_URL` : default = `https://api.anthropic.com`
-  - `ANTHROPIC_MODEL_NAME` : default = `claude-3-7-sonnet-20250219`
+- Anthropic Configuration:
+    - `ANTHROPIC_API_KEY`
+    - `ANTHROPIC_BASE_URL` : default = `https://api.anthropic.com`
+    - `ANTHROPIC_MODEL_NAME` : default = `claude-3-7-sonnet-20250219`
 
 ---
 
