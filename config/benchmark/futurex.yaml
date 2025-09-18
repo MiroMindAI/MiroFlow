@@ -1,0 +1,20 @@
+# config/benchmark/futurex.yaml
+defaults:
+  - default
+  - _self_
+
+name: "futurex"
+
+data:
+  data_dir: "${data_dir}/futurex"  # Path to your dataset
+  metadata_file: "standardized_data.jsonl"  # Metadata filename
+  whitelist: []  # Optional: List of specific task_ids to run
+
+execution:
+  max_tasks: null      # null = no limit, or specify a number
+  max_concurrent: 5    # Number of parallel tasks
+  pass_at_k: 1         # Number of attempts per task
+
+# Set to skip evaluation since we don't have ground truth
+openai_api_key: "skip_evaluation"
+

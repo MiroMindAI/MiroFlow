@@ -79,6 +79,7 @@ uv run main.py prepare-benchmark get browsecomp-test
 uv run main.py prepare-benchmark get browsecomp-zh-test
 uv run main.py prepare-benchmark get hle
 uv run main.py prepare-benchmark get xbench-ds
+uv run main.py prepare-benchmark get futurex
 ```
 
 ### What This Script Does
@@ -94,6 +95,7 @@ uv run main.py prepare-benchmark get xbench-ds
         - `browsecomp-zh-test` - Chinese BrowseComp test set
         - `hle` - HLE dataset
         - `xbench-ds` - xbench-DeepSearch dataset
+        - `futurex` - Futurex-Online dataset
 
 ### Customizing Dataset Selection
 
