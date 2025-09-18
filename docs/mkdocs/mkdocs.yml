@@ -52,6 +52,7 @@ nav:
     - Benchmarks: 
       - GAIA-Validation: gaia_validation.md
       - GAIA-Test: gaia_test.md
+      - FutureX: futurex.md
     - Add New Benchmarks: contribute_benchmarks.md
 
   - Tools: 
