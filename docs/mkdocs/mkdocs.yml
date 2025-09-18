@@ -60,6 +60,8 @@ nav:
     - Tools:
       - tool-reasoning: tool_reasoning.md
       - tool-vqa: tool_vqa.md
+      - tool-searching: tool_searching.md
+      - tool-python: tool_python.md
     - Advanced Features:
       - E2B Advanced Features: e2b_advanced_features.md
     - Add New Tools: contribute_tools.md
