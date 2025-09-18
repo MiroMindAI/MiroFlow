@@ -57,7 +57,7 @@ JINA_API_KEY="xxx"
 # For Linux sandbox (code execution environment)
 E2B_API_KEY="xxx"
 
-# We use Claude-3.5-Sonnet with OpenRouter backend to initialize the LLM. The main reason is that OpenRouter provides better response rates
+# We use Claude-3.7-Sonnet with OpenRouter backend to initialize the LLM. The main reason is that OpenRouter provides better response rates
 OPENROUTER_API_KEY="xxx"
 OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
 
