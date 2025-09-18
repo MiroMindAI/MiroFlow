@@ -208,6 +208,7 @@ marimo/_lsp/
 __marimo__/
 
 logs/
+tmp/
 
 data/*
 !data/README.md
