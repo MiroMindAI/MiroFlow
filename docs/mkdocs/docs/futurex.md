@@ -97,7 +97,7 @@ uv run main.py common-benchmark --config_file_name=agent_quickstart_1 benchmark=
     After evaluation completion, extract the results using the provided utility:
 
 ```bash title="Extract Results"
-uv run utils/extract_futurex_results.py --log_dir logs/futurex/$(date +"%Y%m%d_%H%M")
+uv run utils/extract_futurex_results.py logs/futurex/$(date +"%Y%m%d_%H%M")
 ```
 
 This will generate:
