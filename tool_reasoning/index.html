@@ -627,29 +627,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../download_datasets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Download Datasets
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -662,10 +639,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
             
   
   
@@ -678,8 +655,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Benchmarks
           </label>
@@ -698,6 +675,29 @@
   
   <span class="md-ellipsis">
     GAIA-Validation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gaia_validation_text_only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GAIA-Validation-Text-Only
     
   </span>
   
@@ -757,6 +757,29 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Download Datasets
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -970,11 +993,26 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#function-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#reasoningquestion-str" class="md-nav__link">
     <span class="md-ellipsis">
       reasoning(question: str)
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1649,11 +1687,26 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#function-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#reasoningquestion-str" class="md-nav__link">
     <span class="md-ellipsis">
       reasoning(question: str)
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1678,50 +1731,63 @@
 
 <h1 id="reasoning-tools-reasoning_mcp_serverpy">Reasoning Tools (<code>reasoning_mcp_server.py</code>)</h1>
 <p>The Reasoning MCP Server provides a <strong>pure text-based reasoning engine</strong>. It supports logical analysis, problem solving, and planning, using LLM backends (OpenAI or Anthropic) with retry and exponential backoff for robustness.</p>
+<div class="admonition info">
+<p class="admonition-title">Available Functions</p>
+<p>This MCP server provides the following functions that agents can call:</p>
+<ul>
+<li><strong>Pure Text Reasoning</strong>: Logical analysis and problem solving using advanced LLM backends</li>
+<li><strong>Step-by-Step Analysis</strong>: Structured reasoning with detailed explanations</li>
+<li><strong>Multi-Backend Support</strong>: OpenAI or Anthropic models with automatic fallback</li>
+</ul>
+</div>
+<hr />
 <h2 id="environment-variables">Environment Variables</h2>
 <div class="admonition warning">
-<p class="admonition-title">Where to Modify</p>
+<p class="admonition-title">Configuration Location</p>
 <p>The <code>reasoning_mcp_server.py</code> reads environment variables that are passed through the <code>tool-reasoning.yaml</code> configuration file, not directly from <code>.env</code> file.</p>
 </div>
+<p><strong>OpenAI Configuration:</strong></p>
 <ul>
-<li>
-<p>OpenAI Configuration:</p>
-<ul>
-<li><code>OPENAI_API_KEY</code></li>
-<li><code>OPENAI_BASE_URL</code> : default = <code>https://api.openai.com/v1</code></li>
-<li><code>OPENAI_MODEL_NAME</code> : default = <code>o3</code></li>
+<li><code>OPENAI_API_KEY</code>: Required API key for OpenAI services</li>
+<li><code>OPENAI_BASE_URL</code>: Default = <code>https://api.openai.com/v1</code></li>
+<li><code>OPENAI_MODEL_NAME</code>: Default = <code>o3</code></li>
 </ul>
-</li>
-<li>
-<p>Anthropic Configuration:</p>
+<p><strong>Anthropic Configuration:</strong></p>
 <ul>
-<li><code>ANTHROPIC_API_KEY</code></li>
-<li><code>ANTHROPIC_BASE_URL</code> : default = <code>https://api.anthropic.com</code></li>
-<li><code>ANTHROPIC_MODEL_NAME</code> : default = <code>claude-3-7-sonnet-20250219</code></li>
-</ul>
-</li>
+<li><code>ANTHROPIC_API_KEY</code>: Required API key for Anthropic services</li>
+<li><code>ANTHROPIC_BASE_URL</code>: Default = <code>https://api.anthropic.com</code></li>
+<li><code>ANTHROPIC_MODEL_NAME</code>: Default = <code>claude-3-7-sonnet-20250219</code></li>
 </ul>
 <hr />
-<h2 id="reasoningquestion-str"><code>reasoning(question: str)</code></h2>
+<h2 id="function-reference">Function Reference</h2>
+<p>The following function is provided by the <code>reasoning_mcp_server.py</code> MCP tool and can be called by agents:</p>
+<h3 id="reasoningquestion-str"><code>reasoning(question: str)</code></h3>
 <p>Perform step-by-step reasoning, analysis, and planning over a <strong>text-only input</strong>. This tool is specialized for <strong>complex thinking tasks</strong>.</p>
-<p><strong>Parameters</strong></p>
+<div class="admonition note">
+<p class="admonition-title">Text-Only Processing</p>
+<p>This tool processes only the provided text input and will not fetch external data or context. Ensure all necessary information is included in the question.</p>
+</div>
+<p><strong>Parameters:</strong></p>
 <ul>
-<li><code>question</code>:  A detailed, complex question or problem statement that includes all necessary information. The tool will not fetch external data or context.</li>
+<li><code>question</code>: A detailed, complex question or problem statement that includes all necessary information</li>
 </ul>
-<p><strong>Returns</strong></p>
+<p><strong>Returns:</strong></p>
 <ul>
-<li><code>str</code>: A structured, step-by-step reasoned answer.</li>
+<li><code>str</code>: A structured, step-by-step reasoned answer</li>
 </ul>
-<p><strong>Features</strong></p>
+<p><strong>Features:</strong></p>
 <ul>
-<li>Runs on OpenAI or Anthropic models, depending on available API keys.</li>
-<li>Exponential backoff retry logic (up to 5 attempts).</li>
-<li>For Anthropic, uses <strong>Thinking mode</strong> with token budget (21k max, 19k thinking).</li>
-<li>Ensures non-empty responses with fallback error reporting.</li>
+<li>Runs on OpenAI or Anthropic models, depending on available API keys</li>
+<li>Exponential backoff retry logic (up to 5 attempts)</li>
+<li>For Anthropic, uses <strong>Thinking mode</strong> with token budget (21k max, 19k thinking)</li>
+<li>Ensures non-empty responses with fallback error reporting</li>
+<li>Automatic backend selection based on available API keys</li>
 </ul>
 <hr />
-<p><strong>Last Updated:</strong> Sep 2025<br />
-<strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<div class="admonition info">
+<p class="admonition-title">Documentation Info</p>
+<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+</div>
 
 
 

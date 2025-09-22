@@ -627,29 +627,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../download_datasets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Download Datasets
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -662,10 +639,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
             
   
   
@@ -678,8 +655,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Benchmarks
           </label>
@@ -698,6 +675,29 @@
   
   <span class="md-ellipsis">
     GAIA-Validation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gaia_validation_text_only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GAIA-Validation-Text-Only
     
   </span>
   
@@ -757,6 +757,29 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Download Datasets
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -993,6 +1016,16 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#function-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#visual_question_answeringimage_path_or_url-str-question-str" class="md-nav__link">
     <span class="md-ellipsis">
       visual_question_answering(image_path_or_url: str, question: str)
@@ -1000,13 +1033,18 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#visual_audio_youtube_analyzingurl-str-question-str-provide_transcribe-bool-false" class="md-nav__link">
     <span class="md-ellipsis">
       visual_audio_youtube_analyzing(url: str, question: str = "", provide_transcribe: bool = False)
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1658,6 +1696,16 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#function-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#visual_question_answeringimage_path_or_url-str-question-str" class="md-nav__link">
     <span class="md-ellipsis">
       visual_question_answering(image_path_or_url: str, question: str)
@@ -1665,13 +1713,18 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#visual_audio_youtube_analyzingurl-str-question-str-provide_transcribe-bool-false" class="md-nav__link">
     <span class="md-ellipsis">
       visual_audio_youtube_analyzing(url: str, question: str = "", provide_transcribe: bool = False)
     </span>
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1696,53 +1749,62 @@
 
 <h1 id="vision-tools-vision_mcp_serverpy">Vision Tools (<code>vision_mcp_server.py</code>)</h1>
 <p>The Vision MCP Server enables OCR + Visual Question Answering (VQA) over images and multimodal understanding of YouTube videos, with pluggable backends (Anthropic, OpenAI, Google Gemini).</p>
+<div class="admonition info">
+<p class="admonition-title">Available Functions</p>
+<p>This MCP server provides the following functions that agents can call:</p>
+<ul>
+<li><strong>Visual Question Answering</strong>: OCR and VQA analysis of images with dual-pass processing</li>
+<li><strong>YouTube Video Analysis</strong>: Audio and visual analysis of public YouTube videos</li>
+<li><strong>Multi-Backend Support</strong>: Configurable vision backends (Anthropic, OpenAI, Gemini)</li>
+</ul>
+</div>
 <hr />
 <h2 id="environment-variables">Environment Variables</h2>
 <div class="admonition warning">
-<p class="admonition-title">Where to Modify</p>
+<p class="admonition-title">Configuration Location</p>
 <p>The <code>vision_mcp_server.py</code> reads environment variables that are passed through the <code>tool-image-video.yaml</code> configuration file, not directly from <code>.env</code> file.</p>
 </div>
+<p><strong>Vision Backend Control:</strong></p>
 <ul>
-<li>Vision Backend Control:<ul>
-<li><code>ENABLE_CLAUDE_VISION</code>: <code>"true"</code> to allow Anthropic Vision backend.</li>
-<li><code>ENABLE_OPENAI_VISION</code>: <code>"true"</code> to allow OpenAI Vision backend.</li>
+<li><code>ENABLE_CLAUDE_VISION</code>: <code>"true"</code> to allow Anthropic Vision backend</li>
+<li><code>ENABLE_OPENAI_VISION</code>: <code>"true"</code> to allow OpenAI Vision backend</li>
 </ul>
-</li>
-<li>Anthropic Configuration:<ul>
-<li><code>ANTHROPIC_API_KEY</code></li>
-<li><code>ANTHROPIC_BASE_URL</code> : default = <code>https://api.anthropic.com</code></li>
-<li><code>ANTHROPIC_MODEL_NAME</code> : default = <code>claude-3-7-sonnet-20250219</code></li>
+<p><strong>Anthropic Configuration:</strong></p>
+<ul>
+<li><code>ANTHROPIC_API_KEY</code>: Required API key for Anthropic services</li>
+<li><code>ANTHROPIC_BASE_URL</code>: Default = <code>https://api.anthropic.com</code></li>
+<li><code>ANTHROPIC_MODEL_NAME</code>: Default = <code>claude-3-7-sonnet-20250219</code></li>
 </ul>
-</li>
-<li>OpenAI Configuration:<ul>
-<li><code>OPENAI_API_KEY</code></li>
-<li><code>OPENAI_BASE_URL</code> : default = <code>https://api.openai.com/v1</code></li>
-<li><code>OPENAI_MODEL_NAME</code> : default = <code>gpt-4o</code></li>
+<p><strong>OpenAI Configuration:</strong></p>
+<ul>
+<li><code>OPENAI_API_KEY</code>: Required API key for OpenAI services</li>
+<li><code>OPENAI_BASE_URL</code>: Default = <code>https://api.openai.com/v1</code></li>
+<li><code>OPENAI_MODEL_NAME</code>: Default = <code>gpt-4o</code></li>
 </ul>
-</li>
-<li>Gemini Configuration:<ul>
-<li><code>GEMINI_API_KEY</code></li>
-<li><code>GEMINI_MODEL_NAME</code> : default = <code>gemini-2.5-pro</code></li>
-</ul>
-</li>
+<p><strong>Gemini Configuration:</strong></p>
+<ul>
+<li><code>GEMINI_API_KEY</code>: Required API key for Google Gemini services</li>
+<li><code>GEMINI_MODEL_NAME</code>: Default = <code>gemini-2.5-pro</code></li>
 </ul>
 <hr />
-<h2 id="visual_question_answeringimage_path_or_url-str-question-str"><code>visual_question_answering(image_path_or_url: str, question: str)</code></h2>
-<p>Ask questions about an image. Runs <strong>two passes</strong>:</p>
+<h2 id="function-reference">Function Reference</h2>
+<p>The following functions are provided by the <code>vision_mcp_server.py</code> MCP tool and can be called by agents:</p>
+<h3 id="visual_question_answeringimage_path_or_url-str-question-str"><code>visual_question_answering(image_path_or_url: str, question: str)</code></h3>
+<p>Ask questions about an image using a dual-pass analysis approach for comprehensive understanding.</p>
+<div class="admonition tip">
+<p class="admonition-title">Two-Pass Analysis</p>
+<p>This function runs <strong>two passes</strong>:</p>
 <ol>
-<li>
-<p><strong>OCR pass</strong> using the selected vision backend with a meticulous extraction prompt.</p>
-</li>
-<li>
-<p><strong>VQA pass</strong> that analyzes the image and cross-checks against OCR text.</p>
-</li>
+<li><strong>OCR pass</strong> using the selected vision backend with a meticulous extraction prompt</li>
+<li><strong>VQA pass</strong> that analyzes the image and cross-checks against OCR text</li>
 </ol>
-<p><strong>Parameters</strong></p>
+</div>
+<p><strong>Parameters:</strong></p>
 <ul>
-<li><code>image_path_or_url</code>: Local path (accessible to server) or web URL. HTTP URLs are auto-upgraded/validated to HTTPS for some backends.</li>
-<li><code>question</code>: The user’s question about the image.</li>
+<li><code>image_path_or_url</code>: Local path (accessible to server) or web URL. HTTP URLs are auto-upgraded/validated to HTTPS for some backends</li>
+<li><code>question</code>: The user's question about the image</li>
 </ul>
-<p><strong>Returns</strong></p>
+<p><strong>Returns:</strong></p>
 <ul>
 <li><code>str</code>: Concatenated text with:<ul>
 <li><code>OCR results: ...</code></li>
@@ -1750,34 +1812,41 @@
 </ul>
 </li>
 </ul>
-<p><strong>Features</strong></p>
+<p><strong>Features:</strong></p>
 <ul>
-<li>Automatic MIME detection, reads magic bytes, falls back to extension, final default is <code>image/jpeg</code>.</li>
+<li>Automatic MIME detection, reads magic bytes, falls back to extension, final default is <code>image/jpeg</code></li>
+<li>Multi-backend support for different vision models</li>
+<li>Cross-validation between OCR and VQA results</li>
 </ul>
 <hr />
-<h2 id="visual_audio_youtube_analyzingurl-str-question-str-provide_transcribe-bool-false"><code>visual_audio_youtube_analyzing(url: str, question: str = "", provide_transcribe: bool = False)</code></h2>
+<h3 id="visual_audio_youtube_analyzingurl-str-question-str-provide_transcribe-bool-false"><code>visual_audio_youtube_analyzing(url: str, question: str = "", provide_transcribe: bool = False)</code></h3>
 <p>Analyze <strong>public YouTube videos</strong> (audio + visual). Supports watch pages, Shorts, and Live VODs.</p>
+<div class="admonition note">
+<p class="admonition-title">Supported URL Patterns</p>
+<p>Accepted URL patterns: <code>youtube.com/watch</code>, <code>youtube.com/shorts</code>, <code>youtube.com/live</code></p>
+</div>
+<p><strong>Parameters:</strong></p>
 <ul>
-<li>Accepted URL patterns: <code>youtube.com/watch</code>, <code>youtube.com/shorts</code>, <code>youtube.com/live</code>.</li>
+<li><code>url</code>: YouTube video URL (publicly accessible)</li>
+<li><code>question</code> (optional): A specific question about the video. You can scope by time using <code>MM:SS</code> or <code>MM:SS-MM:SS</code> (e.g., <code>01:45</code>, <code>03:20-03:45</code>)</li>
+<li><code>provide_transcribe</code> (optional, default <code>False</code>): If <code>True</code>, returns a <strong>timestamped transcription</strong> including salient events and brief visual descriptions</li>
 </ul>
-<p><strong>Parameters</strong></p>
+<p><strong>Returns:</strong></p>
 <ul>
-<li><code>url</code>: YouTube video URL (publicly accessible).</li>
-<li><code>question</code> (optional): A specific question about the video. You can scope by time using <code>MM:SS</code> or <code>MM:SS-MM:SS</code> (e.g., <code>01:45</code>, <code>03:20-03:45</code>).</li>
-<li><code>provide_transcribe</code> (optional, default <code>False</code>): If <code>True</code>, returns a <strong>timestamped transcription</strong> including salient events and brief visual descriptions.</li>
+<li><code>str</code>: Transcription of the video (if requested) and answer to the question</li>
 </ul>
-<p><strong>Returns</strong></p>
+<p><strong>Features:</strong></p>
 <ul>
-<li><code>str</code>: transcription of the video (if asked) and answer to the question.</li>
-</ul>
-<p><strong>Features</strong></p>
-<ul>
-<li><strong>Gemini-powered</strong> video analysis (requires <code>GEMINI_API_KEY</code>).</li>
-<li>Dual mode: full transcript, targeted Q&amp;A, or both.</li>
+<li><strong>Gemini-powered</strong> video analysis (requires <code>GEMINI_API_KEY</code>)</li>
+<li>Dual mode: full transcript, targeted Q&amp;A, or both</li>
+<li>Time-scoped question answering for specific video segments</li>
+<li>Support for multiple YouTube video formats</li>
 </ul>
 <hr />
-<p><strong>Last Updated:</strong> Sep 2025<br />
-<strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<div class="admonition info">
+<p class="admonition-title">Documentation Info</p>
+<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+</div>
 
 
 

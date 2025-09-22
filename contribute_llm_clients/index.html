@@ -627,29 +627,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../download_datasets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Download Datasets
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -662,10 +639,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
             
   
   
@@ -678,8 +655,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Benchmarks
           </label>
@@ -698,6 +675,29 @@
   
   <span class="md-ellipsis">
     GAIA-Validation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gaia_validation_text_only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GAIA-Validation-Text-Only
     
   </span>
   
@@ -757,6 +757,29 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Download Datasets
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1415,15 +1438,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-this-does" class="md-nav__link">
-    <span class="md-ellipsis">
-      What This Does
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#client-structure" class="md-nav__link">
     <span class="md-ellipsis">
       Client Structure
@@ -1443,27 +1457,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-create-provider-file" class="md-nav__link">
+  <a href="#step-1-create-provider-file" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Create Provider File
+      Step 1: Create Provider File
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-create-config" class="md-nav__link">
+  <a href="#step-2-create-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Create Config
+      Step 2: Create Configuration
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-set-environment" class="md-nav__link">
+  <a href="#step-3-set-environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Set Environment
+      Step 3: Set Environment Variables
     </span>
   </a>
   
@@ -1689,15 +1703,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#what-this-does" class="md-nav__link">
-    <span class="md-ellipsis">
-      What This Does
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#client-structure" class="md-nav__link">
     <span class="md-ellipsis">
       Client Structure
@@ -1717,27 +1722,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-create-provider-file" class="md-nav__link">
+  <a href="#step-1-create-provider-file" class="md-nav__link">
     <span class="md-ellipsis">
-      1. Create Provider File
+      Step 1: Create Provider File
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-create-config" class="md-nav__link">
+  <a href="#step-2-create-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      2. Create Config
+      Step 2: Create Configuration
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#3-set-environment" class="md-nav__link">
+  <a href="#step-3-set-environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
-      3. Set Environment
+      Step 3: Set Environment Variables
     </span>
   </a>
   
@@ -1777,18 +1782,20 @@
 
 
 <h1 id="contributing-new-llm-clients">Contributing New LLM Clients</h1>
-<h2 id="what-this-does">What This Does</h2>
-<p>Add support for new LLM providers to MiroFlow by creating a provider class.</p>
+<p>Add support for new LLM providers to MiroFlow by creating a provider class that integrates with the existing client infrastructure.</p>
 <h2 id="client-structure">Client Structure</h2>
-<p>Each LLM client inherits from <code>LLMProviderClientBase</code> and implements 4 methods:
-- <code>_create_client()</code> - Initialize API client
-- <code>_create_message()</code> - Make API calls<br />
-- <code>process_llm_response()</code> - Handle responses
-- <code>extract_tool_calls_info()</code> - Parse tool calls</p>
+<p>Each LLM client inherits from <code>LLMProviderClientBase</code> and implements 4 required methods:</p>
+<ul>
+<li><code>_create_client()</code> - Initialize API client</li>
+<li><code>_create_message()</code> - Make API calls  </li>
+<li><code>process_llm_response()</code> - Handle responses</li>
+<li><code>extract_tool_calls_info()</code> - Parse tool calls</li>
+</ul>
+<hr />
 <h2 id="implementation-steps">Implementation Steps</h2>
-<h3 id="1-create-provider-file">1. Create Provider File</h3>
-<p><code>src/llm/providers/your_provider_client.py</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
+<h3 id="step-1-create-provider-file">Step 1: Create Provider File</h3>
+<p>Create <code>src/llm/providers/your_provider_client.py</code>:</p>
+<div class="highlight"><span class="filename">Provider Implementation</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">src.llm.provider_client_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMProviderClientBase</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nd">@dataclasses</span><span class="o">.</span><span class="n">dataclass</span>
@@ -1809,26 +1816,30 @@
 <a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>        <span class="c1"># Parse tool calls, return (tool_calls, tool_names)</span>
 <a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>        <span class="k">pass</span>
 </code></pre></div>
-<h3 id="2-create-config">2. Create Config</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">main_agent</span><span class="p">:</span>
+<h3 id="step-2-create-configuration">Step 2: Create Configuration</h3>
+<div class="highlight"><span class="filename">Agent Configuration</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">main_agent</span><span class="p">:</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">llm</span><span class="p">:</span><span class="w"> </span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="nt">provider_class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;YourProviderClient&quot;</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="nt">model_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-model&quot;</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">    </span><span class="nt">your_api_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${oc.env:YOUR_API_KEY,???}&quot;</span>
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">    </span><span class="nt">your_base_url</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${oc.env:YOUR_BASE_URL,https://api.yourprovider.com/v1}&quot;</span>
 </code></pre></div>
-<h3 id="3-set-environment">3. Set Environment</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">YOUR_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span>
+<h3 id="step-3-set-environment-variables">Step 3: Set Environment Variables</h3>
+<div class="highlight"><span class="filename">Environment Setup</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">YOUR_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">YOUR_BASE_URL</span><span class="o">=</span><span class="s2">&quot;https://api.yourprovider.com/v1&quot;</span><span class="w">  </span><span class="c1"># optional if using default</span>
 </code></pre></div>
 <h2 id="examples">Examples</h2>
-<p>See existing providers in <code>src/llm/providers/</code>:
-- <code>ClaudeAnthropicClient</code> - Direct API
-- <code>ClaudeOpenRouterClient</code> - Proxy API<br />
-- <code>GPTOpenAIClient</code> - OpenAI API</p>
+<p>See existing providers in <code>src/llm/providers/</code>:</p>
+<ul>
+<li><code>ClaudeAnthropicClient</code> - Direct API</li>
+<li><code>ClaudeOpenRouterClient</code> - Proxy API  </li>
+<li><code>GPTOpenAIClient</code> - OpenAI API</li>
+</ul>
 <hr />
-<p><strong>Last Updated:</strong> Sep 2025<br />
-<strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<div class="admonition info">
+<p class="admonition-title">Documentation Info</p>
+<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+</div>
 
 
 

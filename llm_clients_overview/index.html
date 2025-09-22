@@ -627,29 +627,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../download_datasets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Download Datasets
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -662,10 +639,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
             
   
   
@@ -678,8 +655,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Benchmarks
           </label>
@@ -698,6 +675,29 @@
   
   <span class="md-ellipsis">
     GAIA-Validation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gaia_validation_text_only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GAIA-Validation-Text-Only
     
   </span>
   
@@ -757,6 +757,29 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Download Datasets
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1220,9 +1243,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
+  <a href="#quick-setup" class="md-nav__link">
     <span class="md-ellipsis">
-      Quick Start
+      Quick Setup
     </span>
   </a>
   
@@ -1665,9 +1688,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quick-start" class="md-nav__link">
+  <a href="#quick-setup" class="md-nav__link">
     <span class="md-ellipsis">
-      Quick Start
+      Quick Setup
     </span>
   </a>
   
@@ -1693,6 +1716,7 @@
 
 
 <h1 id="llm-clients-overview">LLM Clients Overview</h1>
+<p>MiroFlow supports multiple LLM providers through a unified client interface. Each client handles provider-specific API communication while maintaining consistent functionality.</p>
 <h2 id="available-clients">Available Clients</h2>
 <table>
 <thead>
@@ -1731,23 +1755,24 @@
 </tbody>
 </table>
 <h2 id="basic-configuration">Basic Configuration</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">main_agent</span><span class="p">:</span>
+<div class="highlight"><span class="filename">Agent Configuration</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">main_agent</span><span class="p">:</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">llm</span><span class="p">:</span><span class="w"> </span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">provider_class</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ClientName&quot;</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">model_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;model-name&quot;</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nt">api_key_param</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${oc.env:API_KEY,???}&quot;</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nt">base_url_param</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${oc.env:BASE_URL,default-url}&quot;</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">...</span>
 </code></pre></div>
-<h2 id="quick-start">Quick Start</h2>
+<h2 id="quick-setup">Quick Setup</h2>
 <ol>
-<li>Set relevant environment variable for your chosen provider</li>
-<li>Update your yaml config file</li>
-<li>Run: <code>uv run main.py trace --config_file_name=your_config_file --task="task" --task_file_name="file"</code></li>
+<li>Set relevant environment variables for your chosen provider</li>
+<li>Update your YAML config file with the appropriate client</li>
+<li>Run: <code>uv run main.py trace --config_file_name=your_config_file --task="task"</code></li>
 </ol>
 <hr />
-<p><strong>Last Updated:</strong> Sep 2025<br />
-<strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<div class="admonition info">
+<p class="admonition-title">Documentation Info</p>
+<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+</div>
 
 
 

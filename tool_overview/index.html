@@ -62,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tools" class="md-skip">
+        <a href="#tool-overview" class="md-skip">
           Skip to content
         </a>
       
@@ -627,29 +627,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../download_datasets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Download Datasets
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -662,10 +639,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
             
   
   
@@ -678,8 +655,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Benchmarks
           </label>
@@ -698,6 +675,29 @@
   
   <span class="md-ellipsis">
     GAIA-Validation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gaia_validation_text_only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GAIA-Validation-Text-Only
     
   </span>
   
@@ -757,6 +757,29 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Download Datasets
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -854,6 +877,19 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
@@ -865,6 +901,43 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#available-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Available Tools
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Setup
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -1581,6 +1654,32 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#available-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      Available Tools
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Setup
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1598,11 +1697,29 @@
   
 
 
-<h1 id="tools">🔧 Tools</h1>
-<h1 id="-coming-soon-">- Coming Soon -</h1>
+<h1 id="tool-overview">Tool Overview</h1>
+<p>MiroFlow provides a comprehensive set of tools that extend agent capabilities through the Model Context Protocol (MCP).</p>
+<h2 id="available-tools">Available Tools</h2>
+<div class="admonition info">
+<p class="admonition-title">Core Tools</p>
+<ul>
+<li><strong><a href="../tool_python/">Python Tools</a></strong> - Code execution in secure sandbox</li>
+<li><strong><a href="../tool_searching/">Searching Tools</a></strong> - Web search and content retrieval  </li>
+<li><strong><a href="../tool_vqa/">Vision Tools</a></strong> - Image analysis and video processing</li>
+<li><strong><a href="../tool_reasoning/">Reasoning Tools</a></strong> - Advanced logical analysis</li>
+</ul>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Additional Tools Available</p>
+<p>MiroFlow includes additional tools for audio processing, document reading, web browsing, and markdown conversion. See the <code>config/tool/</code> directory for complete tool configurations.</p>
+</div>
+<h2 id="quick-setup">Quick Setup</h2>
+<p>Tools are configured in agent YAML files and require API keys in your <code>.env</code> file. See individual tool documentation for detailed setup instructions.</p>
 <hr />
-<p><strong>Last Updated:</strong> Sep 2025<br />
-<strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<div class="admonition info">
+<p class="admonition-title">Documentation Info</p>
+<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+</div>
 
 
 

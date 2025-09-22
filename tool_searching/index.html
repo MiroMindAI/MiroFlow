@@ -627,29 +627,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../download_datasets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Download Datasets
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -662,10 +639,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
             
   
   
@@ -678,8 +655,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Benchmarks
           </label>
@@ -698,6 +675,29 @@
   
   <span class="md-ellipsis">
     GAIA-Validation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gaia_validation_text_only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GAIA-Validation-Text-Only
     
   </span>
   
@@ -757,6 +757,29 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Download Datasets
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1007,13 +1030,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#environment-variables-used-in-tools" class="md-nav__link">
+  <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
-      Environment Variables Used in Tools
+      Environment Variables
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Environment Variables Used in Tools">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function Reference">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1682,13 +1714,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#environment-variables-used-in-tools" class="md-nav__link">
+  <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
-      Environment Variables Used in Tools
+      Environment Variables
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Environment Variables Used in Tools">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#function-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      Function Reference
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Function Reference">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1762,14 +1803,29 @@
 
 <h1 id="searching-tools-searching_mcp_serverpy">Searching Tools (<code>searching_mcp_server.py</code>)</h1>
 <p>The Searching MCP Server provides comprehensive search capabilities including Google search, Wikipedia content retrieval, archive searching, and web scraping functionality.</p>
-<h2 id="environment-variables-used-in-tools">Environment Variables Used in Tools</h2>
+<div class="admonition info">
+<p class="admonition-title">Available Functions</p>
+<p>This MCP server provides the following functions that agents can call:</p>
 <ul>
-<li><code>SERPER_API_KEY</code>: Required API key for Serper service, Used by <code>google_search</code> and as a fallback for <code>scrape_website</code></li>
-<li><code>JINA_API_KEY</code>: Required API key for JINA service. Default choice for scraping websites in <code>scrape_website</code></li>
-<li><code>REMOVE_SNIPPETS</code>: Set to "true" to filter out snippets from results. Used in <code>google_search</code> to filter the search results returned by Serper.</li>
-<li><code>REMOVE_KNOWLEDGE_GRAPH</code>: Set to "true" to remove knowledge graph data. Used in <code>google_search</code> to filter the search results returned by Serper.</li>
-<li><code>REMOVE_ANSWER_BOX</code>: Set to "true" to remove answer box content. Used in <code>google_search</code> to filter the search results returned by Serper.</li>
+<li><strong>Google Search</strong>: Comprehensive web search with filtering and localization</li>
+<li><strong>Wikipedia Access</strong>: Page content retrieval and revision history tracking</li>
+<li><strong>Archive Search</strong>: Wayback Machine integration for historical web content</li>
+<li><strong>Web Scraping</strong>: Content extraction from websites and YouTube videos</li>
 </ul>
+</div>
+<hr />
+<h2 id="environment-variables">Environment Variables</h2>
+<p>The following environment variables configure the search tools:</p>
+<ul>
+<li><code>SERPER_API_KEY</code>: Required API key for Serper service, used by <code>google_search</code> and as a fallback for <code>scrape_website</code></li>
+<li><code>JINA_API_KEY</code>: Required API key for JINA service. Default choice for scraping websites in <code>scrape_website</code></li>
+<li><code>REMOVE_SNIPPETS</code>: Set to "true" to filter out snippets from results. Used in <code>google_search</code> to filter the search results returned by Serper</li>
+<li><code>REMOVE_KNOWLEDGE_GRAPH</code>: Set to "true" to remove knowledge graph data. Used in <code>google_search</code> to filter the search results returned by Serper</li>
+<li><code>REMOVE_ANSWER_BOX</code>: Set to "true" to remove answer box content. Used in <code>google_search</code> to filter the search results returned by Serper</li>
+</ul>
+<hr />
+<h2 id="function-reference">Function Reference</h2>
+<p>The following functions are provided by the <code>searching_mcp_server.py</code> MCP tool and can be called by agents:</p>
 <h3 id="google_searchq-str-gl-str-us-hl-str-en-location-str-none-num-int-10-tbs-str-none-page-int-1"><code>google_search(q: str, gl: str = "us", hl: str = "en", location: str = None, num: int = 10, tbs: str = None, page: int = 1)</code></h3>
 <p>Perform Google searches via Serper API and retrieve rich search results including organic results, people also ask, related searches, and knowledge graph.</p>
 <p><strong>Parameters:</strong></p>
@@ -1792,6 +1848,7 @@
 <li>Configurable result filtering via environment variables</li>
 <li>Support for regional and language-specific searches</li>
 </ul>
+<hr />
 <h3 id="wiki_get_page_contententity-str-first_sentences-int-10"><code>wiki_get_page_content(entity: str, first_sentences: int = 10)</code></h3>
 <p>Get specific Wikipedia page content for entities (people, places, concepts, events) and return structured information.</p>
 <p><strong>Parameters:</strong></p>
@@ -1810,6 +1867,7 @@
 <li>Fallback search suggestions when page not found</li>
 <li>Automatic content truncation for manageable output</li>
 </ul>
+<hr />
 <h3 id="search_wiki_revisionentity-str-year-int-month-int-max_revisions-int-50"><code>search_wiki_revision(entity: str, year: int, month: int, max_revisions: int = 50)</code></h3>
 <p>Search for an entity in Wikipedia and return the revision history for a specific month.</p>
 <p><strong>Parameters:</strong></p>
@@ -1830,6 +1888,7 @@
 <li>Detailed revision metadata including timestamps and direct links</li>
 <li>Clear error handling for invalid dates or missing pages</li>
 </ul>
+<hr />
 <h3 id="search_archived_webpageurl-str-year-int-month-int-day-int"><code>search_archived_webpage(url: str, year: int, month: int, day: int)</code></h3>
 <p>Search the Wayback Machine (archive.org) for archived versions of a webpage for a specific date.</p>
 <p><strong>Parameters:</strong></p>
@@ -1851,6 +1910,7 @@
 <li>Special handling for Wikipedia URLs with tool suggestions</li>
 <li>Automatic retry mechanism for reliable results</li>
 </ul>
+<hr />
 <h3 id="scrape_websiteurl-str"><code>scrape_website(url: str)</code></h3>
 <p>Scrape website content including support for regular websites and YouTube video information.</p>
 <p><strong>Parameters:</strong></p>
@@ -1861,22 +1921,11 @@
 <ul>
 <li><code>str</code>: Scraped website content including text, metadata, and structured information</li>
 </ul>
-<p><strong>Features:</strong></p>
-<ul>
-<li>Support for various website types</li>
-<li>YouTube video information extraction (subtitles, titles, descriptions, key moments)</li>
-<li>Automatic content parsing and cleaning</li>
-<li>Integration with Jina API for enhanced scraping capabilities</li>
-</ul>
-<p><strong>Usage Notes:</strong></p>
-<ul>
-<li>Search engines are not supported by this tool</li>
-<li>For YouTube videos, provides non-visual information only</li>
-<li>Content may be incomplete for some complex websites</li>
-</ul>
 <hr />
-<p><strong>Last Updated:</strong> Sep 2025<br />
-<strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<div class="admonition info">
+<p class="admonition-title">Documentation Info</p>
+<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+</div>
 
 
 

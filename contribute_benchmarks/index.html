@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../futurex/">
+        <link rel="prev" href="../download_datasets/">
       
       
         <link rel="next" href="../tool_overview/">
@@ -62,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#adding-new-benchmarks-to-miroflow" class="md-skip">
+        <a href="#contributing-new-benchmarks-to-miroflow" class="md-skip">
           Skip to content
         </a>
       
@@ -632,29 +632,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../download_datasets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Download Datasets
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -667,10 +644,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
             
   
   
@@ -683,8 +660,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Benchmarks
           </label>
@@ -703,6 +680,29 @@
   
   <span class="md-ellipsis">
     GAIA-Validation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gaia_validation_text_only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GAIA-Validation-Text-Only
     
   </span>
   
@@ -771,6 +771,29 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Download Datasets
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -824,13 +847,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#step-by-step-implementation-guide" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
-      🚀 Step-by-Step Implementation Guide
+      Overview
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🚀 Step-by-Step Implementation Guide">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-by-step-implementation-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step-by-Step Implementation Guide
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step-by-Step Implementation Guide">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -844,9 +876,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#metadata-format-jsonl" class="md-nav__link">
+  <a href="#required-directory-structure" class="md-nav__link">
     <span class="md-ellipsis">
-      Metadata Format (JSONL)
+      Required Directory Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata-format-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metadata Format Specification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Tasks
     </span>
   </a>
   
@@ -858,11 +908,44 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2-create-configuration-file" class="md-nav__link">
+  <a href="#step-2-create-benchmark-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 2: Create Configuration File
+      Step 2: Create Benchmark Configuration
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Create Benchmark Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-file-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration File Location
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Template
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Options
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -881,6 +964,63 @@
       Step 4: Test Your Benchmark
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Step 4: Test Your Benchmark">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initial-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initial Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Full Evaluation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-validate-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: Validate Results
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 5: Validate Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check-output-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check Output Files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expected-output-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expected Output Structure
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1686,13 +1826,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#step-by-step-implementation-guide" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
-      🚀 Step-by-Step Implementation Guide
+      Overview
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🚀 Step-by-Step Implementation Guide">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-by-step-implementation-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step-by-Step Implementation Guide
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step-by-Step Implementation Guide">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1706,9 +1855,27 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#metadata-format-jsonl" class="md-nav__link">
+  <a href="#required-directory-structure" class="md-nav__link">
     <span class="md-ellipsis">
-      Metadata Format (JSONL)
+      Required Directory Structure
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#metadata-format-specification" class="md-nav__link">
+    <span class="md-ellipsis">
+      Metadata Format Specification
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example Tasks
     </span>
   </a>
   
@@ -1720,11 +1887,44 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#step-2-create-configuration-file" class="md-nav__link">
+  <a href="#step-2-create-benchmark-configuration" class="md-nav__link">
     <span class="md-ellipsis">
-      Step 2: Create Configuration File
+      Step 2: Create Benchmark Configuration
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Create Benchmark Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-file-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration File Location
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-template" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Template
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#configuration-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration Options
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1743,6 +1943,63 @@
       Step 4: Test Your Benchmark
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Step 4: Test Your Benchmark">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initial-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Initial Testing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#full-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Full Evaluation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-validate-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: Validate Results
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 5: Validate Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#check-output-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      Check Output Files
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#expected-output-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      Expected Output Structure
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1770,33 +2027,50 @@
   
 
 
-<h1 id="adding-new-benchmarks-to-miroflow">🧪 Adding New Benchmarks to MiroFlow</h1>
-<p>This guide provides a comprehensive walkthrough for adding new benchmarks to the MiroFlow framework. MiroFlow uses a modular benchmark architecture that allows for easy integration of new evaluation datasets.</p>
-<hr />
-<h2 id="step-by-step-implementation-guide">🚀 Step-by-Step Implementation Guide</h2>
+<h1 id="contributing-new-benchmarks-to-miroflow">Contributing New Benchmarks to MiroFlow</h1>
+<p>This comprehensive guide walks you through adding new evaluation benchmarks to the MiroFlow framework. MiroFlow's modular architecture makes it easy to integrate diverse evaluation datasets while maintaining consistency and reproducibility.</p>
+<h2 id="overview">Overview</h2>
+<div class="admonition info">
+<p class="admonition-title">Why Add New Benchmarks?</p>
+<p>Adding new benchmarks serves multiple purposes:</p>
+<ul>
+<li><strong>Internal Testing</strong>: Validate your agent's performance on custom tasks and domains specific to your use case</li>
+<li><strong>Development Iteration</strong>: Create targeted test sets to debug and improve specific agent capabilities</li>
+<li><strong>Domain-Specific Evaluation</strong>: Test agents on proprietary or specialized datasets relevant to your application</li>
+<li><strong>Research Contributions</strong>: Expand MiroFlow's benchmark coverage to advance the field with new evaluation paradigms</li>
+<li><strong>Comparative Analysis</strong>: Benchmark your agent against custom baselines or competitors</li>
+</ul>
+</div>
+<h2 id="step-by-step-implementation-guide">Step-by-Step Implementation Guide</h2>
 <h3 id="step-1-prepare-your-dataset">Step 1: Prepare Your Dataset</h3>
-<p>Your benchmark dataset should follow this structure:</p>
+<p>Your benchmark dataset must follow MiroFlow's standardized structure for seamless integration.</p>
+<h4 id="required-directory-structure">Required Directory Structure</h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>your-benchmark/
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── standardized_data.jsonl    # Metadata file (required)
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── file1.pdf                  # Optional: Binary files referenced by tasks
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── file2.png
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>└── ...
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── file2.png                  # Optional: Images, documents, etc.
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── data.csv                   # Optional: Additional data files
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>└── ...                        # Any other supporting files
 </code></pre></div>
-<h4 id="metadata-format-jsonl">Metadata Format (JSONL)</h4>
-<p>Each line in <code>standardized_data.jsonl</code> should be a JSON object with these fields:</p>
+<h4 id="metadata-format-specification">Metadata Format Specification</h4>
+<p>Each line in <code>standardized_data.jsonl</code> must be a valid JSON object with the following schema:</p>
+<div class="admonition example">
+<p class="admonition-title">Required Fields</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;unique_task_identifier&quot;</span><span class="p">,</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">&quot;task_question&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The question or instruction for the task&quot;</span><span class="p">,</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">&quot;ground_truth&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;The expected answer or solution&quot;</span><span class="p">,</span>
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">&quot;file_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;path/to/file.pdf&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// Optional, can be null</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">                     </span><span class="c1">// Optional, can be empty</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">                     </span><span class="c1">// Optional, can be empty object or other structure</span>
 <a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">    </span><span class="nt">&quot;difficulty&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hard&quot;</span><span class="p">,</span>
 <a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;reasoning&quot;</span><span class="p">,</span>
 <a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;original_dataset_name&quot;</span>
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">  </span><span class="p">}</span>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="p">}</span>
 </code></pre></div>
-<p><strong>Example:</strong>
+</div>
+<h4 id="example-tasks">Example Tasks</h4>
+<p><strong>Simple Text-Only Task:</strong>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;math_001&quot;</span><span class="p">,</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nt">&quot;task_question&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;What is the integral of x^2 from 0 to 2?&quot;</span><span class="p">,</span>
@@ -1804,51 +2078,110 @@
 <a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">  </span><span class="nt">&quot;file_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
 <a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="nt">&quot;difficulty&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;calculus&quot;</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="p">}</span>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">}</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;calculus&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="nt">&quot;source&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;custom_math_problems&quot;</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">}</span>
 </code></pre></div></p>
-<h3 id="step-2-create-configuration-file">Step 2: Create Configuration File</h3>
-<p>Create a new configuration file in <code>config/benchmark/your-benchmark.yaml</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># config/benchmark/your-benchmark.yaml</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">defaults</span><span class="p">:</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_self_</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-benchmark&quot;</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="nt">data</span><span class="p">:</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">  </span><span class="nt">data_dir</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${data_dir}/your-benchmark&quot;</span><span class="w">  </span><span class="c1"># Path to your dataset</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="nt">metadata_file</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;standardized_data.jsonl&quot;</span><span class="w">  </span><span class="c1"># Metadata filename</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="w">  </span><span class="nt">whitelist</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span><span class="w">  </span><span class="c1"># Optional: List of specific task_ids to run</span>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="nt">execution</span><span class="p">:</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="w">  </span><span class="nt">max_tasks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">      </span><span class="c1"># null = no limit, or specify a number</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="w">  </span><span class="nt">max_concurrent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w">    </span><span class="c1"># Number of parallel tasks</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="w">  </span><span class="nt">pass_at_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">         </span><span class="c1"># Number of attempts per task</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="nt">openai_api_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${oc.env:OPENAI_API_KEY,???}&quot;</span>
+<p><strong>File-Based Task:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="p">{</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">&quot;task_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;doc_analysis_001&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">&quot;task_question&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Based on the provided financial report, what was the company&#39;s revenue growth rate?&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">  </span><span class="nt">&quot;ground_truth&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;12.5%&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">  </span><span class="nt">&quot;file_path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;reports/financial_q3_2023.pdf&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">  </span><span class="nt">&quot;metadata&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="w">    </span><span class="nt">&quot;difficulty&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;hard&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="w">    </span><span class="nt">&quot;category&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;document_analysis&quot;</span><span class="p">,</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="w">    </span><span class="nt">&quot;file_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pdf&quot;</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="p">}</span>
+</code></pre></div></p>
+<h3 id="step-2-create-benchmark-configuration">Step 2: Create Benchmark Configuration</h3>
+<p>Create a configuration file to define how MiroFlow should handle your benchmark.</p>
+<h4 id="configuration-file-location">Configuration File Location</h4>
+<p>Create: <code>config/benchmark/your-benchmark.yaml</code></p>
+<h4 id="configuration-template">Configuration Template</h4>
+<div class="highlight"><span class="filename">config/benchmark/your-benchmark.yaml</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Benchmark configuration for your custom dataset</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nt">defaults</span><span class="p">:</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">default</span><span class="w">          </span><span class="c1"># Use default benchmark settings</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">_self_</span><span class="w">           </span><span class="c1"># Allow overrides in this file</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;your-benchmark&quot;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="nt">data</span><span class="p">:</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="nt">data_dir</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${data_dir}/your-benchmark&quot;</span><span class="w">        </span><span class="c1"># Dataset location</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">  </span><span class="nt">metadata_file</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;standardized_data.jsonl&quot;</span><span class="w">     </span><span class="c1"># Metadata filename</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="nt">execution</span><span class="p">:</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">  </span><span class="nt">max_tasks</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">null</span><span class="w">          </span><span class="c1"># null = no limit, number = max tasks to run</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">  </span><span class="nt">max_concurrent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span><span class="w">        </span><span class="c1"># Number of parallel task executions</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="nt">pass_at_k</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span><span class="w">             </span><span class="c1"># Number of attempts per task for pass@k evaluation</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="c1"># LLM judge configuration for evaluation</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="nt">openai_api_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;${oc.env:OPENAI_API_KEY,???}&quot;</span>
 </code></pre></div>
+<h4 id="configuration-options">Configuration Options</h4>
+<div class="admonition tip">
+<p class="admonition-title">Execution Parameters</p>
+<ul>
+<li><strong>max_tasks</strong>: Control dataset size during development (use small numbers for testing)</li>
+<li><strong>max_concurrent</strong>: Balance speed vs. resource usage</li>
+<li><strong>pass_at_k</strong>: Enable multiple attempts for better success measurement</li>
+</ul>
+</div>
 <h3 id="step-3-set-up-data-directory">Step 3: Set Up Data Directory</h3>
-<p>Place your dataset in the appropriate data directory:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Create the benchmark data directory</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>data/your-benchmark
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Copy your dataset files</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>cp<span class="w"> </span>your-dataset/*<span class="w"> </span>data/your-benchmark/
+<p>Organize your dataset files in the MiroFlow data structure.</p>
+<div class="highlight"><span class="filename">Data Directory Setup</span><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Create the benchmark data directory</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>data/your-benchmark
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Copy your dataset files</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>cp<span class="w"> </span>your-dataset/*<span class="w"> </span>data/your-benchmark/
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Verify the structure</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>ls<span class="w"> </span>-la<span class="w"> </span>data/your-benchmark/
 </code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">File Path Consistency</p>
+<p>Ensure that all <code>file_path</code> entries in your JSONL metadata correctly reference files in your data directory.</p>
+</div>
 <h3 id="step-4-test-your-benchmark">Step 4: Test Your Benchmark</h3>
-<p>Run your benchmark using the MiroFlow CLI:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Test with a small subset </span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span>--config_file_name<span class="o">=</span>agent_quickstart_1<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">  </span><span class="nv">benchmark</span><span class="o">=</span>your-benchmark<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span>benchmark.execution.max_tasks<span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span>logs/test-your-benchmark
+<p>Validate your benchmark integration with comprehensive testing.</p>
+<h4 id="initial-testing">Initial Testing</h4>
+<p>Start with a small subset to verify everything works correctly:</p>
+<div class="highlight"><span class="filename">Test Benchmark Integration</span><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span>--config_file_name<span class="o">=</span>agent_quickstart_1<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">  </span><span class="nv">benchmark</span><span class="o">=</span>your-benchmark<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span>benchmark.execution.max_tasks<span class="o">=</span><span class="m">3</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/test-your-benchmark/</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y%m%d_%H%M&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
 </code></pre></div>
-<hr />
-<p><strong>Last Updated:</strong> Sep 2025<br />
-<strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<h4 id="full-evaluation">Full Evaluation</h4>
+<p>Once testing passes, run the complete benchmark:</p>
+<div class="highlight"><span class="filename">Run Full Benchmark</span><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">  </span>--config_file_name<span class="o">=</span>agent_quickstart_1<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nv">benchmark</span><span class="o">=</span>your-benchmark<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/your-benchmark/</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y%m%d_%H%M&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+<h3 id="step-5-validate-results">Step 5: Validate Results</h3>
+<p>Review the evaluation outputs to ensure proper integration:</p>
+<h4 id="check-output-files">Check Output Files</h4>
+<div class="highlight"><span class="filename">Verify Results</span><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># List generated files</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>ls<span class="w"> </span>-la<span class="w"> </span>logs/your-benchmark/
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Review a sample task log</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>cat<span class="w"> </span>logs/your-benchmark/task_*_attempt_1.json<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-50
+</code></pre></div>
+<h4 id="expected-output-structure">Expected Output Structure</h4>
+<p>Your benchmark should generate:</p>
+<ul>
+<li>Individual task execution logs</li>
+<li>Aggregate benchmark results (<code>benchmark_results.jsonl</code>)</li>
+<li>Accuracy summary files</li>
+<li>Hydra configuration logs</li>
+</ul>
+<div class="admonition info">
+<p class="admonition-title">Documentation Info</p>
+<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+</div>
 
 
 

@@ -627,29 +627,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../download_datasets/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Download Datasets
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
@@ -662,10 +639,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
             
   
   
@@ -678,8 +655,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             Benchmarks
           </label>
@@ -698,6 +675,29 @@
   
   <span class="md-ellipsis">
     GAIA-Validation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gaia_validation_text_only/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GAIA-Validation-Text-Only
     
   </span>
   
@@ -757,6 +757,29 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Download Datasets
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1224,6 +1247,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
@@ -1256,21 +1281,14 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#mirothinker" class="md-nav__link">
-    <span class="md-ellipsis">
-      🌟 MiroThinker
-    </span>
-  </a>
-  
-</li>
       
         <li class="md-nav__item">
   <a href="#deploying-mirothinker-32b-with-miroflow" class="md-nav__link">
@@ -1677,21 +1695,14 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#mirothinker" class="md-nav__link">
-    <span class="md-ellipsis">
-      🌟 MiroThinker
-    </span>
-  </a>
-  
-</li>
       
         <li class="md-nav__item">
   <a href="#deploying-mirothinker-32b-with-miroflow" class="md-nav__link">
@@ -1772,12 +1783,11 @@
   
 
 
-  <h1>MiroThinker</h1>
-
-<h2 id="mirothinker">🌟 MiroThinker</h2>
+<h1 id="mirothinker">MiroThinker</h1>
 <p><a href="https://github.com/MiroMindAI/MiroThinker">MiroThinker</a> (4B/7B/14B/32B) is our suite of open-source agentic models, designed to work seamlessly with the MiroFlow framework. Our models are specifically built to handle <strong>complex, multi-tool tasks</strong>, leveraging the reproducible and robust foundation that MiroFlow provides.</p>
-<p>By combining MiroFlow's reliable orchestration with MiroThinker's advanced reasoning capabilities, we offer a powerful, end-to-end solution for building high-performing, reproducible AI agents.
-These models are a direct result of our extensive data collection efforts, utilizing MiroFlow to generate high-quality, post-training agent trace data. This unique approach enables MiroThinker to excel in planning, executing, and reasoning through complex multi-step tasks.</p>
+<p>By combining MiroFlow's reliable orchestration with MiroThinker's advanced reasoning capabilities, we offer a powerful, end-to-end solution for building high-performing, reproducible AI agents.</p>
+<p>These models are a direct result of our extensive data collection efforts, utilizing MiroFlow to generate high-quality, post-training agent trace data. This unique approach enables MiroThinker to excel in planning, executing, and reasoning through complex multi-step tasks.</p>
+<hr />
 <h2 id="deploying-mirothinker-32b-with-miroflow">Deploying MiroThinker-32B with MiroFlow</h2>
 <p>This guide explains how to deploy the MiroThinker-32B-DPO-v0.2 model from Hugging Face and integrate it with MiroFlow.</p>
 <h3 id="prerequisites">Prerequisites</h3>
@@ -1787,8 +1797,8 @@ These models are a direct result of our extensive data collection efforts, utili
 <li>MiroFlow repository set up</li>
 </ul>
 <h3 id="step-1-deploy-model-with-sglang">Step 1: Deploy Model with SGLang</h3>
-<p>Deploy the MiroThinker-32B model using SGLang with the following command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>sglang.launch_server<span class="w"> </span><span class="se">\</span>
+<p>Deploy the MiroThinker-32B model using SGLang:</p>
+<div class="highlight"><span class="filename">SGLang Server Deployment</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>sglang.launch_server<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">    </span>--model-path<span class="w"> </span>miromind-ai/MiroThinker-32B-DPO-v0.2<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span>--tp<span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span>--dp<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="se">\</span>
@@ -1797,21 +1807,29 @@ These models are a direct result of our extensive data collection efforts, utili
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span>--trust-remote-code<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span>--chat-template<span class="w"> </span>qwen3_nonthinking.jinja
 </code></pre></div>
-<p><strong>Important Notes:</strong>
-- Adjust the <code>--tp</code> (tensor parallelism) parameter to match your number of GPUs
-- Download the chat template from: <a href="https://qwen.readthedocs.io/zh-cn/latest/_downloads/c101120b5bebcc2f12ec504fc93a965e/qwen3_nonthinking.jinja">qwen3_nonthinking.jinja</a>
-- Ensure the port you used (in this case 61005) is available on your system</p>
+<div class="admonition warning">
+<p class="admonition-title">Important Notes</p>
+<ul>
+<li>Adjust the <code>--tp</code> (tensor parallelism) parameter to match your number of GPUs</li>
+<li>Download the chat template from: <a href="https://qwen.readthedocs.io/zh-cn/latest/_downloads/c101120b5bebcc2f12ec504fc93a965e/qwen3_nonthinking.jinja">qwen3_nonthinking.jinja</a></li>
+<li>Ensure the port you used (in this case 61005) is available on your system</li>
+</ul>
+</div>
 <h3 id="step-2-configure-miroflow">Step 2: Configure MiroFlow</h3>
 <p>Once the SGLang server is running, configure MiroFlow by adding the following to your <code>.env</code> file:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">OAI_MIROTHINKER_API_KEY</span><span class="o">=</span><span class="s2">&quot;dummy_key&quot;</span>
+<div class="highlight"><span class="filename">Environment Configuration</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">OAI_MIROTHINKER_API_KEY</span><span class="o">=</span><span class="s2">&quot;dummy_key&quot;</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nv">OAI_MIROTHINKER_BASE_URL</span><span class="o">=</span><span class="s2">&quot;http://localhost:61005/v1&quot;</span>
 </code></pre></div>
-<p><strong>Note:</strong> 
-- If your model requires authentication, replace <code>dummy_key</code> with your actual API key
-- Replace <code>localhost</code> with the appropriate hostname if deploying on a remote server</p>
+<div class="admonition note">
+<p class="admonition-title">Configuration Notes</p>
+<ul>
+<li>If your model requires authentication, replace <code>dummy_key</code> with your actual API key</li>
+<li>Replace <code>localhost</code> with the appropriate hostname if deploying on a remote server</li>
+</ul>
+</div>
 <h3 id="step-3-test-the-integration">Step 3: Test the Integration</h3>
 <p>Test your setup with the following command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>trace<span class="w"> </span>--config_file_name<span class="o">=</span>agent_mirothinker<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><span class="filename">Test Command</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>trace<span class="w"> </span>--config_file_name<span class="o">=</span>agent_mirothinker<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>--task<span class="o">=</span><span class="s2">&quot;What is the first country listed in the XLSX file that have names starting with Co?&quot;</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>--task_file_name<span class="o">=</span><span class="s2">&quot;data/FSI-2023-DOWNLOAD.xlsx&quot;</span>
 </code></pre></div>
@@ -1820,13 +1838,17 @@ These models are a direct result of our extensive data collection efforts, utili
 - Process the specified Excel file
 - Query the model to find countries starting with "Co"</p>
 <h3 id="configuration-details">Configuration Details</h3>
-<p>The <code>./config/agent_mirothinker.yaml</code> configuration file uses:
-- <code>provider_class: "MiroThinkerSGLangClient"</code> - A dedicated client for MiroThinker models deployed with SGLang
-- Model path and generation parameters (temperature, top_p, max_tokens, etc.)
-- Environment variables for API endpoint configuration</p>
+<p>The <code>./config/agent_mirothinker.yaml</code> configuration file uses:</p>
+<ul>
+<li><code>provider_class: "MiroThinkerSGLangClient"</code> - A dedicated client for MiroThinker models deployed with SGLang</li>
+<li>Model path and generation parameters (temperature, top_p, max_tokens, etc.)</li>
+<li>Environment variables for API endpoint configuration</li>
+</ul>
 <hr />
-<p><strong>Last Updated:</strong> Sep 2025<br />
-<strong>Doc Contributor:</strong> Xalp @MiroMind AI</p>
+<div class="admonition info">
+<p class="admonition-title">Documentation Info</p>
+<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Xalp @ MiroMind AI</p>
+</div>
 
 
 
