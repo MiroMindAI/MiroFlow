@@ -14,9 +14,10 @@ def xor_decrypt(data, key):
     """
     XOR decrypt data with a key
     """
-    key_bytes = key.encode('utf-8')
+    key_bytes = key.encode("utf-8")
     key_length = len(key_bytes)
     return bytes([data[i] ^ key_bytes[i % key_length] for i in range(len(data))])
+
 
 def gen_xbench_ds(hf_token: str) -> Generator[Task, None, None]:
     dataset = load_dataset(
@@ -28,9 +29,15 @@ def gen_xbench_ds(hf_token: str) -> Generator[Task, None, None]:
         task_id = metadata.pop("id")
 
         key = metadata.pop("canary")
-        prompt = xor_decrypt(base64.b64decode(metadata.pop("prompt")), key).decode('utf-8')
-        answer = xor_decrypt(base64.b64decode(metadata.pop("answer")), key).decode('utf-8')
-        reference_steps = xor_decrypt(base64.b64decode(metadata.pop("reference_steps")), key).decode('utf-8')
+        prompt = xor_decrypt(base64.b64decode(metadata.pop("prompt")), key).decode(
+            "utf-8"
+        )
+        answer = xor_decrypt(base64.b64decode(metadata.pop("answer")), key).decode(
+            "utf-8"
+        )
+        reference_steps = xor_decrypt(
+            base64.b64decode(metadata.pop("reference_steps")), key
+        ).decode("utf-8")
         task = Task(
             task_id=task_id,
             task_question=prompt,
