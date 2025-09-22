@@ -1,8 +1,9 @@
 <div align="center">
-  <img src="docs/mkdocs/docs/assets/miroflow_logo.png" width="100%" alt="MiroFlow" />
+  <img src="docs/mkdocs/docs/assets/miroflow_logo.png" width="40%" alt="MiroFlow" />
 </div>
 
 <br> 
+
 
 <div align="center">
 
@@ -21,24 +22,11 @@
 
 <div align="center">
 
-### 🚀 [Try our Demo!](https://dr.miromind.ai/) | 📚 [Full Documentation](https://miromindai.github.io/MiroFlow/)｜[中文](README_zh.md)｜[日本語](README_ja.md)
+### 🚀 [Try our Demo!](https://dr.miromind.ai/)｜[中文](README_zh.md)｜[日本語](README_ja.md)
 
 </div>
 
-<table align="center" style="border: 1px solid #ccc; border-radius: 8px; padding: 12px; background-color: #f9f9f9; width: 60%;">
-  <tr>
-    <td style="text-align: center; padding: 10px;">
-      <strong>Research Assistant Demo</strong> - 
-      <span style="font-size: 0.9em; color: #555;">Read CVPR 2025 Best Paper and Provide Research Advice</span>
-      <br>
-      <video src="https://github.com/user-attachments/assets/99ed3172-6e9a-467a-9ccb-be45957fe2e4"
-             controls muted preload="metadata"
-             width="50%" height="50%"
-      </video>
-    </td>
-  </tr>
-</table>
-
+<img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
 
 ## 📋 Table of Contents
 
