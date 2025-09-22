@@ -1,14 +1,21 @@
-# Adding New Tools
+# Contributing New Tools
 
-## What This Does
-Extend the agent’s functionality by introducing a new tool. Each tool is implemented as an MCP server and registered via configuration.
+MiroFlow's extensible tool system allows you to add custom functionality by implementing new MCP (Model Context Protocol) servers. Each tool extends the agent's capabilities and can be easily integrated into the framework.
+
+## Overview
+
+!!! info "What This Does"
+    Extend the agent's functionality by introducing a new tool. Each tool is implemented as an MCP server and registered via configuration, enabling agents to access new capabilities seamlessly.
+
+---
 
 ## Implementation Steps
 
-### 1. Create MCP Server
-Create a new file `src/tool/mcp_servers/new-mcp-server.py` that implements the tool’s core logic.  
+### Step 1: Create MCP Server
 
-```python
+Create a new file `src/tool/mcp_servers/new-mcp-server.py` that implements the tool's core logic.
+
+```python title="src/tool/mcp_servers/new-mcp-server.py"
 from fastmcp import FastMCP
 
 # Initialize FastMCP server
@@ -26,13 +33,14 @@ if __name__ == "__main__":
     mcp.run(transport="stdio")
 ```
 
-> Tool schemas are automatically generated from `docstrings` and `hints` via the FastMCP protocol.
+!!! tip "Automatic Schema Generation"
+    Tool schemas are automatically generated from `docstrings` and `type hints` via the FastMCP protocol.
 
+### Step 2: Create Tool Configuration
 
-### 2. Create Tool Config
-Add a new config file at `config/tools/new-tool-name.yaml`:
+Add a new configuration file at `config/tool/new-tool-name.yaml`:
 
-```yaml
+```yaml title="config/tool/new-tool-name.yaml"
 name: "new-tool-name"
 tool_command: "python"
 args:
@@ -40,20 +48,21 @@ args:
   - "src.tool.mcp_servers.new-mcp-server"  # Match the server file created above
 ```
 
+### Step 3: Register Tool in Agent Configuration
 
-### 3. Register Tool in Agent Config
-Enable the new tool inside your agent config (e.g., `config/agent-with-new-tool.yaml`):
+Enable the new tool inside your agent configuration (e.g., `config/agent-with-new-tool.yaml`):
 
-```yaml
+```yaml title="config/agent-with-new-tool.yaml"
 main_agent:
-  ...
+  # ... other configuration ...
   tool_config:
     - tool-reasoning
     - new-tool-name   # 👈 Add your new tool here
-  ...
+  # ... other configuration ...
+
 sub_agents:
   agent-worker:
-    ...
+    # ... other configuration ...
     tool_config:
       - tool-searching
       - tool-image-video
@@ -61,10 +70,11 @@ sub_agents:
       - tool-code
       - tool-audio
       - new-tool-name # 👈 Add your new tool here
-    ...
-``` 
+    # ... other configuration ...
+```
 
 ---
 
-**Last Updated:** Sep 2025  
-**Doc Contributor:** Team @ MiroMind AI  
+
+!!! info "Documentation Info"
+    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI

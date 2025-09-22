@@ -1,61 +1,71 @@
-# E2B Extension
+# E2B Advanced Features
 
+!!! warning "Preview Documentation"
+    This section is in preview and not fully ready. The features and instructions may change in future releases.
 
-We provide an option for local E2B Sandbox.
+MiroFlow provides advanced E2B (Execute to Build) sandbox capabilities for enhanced code execution environments with pre-installed packages and custom configurations.
 
+---
 
+## Local E2B Sandbox Deployment
 
-### Local E2B Sandbox Deployment
-To achieve our best benchmark results, we recommend using a pre-defined sandbox template that includes the most commonly used Python and apt packages. 
+!!! tip "Recommended Setup"
+    To achieve our best benchmark results, we recommend using a pre-defined sandbox template that includes the most commonly used Python and apt packages.
 
 If you prefer not to use a sandbox template, you can disable it by commenting out the line `template=DEFAULT_TEMPLATE_ID,` in `libs/miroflow-tool/src/miroflow/tool/mcp_servers/python_server.py` (line 145).
 
+---
 
+## Sandbox Setup Guide
 
-# Prepare E2B Sandbox (Optional)
+!!! note "Prerequisites"
+    - **npm** installed locally
+    - **Docker** running locally
+    - **E2B API key** configured
 
-> [!TIP]
-> We provide a public E2B sandbox template. Follow this step if you want to reproduce the best scores.
->
-> For the E2B sandbox service, we recommend setting up a Linux Docker image with a comprehensive set of apt and Python packages pre-installed. Without these pre-installed packages, the agent will need to spend extra steps and context installing them, resulting in reduced token efficiency.
->
-> you need to have `npm` install and `docker` running locally.
+### Step 1: Install E2B CLI
 
-
-1. Install `e2b` command line and login:
-
-```shell
-## install e2b
+```bash title="Install E2B Command Line"
+# Install e2b
 npm install -g @e2b/cli
-## check that it is available
+
+# Verify installation
 which e2b 
 ```
 
-2. Download our pre-configured Dockerfile:
-[e2b.Dockerfile](https://github.com/MiroMindAI/MiroFlow/blob/main/docs/e2b.Dockerfile).
+### Step 2: Download Pre-configured Dockerfile
 
-```shell
+Download our pre-configured Dockerfile from the repository:
+
+```bash title="Download Dockerfile"
 wget https://github.com/MiroMindAI/MiroFlow/blob/main/docs/e2b.Dockerfile
 ```
 
-3. Run `e2b template build` command [check official doc here](https://e2b.dev/docs/sdk-reference/cli/v1.0.2/template), use `all_pip_apt_pkg` as the name of template.
+### Step 3: Build Template
 
-```shell
-## build the template with `docker build` locally
+Run the `e2b template build` command to create your custom template:
+
+```bash title="Build E2B Template"
+# Set your E2B access token
 E2B_ACCESS_TOKEN=${your-token}
+
+# Build the template with docker build locally
 e2b template build -c "/root/.jupyter/start-up.sh" -n "all_pip_apt_pkg" -d ./e2b.Dockerfile
-## check that template is built successfully
+
+# Verify template was built successfully
 E2B_ACCESS_TOKEN=${your-token} e2b template list
 ```
 
-You can also create your own custom sandbox template for specific use cases by following similar steps. For more information, please refer to the [E2B Docker documentation](https://e2b.dev/docs/sandbox-template).
+!!! tip "Custom Templates"
+    You can create your own custom sandbox template for specific use cases by following similar steps. For more information, refer to the [E2B Docker documentation](https://e2b.dev/docs/sandbox-template).
 
+---
 
-### E2B Docker 
+## E2B Docker Configuration
 
-This document describes the custom E2B Docker environment used by MiroFlow for code execution. The E2B extension provides a sandboxed environment with pre-installed scientific computing libraries, data analysis tools, and other dependencies commonly needed for AI agent tasks.
+This custom E2B Docker environment provides a sandboxed environment with pre-installed scientific computing libraries, data analysis tools, and dependencies commonly needed for AI agent tasks.
 
-```bash
+```dockerfile title="e2b.Dockerfile"
 # You can use most Debian-based base images
 FROM e2bdev/code-interpreter
 
@@ -227,8 +237,7 @@ RUN apt-get update && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 ```
 
-
-
 ---
-**Last Updated:** Sep 2025  
-**Doc Contributor:** Team @ MiroMind AI
+
+!!! info "Documentation Info"
+    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
