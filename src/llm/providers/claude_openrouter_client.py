@@ -132,15 +132,26 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
                 extra_body["min_p"] = self.min_p
             if self.repetition_penalty != 1.0:
                 extra_body["repetition_penalty"] = self.repetition_penalty
-
-            params = {
-                "model": self.model_name,
-                "temperature": temperature,
-                "max_tokens": self.max_tokens,
-                "messages": processed_messages,
-                "stream": False,
-                "extra_body": extra_body,
-            }
+            
+            if self.model_name == "gpt-5-2025-08-07":
+                params = {
+                    "model": self.model_name,
+                    "temperature": temperature,
+                    "max_completion_tokens": self.max_tokens,
+                    "messages": processed_messages,
+                    "stream": False,
+                    "extra_body": extra_body,
+                    "reasoning_effort": self.reasoning_effort,
+                }
+            else:
+                params = {
+                    "model": self.model_name,
+                    "temperature": temperature,
+                    "max_tokens": self.max_tokens,
+                    "messages": processed_messages,
+                    "stream": False,
+                    "extra_body": extra_body,
+                }
 
             # Add optional parameters only if they have non-default values
             if self.top_p != 1.0:
