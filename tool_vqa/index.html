@@ -12,7 +12,7 @@
         <link rel="prev" href="../tool_reasoning/">
       
       
-        <link rel="next" href="../e2b_advanced_features/">
+        <link rel="next" href="../tool_searching/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>tool-vqa - MiroFlow</title>
+        <title>tool-image-video - MiroFlow</title>
       
     
     
@@ -62,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#-coming-soon-" class="md-skip">
+        <a href="#vision-tools-vision_mcp_serverpy" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              tool-vqa
+              tool-image-video
             
           </span>
         </div>
@@ -731,6 +731,29 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../futurex/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    FutureX
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -920,18 +943,123 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    tool-image-video
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
-    tool-vqa
+    tool-image-video
     
   </span>
   
 
       </a>
       
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visual_question_answeringimage_path_or_url-str-question-str" class="md-nav__link">
+    <span class="md-ellipsis">
+      visual_question_answering(image_path_or_url: str, question: str)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visual_audio_youtube_analyzingurl-str-question-str-provide_transcribe-bool-false" class="md-nav__link">
+    <span class="md-ellipsis">
+      visual_audio_youtube_analyzing(url: str, question: str = "", provide_transcribe: bool = False)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_searching/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    tool-searching
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    tool-python
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1514,6 +1642,41 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visual_question_answeringimage_path_or_url-str-question-str" class="md-nav__link">
+    <span class="md-ellipsis">
+      visual_question_answering(image_path_or_url: str, question: str)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visual_audio_youtube_analyzingurl-str-question-str-provide_transcribe-bool-false" class="md-nav__link">
+    <span class="md-ellipsis">
+      visual_audio_youtube_analyzing(url: str, question: str = "", provide_transcribe: bool = False)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1531,7 +1694,87 @@
   
 
 
-<h1 id="-coming-soon-">- Coming Soon -</h1>
+<h1 id="vision-tools-vision_mcp_serverpy">Vision Tools (<code>vision_mcp_server.py</code>)</h1>
+<p>The Vision MCP Server enables OCR + Visual Question Answering (VQA) over images and multimodal understanding of YouTube videos, with pluggable backends (Anthropic, OpenAI, Google Gemini).</p>
+<hr />
+<h2 id="environment-variables">Environment Variables</h2>
+<div class="admonition warning">
+<p class="admonition-title">Where to Modify</p>
+<p>The <code>vision_mcp_server.py</code> reads environment variables that are passed through the <code>tool-image-video.yaml</code> configuration file, not directly from <code>.env</code> file.</p>
+</div>
+<ul>
+<li>Vision Backend Control:<ul>
+<li><code>ENABLE_CLAUDE_VISION</code>: <code>"true"</code> to allow Anthropic Vision backend.</li>
+<li><code>ENABLE_OPENAI_VISION</code>: <code>"true"</code> to allow OpenAI Vision backend.</li>
+</ul>
+</li>
+<li>Anthropic Configuration:<ul>
+<li><code>ANTHROPIC_API_KEY</code></li>
+<li><code>ANTHROPIC_BASE_URL</code> : default = <code>https://api.anthropic.com</code></li>
+<li><code>ANTHROPIC_MODEL_NAME</code> : default = <code>claude-3-7-sonnet-20250219</code></li>
+</ul>
+</li>
+<li>OpenAI Configuration:<ul>
+<li><code>OPENAI_API_KEY</code></li>
+<li><code>OPENAI_BASE_URL</code> : default = <code>https://api.openai.com/v1</code></li>
+<li><code>OPENAI_MODEL_NAME</code> : default = <code>gpt-4o</code></li>
+</ul>
+</li>
+<li>Gemini Configuration:<ul>
+<li><code>GEMINI_API_KEY</code></li>
+<li><code>GEMINI_MODEL_NAME</code> : default = <code>gemini-2.5-pro</code></li>
+</ul>
+</li>
+</ul>
+<hr />
+<h2 id="visual_question_answeringimage_path_or_url-str-question-str"><code>visual_question_answering(image_path_or_url: str, question: str)</code></h2>
+<p>Ask questions about an image. Runs <strong>two passes</strong>:</p>
+<ol>
+<li>
+<p><strong>OCR pass</strong> using the selected vision backend with a meticulous extraction prompt.</p>
+</li>
+<li>
+<p><strong>VQA pass</strong> that analyzes the image and cross-checks against OCR text.</p>
+</li>
+</ol>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>image_path_or_url</code>: Local path (accessible to server) or web URL. HTTP URLs are auto-upgraded/validated to HTTPS for some backends.</li>
+<li><code>question</code>: The user’s question about the image.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><code>str</code>: Concatenated text with:<ul>
+<li><code>OCR results: ...</code></li>
+<li><code>VQA result: ...</code></li>
+</ul>
+</li>
+</ul>
+<p><strong>Features</strong></p>
+<ul>
+<li>Automatic MIME detection, reads magic bytes, falls back to extension, final default is <code>image/jpeg</code>.</li>
+</ul>
+<hr />
+<h2 id="visual_audio_youtube_analyzingurl-str-question-str-provide_transcribe-bool-false"><code>visual_audio_youtube_analyzing(url: str, question: str = "", provide_transcribe: bool = False)</code></h2>
+<p>Analyze <strong>public YouTube videos</strong> (audio + visual). Supports watch pages, Shorts, and Live VODs.</p>
+<ul>
+<li>Accepted URL patterns: <code>youtube.com/watch</code>, <code>youtube.com/shorts</code>, <code>youtube.com/live</code>.</li>
+</ul>
+<p><strong>Parameters</strong></p>
+<ul>
+<li><code>url</code>: YouTube video URL (publicly accessible).</li>
+<li><code>question</code> (optional): A specific question about the video. You can scope by time using <code>MM:SS</code> or <code>MM:SS-MM:SS</code> (e.g., <code>01:45</code>, <code>03:20-03:45</code>).</li>
+<li><code>provide_transcribe</code> (optional, default <code>False</code>): If <code>True</code>, returns a <strong>timestamped transcription</strong> including salient events and brief visual descriptions.</li>
+</ul>
+<p><strong>Returns</strong></p>
+<ul>
+<li><code>str</code>: transcription of the video (if asked) and answer to the question.</li>
+</ul>
+<p><strong>Features</strong></p>
+<ul>
+<li><strong>Gemini-powered</strong> video analysis (requires <code>GEMINI_API_KEY</code>).</li>
+<li>Dual mode: full transcript, targeted Q&amp;A, or both.</li>
+</ul>
 <hr />
 <p><strong>Last Updated:</strong> Sep 2025<br />
 <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
