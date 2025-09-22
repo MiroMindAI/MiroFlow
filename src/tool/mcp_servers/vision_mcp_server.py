@@ -280,7 +280,7 @@ async def visual_question_answering(image_path_or_url: str, question: str) -> st
     """This tool is used to ask question about an image or a video and get the answer with Gemini vision language models. It also automatically performs OCR (text extraction) on the image for additional context.
 
     Args:
-        image_path_or_url: The path of the image file locally or its URL. Files from sandbox are not supported.
+        image_path_or_url: The image file’s local path or its URL. Files from sandbox are not supported.
         question: The question to ask about the image. This tool performs bad on reasoning-required questions.
 
     Returns:
