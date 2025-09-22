@@ -2,14 +2,34 @@
 
 The Searching MCP Server provides comprehensive search capabilities including Google search, Wikipedia content retrieval, archive searching, and web scraping functionality.
 
-## Environment Variables Used in Tools
-- `SERPER_API_KEY`: Required API key for Serper service, Used by `google_search` and as a fallback for `scrape_website`
+!!! info "Available Functions"
+    This MCP server provides the following functions that agents can call:
+    
+    - **Google Search**: Comprehensive web search with filtering and localization
+    - **Wikipedia Access**: Page content retrieval and revision history tracking
+    - **Archive Search**: Wayback Machine integration for historical web content
+    - **Web Scraping**: Content extraction from websites and YouTube videos
+
+---
+
+## Environment Variables
+
+The following environment variables configure the search tools:
+
+- `SERPER_API_KEY`: Required API key for Serper service, used by `google_search` and as a fallback for `scrape_website`
 - `JINA_API_KEY`: Required API key for JINA service. Default choice for scraping websites in `scrape_website`
-- `REMOVE_SNIPPETS`: Set to "true" to filter out snippets from results. Used in `google_search` to filter the search results returned by Serper.
-- `REMOVE_KNOWLEDGE_GRAPH`: Set to "true" to remove knowledge graph data. Used in `google_search` to filter the search results returned by Serper.
-- `REMOVE_ANSWER_BOX`: Set to "true" to remove answer box content. Used in `google_search` to filter the search results returned by Serper.
+- `REMOVE_SNIPPETS`: Set to "true" to filter out snippets from results. Used in `google_search` to filter the search results returned by Serper
+- `REMOVE_KNOWLEDGE_GRAPH`: Set to "true" to remove knowledge graph data. Used in `google_search` to filter the search results returned by Serper
+- `REMOVE_ANSWER_BOX`: Set to "true" to remove answer box content. Used in `google_search` to filter the search results returned by Serper
+
+---
+
+## Function Reference
+
+The following functions are provided by the `searching_mcp_server.py` MCP tool and can be called by agents:
 
 ### `google_search(q: str, gl: str = "us", hl: str = "en", location: str = None, num: int = 10, tbs: str = None, page: int = 1)`
+
 Perform Google searches via Serper API and retrieve rich search results including organic results, people also ask, related searches, and knowledge graph.
 
 **Parameters:**
@@ -32,7 +52,10 @@ Perform Google searches via Serper API and retrieve rich search results includin
 - Configurable result filtering via environment variables
 - Support for regional and language-specific searches
 
+---
+
 ### `wiki_get_page_content(entity: str, first_sentences: int = 10)`
+
 Get specific Wikipedia page content for entities (people, places, concepts, events) and return structured information.
 
 **Parameters:**
@@ -51,7 +74,10 @@ Get specific Wikipedia page content for entities (people, places, concepts, even
 - Fallback search suggestions when page not found
 - Automatic content truncation for manageable output
 
+---
+
 ### `search_wiki_revision(entity: str, year: int, month: int, max_revisions: int = 50)`
+
 Search for an entity in Wikipedia and return the revision history for a specific month.
 
 **Parameters:**
@@ -72,7 +98,10 @@ Search for an entity in Wikipedia and return the revision history for a specific
 - Detailed revision metadata including timestamps and direct links
 - Clear error handling for invalid dates or missing pages
 
+---
+
 ### `search_archived_webpage(url: str, year: int, month: int, day: int)`
+
 Search the Wayback Machine (archive.org) for archived versions of a webpage for a specific date.
 
 **Parameters:**
@@ -94,7 +123,10 @@ Search the Wayback Machine (archive.org) for archived versions of a webpage for 
 - Special handling for Wikipedia URLs with tool suggestions
 - Automatic retry mechanism for reliable results
 
+---
+
 ### `scrape_website(url: str)`
+
 Scrape website content including support for regular websites and YouTube video information.
 
 **Parameters:**
@@ -105,21 +137,7 @@ Scrape website content including support for regular websites and YouTube video 
 
 - `str`: Scraped website content including text, metadata, and structured information
 
-**Features:**
-
-- Support for various website types
-- YouTube video information extraction (subtitles, titles, descriptions, key moments)
-- Automatic content parsing and cleaning
-- Integration with Jina API for enhanced scraping capabilities
-
-**Usage Notes:**
-
-- Search engines are not supported by this tool
-- For YouTube videos, provides non-visual information only
-- Content may be incomplete for some complex websites
-
 ---
 
-**Last Updated:** Sep 2025  
-**Doc Contributor:** Team @ MiroMind AI
-
+!!! info "Documentation Info"
+    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
