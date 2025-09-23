@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/mkdocs/docs/assets/miroflow_logo.png" width="40%" alt="MiroFlow" />
+  <img src="docs/mkdocs/docs/assets/miroflow_logo.png" width="45%" alt="MiroFlow" />
 </div>
 
 <br> 
@@ -28,77 +28,62 @@
 
 <img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
 
-## 📋 Table of Contents
+---
 
-- [📰 News & Updates](#-news--updates)
-- [🤖 What is MiroFlow?](#-what-is-miroflow)
-- [✨ Performance on Benchmarks](#-performance-on-benchmarks)
-- [🚀 Get Started in Under 5 Minutes](#-get-started-in-under-5-minutes)
-- [🤖 MiroFlow Framework](#-miroflow-ai-agentic-foundation-framework)
-- [🤝 Contributing](#-contributing)
-- [❓ FAQ](#-faq)
-- [📄 License & Support](#-license--support)
-- [👥 Acknowledgments](#-acknowledgments-and-contributors)
+This repo is the official implementation of the MiroMind Research Agent Project. It is high-performance, fully open-source, capable of conducting multi-step research on the internet to tackle complex tasks like future event prediction.  It currently includes 4 key components as follows:
 
+🤖 **MiroFlow**: an open-source research agent framework that offers reproducible state-of-the-art performance on representative benchmarks (FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks), included in this repo. See [[🚀 Get Started in Under 5 Minutes]](#-get-started-in-under-5-minutes) for a quick start.
 
-## 📰 News & Updates
+🤔 **MiroThinker**: an open-source agent foundation model that natively supports tool-assisted reasoning. See [MiroThinker](https://github.com/MiroMindAI/mirothinker).
 
-- **[2025-09-15]**: 🎉🎉 **MiroFlow v0.3** - Enhanced codebase architecture and significantly improved benchmark performance. MiroFlow now ranks #1 in the future prediction benchmark.
-- **[2025-08-27]**: **MiroFlow v0.2** - Achieves state-of-the-art performance across [multiple agentic benchmarks](https://miromind.ai/blog/miroflow), including HLE (27.2%), HLE-Text-Only (29.5%), BrowserComp-EN (33.2%), BrowserComp-ZH (47.1%), and xBench-DeepSearch (72.0%)
-- **[2025-08-26]**: Released [GAIA Validation Trace](docs/public_trace.md) (73.94% pass@1) and [Gradio Demo](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo) for local deployment
-- **[2025-08-08]**: 🎉 **MiroFlow v0.1** - Complete open-source release of framework, models, and training data
+📊 **MiroVerse**: 147k premium open-source training data supporting research agent training. See [MiroThinker](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1).
+
+🚧 **MiroTrain / MiroRL**: The training infra that supports stable and efficient training for the research agent models. See [MiroTrain](https://github.com/MiroMindAI/MiroTrain) / [MiroRL](https://github.com/MiroMindAI/MiroRL)
 
 ---
 
-## 🤖 What is MiroFlow?
+## 📋 Table of Contents
 
-**MiroFlow** is a comprehensive framework for building intelligent AI agents that achieve state-of-the-art performance on complex reasoning tasks. It provides enhanced conversation management, flexible tool integration, and extensive benchmark evaluations across multiple datasets. 
+[🚀 Get Started in Under 5 Minutes](#-get-started-in-under-5-minutes)
 
-**MiroThinker** is the open-source agentic model series built on this framework.
+[✨ Performance on Benchmarks](#-performance-on-benchmarks)
 
-### 🌟 Key Highlights
+[🤖 MiroFlow Framework](#-miroflow-ai-agentic-foundation-framework)
 
-- 🏆 **State-of-the-Art Performance**: #1 ranking across [multiple agentic benchmarks](https://miromindai.github.io/MiroFlow/evaluation_overview/)
-- 📊 **Premium Training Data**: Curated datasets via [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)
-- 🤖 **Open Models**: Complete collection at [MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)
-- 🔧 **Full Training Stack**: SFT/DPO recipes at [MiroTrain](https://github.com/MiroMindAI/MiroTrain)
-- 🎯 **Advanced RL**: Reinforcement learning via [MiroRL](https://github.com/MiroMindAI/MiroRL)
+[🤝 Contributing](#-contributing)
 
+[❓ FAQ](#-faq)
 
-### ✨ Performance on Benchmarks
+[📄 License & Support](#-license--support)
 
-<img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
+[👥 Acknowledgments](#-acknowledgments-and-contributors)
 
-We achieved the #1 ranking on the FutureX Benchmark Leaderboard as of September 10, 2025.
+---
 
-<div align="center">
-  <img src="docs/mkdocs/docs/assets/miroflow-0.2-performance_short.png" width="90%" alt="Comprehensive Benchmark Performance Comparison" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(3, 3, 3, 0.1);">
-</div>
+## 📰 News & Updates
 
-We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **BrowseComp** and **xBench-DeepSearch** and achieved SOTA results.
+**[2025-09-15]**: 🎉🎉 **MiroFlow v0.3**: Enhanced codebase architecture and significantly improved benchmark performance, boosting GPT-5's prediction accuracy for future events by 11%.
+ MiroFlow now ranks #1 in the future prediction benchmark. See [FutureX](https://futurex-ai.github.io/).
 
-| Model/Framework | GAIA Val | HLE | HLE-Text | BrowserComp-EN | BrowserComp-ZH | xBench-DeepSearch |
-|----------------|----------|-----|----------|----------------|----------------|-------------------|
-| **MiroFlow** | **82.4%** | **27.2%** | 29.5% | 33.2% | **47.1%** | **72.0%** |
-| OpenAI Deep Research | 67.4% | 26.6% | - | **51.5%** | 42.9% | - |
-| Gemini Deep Research | - | 26.9% | - | - | - | 50+% |
-| Kimi Researcher | - | - | 26.9% | - | - | 69.0% |
-| WebSailor-72B | 55.4% | - | - | - | 30.1% | 55.0% |
-| Manus | 73.3% | - | - | - | - | - |
-| DeepSeek v3.1 | - | - | **29.8%** | - | - | 71.2% |
+**[2025-08-27]**: **MiroFlow v0.2**: Achieves state-of-the-art performance across [multiple agentic benchmarks](https://miromind.ai/blog/miroflow), including HLE (27.2%), HLE-Text-Only (29.5%), BrowserComp-EN (33.2%), BrowserComp-ZH (47.1%), and xBench-DeepSearch (72.0%).
 
+**[2025-08-26]**: Released [GAIA Validation Trace](docs/public_trace.md) (73.94% pass@1) and [Gradio Demo](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo) for local deployment.
 
-# 🚀 Get Started in Under 5 Minutes
+**[2025-08-08]**: **MiroFlow v0.1**: Complete open-source release of framework.
+
+---
+
+## 🚀 Get Started in Under 5 Minutes
 
 Clone the repository, configure your API key, and run your first intelligent agent. You'll just need one `OPENROUTER_API_KEY`.
 
-## 📋 Prerequisites
+### 📋 Prerequisites
 
 - **Python**: 3.12 or higher
 - **Package Manager**: [`uv`](https://docs.astral.sh/uv/)
 - **Operating System**: Linux, macOS
 
-## ⚡ Quick Setup
+### ⚡ Quick Setup
 
 **Example**: Intelligent document analysis with file processing capabilities.
 
@@ -119,6 +104,46 @@ uv run main.py trace --config_file_name=agent_quickstart_1 --task="What is the f
 
 > **💡 Tip:** If you encounter issues, check that your API key is correctly set in the `.env` file and that all dependencies are installed.
 
+---
+
+## 🤖 What is MiroFlow?
+
+MiroFlow is a high-performance, modular framework for building intelligent AI agents that deliver state-of-the-art results on complex reasoning tasks like future event prediction. The framework features advanced multi-turn conversation capabilities, extensive tool ecosystem integration, and hierarchical sub-agent orchestration for optimal task completion. Learn more about our [agent framework](https://miromindai.github.io/MiroFlow/core_concepts/).
+
+<div align="center">
+<img src="docs/mkdocs/docs/assets/miroflow_architecture.png" width="100%" alt="MiroFlow Architecture">
+</div>
+
+
+## 🌟 Highlights
+
+**Reproducible State-of-the-Art Performance**: #1 ranking across [multiple agentic benchmarks](https://miromindai.github.io/MiroFlow/evaluation_overview/)
+
+**High Concurrency & Reliability**: Built with robust concurrency management and fault-tolerant design, MiroFlow efficiently handles rate-limited APIs and unstable networks, ensuring seamless trajectory collection and reliable execution of complex tasks.
+
+**Cost-Effective Deployment**: Powered by the open-source MiroThinker model, MiroFlow can run a  research agent service on a single RTX 4090. The entire stack relies on free, open-source tools, making it simple to deploy, scale, and reproduce.
+
+## ✨ Performance on Benchmarks
+
+We achieved the #1 ranking on the FutureX Benchmark Leaderboard as of September 10, 2025, boosting GPT-5's prediction accuracy for future events by 11%.
+
+<img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
+
+
+
+We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **BrowseComp** and **xBench-DeepSearch** and achieved SOTA results.
+
+| Model/Framework | GAIA Val | HLE | HLE-Text | BrowserComp-EN | BrowserComp-ZH | xBench-DeepSearch |
+|----------------|----------|-----|----------|----------------|----------------|-------------------|
+| **MiroFlow** | **82.4%** | **27.2%** | 29.5% | 33.2% | **47.1%** | **72.0%** |
+| OpenAI Deep Research | 67.4% | 26.6% | - | **51.5%** | 42.9% | - |
+| Gemini Deep Research | - | 26.9% | - | - | - | 50+% |
+| Kimi Researcher | - | - | 26.9% | - | - | 69.0% |
+| WebSailor-72B | 55.4% | - | - | - | 30.1% | 55.0% |
+| Manus | 73.3% | - | - | - | - | - |
+| DeepSeek v3.1 | - | - | **29.8%** | - | - | 71.2% |
+
+
 **🎯 Comprehensive Benchmark Suite**:
 - **GAIA Validation**: A benchmark for General AI Assistants. ([paper](https://arxiv.org/abs/2311.12983))
 - **GAIA-Text-103**: A subset of GAIA Validation for text-only tasks. ([paper](https://arxiv.org/abs/2505.22648))
@@ -126,14 +151,6 @@ uv run main.py trace --config_file_name=agent_quickstart_1 --task="What is the f
 - **HLE-Text-500**: A subset of HLE for text-only tasks. ([paper](https://arxiv.org/pdf/2504.21776))
 
 Follow our detailed guides to reproduce benchmark results in our [Benchmarks Documentation](https://miromindai.github.io/MiroFlow/evaluation_overview/)
-
-# 🤖 MiroFlow: AI Agentic Foundation Framework
-
-MiroFlow is a high-performance, modular framework for building intelligent AI agents that deliver state-of-the-art results on complex reasoning tasks. The framework features advanced multi-turn conversation capabilities, extensive tool ecosystem integration, and hierarchical sub-agent orchestration for optimal task completion. Learn more about our agent [workflow architecture](https://miromindai.github.io/MiroFlow/core_concepts/).
-
-<div align="center">
-<img src="docs/mkdocs/docs/assets/miroflow_architecture.png" width="100%" alt="MiroFlow Architecture">
-</div>
 
 ## 🤝 Contributing
 
