@@ -32,7 +32,7 @@
 
 This repo is the official implementation of the MiroMind Research Agent Project. It is high-performance, fully open-source, and capable of conducting multi-step research on the internet to tackle complex tasks like future event prediction.  It currently includes 4 key components as follows:
 
-🤖 **MiroFlow**: an open-source research agent framework that offers reproducible state-of-the-art performance on representative benchmarks (e.g., FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks), included in this repo. See [[🚀 Get Started in Under 5 Minutes]](#-get-started-in-under-5-minutes) for a quick start.
+🤖 **MiroFlow**: an open-source research agent framework that offers reproducible state-of-the-art performance on representative benchmarks (e.g., FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks), included in this repo. See [[Get Started in Under 5 Minutes]](#-get-started-in-under-5-minutes) for a quick start.
 
 🤔 **MiroThinker**: an open-source agent foundation model that natively supports tool-assisted reasoning. See [MiroThinker](https://github.com/MiroMindAI/mirothinker).
 
@@ -44,21 +44,25 @@ This repo is the official implementation of the MiroMind Research Agent Project.
 
 ## 📋 Table of Contents
 
-[📰 News & Updates](#-news--updates)
+📰 [News & Updates](#-news--updates)
 
-[🚀 Get Started in Under 5 Minutes](#-get-started-in-under-5-minutes)
+🚀 [Get Started in Under 5 Minutes](#-get-started-in-under-5-minutes)
 
-[🤖 What is MiroFlow?](#-what-is-miroflow)
+🤖 [What is MiroFlow?](#-what-is-miroflow)
 
-[✨ Performance on Benchmarks](#-performance-on-benchmarks)
+🌟 [Highlights](#-Highlights)
 
-[🤝 Contributing](#-contributing)
+✨ [Performance on Benchmarks](#-performance-on-benchmarks)
 
-[❓ FAQ](#-faq)
+🔧 [Supported Models & Tools](#-performance-on-benchmarks)
 
-[📄 License & Support](#-license--support)
+🤝 [Contributing](#-contributing)
 
-[👥 Acknowledgments](#-acknowledgments-and-contributors)
+❓ [FAQ](#-faq)
+
+📄 [License & Support](#-license--support)
+
+👥 [Acknowledgments](#-acknowledgments-and-contributors)
 
 ---
 
@@ -150,9 +154,11 @@ Follow our detailed guides to reproduce benchmark results in our [Benchmarks Doc
 
 We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 
-- 📋 **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues)
-- 🔀 **Pull Requests**: Submit improvements via pull requests
-- 💬 **Discussions**: Join our [Discord community](https://discord.com/invite/GPqEnkzQZd) for questions and discussions
+📋 **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues)
+
+🔀 **Pull Requests**: Submit improvements via pull requests
+
+💬 **Discussions**: Join our [Discord community](https://discord.com/invite/GPqEnkzQZd) for questions and discussions
 
 ## ❓ FAQ
 
