@@ -57,7 +57,7 @@ OPENAI_BASE_URL="https://api.openai.com/v1"
 export CHINESE_CONTEXT="true"
 uv run main.py common-benchmark \
   --config_file_name=agent_quickstart_1 \
-  --benchmark=xbench-ds \
+  benchmark=xbench-ds \
   output_dir="logs/xbench-ds/$(date +"%Y%m%d_%H%M")"
 ```
 
@@ -78,7 +78,7 @@ Replace `$PATH_TO_LOG` with your actual output directory path.
 ```bash title="Resume Interrupted Evaluation"
 uv run main.py common-benchmark \
   --config_file_name=agent_quickstart_1 \
-  --benchmark=xbench-ds \
+  benchmark=xbench-ds \
   output_dir="logs/xbench-ds/20250922_1430"
 ```
 
