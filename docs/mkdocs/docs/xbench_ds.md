@@ -50,15 +50,23 @@ OPENAI_BASE_URL="https://api.openai.com/v1"
 
 ### Step 3: Run the Evaluation
 
-!!! note "Chinese Context Configuration"
+```bash
+bash scripts/run_evaluate_single_run_xbench-ds.sh
+```
+
+!!! note "Script Contents"
     Since xbench-DeepSearch operates in a Chinese context, enable Chinese prompts by setting the environment variable `CHINESE_CONTEXT="true"`
 
-```bash title="Run xbench-DeepSearch Evaluation"
+```bash title="scripts/run_evaluate_single_run_xbench-ds.sh"
+RESULTS_DIR=${RESULTS_DIR:-"logs/xbench-ds/$(date +"%Y%m%d_%H%M")"}
+echo "Results will be saved in: $RESULTS_DIR"
+
 export CHINESE_CONTEXT="true"
+
 uv run main.py common-benchmark \
   --config_file_name=agent_quickstart_1 \
   benchmark=xbench-ds \
-  output_dir="logs/xbench-ds/$(date +"%Y%m%d_%H%M")"
+  output_dir=$RESULTS_DIR
 ```
 
 ### Step 4: Monitor Progress and Resume
@@ -76,10 +84,7 @@ Replace `$PATH_TO_LOG` with your actual output directory path.
     If the evaluation is interrupted, you can resume from where it left off by specifying the same output directory:
 
 ```bash title="Resume Interrupted Evaluation"
-uv run main.py common-benchmark \
-  --config_file_name=agent_quickstart_1 \
-  benchmark=xbench-ds \
-  output_dir="logs/xbench-ds/20250922_1430"
+RESULTS_DIR=$PATH_TO_LOG bash scripts/run_evaluate_single_run_xbench-ds.sh
 ```
 
 ---
@@ -93,7 +98,15 @@ uv run main.py common-benchmark \
     - Uses another agent (o3 by default) to make final decisions based on equivalence and source reliability criteria
     - Provides more robust and accurate final answers
 
-### Running Parallel Thinking Analysis
+Execute the following command to run multiple xbench-DeepSearch evaluations and automatically enable parallel thinking for enhanced performance.
+
+```bash title="Multiple runs with parallel thinking post-processing"
+bash scripts/run_evaluate_mulitple_runs_xbench-ds.sh
+```
+
+### Running Parallel Thinking Analysis alone
+
+After completing evaluations (single or multiple runs), you can apply parallel thinking post-processing to aggregate and generate the final result.
 
 ```bash title="Parallel Thinking Post-Processing"
 uv run utils/util_llm_parallel_thinking.py \
