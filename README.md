@@ -26,7 +26,9 @@
 
 </div>
 
-<img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
+<div align="center">
+  <img width="95%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
+</div>
 
 ---
 
@@ -136,7 +138,7 @@ MiroFlow is a high-performance, modular framework for building intelligent AI ag
 
 **Models**: GPT-Series, Claude, Gemini, Qwen, MiroThinker
 
-**Tools**: [Audio Transcription](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/audio_mcp_server.py), [Playwright](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/browser_session.py), [Python](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/python_server.py), [File Reading](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/reading_mcp_server.py), [Reasoning](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/reasoning_mcp_server.py), [Google Search](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/searching_mcp_server.py), [VQA](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/vision_mcp_server.py)
+**Tools**: [Audio Transcription](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/audio_mcp_server.py), [Playwright](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/browser_session.py), [Python](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/python_server.py), [File Reading](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/reading_mcp_server.py), [Reasoning](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/reasoning_mcp_server.py), [Google Search](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/searching_mcp_server.py), [VQA](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/vision_mcp_server.py), E2B
 
 
 ---
@@ -145,9 +147,13 @@ MiroFlow is a high-performance, modular framework for building intelligent AI ag
 
 We achieved the #1 ranking on the FutureX Benchmark Leaderboard as of September 10, 2025, boosting GPT-5's prediction accuracy for future events by 11%.
 
-<img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
+<div align="center">
+  <img width="95%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
+</div>
 
 We benchmark MiroFlow on a series of benchmarks, including **GAIA**, **HLE**, **BrowseComp**, and **xBench-DeepSearch**, and achieved SOTA results.
+
+<img width="100%" alt="image" src="docs/mkdocs/docs/assets/benchmark_results.png" />
 
 | Model/Framework | GAIA Val | HLE | HLE-Text | BrowserComp-EN | BrowserComp-ZH | xBench-DeepSearch |
 |----------------|----------|-----|----------|----------------|----------------|-------------------|
@@ -158,9 +164,6 @@ We benchmark MiroFlow on a series of benchmarks, including **GAIA**, **HLE**, **
 | WebSailor-72B | 55.4% | - | - | - | 30.1% | 55.0% |
 | Manus | 73.3% | - | - | - | - | - |
 | DeepSeek v3.1 | - | - | **29.8%** | - | - | 71.2% |
-
-<img width="100%" alt="image" src="docs/mkdocs/docs/assets/benchmark_results.png" />
-
 
 Follow our detailed guides to reproduce benchmark results in our [Benchmarks Documentation](https://miromindai.github.io/MiroFlow/evaluation_overview/)
 
