@@ -30,9 +30,9 @@
 
 ---
 
-This repo is the official implementation of the MiroMind Research Agent Project. It is high-performance, fully open-source, capable of conducting multi-step research on the internet to tackle complex tasks like future event prediction.  It currently includes 4 key components as follows:
+This repo is the official implementation of the MiroMind Research Agent Project. It is high-performance, fully open-source, and capable of conducting multi-step research on the internet to tackle complex tasks like future event prediction.  It currently includes 4 key components as follows:
 
-🤖 **MiroFlow**: an open-source research agent framework that offers reproducible state-of-the-art performance on representative benchmarks (FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks), included in this repo. See [[🚀 Get Started in Under 5 Minutes]](#-get-started-in-under-5-minutes) for a quick start.
+🤖 **MiroFlow**: an open-source research agent framework that offers reproducible state-of-the-art performance on representative benchmarks (e.g., FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks), included in this repo. See [[🚀 Get Started in Under 5 Minutes]](#-get-started-in-under-5-minutes) for a quick start.
 
 🤔 **MiroThinker**: an open-source agent foundation model that natively supports tool-assisted reasoning. See [MiroThinker](https://github.com/MiroMindAI/mirothinker).
 
@@ -46,9 +46,9 @@ This repo is the official implementation of the MiroMind Research Agent Project.
 
 [📰 News & Updates](#-news--updates)
 
-[🤖 What is MiroFlow?](#-what-is-miroflow)
-
 [🚀 Get Started in Under 5 Minutes](#-get-started-in-under-5-minutes)
+
+[🤖 What is MiroFlow?](#-what-is-miroflow)
 
 [✨ Performance on Benchmarks](#-performance-on-benchmarks)
 
@@ -77,13 +77,13 @@ This repo is the official implementation of the MiroMind Research Agent Project.
 
 ## 🚀 Get Started in Under 5 Minutes
 
-Clone the repository, configure your API key, and run your first intelligent agent. You'll just need one `OPENROUTER_API_KEY`.
-
 ### 📋 Prerequisites
 
-- **Python**: 3.12 or higher
-- **Package Manager**: [`uv`](https://docs.astral.sh/uv/)
-- **Operating System**: Linux, macOS
+**Python**: 3.12 or higher
+
+**Package Manager**: [`uv`](https://docs.astral.sh/uv/)
+
+**Operating System**: Linux, macOS
 
 ### ⚡ Quick Setup
 
@@ -119,7 +119,7 @@ MiroFlow is a high-performance, modular framework for building intelligent AI ag
 
 ## 🌟 Highlights
 
-**Reproducible State-of-the-Art Performance**: #1 ranking across [multiple agentic benchmarks](https://miromindai.github.io/MiroFlow/evaluation_overview/)
+**Reproducible State-of-the-Art Performance**: #1 ranking across [multiple agentic benchmarks](https://miromindai.github.io/MiroFlow/evaluation_overview/), including FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks)
 
 **High Concurrency & Reliability**: Built with robust concurrency management and fault-tolerant design, MiroFlow efficiently handles rate-limited APIs and unstable networks, ensuring seamless trajectory collection and reliable execution of complex tasks.
 
@@ -131,9 +131,7 @@ We achieved the #1 ranking on the FutureX Benchmark Leaderboard as of September 
 
 <img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
 
-
-
-We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **BrowseComp** and **xBench-DeepSearch** and achieved SOTA results.
+We benchmark MiroFlow on a series of benchmarks, including **GAIA**, **HLE**, **BrowseComp**, and **xBench-DeepSearch**, and achieved SOTA results.
 
 | Model/Framework | GAIA Val | HLE | HLE-Text | BrowserComp-EN | BrowserComp-ZH | xBench-DeepSearch |
 |----------------|----------|-----|----------|----------------|----------------|-------------------|
@@ -144,6 +142,7 @@ We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **B
 | WebSailor-72B | 55.4% | - | - | - | 30.1% | 55.0% |
 | Manus | 73.3% | - | - | - | - | - |
 | DeepSeek v3.1 | - | - | **29.8%** | - | - | 71.2% |
+
 
 Follow our detailed guides to reproduce benchmark results in our [Benchmarks Documentation](https://miromindai.github.io/MiroFlow/evaluation_overview/)
 
@@ -192,7 +191,7 @@ This project is licensed under the Apache License 2.0.
 
 ### References
 
-Technical report is coming soon!
+The technical report is coming soon!
 
 ```
 @misc{2025mirothinker,
@@ -207,8 +206,9 @@ Technical report is coming soon!
 
 ## 👥 Acknowledgments and Contributors
 
-- **Benchmark Contributors** for the comprehensive evaluation datasets
-- **Open Source Community** for the tools and libraries that make this possible
+**Benchmark Contributors** for the comprehensive evaluation datasets
+
+**Open Source Community** for the tools and libraries that make this possible
 
 We thank all contributors who have helped make MiroFlow better:
 
