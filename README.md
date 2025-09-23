@@ -27,7 +27,7 @@
 </div>
 
 <div align="center">
-  <img width="95%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
+  <img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
 </div>
 
 ---
@@ -122,6 +122,20 @@ MiroFlow is a high-performance, modular framework for building intelligent AI ag
 <img src="docs/mkdocs/docs/assets/miroflow_architecture.png" width="100%" alt="MiroFlow Architecture">
 </div>
 
+<table align="center" style="border: 1px solid #ccc; border-radius: 8px; padding: 12px; background-color: #f9f9f9; width: 60%;">
+  <tr>
+    <td style="text-align: center; padding: 10px;">
+      <strong>Research Assistant Demo</strong> - 
+      <span style="font-size: 0.9em; color: #555;">Read CVPR 2025 Best Paper and Provide Research Advice</span>
+      <br>
+      <video src="https://github.com/user-attachments/assets/99ed3172-6e9a-467a-9ccb-be45957fe2e4"
+             controls muted preload="metadata"
+             width="50%" height="50%"
+      </video>
+    </td>
+  </tr>
+</table>
+
 ---
 
 ## 🌟 Highlights
@@ -148,7 +162,7 @@ MiroFlow is a high-performance, modular framework for building intelligent AI ag
 We achieved the #1 ranking on the FutureX Benchmark Leaderboard as of September 10, 2025, boosting GPT-5's prediction accuracy for future events by 11%.
 
 <div align="center">
-  <img width="95%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
+  <img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
 </div>
 
 We benchmark MiroFlow on a series of benchmarks, including **GAIA**, **HLE**, **BrowseComp**, and **xBench-DeepSearch**, and achieved SOTA results.
