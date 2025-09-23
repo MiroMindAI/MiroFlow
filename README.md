@@ -159,6 +159,8 @@ We benchmark MiroFlow on a series of benchmarks, including **GAIA**, **HLE**, **
 | Manus | 73.3% | - | - | - | - | - |
 | DeepSeek v3.1 | - | - | **29.8%** | - | - | 71.2% |
 
+<img width="100%" alt="image" src="docs/mkdocs/docs/assets/benchmark_results.png" />
+
 
 Follow our detailed guides to reproduce benchmark results in our [Benchmarks Documentation](https://miromindai.github.io/MiroFlow/evaluation_overview/)
 
