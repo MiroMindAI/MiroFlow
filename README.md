@@ -44,11 +44,13 @@ This repo is the official implementation of the MiroMind Research Agent Project.
 
 ## 📋 Table of Contents
 
+[📰 News & Updates](#-news--updates)
+
+[🤖 What is MiroFlow?](#-what-is-miroflow)
+
 [🚀 Get Started in Under 5 Minutes](#-get-started-in-under-5-minutes)
 
 [✨ Performance on Benchmarks](#-performance-on-benchmarks)
-
-[🤖 MiroFlow Framework](#-miroflow-ai-agentic-foundation-framework)
 
 [🤝 Contributing](#-contributing)
 
@@ -142,13 +144,6 @@ We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **B
 | WebSailor-72B | 55.4% | - | - | - | 30.1% | 55.0% |
 | Manus | 73.3% | - | - | - | - | - |
 | DeepSeek v3.1 | - | - | **29.8%** | - | - | 71.2% |
-
-
-**🎯 Comprehensive Benchmark Suite**:
-- **GAIA Validation**: A benchmark for General AI Assistants. ([paper](https://arxiv.org/abs/2311.12983))
-- **GAIA-Text-103**: A subset of GAIA Validation for text-only tasks. ([paper](https://arxiv.org/abs/2505.22648))
-- **HLE**: Humanity's Last Exam. ([paper](https://arxiv.org/abs/2501.14249))
-- **HLE-Text-500**: A subset of HLE for text-only tasks. ([paper](https://arxiv.org/pdf/2504.21776))
 
 Follow our detailed guides to reproduce benchmark results in our [Benchmarks Documentation](https://miromindai.github.io/MiroFlow/evaluation_overview/)
 
