@@ -1,21 +1,25 @@
 # Contributing New LLM Clients
 
-## What This Does
-Add support for new LLM providers to MiroFlow by creating a provider class.
+Add support for new LLM providers to MiroFlow by creating a provider class that integrates with the existing client infrastructure.
 
 ## Client Structure
-Each LLM client inherits from `LLMProviderClientBase` and implements 4 methods:
+
+Each LLM client inherits from `LLMProviderClientBase` and implements 4 required methods:
+
 - `_create_client()` - Initialize API client
 - `_create_message()` - Make API calls  
 - `process_llm_response()` - Handle responses
 - `extract_tool_calls_info()` - Parse tool calls
 
+---
+
 ## Implementation Steps
 
-### 1. Create Provider File
-`src/llm/providers/your_provider_client.py`:
+### Step 1: Create Provider File
 
-```python
+Create `src/llm/providers/your_provider_client.py`:
+
+```python title="Provider Implementation"
 import dataclasses
 from src.llm.provider_client_base import LLMProviderClientBase
 
@@ -38,8 +42,9 @@ class YourProviderClient(LLMProviderClientBase):
         pass
 ```
 
-### 2. Create Config
-```yaml
+### Step 2: Create Configuration
+
+```yaml title="Agent Configuration"
 main_agent:
   llm: 
     provider_class: "YourProviderClient"
@@ -48,22 +53,22 @@ main_agent:
     your_base_url: "${oc.env:YOUR_BASE_URL,https://api.yourprovider.com/v1}"
 ```
 
-### 3. Set Environment
-```bash
+### Step 3: Set Environment Variables
+
+```bash title="Environment Setup"
 export YOUR_API_KEY="your-key"
 export YOUR_BASE_URL="https://api.yourprovider.com/v1"  # optional if using default
 ```
 
 ## Examples
+
 See existing providers in `src/llm/providers/`:
+
 - `ClaudeAnthropicClient` - Direct API
 - `ClaudeOpenRouterClient` - Proxy API  
 - `GPTOpenAIClient` - OpenAI API
 
-
-
-
-
 ---
-**Last Updated:** Sep 2025  
-**Doc Contributor:** Team @ MiroMind AI
+
+!!! info "Documentation Info"
+    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI

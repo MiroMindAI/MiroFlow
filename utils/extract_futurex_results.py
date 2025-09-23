@@ -15,10 +15,10 @@ Features:
 Usage:
     # Extract from single run
     python extract_futurex_results.py logs/futurex-online-test
-    
+
     # Aggregate multiple runs (if run_* subdirectories exist)
     python extract_futurex_results.py logs/futurex-online-multi-runs
-    
+
     # Specify output file
     python extract_futurex_results.py logs/futurex-online-test -o my_submission.jsonl
 """
@@ -82,25 +82,27 @@ def discover_runs(results_dir: str) -> List[str]:
 def extract_predictions_from_file(file_path: str) -> Dict[str, str]:
     """
     Extract predictions from a single benchmark_results.jsonl file.
-    
+
     Args:
         file_path: Path to benchmark_results.jsonl file
-        
+
     Returns:
         Dictionary mapping task_id to prediction
     """
     predictions = {}
-    
+
     with open(file_path, "r", encoding="utf-8") as fin:
         for line_num, line in enumerate(fin, 1):
             line = line.strip()
             if not line:
                 continue
-                
+
             try:
                 rec = json.loads(line)
             except json.JSONDecodeError as e:
-                print(f"Warning: Skipping malformed JSON at line {line_num} in {file_path}: {e}")
+                print(
+                    f"Warning: Skipping malformed JSON at line {line_num} in {file_path}: {e}"
+                )
                 continue
 
             task_id = rec.get("task_id")
@@ -110,17 +112,19 @@ def extract_predictions_from_file(file_path: str) -> Dict[str, str]:
             if task_id and pred is not None and str(pred).strip():
                 pred_str = str(pred).strip()
                 predictions[task_id] = pred_str
-                
+
     return predictions
 
 
-def aggregate_multiple_runs(results_dir: str) -> Tuple[Dict[str, List[str]], Dict[str, int]]:
+def aggregate_multiple_runs(
+    results_dir: str,
+) -> Tuple[Dict[str, List[str]], Dict[str, int]]:
     """
     Aggregate predictions from multiple runs in subdirectories.
-    
+
     Args:
         results_dir: Directory containing run_* subdirectories
-        
+
     Returns:
         Tuple of (predictions_by_task, first_seen_order)
     """
@@ -145,7 +149,7 @@ def aggregate_multiple_runs(results_dir: str) -> Tuple[Dict[str, List[str]], Dic
     for run_dir in runs:
         fpath = os.path.join(run_dir, "benchmark_results.jsonl")
         print(f"Reading: {fpath}")
-        
+
         with open(fpath, "r", encoding="utf-8") as fin:
             for line in fin:
                 total_lines += 1
@@ -172,41 +176,41 @@ def aggregate_multiple_runs(results_dir: str) -> Tuple[Dict[str, List[str]], Dic
 
     print(f"Collected from {len(runs)} run(s).")
     print(f"Read {total_lines} line(s), accepted {used_lines} record(s).")
-    
+
     return preds_by_task, first_seen_order
 
 
 def process_single_run(results_dir: str) -> Dict[str, str]:
     """
     Process a single run (direct benchmark_results.jsonl file).
-    
+
     Args:
         results_dir: Directory containing benchmark_results.jsonl
-        
+
     Returns:
         Dictionary mapping task_id to prediction
     """
     file_path = os.path.join(results_dir, "benchmark_results.jsonl")
-    
+
     if not os.path.isfile(file_path):
         raise FileNotFoundError(f"benchmark_results.jsonl not found in: {results_dir}")
-    
+
     print(f"Reading single run: {file_path}")
     predictions = extract_predictions_from_file(file_path)
     print(f"Extracted {len(predictions)} predictions from single run.")
-    
+
     return predictions
 
 
 def write_submission_file(
-    predictions: Dict[str, str], 
-    output_file: str, 
+    predictions: Dict[str, str],
+    output_file: str,
     is_aggregated: bool = False,
-    vote_counts: Dict[str, Dict[str, int]] = None
+    vote_counts: Dict[str, Dict[str, int]] = None,
 ) -> None:
     """
     Write predictions to FutureX submission format.
-    
+
     Args:
         predictions: Dictionary mapping task_id to prediction
         output_file: Output file path
@@ -217,14 +221,14 @@ def write_submission_file(
     with open(output_file, "w", encoding="utf-8") as out:
         for task_id in sorted(predictions.keys()):
             prediction = predictions[task_id]
-            
+
             # Create submission record
             record = {"id": task_id, "prediction": prediction}
-            
+
             # Add vote information for aggregated runs
             if is_aggregated and vote_counts and task_id in vote_counts:
                 record["vote_counts"] = vote_counts[task_id]
-            
+
             out.write(json.dumps(record, ensure_ascii=False) + "\n")
             num_tasks += 1
 
@@ -238,7 +242,7 @@ def write_submission_file(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Extract predictions from MiroFlow benchmark results and create FutureX submission files. "
-                   "Supports both single runs and multi-run aggregation with majority voting."
+        "Supports both single runs and multi-run aggregation with majority voting."
     )
     parser.add_argument(
         "results_dir",
@@ -257,7 +261,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--single",
-        action="store_true", 
+        action="store_true",
         help="Force single run mode (look for direct benchmark_results.jsonl)",
     )
     return parser.parse_args()
@@ -279,7 +283,7 @@ def main() -> None:
     # Determine processing mode
     runs = discover_runs(results_dir)
     single_file = os.path.join(results_dir, "benchmark_results.jsonl")
-    
+
     if args.aggregate:
         if not runs:
             raise FileNotFoundError(
@@ -312,18 +316,20 @@ def main() -> None:
     if mode == "aggregate":
         # Multi-run aggregation with majority voting
         preds_by_task, first_seen_order = aggregate_multiple_runs(results_dir)
-        
+
         # Apply majority voting
         final_predictions = {}
         vote_counts = {}
-        
+
         for task_id in preds_by_task:
             voted_pred, counts = majority_vote(preds_by_task[task_id], first_seen_order)
             final_predictions[task_id] = voted_pred
             vote_counts[task_id] = counts
-        
-        write_submission_file(final_predictions, output_file, is_aggregated=True, vote_counts=vote_counts)
-        
+
+        write_submission_file(
+            final_predictions, output_file, is_aggregated=True, vote_counts=vote_counts
+        )
+
     else:
         # Single run extraction
         predictions = process_single_run(results_dir)
