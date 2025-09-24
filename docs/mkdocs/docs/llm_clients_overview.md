@@ -1,5 +1,7 @@
 # LLM Clients Overview
 
+MiroFlow supports multiple LLM providers through a unified client interface. Each client handles provider-specific API communication while maintaining consistent functionality.
+
 ## Available Clients
 
 | Client | Provider | Model | Environment Variables |
@@ -10,21 +12,23 @@
 | `MiroThinkerSGLangClient` | SGLang | MiroThinker series | `OAI_MIROTHINKER_API_KEY`, `OAI_MIROTHINKER_BASE_URL` |
 
 ## Basic Configuration
-```yaml
+
+```yaml title="Agent Configuration"
 main_agent:
   llm: 
     provider_class: "ClientName"
     model_name: "model-name"
     api_key_param: "${oc.env:API_KEY,???}"
     base_url_param: "${oc.env:BASE_URL,default-url}"
-    ...
 ```
 
-## Quick Start
-1. Set relevant environment variable for your chosen provider
-2. Update your yaml config file
-3. Run: `uv run main.py trace --config_file_name=your_config_file --task="task" --task_file_name="file"`
+## Quick Setup
+
+1. Set relevant environment variables for your chosen provider
+2. Update your YAML config file with the appropriate client
+3. Run: `uv run main.py trace --config_file_name=your_config_file --task="task"`
 
 ---
-**Last Updated:** Sep 2025  
-**Doc Contributor:** Team @ MiroMind AI
+
+!!! info "Documentation Info"
+    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI

@@ -48,18 +48,22 @@ nav:
 
   - Evaluation:
     - Overview: evaluation_overview.md
-    - Download Datasets: download_datasets.md
     - Benchmarks: 
       - GAIA-Validation: gaia_validation.md
+      - GAIA-Validation-Text-Only: gaia_validation_text_only.md
       - GAIA-Test: gaia_test.md
       - FutureX: futurex.md
+      - FutureX: futurex.md
+    - Download Datasets: download_datasets.md
     - Add New Benchmarks: contribute_benchmarks.md
 
   - Tools: 
     - Overview: tool_overview.md
     - Tools:
       - tool-reasoning: tool_reasoning.md
-      - tool-vqa: tool_vqa.md
+      - tool-image-video: tool_vqa.md
+      - tool-searching: tool_searching.md
+      - tool-python: tool_python.md
     - Advanced Features:
       - E2B Advanced Features: e2b_advanced_features.md
     - Add New Tools: contribute_tools.md

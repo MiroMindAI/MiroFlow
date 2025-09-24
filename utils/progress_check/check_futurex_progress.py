@@ -4,7 +4,7 @@ Futurex-Online Progress Checker
 
 This script analyzes Futurex-Online benchmark results in a log folder to count:
 - Total files processed
-- Files with status "completed" 
+- Files with status "completed"
 - Files with predictions (final_boxed_answer)
 - Files with errors
 
@@ -68,7 +68,6 @@ def analyze_futurex_results(log_folder: str) -> Dict[str, int]:
             status = data.get("status", "").lower()
             final_answer = data.get("final_boxed_answer", "")
             error_msg = data.get("error", "")
-            judge_result = data.get("judge_result", "")
 
             # Count by status
             if status == "completed":
@@ -88,7 +87,14 @@ def analyze_futurex_results(log_folder: str) -> Dict[str, int]:
             # Count by prediction availability
             if final_answer and final_answer.strip():
                 results["with_predictions"] += 1
-                prediction_files.append((json_file.name, final_answer[:100] + "..." if len(final_answer) > 100 else final_answer))
+                prediction_files.append(
+                    (
+                        json_file.name,
+                        final_answer[:100] + "..."
+                        if len(final_answer) > 100
+                        else final_answer,
+                    )
+                )
             else:
                 results["without_predictions"] += 1
 
@@ -136,11 +142,17 @@ def display_results(
     with_errors = results["with_errors"]
 
     print(f"Total files processed:           {total:3d}")
-    print(f"Files with status 'completed':   {completed:3d} ({completed/total*100:.1f}%)")
+    print(
+        f"Files with status 'completed':   {completed:3d} ({completed/total*100:.1f}%)"
+    )
     print(f"Files with status 'running':     {running:3d} ({running/total*100:.1f}%)")
     print(f"Files with status 'failed':      {failed:3d} ({failed/total*100:.1f}%)")
-    print(f"Files with predictions:          {with_predictions:3d} ({with_predictions/total*100:.1f}%)")
-    print(f"Files with errors:               {with_errors:3d} ({with_errors/total*100:.1f}%)")
+    print(
+        f"Files with predictions:          {with_predictions:3d} ({with_predictions/total*100:.1f}%)"
+    )
+    print(
+        f"Files with errors:               {with_errors:3d} ({with_errors/total*100:.1f}%)"
+    )
     print(f"Files with parse errors:         {results['parse_errors']:3d}")
 
     if completed > 0:
@@ -200,10 +212,24 @@ def main():
 
     try:
         print(f"Analyzing Futurex-Online benchmark results in: {log_folder}")
-        results, completed_files, running_files, failed_files, prediction_files, error_files, parse_error_files = analyze_futurex_results(
-            log_folder
+        (
+            results,
+            completed_files,
+            running_files,
+            failed_files,
+            prediction_files,
+            error_files,
+            parse_error_files,
+        ) = analyze_futurex_results(log_folder)
+        display_results(
+            results,
+            completed_files,
+            running_files,
+            failed_files,
+            prediction_files,
+            error_files,
+            parse_error_files,
         )
-        display_results(results, completed_files, running_files, failed_files, prediction_files, error_files, parse_error_files)
 
     except Exception as e:
         print(f"Error: {e}")

@@ -1,0 +1,16 @@
+# config/benchmark/gaia-validation.yaml
+defaults:
+  - default
+  - _self_
+
+name: "gaia-validation-text-only"
+
+data:
+  data_dir: "${data_dir}/gaia-val-text-only"
+
+execution:
+  max_tasks: null  # null means no limit
+  max_concurrent: 3
+  pass_at_k: 1
+
+openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
