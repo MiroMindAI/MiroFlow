@@ -299,7 +299,7 @@ async def process_single_task(
     selected_solution = response["final_answer"]
     reasoning = response["reasoning"]
     result = await verify_answer_for_datasets(
-        BENCHMARK_NAME, "", data[0]["ground_truth"], selected_solution
+        None, BENCHMARK_NAME, "", data[0]["ground_truth"], selected_solution, {}
     )
 
     task_result = {

@@ -31,6 +31,7 @@ async def execute_task_pipeline(
     output_formatter: OutputFormatter,
     log_path: pathlib.Path,
     ground_truth: str | None = None,
+    metadata: dict | None = None,
 ) -> tuple[str, str, pathlib.Path]:
     """
     Executes the full pipeline for a single task.
@@ -61,7 +62,11 @@ async def execute_task_pipeline(
         task_id=task_id,
         task_file_name=task_file_name,
         ground_truth=ground_truth,
-        input={"task_description": task_description, "task_file_name": task_file_name},
+        input={
+            "task_description": task_description, 
+            "task_file_name": task_file_name,
+            "metadata": metadata or {}
+        },
     )
 
     main_agent_llm_client = None

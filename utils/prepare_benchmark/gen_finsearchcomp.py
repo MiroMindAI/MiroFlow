@@ -26,26 +26,37 @@ def gen_finsearchcomp(hf_token: str) -> Generator[Task, None, None]:
             task_id = sample.get("prompt_id", f"finsearchcomp_{split_name}_{idx}")
             task_question = sample.get("prompt", "")
             response_reference = sample.get("response_reference", "")
-            judge_prompt_template = sample.get("judge_prompt_template", "")
-            judge_system_prompt = sample.get("judge_system_prompt", "")
-            label = sample.get("label", "")
+            ground_truth_finance = sample.get("ground_truth", "")
             
-            # Create metadata dictionary
+            # Create metadata dictionary with all original fields
             metadata: MutableMapping = {
-                "judge_prompt_template": judge_prompt_template,
-                "judge_system_prompt": judge_system_prompt,
-                "label": label,
                 "source": "ByteSeedXpert/FinSearchComp",
                 "split": split_name,
                 "original_id": sample.get("prompt_id", ""),
-                "dataset_name": "FinSearchComp"
+                "dataset_name": "FinSearchComp",
+                "response_reference": response_reference,
+                "ground_truth_finance": ground_truth_finance,
             }
+            
+            # Add all other fields from sample to metadata (including judge prompts)
+            for key, value in sample.items():
+                if key not in ["prompt_id", "prompt", "response_reference", "ground_truth"]:
+                    metadata[key] = value
+            
+            # Determine the primary ground truth for evaluation
+            # Priority: response_reference > ground_truth_finance
+            if response_reference:
+                ground_truth_task = response_reference
+            elif ground_truth_finance:
+                ground_truth_task = ground_truth_finance
+            else:
+                ground_truth_task = ""  # Fallback to empty string
             
             # Create standardized Task object
             task = Task(
                 task_id=task_id,
                 task_question=task_question,
-                ground_truth=response_reference,  # Futurex-Online doesn't have ground truth
+                ground_truth=ground_truth_task,
                 file_path=None,   # No file attachments
                 metadata=metadata,
             )
