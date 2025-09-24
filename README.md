@@ -36,7 +36,7 @@ This repo is the official implementation of the MiroMind Research Agent Project.
 
 - 🤖 **MiroFlow**: an open-source research agent framework that offers reproducible state-of-the-art performance on representative benchmarks (e.g., FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks), included in this repo. See [[Get Started in Under 5 Minutes]](#-get-started-in-under-5-minutes) for a quick start.
 - 🤔 **MiroThinker**: an open-source agent foundation model that natively supports tool-assisted reasoning. See [MiroThinker](https://github.com/MiroMindAI/mirothinker).
-- 📊 **MiroVerse**: 147k premium open-source training data supporting research agent training. See [MiroThinker](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1).
+- 📊 **MiroVerse**: 147k premium open-source training data supporting research agent training. See [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1).
 - 🚧 **MiroTrain / MiroRL**: The training infra that supports stable and efficient training for the research agent models. See [MiroTrain](https://github.com/MiroMindAI/MiroTrain) / [MiroRL](https://github.com/MiroMindAI/MiroRL)
 
 ---
@@ -47,12 +47,12 @@ This repo is the official implementation of the MiroMind Research Agent Project.
 - 🚀 [Get Started in Under 5 Minutes](#-get-started-in-under-5-minutes)
 - 🤖 [What is MiroFlow?](#-what-is-miroflow)
 - 🌟 [Highlights](#-Highlights)
-- ✨ [Performance on Benchmarks](#-performance-on-benchmarks)
+- 📈 [Performance on Benchmarks](#-performance-on-benchmarks)
 - 🔧 [Supported Models & Tools](#-supported-models--tools)
-- 🤝 [Contributing](#-contributing)
 - ❓ [FAQ](#-faq)
-- 📄 [License & Support](#-license--support)
-- 👥 [Acknowledgments](#-acknowledgments-and-contributors)
+- 🤝 [Contributing](#-contributing)
+- 📄 [License](#-license)
+- 🙏 [Acknowledgments](#-acknowledgments-and-contributors)
 
 ---
 
@@ -137,7 +137,7 @@ MiroFlow is a high-performance, modular framework for building intelligent AI ag
 
 ---
 
-## ✨ Performance on Benchmarks
+## 📈 Performance on Benchmarks
 
 We achieved the #1 ranking on the FutureX Benchmark Leaderboard as of September 10, 2025, boosting GPT-5's prediction accuracy for future events by 11%.
 
@@ -160,18 +160,6 @@ We benchmark MiroFlow on a series of benchmarks, including **GAIA**, **HLE**, **
 | DeepSeek v3.1 | - | - | **29.8%** | - | - | 71.2% |
 
 Follow our detailed guides to reproduce benchmark results in our [Benchmarks Documentation](https://miromindai.github.io/MiroFlow/evaluation_overview/)
-
----
-
-## 🤝 Contributing
-
-We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
-
-- 📋 **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues)
-
-- 🔀 **Pull Requests**: Submit improvements via pull requests
-
-- 💬 **Discussions**: Join our [Discord community](https://discord.com/invite/GPqEnkzQZd) for questions and discussions
 
 ---
 
@@ -203,14 +191,34 @@ For commercial inquiries and enterprise support, please contact us through our <
 
 ---
 
-## 📄 License & Support
+## 🤝 Contributing
+
+We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+- 📋 **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues)
+
+- 🔀 **Pull Requests**: Submit improvements via pull requests
+
+- 💬 **Discussions**: Join our [Discord community](https://discord.com/invite/GPqEnkzQZd) for questions and discussions
+
+
+## 📄 License
 
 This project is licensed under the Apache License 2.0.
 
+## 🙏 Acknowledgments
 
-<div align="center">
-    <img src="https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Date" alt="Star History Chart" height="300">
-</div>
+**Benchmark Contributors** for the comprehensive evaluation datasets
+
+**Open Source Community** for the tools and libraries that make this possible
+
+We thank all contributors who have helped make MiroFlow better:
+
+<a href="https://github.com/MiroMindAI/MiroFlow/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=MiroMindAI/MiroFlow" />
+</a>
+
+Join our community and help us build the future of AI agents!
 
 ## References
 
@@ -225,16 +233,4 @@ The technical report is coming soon!
 }
 ```
 
-## 👥 Acknowledgments and Contributors
-
-**Benchmark Contributors** for the comprehensive evaluation datasets
-
-**Open Source Community** for the tools and libraries that make this possible
-
-We thank all contributors who have helped make MiroFlow better:
-
-<a href="https://github.com/MiroMindAI/MiroFlow/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=MiroMindAI/MiroFlow" />
-</a>
-
-Join our community and help us build the future of AI agents!
+[![Star History Chart](https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Date)](https://star-history.com/#MiroMindAI/MiroFlow&Date)
