@@ -51,22 +51,9 @@ OPENAI_BASE_URL="https://api.openai.com/v1"
 ### Step 3: Run the Evaluation
 
 ```bash
-bash scripts/run_evaluate_single_run_xbench-ds.sh
-```
-
-!!! note "Script Contents"
-    Since xbench-DeepSearch operates in a Chinese context, enable Chinese prompts by setting the environment variable `CHINESE_CONTEXT="true"`
-
-```bash title="scripts/run_evaluate_single_run_xbench-ds.sh"
-RESULTS_DIR=${RESULTS_DIR:-"logs/xbench-ds/$(date +"%Y%m%d_%H%M")"}
-echo "Results will be saved in: $RESULTS_DIR"
-
-export CHINESE_CONTEXT="true"
-
 uv run main.py common-benchmark \
-  --config_file_name=agent_quickstart_1 \
-  benchmark=xbench-ds \
-  output_dir=$RESULTS_DIR
+  --config_file_name=agent_xbench-ds \
+  output_dir="logs/xbench-ds/$(date +"%Y%m%d_%H%M")"
 ```
 
 ### Step 4: Monitor Progress and Resume
@@ -84,7 +71,9 @@ Replace `$PATH_TO_LOG` with your actual output directory path.
     If the evaluation is interrupted, you can resume from where it left off by specifying the same output directory:
 
 ```bash title="Resume Interrupted Evaluation"
-RESULTS_DIR=$PATH_TO_LOG bash scripts/run_evaluate_single_run_xbench-ds.sh
+uv run main.py common-benchmark \
+  --config_file_name=agent_xbench-ds \
+  output_dir="logs/xbench-ds/20250922_1430"
 ```
 
 ---
@@ -110,8 +99,8 @@ After completing evaluations (single or multiple runs), you can apply parallel t
 
 ```bash title="Parallel Thinking Post-Processing"
 uv run utils/util_llm_parallel_thinking.py \
-    --benchmark xbench-ds \
-    --results_dir "logs/xbench-ds/20250922_1430"
+  --benchmark xbench-ds \
+  --results_dir "logs/xbench-ds/20250922_1430"
 ```
 
 The program automatically reads results from each run in the specified directory and performs aggregated analysis. The final output files are generated in the `results_dir`:

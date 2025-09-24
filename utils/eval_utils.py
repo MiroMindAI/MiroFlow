@@ -112,7 +112,7 @@ async def verify_answer_llm_simpleqa(
     CHOICE_MAP = {"A": "CORRECT", "B": "INCORRECT", "C": "NOT_ATTEMPTED"}
 
     llm_response = await openai_client.chat.completions.create(
-        model="gpt-4o-mini", messages=messages, max_completion_tokens=2
+        model="gpt-4o-mini", messages=messages, max_completion_tokens=2, temperature=0.0
     )
     content = llm_response.choices[0].message.content
     match = re.search(r"(A|B|C)", content)
