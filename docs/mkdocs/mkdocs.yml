@@ -53,7 +53,6 @@ nav:
       - GAIA-Validation-Text-Only: gaia_validation_text_only.md
       - GAIA-Test: gaia_test.md
       - FutureX: futurex.md
-      - FutureX: futurex.md
     - Download Datasets: download_datasets.md
     - Add New Benchmarks: contribute_benchmarks.md
 
