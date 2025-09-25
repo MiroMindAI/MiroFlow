@@ -54,6 +54,7 @@ nav:
       - GAIA-Test: gaia_test.md
       - FutureX: futurex.md
       - xBench-DeepSearch: xbench_ds.md
+      - FinSearchComp: finsearchcomp.md
     - Download Datasets: download_datasets.md
     - Add New Benchmarks: contribute_benchmarks.md
 
