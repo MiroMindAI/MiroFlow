@@ -195,9 +195,9 @@ For commercial inquiries and enterprise support, please contact us through our <
 
 We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 
-- 📋 **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues)
-- 🔀 **Pull Requests**: Submit improvements via pull requests
-- 💬 **Discussions**: Join our [Discord community](https://discord.com/invite/GPqEnkzQZd) for questions and discussions
+- 📋 **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues).
+- 🔀 **Pull Requests**: Submit improvements via pull requests.
+- 💬 **Discussions**: Join our [Discord community](https://discord.com/invite/GPqEnkzQZd) for questions and discussions.
 
 
 ## 📄 License
@@ -206,9 +206,9 @@ This project is licensed under the Apache License 2.0.
 
 ## 🙏 Acknowledgments
 
-**Benchmark Contributors** for the comprehensive evaluation datasets
+**Benchmark Contributors** for the comprehensive evaluation datasets.
 
-**Open Source Community** for the tools and libraries that make this possible
+**Open Source Community** for the tools and libraries that make this possible.
 
 We thank all contributors who have helped make MiroFlow better:
 
