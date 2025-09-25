@@ -40,6 +40,27 @@ def extract_task_type(task_id: str) -> str:
     return "Unknown"
 
 
+def extract_region_from_label(label: str) -> str:
+    """
+    Extract region from the label field.
+    
+    Args:
+        label: Label string like "Complex_Historical_Investigation(Global)" or "Financial_Analysis(Greater_China)"
+        
+    Returns:
+        Region string ("Global", "Greater_China", or "Unknown")
+    """
+    if not label:
+        return "Unknown"
+    
+    if "(Global)" in label:
+        return "Global"
+    elif "(Greater_China)" in label:
+        return "Greater_China"
+    else:
+        return "Unknown"
+
+
 def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, any]:
     """
     Analyze FinSearchComp benchmark results from JSON log files.
@@ -70,6 +91,16 @@ def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, any]:
             "T2": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
             "T3": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
             "Unknown": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0}
+        },
+        "regional_breakdown": {
+            "Global": {
+                "T2": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
+                "T3": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0}
+            },
+            "Greater_China": {
+                "T2": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
+                "T3": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0}
+            }
         }
     }
 
@@ -90,13 +121,25 @@ def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, any]:
             task_type = extract_task_type(task_id)
             status = data.get("status", "").lower()
             judge_result = data.get("judge_result", "").upper()
+            
+            # Extract region from label
+            label = data.get("input", {}).get("metadata", {}).get("label", "")
+            region = extract_region_from_label(label)
 
             # Update task type breakdown
             results["task_type_breakdown"][task_type]["total"] += 1
+            
+            # Update regional breakdown for T2 and T3 tasks
+            if task_type in ["T2", "T3"] and region in results["regional_breakdown"]:
+                results["regional_breakdown"][region][task_type]["total"] += 1
 
             if status == "completed":
                 results["completed_status"] += 1
                 results["task_type_breakdown"][task_type]["completed"] += 1
+                
+                # Update regional breakdown for completed T2 and T3 tasks
+                if task_type in ["T2", "T3"] and region in results["regional_breakdown"]:
+                    results["regional_breakdown"][region][task_type]["completed"] += 1
 
                 # For T1 tasks, exclude from correctness evaluation but count as completed
                 if task_type == "T1":
@@ -108,10 +151,16 @@ def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, any]:
                     if judge_result == "CORRECT":
                         results["completed_and_correct"] += 1
                         results["task_type_breakdown"][task_type]["correct"] += 1
+                        # Update regional breakdown for correct T2 and T3 tasks
+                        if task_type in ["T2", "T3"] and region in results["regional_breakdown"]:
+                            results["regional_breakdown"][region][task_type]["correct"] += 1
                         completed_correct_files.append(json_file.name)
                     else:
                         results["completed_and_incorrect"] += 1
                         results["task_type_breakdown"][task_type]["incorrect"] += 1
+                        # Update regional breakdown for incorrect T2 and T3 tasks
+                        if task_type in ["T2", "T3"] and region in results["regional_breakdown"]:
+                            results["regional_breakdown"][region][task_type]["incorrect"] += 1
                         completed_incorrect_files.append((json_file.name, judge_result))
             else:
                 results["other_status"] += 1
@@ -191,6 +240,24 @@ def display_results(
                 print(f"  Total: {breakdown['total']:3d}, Completed: {breakdown['completed']:3d} ({completion_rate:.1f}%)")
                 print(f"  Correct: {breakdown['correct']:3d}, Incorrect: {breakdown['incorrect']:3d}")
                 print(f"  Accuracy: {accuracy_rate:.1f}%")
+
+    # Regional breakdown for T2 and T3
+    print("\n" + "-" * 70)
+    print("REGIONAL BREAKDOWN (T2 & T3 TASKS)")
+    print("-" * 70)
+    
+    for region in ["Global", "Greater_China"]:
+        print(f"\n{region} Region:")
+        for task_type in ["T2", "T3"]:
+            breakdown = results["regional_breakdown"][region][task_type]
+            if breakdown["total"] > 0:
+                completion_rate = breakdown["completed"] / breakdown["total"] * 100
+                accuracy_rate = breakdown["correct"] / breakdown["completed"] * 100 if breakdown["completed"] > 0 else 0
+                task_name = "Simple Historical Lookup" if task_type == "T2" else "Complex Historical Investigation"
+                print(f"  {task_type} ({task_name}):")
+                print(f"    Total: {breakdown['total']:3d}, Completed: {breakdown['completed']:3d} ({completion_rate:.1f}%)")
+                print(f"    Correct: {breakdown['correct']:3d}, Incorrect: {breakdown['incorrect']:3d}")
+                print(f"    Accuracy: {accuracy_rate:.1f}%")
 
     print("\n" + "-" * 70)
     print(f"SUMMARY: {completed} tasks completed, {correct} T2+T3 tasks correct")
