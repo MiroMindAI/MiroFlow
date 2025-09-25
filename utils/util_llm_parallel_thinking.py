@@ -18,6 +18,7 @@ from tenacity.asyncio import AsyncRetrying
 
 from eval_utils import verify_answer_for_datasets
 from dotenv import load_dotenv
+from argparse import ArgumentParser
 
 load_dotenv()
 
@@ -35,7 +36,6 @@ class ExtractedAnswer(BaseModel):
 
 
 BENCHMARK_NAME = "gaia-validation"  # Benchmark name for evaluation
-RESULTS_DIRS = ["<your_results_dirs>"]
 
 DEFAULT_MODEL = "o3"
 OPENAI_BASE_URL = "https://api.openai.com/v1"
@@ -373,16 +373,16 @@ def create_parallel_thinking_xbench_prompt(
 
 
 async def process_single_task(
-    task_id: str, data: List[Dict[str, Any]], n_runs: int, semaphore: asyncio.Semaphore
+    benchmark_name: str, task_id: str, data: List[Dict[str, Any]], n_runs: int, semaphore: asyncio.Semaphore
 ) -> Tuple[str, Dict[str, Any], Any]:
     """Process a single task and return its result."""
     # Choose prompt function based on benchmark
-    if "xbench" in BENCHMARK_NAME:
+    if "xbench" in benchmark_name:
         prompt = create_parallel_thinking_xbench_prompt(data, n_runs)
-    elif "gaia" in BENCHMARK_NAME:
+    elif "gaia" in benchmark_name:
         prompt = create_parallel_thinking_gaia_prompt(data, n_runs)
     else:
-        raise ValueError(f"Unsupported benchmark name: {BENCHMARK_NAME}")
+        raise ValueError(f"Unsupported benchmark name: {benchmark_name}")
 
     response, usage = await select_best_solution(prompt, n_runs, semaphore=semaphore)
     selected_solution = response["final_answer"]
@@ -393,7 +393,7 @@ async def process_single_task(
     )
 
     result = await verify_answer_for_datasets(
-        client, BENCHMARK_NAME, "", data[0]["ground_truth"], selected_solution
+        client, benchmark_name, "", data[0]["ground_truth"], selected_solution
     )
 
     task_result = {
@@ -411,9 +411,10 @@ async def process_single_task(
 
 
 async def process_tasks(
+    benchmark_name: str,
     task_score_dict: Dict[str, List[Dict[str, Any]]],
     n_runs: int,
-    max_concurrent_requests: int = MAX_CONCURRENT_REQUESTS,
+    max_concurrent_requests: int,
 ) -> Dict[str, Dict[str, Any]]:
     """Process all tasks concurrently and select best solutions."""
     # Create semaphore for rate limiting
@@ -421,7 +422,7 @@ async def process_tasks(
 
     # Create tasks for concurrent execution
     tasks = [
-        process_single_task(task_id, data, n_runs, semaphore)
+        process_single_task(benchmark_name, task_id, data, n_runs, semaphore)
         for task_id, data in task_score_dict.items()
     ]
 
@@ -564,7 +565,7 @@ def save_results(
 
 
 async def main(
-    results_dir: str, max_concurrent_requests: int = MAX_CONCURRENT_REQUESTS
+    benchmark_name: str, results_dir: str, max_concurrent_requests: int = MAX_CONCURRENT_REQUESTS
 ) -> None:
     """Main function to analyze results and select best solutions."""
     if not os.path.exists(results_dir):
@@ -574,7 +575,7 @@ async def main(
     print(f"Analyzing results from: {results_dir}")
 
     # Load task data from all runs
-    task_score_dict = load_task_data(results_dir)
+    task_score_dict = load_task_data(benchmark_name, results_dir)
     if not task_score_dict:
         print("No task data found")
         return
@@ -584,17 +585,22 @@ async def main(
     n_runs = len([d for d in run_dirs if os.path.isdir(d)])
 
     # Process all tasks
-    task_results = await process_tasks(task_score_dict, n_runs, max_concurrent_requests)
+    task_results = await process_tasks(benchmark_name, task_score_dict, n_runs, max_concurrent_requests)
 
     # Save results
     save_results(results_dir, task_results, n_runs)
 
 
 if __name__ == "__main__":
-    max_concurrent_requests = MAX_CONCURRENT_REQUESTS
+    args = ArgumentParser()
+    args.add_argument("--benchmark", type=str, default="gaia", choices=["gaia", "xbench-ds"])
+    args.add_argument("--results_dirs", type=str, default=[])
+    args.add_argument("--max_concurrent_requests", type=int, default=25)
+    args = args.parse_args()
 
-    # Use single or multiple directory mode based on whether results_dirs is defined above
-    results_dirs = RESULTS_DIRS
+    benchmark_name = args.benchmark
+    max_concurrent_requests = args.max_concurrent_requests
+    results_dirs = list(args.results_dirs.split(",")) # Use single or multiple directory mode based on whether results_dirs is defined above
 
     if results_dirs:
         # Multiple directories mode
@@ -608,7 +614,7 @@ if __name__ == "__main__":
 
         async def main_combined():
             task_results = await process_tasks(
-                combined_dict, total_runs, max_concurrent_requests
+                benchmark_name, combined_dict, total_runs, max_concurrent_requests
             )
             save_results(os.path.dirname(results_dirs[0]), task_results, total_runs)
 
