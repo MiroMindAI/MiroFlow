@@ -210,6 +210,7 @@ class BenchmarkEvaluator(ABC):
                             sub_agent_tool_managers=self.sub_agent_tool_managers,
                             output_formatter=self.output_formatter,
                             ground_truth=task.ground_truth,
+                            metadata=task.metadata,
                             log_path=self.output_dir
                             / f"task_{task.task_id}_attempt_{attempt}.json",
                         )
@@ -242,6 +243,7 @@ class BenchmarkEvaluator(ABC):
                             question=task.task_question,
                             target=task.ground_truth,
                             predicted_answer=attempt_result["model_boxed_answer"],
+                            metadata=task.metadata,
                         )
                         attempt_result["judge_result"] = evaluation_result
                         attempt_result["is_correct"] = evaluation_result == "CORRECT"

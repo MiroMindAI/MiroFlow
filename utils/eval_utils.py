@@ -374,18 +374,114 @@ async def verify_answer_gaia(target: str, predicted_answer: str) -> str:
         # return "NOT_ATTEMPTED"
 
 
+@retry(wait=wait_exponential(multiplier=5), stop=stop_after_attempt(5))
+async def verify_answer_llm_finsearchcomp(
+    openai_client: AsyncOpenAI, 
+    question: str, 
+    target: str, 
+    predicted_answer: str,
+    judge_prompt_template: str,
+    judge_system_prompt: str,
+    metadata: dict = None
+) -> str:
+    """
+    Use FinSearchComp-style LLM judge with dynamic prompts to verify if the predicted answer is correct.
+    
+    Args:
+        openai_client: OpenAI client for LLM calls
+        question: The question being answered
+        target: The correct/target answer (primary ground truth)
+        predicted_answer: The model's predicted answer
+        judge_prompt_template: The judge prompt template from metadata
+        judge_system_prompt: The judge system prompt from metadata
+        metadata: Additional metadata containing response_reference and ground_truth_finance
+        
+    Returns:
+        String indicating the evaluation result: "CORRECT", "INCORRECT", or "NOT_ATTEMPTED"
+    """
+    # Get the appropriate ground truth based on the prompt template
+    response_reference = metadata.get("response_reference", "") if metadata else ""
+    ground_truth_finance = metadata.get("ground_truth_finance", "") if metadata else ""
+    
+    # Format the judge prompt template with the actual values
+    formatted_prompt = judge_prompt_template.format(
+        prompt=question,
+        response_reference=response_reference,
+        ground_truth=ground_truth_finance,
+        response=predicted_answer
+    )
+    
+    # Create messages with system prompt and user prompt
+    messages = [
+        {"role": "system", "content": judge_system_prompt},
+        {"role": "user", "content": formatted_prompt}
+    ]
+    
+    try:
+        # NOTE: no explicit LLM model is specified here, so we use gpt-4o-mini for consistency
+        response = await openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=messages,
+            max_completion_tokens=2048,
+            temperature=0.0  # Deterministic evaluation
+        )
+        
+        content = response.choices[0].message.content
+        
+        # Print FinSearchComp judge reasoning
+        print(f"FinSearchComp LLM Judge Response: {content}")
+        
+        # Parse the response to determine if it's correct
+        # Look for common patterns in the response
+        content_lower = content.lower()
+        
+        # Check for JSON format responses
+        if "answer_score" in content_lower:
+            if '"answer_score": 1' in content or '"answer_score":1' in content:
+                return "CORRECT"
+            elif '"answer_score": 0' in content or '"answer_score":0' in content:
+                return "INCORRECT"
+        
+        # Check for score format responses
+        if "score" in content_lower:
+            if '"score": 1' in content or '"score":1' in content:
+                return "CORRECT"
+            elif '"score": 0' in content or '"score":0' in content:
+                return "INCORRECT"
+        
+        # If we can't parse the response, return NOT_ATTEMPTED
+        print(f"Warning: Could not parse FinSearchComp judge response: {content}")
+        return "NOT_ATTEMPTED"
+        
+    except Exception as e:
+        print(f"FinSearchComp LLM evaluation failed: {e}")
+        return "NOT_ATTEMPTED"
+
+
 async def verify_answer_for_datasets(
     openai_client: AsyncOpenAI,
     benchmark_name: str,
     question: str,
     target: str,
     predicted_answer: str,
+    metadata: dict = None,
 ) -> str:
     """
     Verify the answer for a given dataset.
     """
 
     try:
+        # Handle finsearchcomp with dynamic judge prompts
+        if "finsearchcomp" in benchmark_name and metadata:
+            judge_prompt_template = metadata.get("judge_prompt_template", "")
+            judge_system_prompt = metadata.get("judge_system_prompt", "")
+            
+            if judge_prompt_template and judge_system_prompt:
+                return await verify_answer_llm_finsearchcomp(
+                    openai_client, question, target, predicted_answer,
+                    judge_prompt_template, judge_system_prompt, metadata
+                )
+        
         # for all questions, do gaia scorer first, if not return CORRECT, then do others
         gaia_scorer_answer = await verify_answer_gaia(target, predicted_answer)
 

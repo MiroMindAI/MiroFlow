@@ -33,6 +33,8 @@ async def main(input_dir: str, benchmark_name: str):
             question = data.get("task_question", "")
             ground_truth = data.get("ground_truth", "")
             predicted_answer = data.get("final_boxed_answer", "")
+            metadata = data.get("input", {}).get("metadata", {})
+            
             # If already has judge result, skip
             # if "judge_result" in data and data["judge_result"] in ("CORRECT", "INCORRECT"):
             #     print(f"Log {log_file} already has judge result: {data['judge_result']}")
@@ -44,6 +46,7 @@ async def main(input_dir: str, benchmark_name: str):
                 question=question,
                 target=ground_truth,
                 predicted_answer=predicted_answer,
+                metadata=metadata,  # Now metadata is available from log files
             )
             print(f"{os.path.basename(log_file)}: {result}")
             # Optionally, update the log file with the result

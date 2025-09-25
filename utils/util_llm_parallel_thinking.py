@@ -393,7 +393,7 @@ async def process_single_task(
     )
 
     result = await verify_answer_for_datasets(
-        client, benchmark_name, "", data[0]["ground_truth"], selected_solution
+        client, benchmark_name, "", data[0]["ground_truth"], selected_solution, {}
     )
 
     task_result = {
