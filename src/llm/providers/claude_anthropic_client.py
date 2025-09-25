@@ -29,7 +29,7 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
 
     def _create_client(self, config: DictConfig):
         """Create Anthropic client"""
-        api_key = config.env.anthropic_api_key
+        api_key = self.cfg.llm.anthropic_api_key
 
         if self.async_client:
             return AsyncAnthropic(
@@ -182,6 +182,31 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
             )
         else:
             return summary_prompt
+
+    def _extract_usage_from_response(self, response):
+        """Extract usage - Anthropic format"""
+        if not hasattr(response, 'usage'):
+            return {
+                "input_tokens": 0,
+                "cached_tokens": 0,
+                "output_tokens": 0,
+                "reasoning_tokens": 0
+            }
+        
+        usage = response.usage
+        cache_creation_input_tokens = getattr(usage, 'cache_creation_input_tokens', 0)
+        cache_read_input_tokens = getattr(usage, 'cache_read_input_tokens', 0)
+        input_tokens = getattr(usage, 'input_tokens', 0)
+        output_tokens = getattr(usage, 'output_tokens', 0)
+        
+        usage_dict = {
+            "input_tokens": cache_creation_input_tokens + cache_read_input_tokens + input_tokens,
+            "cached_tokens": cache_read_input_tokens,
+            "output_tokens": output_tokens,
+            "reasoning_tokens": 0
+        }
+        
+        return usage_dict
 
     def _apply_cache_control(self, messages):
         """Apply cache control to the last user message and system message (if applicable)"""
