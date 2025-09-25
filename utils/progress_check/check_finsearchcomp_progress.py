@@ -48,15 +48,15 @@ def extract_region_from_label(label: str) -> str:
         label: Label string like "Complex_Historical_Investigation(Global)" or "Financial_Analysis(Greater_China)"
         
     Returns:
-        Region string ("Global", "Greater_China", or "Unknown")
+        Region string ("Global", "Greater China", or "Unknown")
     """
     if not label:
         return "Unknown"
     
     if "(Global)" in label:
         return "Global"
-    elif "(Greater_China)" in label:
-        return "Greater_China"
+    elif "(Greater China)" in label:
+        return "Greater China"
     else:
         return "Unknown"
 
@@ -97,7 +97,7 @@ def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, any]:
                 "T2": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
                 "T3": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0}
             },
-            "Greater_China": {
+            "Greater China": {
                 "T2": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
                 "T3": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0}
             }
@@ -246,7 +246,7 @@ def display_results(
     print("REGIONAL BREAKDOWN (T2 & T3 TASKS)")
     print("-" * 70)
     
-    for region in ["Global", "Greater_China"]:
+    for region in ["Global", "Greater China"]:
         print(f"\n{region} Region:")
         for task_type in ["T2", "T3"]:
             breakdown = results["regional_breakdown"][region][task_type]
