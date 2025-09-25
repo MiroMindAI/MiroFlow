@@ -4,31 +4,23 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# Configuration parameters - dual model configuration
+# Configuration parameters
 NUM_RUNS=3
-MAX_CONCURRENT=20
+AGENT_SET="agent_quickstart_1"
 BENCHMARK_NAME="xbench-ds"
-AGENT_SET="claude03_claude_dual"
-ADD_MESSAGE_ID="true"  # Set to true to add random message ID to all messages sent to LLM
-MAX_TURNS=-1
+MAX_CONCURRENT=5
+export CHINESE_CONTEXT="true"
 
-# Automatically set Chinese context - if BENCHMARK_NAME contains xbench or -zh
-if [[ $BENCHMARK_NAME == "xbench-ds" ]] || [[ $BENCHMARK_NAME == "browsecomp-zh" ]]; then
-    export CHINESE_CONTEXT="true"
-    echo "检测到中文相关基准测试，已启用中文上下文：CHINESE_CONTEXT=true"
-fi
-
-# export REMOVE_SNIPPETS="true"
-# export REMOVE_KNOWLEDGE_GRAPH="true"
-# export REMOVE_ANSWER_BOX="true"
+# Set results directory with timestamp
+TIMESTAMP=$(date +%Y%m%d_%H%M)
+RESULTS_DIR=${RESULTS_DIR:-"logs/${BENCHMARK_NAME}/${AGENT_SET}_${TIMESTAMP}"}
 
 export LOGGER_LEVEL="INFO"
-
-RESULTS_DIR="logs/${BENCHMARK_NAME}/${AGENT_SET}"
 
 echo "Starting $NUM_RUNS runs of the evaluation..."
 echo "Results will be saved in: $RESULTS_DIR"
 
+# Create results directory
 mkdir -p "$RESULTS_DIR"
 
 for i in $(seq 1 $NUM_RUNS); do
@@ -40,11 +32,8 @@ for i in $(seq 1 $NUM_RUNS); do
     
     (
         uv run main.py common-benchmark \
+            --config_file_name=$AGENT_SET \
             benchmark=$BENCHMARK_NAME \
-            agent=$AGENT_SET \
-            agent.add_message_id=$ADD_MESSAGE_ID \
-            agent.main_agent.max_turns=$MAX_TURNS \
-            agent.sub_agents.agent-worker.max_turns=$MAX_TURNS \
             benchmark.execution.max_tasks=null \
             benchmark.execution.max_concurrent=$MAX_CONCURRENT \
             benchmark.execution.pass_at_k=1 \
@@ -85,3 +74,17 @@ echo "Multiple runs evaluation completed!"
 echo "Check results in: $RESULTS_DIR"
 echo "Check individual run logs: $RESULTS_DIR/run_*_output.log"
 echo "==========================================" 
+
+
+echo "=========================================="
+echo "Parallel thinking post-processing"
+echo "=========================================="
+
+# Parallel thinking post-processing
+uv run utils/util_llm_parallel_thinking.py \
+    --benchmark xbench-ds \
+    --results_dir "$RESULTS_DIR"
+
+echo "=========================================="
+echo "Parallel thinking post-processing completed!"
+echo "=========================================="
