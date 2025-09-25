@@ -38,6 +38,7 @@
 - 📊 MiroVerse：14.7万条高质量开源训练数据，用于研究智能体训练。详见 [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)。
 - 🚧 MiroTrain / MiroRL：支持研究智能体模型稳定高效训练的基础设施。详见 [MiroTrain](https://github.com/MiroMindAI/MiroTrain) / [MiroRL](https://github.com/MiroMindAI/MiroRL)。
 
+---
 
 ## 📋 目录
 
@@ -51,6 +52,8 @@
 - 🤝 [贡献](#-贡献)
 - 📄 [许可证](#-许可证)
 - 🙏 [致谢](#-致谢)
+
+---
 
 ## 📰 最近更新
 
@@ -189,9 +192,9 @@ MiroFlow 是一个高性能、模块化的研究智能体框架，能够在复�
 
 我们欢迎社区的贡献！无论您是修复错误、添加功能还是改进文档，您的帮助都是受欢迎的。
 
-- 📋 **问题反馈**: 通过 [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues) 报告错误或请求功能
-- 🔀 **拉取请求**: 通过拉取请求提交改进
-- 💬 **讨论**: 加入我们的 [Discord 社区](https://discord.com/invite/GPqEnkzQZd) 进行问题讨论
+- 📋 **问题反馈**: 通过 [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues) 报告错误或请求功能。
+- 🔀 **拉取请求**: 通过拉取请求提交改进。
+- 💬 **讨论**: 加入我们的 [Discord 社区](https://discord.com/invite/GPqEnkzQZd) 进行问题讨论。
 
 ## 📄 许可证
 
