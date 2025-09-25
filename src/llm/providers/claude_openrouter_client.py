@@ -133,7 +133,7 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
             if self.repetition_penalty != 1.0:
                 extra_body["repetition_penalty"] = self.repetition_penalty
             
-            if self.model_name == "gpt-5-2025-08-07":
+            if self.model_name == "gpt-5-2025-08-07" or self.model_name == "gpt-5":
                 params = {
                     "model": self.model_name,
                     "temperature": temperature,
