@@ -192,9 +192,9 @@ GAIA、HLE、BrowseComp、xBench-DeepSearch など**複数ベンチマーク**�
 
 コミュニティからの貢献を歓迎します！バグ修正、機能追加、ドキュメント改善など、あらゆる協力をお待ちしています。
 
-- 📋 **Issue**: バグ報告・機能要望は [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues) へ
-- 🔀 **Pull Request**: 改善はプルリクエストで送ってください
-- 💬 **ディスカッション**: 質問や議論は [Discord コミュニティ](https://discord.com/invite/GPqEnkzQZd) へ
+- 📋 **Issue**: バグ報告・機能要望は [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues) へ。
+- 🔀 **Pull Request**: 改善はプルリクエストで送ってください。
+- 💬 **ディスカッション**: 質問や議論は [Discord コミュニティ](https://discord.com/invite/GPqEnkzQZd) へ。
 
 ## 📄 ライセンス
 
@@ -202,8 +202,8 @@ GAIA、HLE、BrowseComp、xBench-DeepSearch など**複数ベンチマーク**�
 
 ## 🙏 謝辞
 
-- **ベンチマーク貢献者**：総合的な評価データセットの提供に感謝します  
-- **OSS コミュニティ**：本プロジェクトを支えるツールとライブラリに感謝します  
+- **ベンチマーク貢献者**：総合的な評価データセットの提供に感謝します。
+- **OSS コミュニティ**：本プロジェクトを支えるツールとライブラリに感謝します。
 
 MiroFlow の発展に貢献してくださったすべての方に感謝します：
 
