@@ -6,7 +6,7 @@
 
 # Configuration parameters
 NUM_RUNS=3
-AGENT_SET="agent_quickstart_1"
+AGENT_SET="agent_xbench-ds"
 BENCHMARK_NAME="xbench-ds"
 MAX_CONCURRENT=5
 export CHINESE_CONTEXT="true"
