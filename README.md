@@ -32,7 +32,7 @@
 
 ---
 
-This repo is the official implementation of the MiroMind Research Agent Project. It is a leading-performance, fully open-source system designed to perform multi-step internet research for addressing complex challenges such as future event prediction. The project currently comprises four key components:
+This repo is the official implementation of the **MiroMind Research Agent Project**. It is a leading-performance, fully open-source system designed to perform multi-step internet research for addressing complex challenges such as future event prediction. The project currently comprises four key components:
 
 - 🤖 **MiroFlow**: an open-source research agent framework that offers reproducible state-of-the-art performance on representative benchmarks (e.g., FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks), included in this repo. See [[Get Started in Under 5 Minutes]](#-get-started-in-under-5-minutes) for a quick start.
 - 🤔 **MiroThinker**: an open-source agent foundation model that natively supports tool-assisted reasoning. See [MiroThinker](https://github.com/MiroMindAI/mirothinker).
@@ -62,7 +62,7 @@ This repo is the official implementation of the MiroMind Research Agent Project.
  MiroFlow now ranks #1 in the future prediction benchmark. See [FutureX](https://futurex-ai.github.io/).
 - **[2025-08-27]**: **MiroFlow v0.2**: Achieves state-of-the-art performance across [multiple agentic benchmarks](https://miromind.ai/blog/miroflow), including HLE (27.2%), HLE-Text-Only (29.5%), BrowserComp-EN (33.2%), BrowserComp-ZH (47.1%), and xBench-DeepSearch (72.0%).
 - **[2025-08-26]**: Released [GAIA Validation Trace](docs/public_trace.md) (73.94% pass@1) and [Gradio Demo](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo) for local deployment.
-- **[2025-08-08]**: **MiroFlow v0.1**: Complete open-source release of framework.
+- **[2025-08-08]**: **MiroFlow v0.1**: Complete open-source release of the research agent framework.
 
 ---
 
@@ -123,9 +123,9 @@ MiroFlow is a high-performance, modular framework for building intelligent AI ag
 
 ## 🌟 Highlights
 
-- **Reproducible State-of-the-Art Performance**: #1 ranking across [multiple agentic benchmarks](https://miromindai.github.io/MiroFlow/evaluation_overview/), including FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks)
+- **Reproducible State-of-the-Art Performance**: #1 ranking across [multiple representative agentic benchmarks](https://miromindai.github.io/MiroFlow/evaluation_overview/), including FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks)
 - **High Concurrency & Reliability**: Built with robust concurrency management and fault-tolerant design, MiroFlow efficiently handles rate-limited APIs and unstable networks, ensuring seamless trajectory collection and reliable execution of complex tasks.
-- **Cost-Effective Deployment**: Powered by the open-source MiroThinker model, MiroFlow can run a  research agent service on a single RTX 4090. The entire stack relies on free, open-source tools, making it simple to deploy, scale, and reproduce.
+- **Cost-Effective Deployment**: Powered by the open-source MiroThinker model, MiroFlow can run a  research agent service on a single RTX 4090. The entire stack relies on free, open-source tools, making it simple to deploy, scale, and reproduce. See [MiroThinker](https://github.com/MiroMindAI/mirothinker).
 
 ---
 
@@ -195,11 +195,9 @@ For commercial inquiries and enterprise support, please contact us through our <
 
 We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 
-- 📋 **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues)
-
-- 🔀 **Pull Requests**: Submit improvements via pull requests
-
-- 💬 **Discussions**: Join our [Discord community](https://discord.com/invite/GPqEnkzQZd) for questions and discussions
+- 📋 **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues).
+- 🔀 **Pull Requests**: Submit improvements via pull requests.
+- 💬 **Discussions**: Join our [Discord community](https://discord.com/invite/GPqEnkzQZd) for questions and discussions.
 
 
 ## 📄 License
@@ -208,9 +206,9 @@ This project is licensed under the Apache License 2.0.
 
 ## 🙏 Acknowledgments
 
-**Benchmark Contributors** for the comprehensive evaluation datasets
+**Benchmark Contributors** for the comprehensive evaluation datasets.
 
-**Open Source Community** for the tools and libraries that make this possible
+**Open Source Community** for the tools and libraries that make this possible.
 
 We thank all contributors who have helped make MiroFlow better:
 
