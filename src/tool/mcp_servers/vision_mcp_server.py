@@ -87,6 +87,10 @@ async def call_claude_vision(image_path_or_url: str, question: str) -> str:
     ]
 
     try:
+        from urllib.parse import urlparse, unquote
+        parsed = urlparse(image_path_or_url)
+        if parsed.scheme == "file":
+            image_path_or_url = unquote(parsed.path)
         if os.path.exists(image_path_or_url):  # Check if the file exists locally
             with open(image_path_or_url, "rb") as image_file:
                 image_data = base64.b64encode(image_file.read()).decode("utf-8")
