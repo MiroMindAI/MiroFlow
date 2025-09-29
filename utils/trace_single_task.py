@@ -77,4 +77,4 @@ def main(
         cfg = hydra.compose(config_name=chosen_config_name, overrides=list(args))
         logger = bootstrap_logger(level=LOGGER_LEVEL)
         # Tracing functionality removed - miroflow-contrib deleted
-        asyncio.run(single_task(cfg, logger, task_id, task, task_file_name))
+        asyncio.run(single_task(cfg, logger, str(task_id), task, task_file_name))
