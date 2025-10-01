@@ -81,8 +81,6 @@ Here is the question:
         reasoning_effort="high",
     )
 
-    # response = await client.chat.completions.create(messages = [{"role": "user", "content": content}], model="dummy")
-
     result = response.choices[0].message.content
 
     # Check if result is empty, raise exception to trigger retry if empty
@@ -102,7 +100,7 @@ Here is the question:
 async def get_gaia_answer_type(
     task_description: str, api_key: str, base_url: str = "https://api.openai.com/v1"
 ) -> str:
-    # client = AsyncOpenAI(api_key=api_key, timeout=600)
+
     client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
     instruction = f"""Input:
@@ -467,7 +465,6 @@ The boxed content must be **one** of:
     response = await client.chat.completions.create(
         model="o3",
         messages=[{"role": "user", "content": f"[{message_id}] {full_prompt}"}],
-        # reasoning_effort="medium",
     )
     result = response.choices[0].message.content
 
