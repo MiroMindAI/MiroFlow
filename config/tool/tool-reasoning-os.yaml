@@ -1,0 +1,9 @@
+name: "tool-reasoning-os"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.reasoning_mcp_server_os"
+env:
+  REASONING_API_KEY: "${oc.env:REASONING_API_KEY}"
+  REASONING_BASE_URL: "${oc.env:REASONING_BASE_URL}"
+  REASONING_MODEL_NAME: "${oc.env:REASONING_MODEL_NAME}"

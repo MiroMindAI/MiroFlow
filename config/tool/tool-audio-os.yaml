@@ -1,0 +1,9 @@
+name: "tool-audio-os"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.audio_mcp_server_os"
+env:
+  WHISPER_API_KEY: "${oc.env:WHISPER_API_KEY}"
+  WHISPER_BASE_URL: "${oc.env:WHISPER_BASE_URL}"
+  WHISPER_MODEL_NAME: "${oc.env:WHISPER_MODEL_NAME}"
