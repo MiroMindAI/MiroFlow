@@ -19,6 +19,7 @@ mcp = FastMCP("reading-mcp-server")
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
 JINA_API_KEY = os.environ.get("JINA_API_KEY", "")
 
+
 @mcp.tool()
 async def read_file(uri: str) -> str:
     """Read various types of resources (Doc, PPT, PDF, Excel, CSV, ZIP file etc.)
@@ -65,7 +66,13 @@ async def read_file(uri: str) -> str:
                 if retry_count > 3:
                     # Try scrape_website tool as fallback
                     try:
-                        scrape_result = await smart_request(uri, env={"SERPER_API_KEY": SERPER_API_KEY, "JINA_API_KEY": JINA_API_KEY})
+                        scrape_result = await smart_request(
+                            uri,
+                            env={
+                                "SERPER_API_KEY": SERPER_API_KEY,
+                                "JINA_API_KEY": JINA_API_KEY,
+                            },
+                        )
                         return f"[INFO]: Download failed, automatically tried `scrape_website` tool instead.\n\n{scrape_result}"
                     except Exception as scrape_error:
                         return f"[ERROR]: Failed to download {uri}: {e}. Also failed to scrape with `scrape_website` tool: {scrape_error}"

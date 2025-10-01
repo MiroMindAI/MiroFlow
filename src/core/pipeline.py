@@ -63,9 +63,9 @@ async def execute_task_pipeline(
         task_file_name=task_file_name,
         ground_truth=ground_truth,
         input={
-            "task_description": task_description, 
+            "task_description": task_description,
             "task_file_name": task_file_name,
-            "metadata": metadata or {}
+            "metadata": metadata or {},
         },
     )
 

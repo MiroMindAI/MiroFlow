@@ -27,14 +27,14 @@ from typing import Dict, List, Tuple
 def extract_task_type(task_id: str) -> str:
     """
     Extract task type (T1, T2, T3) from task_id.
-    
+
     Args:
         task_id: Task ID string like "(T1)Time_Sensitive_Data_Fetching_006"
-        
+
     Returns:
         Task type string ("T1", "T2", "T3", or "Unknown")
     """
-    match = re.match(r'^\(T(\d+)\)', task_id)
+    match = re.match(r"^\(T(\d+)\)", task_id)
     if match:
         return f"T{match.group(1)}"
     return "Unknown"
@@ -43,16 +43,16 @@ def extract_task_type(task_id: str) -> str:
 def extract_region_from_label(label: str) -> str:
     """
     Extract region from the label field.
-    
+
     Args:
         label: Label string like "Complex_Historical_Investigation(Global)" or "Financial_Analysis(Greater_China)"
-        
+
     Returns:
         Region string ("Global", "Greater China", or "Unknown")
     """
     if not label:
         return "Unknown"
-    
+
     if "(Global)" in label:
         return "Global"
     elif "(Greater China)" in label:
@@ -90,18 +90,18 @@ def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, any]:
             "T1": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
             "T2": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
             "T3": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
-            "Unknown": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0}
+            "Unknown": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
         },
         "regional_breakdown": {
             "Global": {
                 "T2": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
-                "T3": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0}
+                "T3": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
             },
             "Greater China": {
                 "T2": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
-                "T3": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0}
-            }
-        }
+                "T3": {"total": 0, "completed": 0, "correct": 0, "incorrect": 0},
+            },
+        },
     }
 
     completed_correct_files = []
@@ -121,14 +121,14 @@ def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, any]:
             task_type = extract_task_type(task_id)
             status = data.get("status", "").lower()
             judge_result = data.get("judge_result", "").upper()
-            
+
             # Extract region from label
             label = data.get("input", {}).get("metadata", {}).get("label", "")
             region = extract_region_from_label(label)
 
             # Update task type breakdown
             results["task_type_breakdown"][task_type]["total"] += 1
-            
+
             # Update regional breakdown for T2 and T3 tasks
             if task_type in ["T2", "T3"] and region in results["regional_breakdown"]:
                 results["regional_breakdown"][region][task_type]["total"] += 1
@@ -136,9 +136,12 @@ def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, any]:
             if status == "completed":
                 results["completed_status"] += 1
                 results["task_type_breakdown"][task_type]["completed"] += 1
-                
+
                 # Update regional breakdown for completed T2 and T3 tasks
-                if task_type in ["T2", "T3"] and region in results["regional_breakdown"]:
+                if (
+                    task_type in ["T2", "T3"]
+                    and region in results["regional_breakdown"]
+                ):
                     results["regional_breakdown"][region][task_type]["completed"] += 1
 
                 # For T1 tasks, exclude from correctness evaluation but count as completed
@@ -152,15 +155,25 @@ def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, any]:
                         results["completed_and_correct"] += 1
                         results["task_type_breakdown"][task_type]["correct"] += 1
                         # Update regional breakdown for correct T2 and T3 tasks
-                        if task_type in ["T2", "T3"] and region in results["regional_breakdown"]:
-                            results["regional_breakdown"][region][task_type]["correct"] += 1
+                        if (
+                            task_type in ["T2", "T3"]
+                            and region in results["regional_breakdown"]
+                        ):
+                            results["regional_breakdown"][region][task_type][
+                                "correct"
+                            ] += 1
                         completed_correct_files.append(json_file.name)
                     else:
                         results["completed_and_incorrect"] += 1
                         results["task_type_breakdown"][task_type]["incorrect"] += 1
                         # Update regional breakdown for incorrect T2 and T3 tasks
-                        if task_type in ["T2", "T3"] and region in results["regional_breakdown"]:
-                            results["regional_breakdown"][region][task_type]["incorrect"] += 1
+                        if (
+                            task_type in ["T2", "T3"]
+                            and region in results["regional_breakdown"]
+                        ):
+                            results["regional_breakdown"][region][task_type][
+                                "incorrect"
+                            ] += 1
                         completed_incorrect_files.append((json_file.name, judge_result))
             else:
                 results["other_status"] += 1
@@ -208,60 +221,88 @@ def display_results(
 
     # Calculate accuracy excluding T1 tasks
     t2_t3_completed = (
-        results["task_type_breakdown"]["T2"]["completed"] + 
-        results["task_type_breakdown"]["T3"]["completed"]
+        results["task_type_breakdown"]["T2"]["completed"]
+        + results["task_type_breakdown"]["T3"]["completed"]
     )
     t2_t3_correct = (
-        results["task_type_breakdown"]["T2"]["correct"] + 
-        results["task_type_breakdown"]["T3"]["correct"]
+        results["task_type_breakdown"]["T2"]["correct"]
+        + results["task_type_breakdown"]["T3"]["correct"]
     )
-    
+
     if t2_t3_completed > 0:
         accuracy = t2_t3_correct / t2_t3_completed * 100
         print(f"\nAccuracy rate (T2+T3 correct/completed): {accuracy:.1f}%")
-        print(f"  (T1 tasks excluded due to outdated ground truth)")
+        print("  (T1 tasks excluded due to outdated ground truth)")
 
     # Task type breakdown
     print("\n" + "-" * 70)
     print("TASK TYPE BREAKDOWN")
     print("-" * 70)
-    
+
     for task_type in ["T1", "T2", "T3", "Unknown"]:
         breakdown = results["task_type_breakdown"][task_type]
         if breakdown["total"] > 0:
             completion_rate = breakdown["completed"] / breakdown["total"] * 100
             if task_type == "T1":
                 print(f"{task_type} (Time-Sensitive Data Fetching):")
-                print(f"  Total: {breakdown['total']:3d}, Completed: {breakdown['completed']:3d} ({completion_rate:.1f}%)")
-                print(f"  Note: Excluded from correctness evaluation (outdated ground truth)")
+                print(
+                    f"  Total: {breakdown['total']:3d}, Completed: {breakdown['completed']:3d} ({completion_rate:.1f}%)"
+                )
+                print(
+                    "  Note: Excluded from correctness evaluation (outdated ground truth)"
+                )
             else:
-                accuracy_rate = breakdown["correct"] / breakdown["completed"] * 100 if breakdown["completed"] > 0 else 0
-                print(f"{task_type} ({'Simple Historical Lookup' if task_type == 'T2' else 'Complex Historical Investigation'}):")
-                print(f"  Total: {breakdown['total']:3d}, Completed: {breakdown['completed']:3d} ({completion_rate:.1f}%)")
-                print(f"  Correct: {breakdown['correct']:3d}, Incorrect: {breakdown['incorrect']:3d}")
+                accuracy_rate = (
+                    breakdown["correct"] / breakdown["completed"] * 100
+                    if breakdown["completed"] > 0
+                    else 0
+                )
+                print(
+                    f"{task_type} ({'Simple Historical Lookup' if task_type == 'T2' else 'Complex Historical Investigation'}):"
+                )
+                print(
+                    f"  Total: {breakdown['total']:3d}, Completed: {breakdown['completed']:3d} ({completion_rate:.1f}%)"
+                )
+                print(
+                    f"  Correct: {breakdown['correct']:3d}, Incorrect: {breakdown['incorrect']:3d}"
+                )
                 print(f"  Accuracy: {accuracy_rate:.1f}%")
 
     # Regional breakdown for T2 and T3
     print("\n" + "-" * 70)
     print("REGIONAL BREAKDOWN (T2 & T3 TASKS)")
     print("-" * 70)
-    
+
     for region in ["Global", "Greater China"]:
         print(f"\n{region} Region:")
         for task_type in ["T2", "T3"]:
             breakdown = results["regional_breakdown"][region][task_type]
             if breakdown["total"] > 0:
                 completion_rate = breakdown["completed"] / breakdown["total"] * 100
-                accuracy_rate = breakdown["correct"] / breakdown["completed"] * 100 if breakdown["completed"] > 0 else 0
-                task_name = "Simple Historical Lookup" if task_type == "T2" else "Complex Historical Investigation"
+                accuracy_rate = (
+                    breakdown["correct"] / breakdown["completed"] * 100
+                    if breakdown["completed"] > 0
+                    else 0
+                )
+                task_name = (
+                    "Simple Historical Lookup"
+                    if task_type == "T2"
+                    else "Complex Historical Investigation"
+                )
                 print(f"  {task_type} ({task_name}):")
-                print(f"    Total: {breakdown['total']:3d}, Completed: {breakdown['completed']:3d} ({completion_rate:.1f}%)")
-                print(f"    Correct: {breakdown['correct']:3d}, Incorrect: {breakdown['incorrect']:3d}")
+                print(
+                    f"    Total: {breakdown['total']:3d}, Completed: {breakdown['completed']:3d} ({completion_rate:.1f}%)"
+                )
+                print(
+                    f"    Correct: {breakdown['correct']:3d}, Incorrect: {breakdown['incorrect']:3d}"
+                )
                 print(f"    Accuracy: {accuracy_rate:.1f}%")
 
     print("\n" + "-" * 70)
     print(f"SUMMARY: {completed} tasks completed, {correct} T2+T3 tasks correct")
-    print(f"         (T1 tasks: {results['task_type_breakdown']['T1']['completed']} completed, excluded from evaluation)")
+    print(
+        f"         (T1 tasks: {results['task_type_breakdown']['T1']['completed']} completed, excluded from evaluation)"
+    )
     print("-" * 70)
 
     # Show some example files for verification
@@ -298,15 +339,17 @@ def main():
 
     try:
         print(f"Analyzing FinSearchComp benchmark results in: {log_folder}")
-        results, correct_files, incorrect_files, error_files = analyze_finsearchcomp_results(
-            log_folder
+        results, correct_files, incorrect_files, error_files = (
+            analyze_finsearchcomp_results(log_folder)
         )
         display_results(results, correct_files, incorrect_files, error_files)
 
     except Exception as e:
         print(f"Error: {e}")
         print(f"\nUsage: python {sys.argv[0]} [LOG_FOLDER_PATH]")
-        print(f"Example: python {sys.argv[0]} logs/finsearchcomp/agent_finsearchcomp_20250924_1555")
+        print(
+            f"Example: python {sys.argv[0]} logs/finsearchcomp/agent_finsearchcomp_20250924_1555"
+        )
         return 1
 
     return 0

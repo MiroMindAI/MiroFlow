@@ -735,7 +735,9 @@ Your objective is maximum completeness, transparency, and detailed documentation
                     self.cfg.main_agent.openai_api_key,
                     self.chinese_context,
                     self.add_message_id,
-                    self.cfg.main_agent.input_process.get('hint_llm_base_url', 'https://api.openai.com/v1'),
+                    self.cfg.main_agent.input_process.get(
+                        "hint_llm_base_url", "https://api.openai.com/v1"
+                    ),
                 )
                 hint_notes = (
                     "\n\nBefore you begin, please review the following preliminary notes highlighting subtle or easily misunderstood points in the question, which might help you avoid common pitfalls during your analysis (for reference only; these may not be exhaustive):\n\n"
@@ -1001,13 +1003,13 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 try:
                     # For browsecomp-zh, we use another Chinese prompt to extract the final answer
                     if "browsecomp-zh" in self.cfg.benchmark.name:
-                        extracted_answer = (
-                            await extract_browsecomp_zh_final_answer(
-                                task_description,
-                                final_answer_text,
-                                self.cfg.main_agent.openai_api_key,
-                                self.cfg.main_agent.output_process.get('final_answer_llm_base_url', 'https://api.openai.com/v1'),
-                            )
+                        extracted_answer = await extract_browsecomp_zh_final_answer(
+                            task_description,
+                            final_answer_text,
+                            self.cfg.main_agent.openai_api_key,
+                            self.cfg.main_agent.output_process.get(
+                                "final_answer_llm_base_url", "https://api.openai.com/v1"
+                            ),
                         )
 
                         # Disguise LLM extracted answer as assistant returned result and add to message history
@@ -1030,7 +1032,9 @@ Your objective is maximum completeness, transparency, and detailed documentation
                             final_answer_text,
                             self.cfg.main_agent.openai_api_key,
                             self.chinese_context,
-                            self.cfg.main_agent.output_process.get('final_answer_llm_base_url', 'https://api.openai.com/v1'),
+                            self.cfg.main_agent.output_process.get(
+                                "final_answer_llm_base_url", "https://api.openai.com/v1"
+                            ),
                         )
 
                         # Disguise LLM extracted answer as assistant returned result and add to message history

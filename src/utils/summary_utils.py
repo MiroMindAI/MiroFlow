@@ -16,13 +16,14 @@ def _generate_message_id() -> str:
 
 @retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
 async def extract_hints(
-    question: str, api_key: str, chinese_context: bool, add_message_id: bool, base_url: str = "https://api.openai.com/v1"
+    question: str,
+    api_key: str,
+    chinese_context: bool,
+    add_message_id: bool,
+    base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract task hints"""
-    client = AsyncOpenAI(
-            api_key=api_key,
-            timeout=600, 
-            base_url=base_url)
+    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
     instruction = """Carefully analyze the given task description (question) without attempting to solve it directly. Your role is to identify potential challenges and areas that require special attention during the solving process, and provide practical guidance for someone who will solve this task by actively gathering and analyzing information from the web.
 
@@ -86,7 +87,9 @@ Here is the question:
 
 
 @retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
-async def get_gaia_answer_type(task_description: str, api_key: str, base_url: str = "https://api.openai.com/v1") -> str:
+async def get_gaia_answer_type(
+    task_description: str, api_key: str, base_url: str = "https://api.openai.com/v1"
+) -> str:
     # client = AsyncOpenAI(api_key=api_key, timeout=600)
     client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
@@ -122,7 +125,11 @@ Return exactly one of the [number, date, time, string], nothing else.
 
 @retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
 async def extract_gaia_final_answer(
-    task_description_detail: str, summary: str, api_key: str, chinese_context: bool, base_url: str = "https://api.openai.com/v1"
+    task_description_detail: str,
+    summary: str,
+    api_key: str,
+    chinese_context: bool,
+    base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract final answer from summary"""
     answer_type = await get_gaia_answer_type(task_description_detail, api_key, base_url)
@@ -464,7 +471,10 @@ The boxed content must be **one** of:
 
 @retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
 async def extract_browsecomp_zh_final_answer(
-    task_description_detail: str, summary: str, api_key: str, base_url: str = "https://api.openai.com/v1"
+    task_description_detail: str,
+    summary: str,
+    api_key: str,
+    base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract final answer from summary"""
     client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
