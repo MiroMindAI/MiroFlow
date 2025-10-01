@@ -14,7 +14,13 @@ def _generate_message_id() -> str:
     return f"msg_{uuid.uuid4().hex[:8]}"
 
 
-@retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
+@retry(
+    wait=wait_exponential(multiplier=15),
+    stop=stop_after_attempt(5),
+    retry_error_callback=lambda retry_state: print(
+        f"Retry attempt {retry_state.attempt_number} for extract_hints"
+    ),
+)
 async def extract_hints(
     question: str,
     api_key: str,
@@ -86,7 +92,13 @@ Here is the question:
     return result
 
 
-@retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
+@retry(
+    wait=wait_exponential(multiplier=15),
+    stop=stop_after_attempt(5),
+    retry_error_callback=lambda retry_state: print(
+        f"Retry attempt {retry_state.attempt_number} for get_gaia_answer_type"
+    ),
+)
 async def get_gaia_answer_type(
     task_description: str, api_key: str, base_url: str = "https://api.openai.com/v1"
 ) -> str:
@@ -123,7 +135,13 @@ Return exactly one of the [number, date, time, string], nothing else.
     return answer_type.strip()
 
 
-@retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
+@retry(
+    wait=wait_exponential(multiplier=15),
+    stop=stop_after_attempt(5),
+    retry_error_callback=lambda retry_state: print(
+        f"Retry attempt {retry_state.attempt_number} for extract_gaia_final_answer"
+    ),
+)
 async def extract_gaia_final_answer(
     task_description_detail: str,
     summary: str,
@@ -469,7 +487,13 @@ The boxed content must be **one** of:
     return result
 
 
-@retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
+@retry(
+    wait=wait_exponential(multiplier=15),
+    stop=stop_after_attempt(5),
+    retry_error_callback=lambda retry_state: print(
+        f"Retry attempt {retry_state.attempt_number} for extract_browsecomp_zh_final_answer"
+    ),
+)
 async def extract_browsecomp_zh_final_answer(
     task_description_detail: str,
     summary: str,
