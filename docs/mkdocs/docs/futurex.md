@@ -64,7 +64,7 @@ ANTHROPIC_API_KEY="xxx"
 # Used for Gemini vision
 GEMINI_API_KEY="xxx"
 
-# Use for llm judge, reasoning, o3 hints, etc.
+# Use for llm judge, reasoning, hint generation, etc.
 OPENAI_API_KEY="xxx"
 OPENAI_BASE_URL="https://api.openai.com/v1"
 ```

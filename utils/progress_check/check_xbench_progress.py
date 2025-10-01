@@ -234,7 +234,9 @@ def main():
     except Exception as e:
         print(f"Error: {e}")
         print(f"\nUsage: python {sys.argv[0]} [LOG_FOLDER_PATH]")
-        print(f"Example: python {sys.argv[0]} logs/xbench-ds/claude03_claude_dual/run_1")
+        print(
+            f"Example: python {sys.argv[0]} logs/xbench-ds/claude03_claude_dual/run_1"
+        )
         return 1
 
     return 0

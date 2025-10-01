@@ -64,7 +64,7 @@ def process_message_history(main_agent_message_history: Dict[str, Any]) -> str:
         # Process the last message content
         final_content = message_history[-1]["content"][0]["text"]
         final_content = final_content.replace(
-            "O3 extracted final answer:", "## Final Answer Reasoning\n"
+            "LLM extracted final answer:", "## Final Answer Reasoning\n"
         )
 
         # Concatenate the two parts
@@ -373,7 +373,11 @@ def create_parallel_thinking_xbench_prompt(
 
 
 async def process_single_task(
-    benchmark_name: str, task_id: str, data: List[Dict[str, Any]], n_runs: int, semaphore: asyncio.Semaphore
+    benchmark_name: str,
+    task_id: str,
+    data: List[Dict[str, Any]],
+    n_runs: int,
+    semaphore: asyncio.Semaphore,
 ) -> Tuple[str, Dict[str, Any], Any]:
     """Process a single task and return its result."""
     # Choose prompt function based on benchmark
@@ -565,7 +569,9 @@ def save_results(
 
 
 async def main(
-    benchmark_name: str, results_dir: str, max_concurrent_requests: int = MAX_CONCURRENT_REQUESTS
+    benchmark_name: str,
+    results_dir: str,
+    max_concurrent_requests: int = MAX_CONCURRENT_REQUESTS,
 ) -> None:
     """Main function to analyze results and select best solutions."""
     if not os.path.exists(results_dir):
@@ -585,7 +591,9 @@ async def main(
     n_runs = len([d for d in run_dirs if os.path.isdir(d)])
 
     # Process all tasks
-    task_results = await process_tasks(benchmark_name, task_score_dict, n_runs, max_concurrent_requests)
+    task_results = await process_tasks(
+        benchmark_name, task_score_dict, n_runs, max_concurrent_requests
+    )
 
     # Save results
     save_results(results_dir, task_results, n_runs)
@@ -593,14 +601,18 @@ async def main(
 
 if __name__ == "__main__":
     args = ArgumentParser()
-    args.add_argument("--benchmark", type=str, default="gaia", choices=["gaia", "xbench-ds"])
+    args.add_argument(
+        "--benchmark", type=str, default="gaia", choices=["gaia", "xbench-ds"]
+    )
     args.add_argument("--results_dirs", type=str, default=[])
     args.add_argument("--max_concurrent_requests", type=int, default=25)
     args = args.parse_args()
 
     benchmark_name = args.benchmark
     max_concurrent_requests = args.max_concurrent_requests
-    results_dirs = list(args.results_dirs.split(",")) # Use single or multiple directory mode based on whether results_dirs is defined above
+    results_dirs = list(
+        args.results_dirs.split(",")
+    )  # Use single or multiple directory mode based on whether results_dirs is defined above
 
     if results_dirs:
         # Multiple directories mode

@@ -1,13 +1,13 @@
-# GAIA Validation
+# GAIA Validation Prerequisites
 
-MiroFlow demonstrates state-of-the-art performance on the GAIA validation benchmark, showcasing exceptional capabilities in complex reasoning tasks that require multi-step problem solving, information synthesis, and tool usage.
-
-More details: [GAIA: a benchmark for General AI Assistants](https://arxiv.org/abs/2311.12983)
+This document covers the common setup requirements and prerequisites for running GAIA validation benchmarks with MiroFlow, regardless of the specific model configuration used.
 
 ## About the GAIA Dataset
 
 !!! info "What is GAIA?"
     GAIA (General AI Assistant) is a comprehensive benchmark designed to evaluate AI agents' ability to perform complex reasoning tasks that require multiple skills including web browsing, file manipulation, data analysis, and multi-step problem solving.
+
+More details: [GAIA: a benchmark for General AI Assistants](https://arxiv.org/abs/2311.12983)
 
 ---
 
@@ -31,10 +31,7 @@ More details: [GAIA: a benchmark for General AI Assistants](https://arxiv.org/ab
 
 ---
 
-## Setup and Evaluation Guide
-
-!!! note "Complete Reproduction Instructions"
-    This section provides comprehensive step-by-step instructions to reproduce our GAIA validation benchmark results. All results are fully reproducible using our open-source framework.
+## Dataset Preparation
 
 ### Step 1: Prepare the GAIA Validation Dataset
 
@@ -81,12 +78,15 @@ Then download the dataset:
 uv run main.py prepare-benchmark get gaia-val
 ```
 
-### Step 2: Configure API Keys
+---
 
-!!! warning "Required API Configuration"
-    Set up the required API keys for model access and tool functionality. Update the `.env` file to include the following keys:
+## Common API Keys Configuration
 
-```env title=".env Configuration"
+### Required API Keys
+
+The following API keys are required for all GAIA validation runs, regardless of the model configuration:
+
+```env title="Common .env Configuration"
 # Search and web scraping capabilities
 SERPER_API_KEY="your-serper-api-key"
 JINA_API_KEY="your-jina-api-key"
@@ -94,37 +94,31 @@ JINA_API_KEY="your-jina-api-key"
 # Code execution environment
 E2B_API_KEY="your-e2b-api-key"
 
-# Primary LLM provider (Claude-3.7-Sonnet via OpenRouter)
-OPENROUTER_API_KEY="your-openrouter-api-key"
-OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
-
 # Vision understanding capabilities
 ANTHROPIC_API_KEY="your-anthropic-api-key"
 GEMINI_API_KEY="your-gemini-api-key"
 
-# LLM judge, reasoning, and O3 hints
+# LLM judge, reasoning, and hint generation
 OPENAI_API_KEY="your-openai-api-key"
 OPENAI_BASE_URL="https://api.openai.com/v1"
 ```
 
-!!! tip "Why OpenRouter?"
-    We use Claude-3.7-Sonnet through the OpenRouter backend as the primary LLM provider because OpenRouter offers better response rates and improved reliability compared to direct API access.
+### API Key Descriptions
 
-### Step 3: Run the Evaluation
+- **SERPER_API_KEY**: Required for web search functionality
+- **JINA_API_KEY**: Required for web scraping and content extraction
+- **E2B_API_KEY**: Required for secure code execution environment
+- **ANTHROPIC_API_KEY**: Required for vision understanding capabilities
+- **GEMINI_API_KEY**: Required for additional vision processing
+- **OPENAI_API_KEY**: Required for hint generation and final answer extraction
 
-Execute the evaluation using the following command:
+---
 
-```bash title="Run GAIA Validation"
-uv run main.py common-benchmark \
-  --config_file_name=agent_gaia-validation \
-  output_dir="logs/gaia-validation/$(date +"%Y%m%d_%H%M")"
-```
+## Progress Monitoring and Resume
 
+### Progress Tracking
 
-### Step 4: Monitor Progress and Resume
-
-!!! tip "Progress Tracking"
-    You can monitor the evaluation progress in real-time:
+You can monitor the evaluation progress in real-time:
 
 ```bash title="Check Progress"
 uv run utils/progress_check/check_gaia_progress.py $PATH_TO_LOG
@@ -132,12 +126,13 @@ uv run utils/progress_check/check_gaia_progress.py $PATH_TO_LOG
 
 Replace `$PATH_TO_LOG` with your actual output directory path.
 
-!!! note "Resume Capability"
-    If the evaluation is interrupted, you can resume from where it left off by specifying the same output directory:
+### Resume Capability
+
+If the evaluation is interrupted, you can resume from where it left off by specifying the same output directory:
 
 ```bash title="Resume Interrupted Evaluation"
 uv run main.py common-benchmark \
-  --config_file_name=agent_gaia-validation \
+  --config_file_name=YOUR_CONFIG_FILE \
   output_dir="logs/gaia-validation/20250922_1430"
 ```
 
@@ -146,7 +141,7 @@ uv run main.py common-benchmark \
 ## Execution Traces
 
 !!! info "Complete Execution Traces"
-    We have released our complete execution traces for the `gaia-validation` dataset on Hugging Face. This comprehensive collection includes a full run of 165 tasks with an overall accuracy of 73.94%.
+    We have released our complete execution traces for the `gaia-validation` dataset on Hugging Face. This comprehensive collection includes a full run of 165 tasks with detailed reasoning traces.
 
 You can download them using the following command:
 
