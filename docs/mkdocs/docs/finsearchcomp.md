@@ -63,7 +63,7 @@ E2B_API_KEY="xxx"
 OAI_MIROTHINKER_API_KEY="xxx"
 OAI_MIROTHINKER_BASE_URL="http://localhost:61005/v1"
 
-# Used for o3 hints and final answer extraction
+# Used for hint generation and final answer extraction
 OPENAI_API_KEY="xxx"
 OPENAI_BASE_URL="https://api.openai.com/v1"
 

@@ -29,11 +29,13 @@ main_agent:
   max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
   
   input_process:
-    o3_hint: true
+    hint_generation: true
+    hint_llm_base_url: "${oc.env:HINT_LLM_BASE_URL,https://api.openai.com/v1}"
   output_process:
-    o3_final_answer: true
+    final_answer_extraction: true
+    final_answer_llm_base_url: "${oc.env:FINAL_ANSWER_LLM_BASE_URL,https://api.openai.com/v1}"
 
-  openai_api_key: "${oc.env:OPENAI_API_KEY,???}" # used for o3 hints and final answer extraction
+  openai_api_key: "${oc.env:OPENAI_API_KEY,???}" # used for hint generation and final answer extraction
   add_message_id: true
   keep_tool_result: -1
   chinese_context: "${oc.env:CHINESE_CONTEXT,false}"

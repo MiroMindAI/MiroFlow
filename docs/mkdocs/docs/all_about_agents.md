@@ -103,6 +103,9 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 - **Terminal-Bench**: the benchmark for testing AI agents in real terminal environments 
     - [:material-github: GitHub](https://github.com/laude-institute/terminal-bench)
 
+- **Gaia2 and ARE**: Empowering the Community to Evaluate Agents
+    - [:material-file-document: Blog Post](https://huggingface.co/blog/gaia2)
+
 ---
 
 !!! info "Documentation Info"

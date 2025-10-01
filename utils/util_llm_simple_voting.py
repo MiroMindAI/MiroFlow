@@ -56,7 +56,7 @@ def process_message_history(main_agent_message_history: Dict[str, Any]) -> str:
         # Process the last message content
         final_content = message_history[-1]["content"][0]["text"]
         final_content = final_content.replace(
-            "O3 extracted final answer:", "## Final Answer Reasoning\n"
+            "LLM extracted final answer:", "## Final Answer Reasoning\n"
         )
 
         # Concatenate the two parts

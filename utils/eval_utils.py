@@ -154,7 +154,7 @@ async def verify_answer_llm_xbench(
     openai_client: AsyncOpenAI, question: str, target: str, predicted_answer: str
 ) -> str:
     """
-    Use XBench-style LLM judge (o3) to verify if the predicted answer is correct.
+    Use XBench-style LLM judge to verify if the predicted answer is correct.
     Uses structured output format similar to verify_answer_llm_hle.
 
     Args:

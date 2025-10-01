@@ -111,9 +111,9 @@ main_agent:
     - tool-reasoning
   
   input_process:
-    o3_hint: true              # Use O3 for task hints
+    hint_generation: true      # Use LLM for task hint generation
   output_process:
-    o3_final_answer: true      # Use O3 for answer extraction
+    final_answer_extraction: true  # Use LLM for answer extraction
 
 sub_agents:
   agent-worker:
