@@ -23,9 +23,9 @@ from src.tool.manager import ToolManager
 from src.utils.io_utils import OutputFormatter, process_input
 from src.utils.tool_utils import expose_sub_agents_as_tools
 from src.utils.summary_utils import (
-    o3_extract_hints,
-    o3_extract_gaia_final_answer,
-    o3_extract_browsecomp_zh_final_answer,
+    extract_hints,
+    extract_gaia_final_answer,
+    extract_browsecomp_zh_final_answer,
 )
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
@@ -726,32 +726,35 @@ Your objective is maximum completeness, transparency, and detailed documentation
             initial_user_content[0]["text"] + task_guidence
         )
 
-        o3_notes = ""  # Initialize o3_notes
-        if self.cfg.main_agent.input_process.o3_hint:
-            # Execute O3 hints extraction
+        hint_notes = ""  # Initialize hint_notes
+        if self.cfg.main_agent.input_process.hint_generation:
+            # Execute hint generation
             try:
-                o3_hints = await o3_extract_hints(
+                hint_content = await extract_hints(
                     task_description,
                     self.cfg.main_agent.openai_api_key,
                     self.chinese_context,
                     self.add_message_id,
+                    self.cfg.main_agent.input_process.get(
+                        "hint_llm_base_url", "https://api.openai.com/v1"
+                    ),
                 )
-                o3_notes = (
+                hint_notes = (
                     "\n\nBefore you begin, please review the following preliminary notes highlighting subtle or easily misunderstood points in the question, which might help you avoid common pitfalls during your analysis (for reference only; these may not be exhaustive):\n\n"
-                    + o3_hints
+                    + hint_content
                 )
 
                 # Update initial user content
                 original_text = initial_user_content[0]["text"]
-                initial_user_content[0]["text"] = original_text + o3_notes
+                initial_user_content[0]["text"] = original_text + hint_notes
             except Exception as e:
-                logger.error(f"O3 hints extraction failed after retries: {str(e)}")
+                logger.error(f"Hint generation failed after retries: {str(e)}")
                 self.task_log.log_step(
-                    step_name="o3_hint",
-                    message=f"[ERROR] O3 hint generation failed: {str(e)}",
+                    step_name="hint_generation",
+                    message=f"[ERROR] Hint generation failed: {str(e)}",
                     status="failed",
                 )
-                o3_notes = ""  # Continue execution but without O3 hints
+                hint_notes = ""  # Continue execution but without hints
 
         logger.info("Initial user input content: %s", initial_user_content)
         message_history = [{"role": "user", "content": initial_user_content}]
@@ -993,71 +996,75 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 "final_answer_content", f"Final answer content: {final_answer_text}"
             )
 
-            # Use O3 model to extract final answer
-            o3_extracted_answer = ""
-            if self.cfg.main_agent.output_process.o3_final_answer:
-                # Execute O3 final answer extraction
+            # Use LLM to extract final answer
+            extracted_answer = ""
+            if self.cfg.main_agent.output_process.final_answer_extraction:
+                # Execute final answer extraction
                 try:
                     # For browsecomp-zh, we use another Chinese prompt to extract the final answer
                     if "browsecomp-zh" in self.cfg.benchmark.name:
-                        o3_extracted_answer = (
-                            await o3_extract_browsecomp_zh_final_answer(
-                                task_description,
-                                final_answer_text,
-                                self.cfg.main_agent.openai_api_key,
-                            )
+                        extracted_answer = await extract_browsecomp_zh_final_answer(
+                            task_description,
+                            final_answer_text,
+                            self.cfg.main_agent.openai_api_key,
+                            self.cfg.main_agent.output_process.get(
+                                "final_answer_llm_base_url", "https://api.openai.com/v1"
+                            ),
                         )
 
-                        # Disguise O3 extracted answer as assistant returned result and add to message history
-                        assistant_o3_message = {
+                        # Disguise LLM extracted answer as assistant returned result and add to message history
+                        assistant_extracted_message = {
                             "role": "assistant",
                             "content": [
                                 {
                                     "type": "text",
-                                    "text": f"O3 extracted final answer:\n{o3_extracted_answer}",
+                                    "text": f"LLM extracted final answer:\n{extracted_answer}",
                                 }
                             ],
                         }
-                        message_history.append(assistant_o3_message)
+                        message_history.append(assistant_extracted_message)
 
-                        # o3 answer as final result
-                        final_answer_text = o3_extracted_answer
+                        # LLM answer as final result
+                        final_answer_text = extracted_answer
                     else:
-                        o3_extracted_answer = await o3_extract_gaia_final_answer(
+                        extracted_answer = await extract_gaia_final_answer(
                             task_description,
                             final_answer_text,
                             self.cfg.main_agent.openai_api_key,
                             self.chinese_context,
+                            self.cfg.main_agent.output_process.get(
+                                "final_answer_llm_base_url", "https://api.openai.com/v1"
+                            ),
                         )
 
-                        # Disguise O3 extracted answer as assistant returned result and add to message history
-                        assistant_o3_message = {
+                        # Disguise LLM extracted answer as assistant returned result and add to message history
+                        assistant_extracted_message = {
                             "role": "assistant",
                             "content": [
                                 {
                                     "type": "text",
-                                    "text": f"O3 extracted final answer:\n{o3_extracted_answer}",
+                                    "text": f"LLM extracted final answer:\n{extracted_answer}",
                                 }
                             ],
                         }
-                        message_history.append(assistant_o3_message)
+                        message_history.append(assistant_extracted_message)
 
-                        # Concatenate original summary and o3 answer as final result
-                        final_answer_text = f"{final_answer_text}\n\nO3 Extracted Answer:\n{o3_extracted_answer}"
+                        # Concatenate original summary and LLM answer as final result
+                        final_answer_text = f"{final_answer_text}\n\nLLM Extracted Answer:\n{extracted_answer}"
 
                 except Exception as e:
                     logger.error(
-                        f"O3 final answer extraction failed after retries: {str(e)}"
+                        f"Final answer extraction failed after retries: {str(e)}"
                     )
                     self.task_log.log_step(
-                        step_name="o3_final_answer",
-                        message=f"[ERROR] O3 final answer extraction failed: {str(e)}",
+                        step_name="final_answer_extraction",
+                        message=f"[ERROR] Final answer extraction failed: {str(e)}",
                         status="failed",
                     )
                     # Continue using original final_answer_text
 
             else:
-                # to process when o3_final_answer is false
+                # to process when final_answer_extraction is false
                 # leave it here to be more clear
                 final_answer_text = final_answer_text
 
@@ -1069,7 +1076,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
 
         logger.debug(f"LLM Final Answer: {final_answer_text}")
 
-        # Save final message history (including O3 processing results)
+        # Save final message history (including LLM processing results)
         self.task_log.main_agent_message_history = {
             "system_prompt": system_prompt,
             "message_history": message_history,

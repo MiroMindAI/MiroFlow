@@ -41,7 +41,7 @@ nav:
     - News & Updates: index.md
     - License: license.md
 
-  - Overview:
+  - Quick Start:
     - Quickstart: quickstart.md
     - Core Concepts: core_concepts.md
     - YAML Configuration: yaml_config.md
@@ -49,7 +49,10 @@ nav:
   - Evaluation:
     - Overview: evaluation_overview.md
     - Benchmarks: 
-      - GAIA-Validation: gaia_validation.md
+      - GAIA-Validation:
+        - Prerequisites: gaia_validation_prerequisites.md
+        - Claude-3.7-Sonnet: gaia_validation_claude37sonnet.md
+        - MiroThinker: gaia_validation_mirothinker.md
       - GAIA-Validation-Text-Only: gaia_validation_text_only.md
       - GAIA-Test: gaia_test.md
       - FutureX: futurex.md

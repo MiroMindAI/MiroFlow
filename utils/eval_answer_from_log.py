@@ -34,7 +34,7 @@ async def main(input_dir: str, benchmark_name: str):
             ground_truth = data.get("ground_truth", "")
             predicted_answer = data.get("final_boxed_answer", "")
             metadata = data.get("input", {}).get("metadata", {})
-            
+
             # If already has judge result, skip
             # if "judge_result" in data and data["judge_result"] in ("CORRECT", "INCORRECT"):
             #     print(f"Log {log_file} already has judge result: {data['judge_result']}")

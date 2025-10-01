@@ -1,6 +1,6 @@
 # OpenAI GPT Models
 
-OpenAI's latest models including GPT-4o and O3 reasoning models with strong coding, vision, and reasoning capabilities.
+OpenAI's latest models including GPT-4o and advanced reasoning models with strong coding, vision, and reasoning capabilities.
 
 ## Client Used
 
@@ -19,7 +19,7 @@ export OPENAI_BASE_URL="https://api.openai.com/v1"  # optional
 main_agent:
   llm: 
     provider_class: "GPTOpenAIClient"
-    model_name: "gpt-4o"  # or o3, etc.
+    model_name: "gpt-4o"  # or gpt-4o-mini, etc.
     openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
     openai_base_url: "${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}"
 ```

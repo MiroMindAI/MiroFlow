@@ -121,6 +121,7 @@ def _prepare_dataset(env: _Env, dataset: str):
 
             return gen
         case "finsearchcomp":
+
             def gen():
                 for x in gen_finsearchcomp(env.hf_token):
                     yield x

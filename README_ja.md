@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/mkdocs/docs/assets/miroflow_logo.png" width="100%" alt="MiroFlow" />
+  <img src="docs/mkdocs/docs/assets/miroflow_logo.png" width="45%" alt="MiroFlow" />
 </div>
 
 <br> 
@@ -21,15 +21,93 @@
 
 <div align="center">
 
-### 🚀 [Try our Demo!](https://dr.miromind.ai/) | 📚 [Full Documentation](https://miromindai.github.io/MiroFlow/)｜[English](README.md)｜[中文](README_zh.md)
+### 🚀 [Try our Demo!](https://dr.miromind.ai/)｜[English](README.md)｜[中文](README_zh.md)
 
+</div>
+
+<div align="center">
+  <img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
+</div>
+
+---
+
+このリポジトリは、MiroMind のリサーチエージェント・プロジェクトの**公式オープンソース**です。複雑な課題（例：将来イベントの予測）を解くために、インターネット深層リサーチを**マルチステップ**で実行できる、**高性能・完全オープンソース**の研究エージェント・システムです。現在、4つのコアコンポーネントを含みます：
+
+* 🤖 **MiroFlow**：オープンソースの研究エージェント・フレームワーク。FutureX、GAIA、HLE、xBench-DeepSearch、BrowserComp など代表的ベンチマークで**再現可能な SOTA 性能**を達成（実装は本リポジトリ）。まずは [[5分でクイックスタート]](#-5分でクイックスタート) をお試しください。
+* 🤔 **MiroThinker**：ツール支援推論をネイティブにサポートする、オープンソースのエージェント基盤モデル。詳細は [MiroThinker](https://github.com/MiroMindAI/mirothinker)。
+* 📊 **MiroVerse**：研究エージェントの学習に使える**14.7万件の高品質データ**を公開。詳細は [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)。
+* 🚧 **MiroTrain / MiroRL**：研究エージェント・モデルを**安定かつ効率的に学習**させるためのインフラ。詳細は [MiroTrain](https://github.com/MiroMindAI/MiroTrain) / [MiroRL](https://github.com/MiroMindAI/MiroRL)。
+
+---
+
+## 📋 目次
+
+* 📰 [最近の更新](#-最近の更新)
+* 🚀 [5分でクイックスタート](#-5分でクイックスタート)
+* 🤖 [MiroFlow とは？](#-miroflow-とは)
+* 🌟 [主な特長](#-主な特長)
+* ✨ [ベンチマーク性能](#-ベンチマーク性能)
+* 🔧 [対応モデルとツール](#-対応モデルとツール)
+* ❓ [FAQ](#-faq)
+* 🤝 [コントリビュート](#-コントリビュート)
+* 📄 [ライセンス](#-ライセンス)
+* 🙏 [謝辞](#-謝辞)
+
+---
+
+## 📰 最近の更新
+
+* **[2025-09-15]**: 🎉🎉 **MiroFlow v0.3**：リポジトリ構成を簡素化し、ベンチマーク性能を向上。GPT-5 の将来予測精度を **11% 向上**。FutureX の将来予測ベンチマークで**首位**に。詳細は [FutureX](https://futurex-ai.github.io/) を参照。
+* **[2025-08-27]**: **MiroFlow v0.2**：複数の主要エージェント・ベンチマークで**最高性能**を達成。HLE (27.2%)、HLE-Text-Only (29.5%)、BrowserComp-EN (33.2%)、BrowserComp-ZH (47.1%)、xBench-DeepSearch (72.0%) などを**本リポジトリのコードで再現可能**。
+* **[2025-08-26]**: [GAIA 検証トレース](docs/public_trace.md) (73.94% pass@1) と、ローカル展開用の [Gradio デモ](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo) を公開。
+* **[2025-08-08]**: **MiroFlow v0.1**：研究エージェント・フレームワークを**初めて完全公開**。
+
+---
+
+## 🚀 5分でクイックスタート
+
+### 📋 事前準備
+
+* **Python**: 3.12 以上
+* **パッケージマネージャ**: [`uv`](https://docs.astral.sh/uv/)
+* **OS**: Linux / macOS
+
+## ⚡ クイックセットアップ
+
+**例**: ドキュメント処理ツールを使った「インテリジェント文書分析」。
+
+```bash
+# 1. クローン & セットアップ
+git clone https://github.com/MiroMindAI/MiroFlow && cd MiroFlow
+uv sync
+
+# 2. API キーを設定
+cp .env.template .env
+# .env を編集して OPENROUTER_API_KEY を追加
+
+# 3. 最初のエージェントを実行
+uv run main.py trace --config_file_name=agent_quickstart_1 --task="What is the first country listed in the XLSX file that have names starting with Co?" --task_file_name="data/FSI-2023-DOWNLOAD.xlsx"
+```
+
+🎉 **想定出力**: エージェントは **\boxed{Congo Democratic Republic}** を返すはずです 😊
+
+> **💡 ヒント**: うまく動かない場合は、`.env` に API キーが正しく設定されているか、依存関係がすべてインストールされているかをご確認ください。
+
+---
+
+## 🤖 MiroFlow とは？
+
+MiroFlow は、複雑な推論課題（例：将来イベント予測）で**最先端性能**を実現する、**高性能・モジュール型**の研究エージェント・フレームワークです。マルチラウンド対話、豊富なツール群の高度統合、階層型サブエージェントのスケジューリングに対応し、**タスク達成を最適化**します。詳しくは [フレームワーク概要](https://miromindai.github.io/MiroFlow/core_concepts/) をご覧ください。
+
+<div align="center">
+  <img src="docs/mkdocs/docs/assets/miroflow_architecture.png" width="100%" alt="MiroFlow Architecture">
 </div>
 
 <table align="center" style="border: 1px solid #ccc; border-radius: 8px; padding: 12px; background-color: #f9f9f9; width: 60%;">
   <tr>
     <td style="text-align: center; padding: 10px;">
-      <strong>研究アシスタントデモ</strong> - 
-      <span style="font-size: 0.9em; color: #555;">CVPR 2025最優秀論文を読み、研究アドバイスを提供</span>
+      <strong>Research Assistant Demo</strong> - 
+      <span style="font-size: 0.9em; color: #555;">阅读CVPR 2025最佳论文并给出研究方向建议</span>
       <br>
       <video src="https://github.com/user-attachments/assets/99ed3172-6e9a-467a-9ccb-be45957fe2e4"
              controls muted preload="metadata"
@@ -39,174 +117,113 @@
   </tr>
 </table>
 
-## 📋 目次
+---
 
-- [📰 ニュース・アップデート](#-ニュースアップデート)
-- [🤖 MiroFlowとは？](#-miroflowとは)
-- [✨ ベンチマーク性能](#-ベンチマーク性能)
-- [🚀 5分で始める](#-5分で始める)
-- [🤖 MiroFlowフレームワーク](#-miroflow-aiエージェント基盤フレームワーク)
-- [🤝 貢献](#-貢献)
-- [❓ よくある質問](#-よくある質問)
-- [📄 ライセンス・サポート](#-ライセンスサポート)
-- [👥 謝辞・貢献者](#-謝辞貢献者)
+## 🌟 主な特長
 
-## 📰 ニュース・アップデート
-
-- **[2025-09-15]**: 🎉🎉 **MiroFlow v0.3** - 強化されたコードベースアーキテクチャと大幅に改善されたベンチマーク性能。MiroFlowが未来予測ベンチマークで1位を獲得。
-- **[2025-08-27]**: **MiroFlow v0.2** - [複数のエージェントベンチマーク](https://miromind.ai/blog/miroflow)で最先端の性能を達成、HLE (27.2%)、HLE-Text-Only (29.5%)、BrowserComp-EN (33.2%)、BrowserComp-ZH (47.1%)、xBench-DeepSearch (72.0%)を含む
-- **[2025-08-26]**: [GAIA検証トレース](docs/public_trace.md) (73.94% pass@1) とローカルデプロイメント用の[Gradioデモ](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo)をリリース
-- **[2025-08-08]**: 🎉 **MiroFlow v0.1** - フレームワーク、モデル、トレーニングデータの完全なオープンソースリリース
+* **再現可能な SOTA 性能**：FutureX、GAIA、HLE、xBench-DeepSearch、BrowserComp などの[主要ベンチマーク](https://miromindai.github.io/MiroFlow/evaluation_overview/)で**首位**。
+* **高い並行性と信頼性**：堅牢な並行処理とフォールトトレランス設計により、**レート制限のある API** や**不安定なネットワーク**下でも、データ収集と複雑タスクを**効率的かつ安定**して実行。
+* **高コスパなデプロイ**：オープンソースの MiroThinker を基盤に、**単一の RTX 4090** でも研究エージェント・サービスを運用可能。スタックは**無料の OSS** に依存し、**デプロイ・拡張・再現**が容易。詳細は [MiroThinker](https://github.com/MiroMindAI/mirothinker)。
 
 ---
 
-## 🤖 MiroFlowとは？
+## 🔧 対応モデルとツール
 
-**MiroFlow**は、複雑な推論タスクで最先端の性能を実現する知的AIエージェントを構築するための包括的なフレームワークです。強化された会話管理、柔軟なツール統合、複数のデータセットにわたる広範囲なベンチマーク評価を提供します。
+* **モデル**: GPT / Claude / Gemini / Qwen / MiroThinker
+* **ツール**: [音声転写](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/audio_mcp_server.py)、[Python](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/python_server.py)、[ファイル閲覧](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/reading_mcp_server.py)、[推論](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/reasoning_mcp_server.py)、[Google 検索](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/searching_mcp_server.py)、[ビジョンQA](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/vision_mcp_server.py)、E2B サンドボックス
 
-**MiroThinker**は、このフレームワーク上に構築されたオープンソースエージェントモデルシリーズです。
+---
 
-### 🌟 主要ハイライト
+## ✨ ベンチマーク性能
 
-- 🏆 **最先端の性能**: [複数のエージェントベンチマーク](https://miromindai.github.io/MiroFlow/evaluation_overview/)で1位ランキング
-- 📊 **プレミアムトレーニングデータ**: [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)による厳選されたデータセット
-- 🤖 **オープンモデル**: [MiroThinker](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1)での完全なコレクション
-- 🔧 **完全なトレーニングスタック**: [MiroTrain](https://github.com/MiroMindAI/MiroTrain)でのSFT/DPOレシピ
-- 🎯 **高度な強化学習**: [MiroRL](https://github.com/MiroMindAI/MiroRL)による強化学習
-
-### ✨ ベンチマーク性能
-
-<img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
-
-2025年9月10日時点で、FutureXベンチマークリーダーボードで1位を獲得しました。
+**2025年9月10日**時点で、MiroFlow は **FutureX リーダーボード**で**1位**、GPT-5 の将来予測精度を **11% 向上**。
 
 <div align="center">
-  <img src="docs/mkdocs/docs/assets/miroflow-0.2-performance_short.png" width="90%" alt="包括的なベンチマーク性能比較" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(3, 3, 3, 0.1);">
+  <img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
 </div>
 
-**GAIA**、**HLE**、**BrowseComp**、**xBench-DeepSearch**を含む一連のベンチマークでMiroFlowを評価し、最先端の結果を達成しました。
+GAIA、HLE、BrowseComp、xBench-DeepSearch など**複数ベンチマーク**で評価し、**現時点で最良の結果**を獲得。
 
-| モデル/フレームワーク | GAIA Val | HLE | HLE-Text | BrowserComp-EN | BrowserComp-ZH | xBench-DeepSearch |
-|------------------|----------|-----|----------|----------------|----------------|-------------------|
-| **MiroFlow** | **82.4%** | **27.2%** | 29.5% | 33.2% | **47.1%** | **72.0%** |
-| OpenAI Deep Research | 67.4% | 26.6% | - | **51.5%** | 42.9% | - |
-| Gemini Deep Research | - | 26.9% | - | - | - | 50+% |
-| Kimi Researcher | - | - | 26.9% | - | - | 69.0% |
-| WebSailor-72B | 55.4% | - | - | - | 30.1% | 55.0% |
-| Manus | 73.3% | - | - | - | - | - |
-| DeepSeek v3.1 | - | - | **29.8%** | - | - | 71.2% |
+<img width="100%" alt="image" src="docs/mkdocs/docs/assets/benchmark_results.png" />
 
-# 🚀 5分で始める
+| モデル / フレームワーク        | GAIA Val  | HLE       | HLE-Text  | BrowserComp-EN | BrowserComp-ZH | xBench-DeepSearch |
+| -------------------- | --------- | --------- | --------- | -------------- | -------------- | ----------------- |
+| **MiroFlow**         | **82.4%** | **27.2%** | 29.5%     | 33.2%          | **47.1%**      | **72.0%**         |
+| OpenAI Deep Research | 67.4%     | 26.6%     | -         | **51.5%**      | 42.9%          | -                 |
+| Gemini Deep Research | -         | 26.9%     | -         | -              | -              | 50+%              |
+| Kimi Researcher      | -         | -         | 26.9%     | -              | -              | 69.0%             |
+| WebSailor-72B        | 55.4%     | -         | -         | -              | 30.1%          | 55.0%             |
+| Manus                | 73.3%     | -         | -         | -              | -              | -                 |
+| DeepSeek v3.1        | -         | -         | **29.8%** | -              | -              | 71.2%             |
 
-リポジトリをクローンし、APIキーを設定して、初めての知的AIエージェントを実行しましょう。必要なのは`OPENROUTER_API_KEY`だけです。
+再現方法は [ベンチマーク手順](https://miromindai.github.io/MiroFlow/evaluation_overview/) を参照してください。
 
-## 📋 前提条件
+---
 
-- **Python**: 3.12以上
-- **パッケージマネージャー**: [`uv`](https://docs.astral.sh/uv/)
-- **オペレーティングシステム**: Linux, macOS
-
-## ⚡ クイックセットアップ
-
-**例**: ファイル処理機能を持つ知的文書解析。
-
-```bash
-# 1. クローンとセットアップ
-git clone https://github.com/MiroMindAI/MiroFlow && cd MiroFlow
-uv sync
-
-# 2. APIキーの設定
-cp .env.template .env
-# .envを編集してOPENROUTER_API_KEYを追加
-
-# 3. 初めてのエージェントを実行
-uv run main.py trace --config_file_name=agent_quickstart_1 --task="What is the first country listed in the XLSX file that have names starting with Co?" --task_file_name="data/FSI-2023-DOWNLOAD.xlsx"
-```
-
-🎉 **期待される出力**: エージェントは **\boxed{Congo Democratic Republic}** を返すはずです 😊
-
-> **💡 ヒント**: 問題が発生した場合は、APIキーが`.env`ファイルで正しく設定されており、すべての依存関係がインストールされていることを確認してください。
-
-**🎯 包括的なベンチマークスイート**:
-- **GAIA Validation**: 汎用AIアシスタントのベンチマーク。([論文](https://arxiv.org/abs/2311.12983))
-- **GAIA-Text-103**: テキストのみのタスクのためのGAIA Validationのサブセット。([論文](https://arxiv.org/abs/2505.22648))
-- **HLE**: 人類最後の試験。([論文](https://arxiv.org/abs/2501.14249))
-- **HLE-Text-500**: テキストのみのタスクのためのHLEのサブセット。([論文](https://arxiv.org/pdf/2504.21776))
-
-詳細なガイドに従って、[ベンチマークドキュメント](https://miromindai.github.io/MiroFlow/evaluation_overview/)でベンチマーク結果を再現してください
-
-# 🤖 MiroFlow: AIエージェント基盤フレームワーク
-
-MiroFlowは、複雑な推論タスクで最先端の結果を提供する知的AIエージェントを構築するための高性能でモジュラーなフレームワークです。このフレームワークは、高度なマルチターン会話機能、広範囲なツールエコシステム統合、最適なタスク完了のための階層的サブエージェントオーケストレーションを特徴としています。エージェントの[ワークフローアーキテクチャ](https://miromindai.github.io/MiroFlow/core_concepts/)についてもっと学んでください。
-
-<div align="center">
-<img src="docs/mkdocs/docs/assets/miroflow_architecture.png" width="100%" alt="MiroFlowアーキテクチャ">
-</div>
-
-## 🤝 貢献
-
-コミュニティからの貢献を歓迎します！バグの修正、機能の追加、ドキュメントの改善など、あなたの助けは大変ありがたいです。
-
-- 📋 **課題**: [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues)でバグを報告するか機能をリクエスト
-- 🔀 **プルリクエスト**: プルリクエストで改善を提出
-- 💬 **ディスカッション**: 質問や議論のために[Discordコミュニティ](https://discord.com/invite/GPqEnkzQZd)に参加
-
-## ❓ よくある質問
+## ❓ FAQ
 
 <details>
-<summary><strong>どのAPIキーが必要ですか？</strong></summary>
+<summary><strong>どの API キーが必要ですか？</strong></summary>
 <br>
-開始するのに必要なのはOpenRouter APIキーだけです。OpenRouterは単一のAPIを通じて複数の言語モデルへのアクセスを提供します。
+開始するには OpenRouter の API キーが 1 つあれば十分です。OpenRouter は単一の API を通じて複数の言語モデルへのアクセスを提供します。
 </details>
 
 <details>
-<summary><strong>OpenRouter以外の言語モデルを使用できますか？</strong></summary>
+<summary><strong>OpenRouter 以外の言語モデルも使用できますか？</strong></summary>
 <br>
-はい、MiroFlowは様々な言語モデルをサポートしています。設定の詳細についてはドキュメントを確認してください。
+はい。MiroFlow はさまざまな言語モデルをサポートしています。設定の詳細はドキュメントをご覧ください。
 </details>
 
 <details>
 <summary><strong>ベンチマーク結果を再現するにはどうすればよいですか？</strong></summary>
 <br>
-ステップバイステップの再現ガイドについては、詳細な<a href="https://miromindai.github.io/MiroFlow/evaluation_overview/">ベンチマークドキュメント</a>に従ってください。
+詳細な<a href="https://miromindai.github.io/MiroFlow/evaluation_overview/">ベンチマークドキュメント</a>に従って、ステップバイステップの再現ガイドをご確認ください。
 </details>
 
 <details>
-<summary><strong>商用サポートは利用できますか？</strong></summary>
+<summary><strong>商用サポートはありますか？</strong></summary>
 <br>
-商用問い合わせとエンタープライズサポートについては、<a href="https://miromind.ai/">ウェブサイト</a>からお問い合わせください。
+商用のご相談やエンタープライズ向けサポートが必要な方は、<a href="https://miromind.ai/">公式サイト</a>からお問い合わせください。
 </details>
 
-## 📄 ライセンス・サポート
+---
 
-このプロジェクトはApache License 2.0の下でライセンスされています。
+## 🤝 コントリビュート
 
-<div align="center">
-    <img src="https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Date" alt="Star履歴チャート" height="300">
-</div>
+コミュニティからの貢献を歓迎します！バグ修正、機能追加、ドキュメント改善など、あらゆる協力をお待ちしています。
 
-### 参考文献
+- 📋 **Issue**: バグ報告・機能要望は [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues) へ。
+- 🔀 **Pull Request**: 改善はプルリクエストで送ってください。
+- 💬 **ディスカッション**: 質問や議論は [Discord コミュニティ](https://discord.com/invite/GPqEnkzQZd) へ。
 
-技術レポートは近日公開予定！
+## 📄 ライセンス
+
+本プロジェクトは **Apache License 2.0** の下で提供されています。
+
+## 🙏 謝辞
+
+- **ベンチマーク貢献者**：総合的な評価データセットの提供に感謝します。
+- **OSS コミュニティ**：本プロジェクトを支えるツールとライブラリに感謝します。
+
+MiroFlow の発展に貢献してくださったすべての方に感謝します：
+
+<a href="https://github.com/MiroMindAI/MiroFlow/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=MiroMindAI/MiroFlow" />
+</a>
+
+ぜひコミュニティに参加し、AI エージェントの未来を一緒に築きましょう！
+
+## 参考文献
+
+技術レポートは近日公開予定です！
 
 ```
 @misc{2025mirothinker,
-    title={MiroFlow: An Open-Source Agentic Framework for Deep Research},
+    title={MiroFlow: A High-Performance Open-Source Research Agent Framework},
     author={MiroMind AI Team},
     howpublished={\url{https://github.com/MiroMindAI/MiroFlow}},
     year={2025}
 }
 ```
 
-## 👥 謝辞・貢献者
-
-- **ベンチマーク貢献者** 包括的な評価データセットを提供
-- **オープンソースコミュニティ** これを可能にするツールとライブラリを提供
-
-MiroFlowをより良くするのに貢献してくれたすべての貢献者に感謝します：
-
-<a href="https://github.com/MiroMindAI/MiroFlow/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=MiroMindAI/MiroFlow" />
-</a>
-
-コミュニティに参加して、AIエージェントの未来を構築するのを手伝ってください！
+[![Star History Chart](https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Date)](https://star-history.com/#MiroMindAI/MiroFlow&Date)

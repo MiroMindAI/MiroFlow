@@ -159,8 +159,10 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
                 or "exceeds the maximum length" in error_str
                 or "exceeds the maximum allowed length" in error_str
                 or "Input tokens exceed the configured limit" in error_str
-                or "Requested token count exceeds the model's maximum context length" in error_str
-                or "BadRequestError" in error_str and "context length" in error_str
+                or "Requested token count exceeds the model's maximum context length"
+                in error_str
+                or "BadRequestError" in error_str
+                and "context length" in error_str
             ):
                 logger.debug(f"MiroThinker LLM Context limit exceeded: {error_str}")
                 raise ContextLimitError(f"Context limit exceeded: {error_str}")

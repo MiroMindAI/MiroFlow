@@ -14,12 +14,22 @@ def _generate_message_id() -> str:
     return f"msg_{uuid.uuid4().hex[:8]}"
 
 
-@retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
-async def o3_extract_hints(
-    question: str, api_key: str, chinese_context: bool, add_message_id: bool
+@retry(
+    wait=wait_exponential(multiplier=15),
+    stop=stop_after_attempt(5),
+    retry_error_callback=lambda retry_state: print(
+        f"Retry attempt {retry_state.attempt_number} for extract_hints"
+    ),
+)
+async def extract_hints(
+    question: str,
+    api_key: str,
+    chinese_context: bool,
+    add_message_id: bool,
+    base_url: str = "https://api.openai.com/v1",
 ) -> str:
-    """Use O3 model to extract task hints"""
-    client = AsyncOpenAI(api_key=api_key, timeout=600)
+    """Use LLM to extract task hints"""
+    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
     instruction = """Carefully analyze the given task description (question) without attempting to solve it directly. Your role is to identify potential challenges and areas that require special attention during the solving process, and provide practical guidance for someone who will solve this task by actively gathering and analyzing information from the web.
 
@@ -70,18 +80,29 @@ Here is the question:
         messages=[{"role": "user", "content": content}],
         reasoning_effort="high",
     )
+
     result = response.choices[0].message.content
 
     # Check if result is empty, raise exception to trigger retry if empty
     if not result or not result.strip():
-        raise ValueError("O3 hints extraction returned empty result")
+        raise ValueError("Hint extraction returned empty result")
 
     return result
 
 
-@retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
-async def get_gaia_answer_type(task_description: str, api_key: str) -> str:
-    client = AsyncOpenAI(api_key=api_key, timeout=600)
+@retry(
+    wait=wait_exponential(multiplier=15),
+    stop=stop_after_attempt(5),
+    retry_error_callback=lambda retry_state: print(
+        f"Retry attempt {retry_state.attempt_number} for get_gaia_answer_type"
+    ),
+)
+async def get_gaia_answer_type(
+    task_description: str, api_key: str, base_url: str = "https://api.openai.com/v1"
+) -> str:
+
+    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
+
     instruction = f"""Input:
 `{task_description}`
 
@@ -112,14 +133,24 @@ Return exactly one of the [number, date, time, string], nothing else.
     return answer_type.strip()
 
 
-@retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
-async def o3_extract_gaia_final_answer(
-    task_description_detail: str, summary: str, api_key: str, chinese_context: bool
+@retry(
+    wait=wait_exponential(multiplier=15),
+    stop=stop_after_attempt(5),
+    retry_error_callback=lambda retry_state: print(
+        f"Retry attempt {retry_state.attempt_number} for extract_gaia_final_answer"
+    ),
+)
+async def extract_gaia_final_answer(
+    task_description_detail: str,
+    summary: str,
+    api_key: str,
+    chinese_context: bool,
+    base_url: str = "https://api.openai.com/v1",
 ) -> str:
-    """Use O3 model to extract final answer from summary"""
-    answer_type = await get_gaia_answer_type(task_description_detail, api_key)
+    """Use LLM to extract final answer from summary"""
+    answer_type = await get_gaia_answer_type(task_description_detail, api_key, base_url)
 
-    client = AsyncOpenAI(api_key=api_key, timeout=600)
+    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
     # Add Chinese-specific instructions and output format if enabled
     chinese_supplement = ""
@@ -427,25 +458,24 @@ The boxed content must be **one** of:
         answer_type if answer_type in ["number", "time"] else "string"
     )
 
-    print("O3 Extract Final Answer Prompt:")
+    print("Extract Final Answer Prompt:")
     print(full_prompt)
 
     message_id = _generate_message_id()
     response = await client.chat.completions.create(
         model="o3",
         messages=[{"role": "user", "content": f"[{message_id}] {full_prompt}"}],
-        reasoning_effort="medium",
     )
     result = response.choices[0].message.content
 
     # Check if result is empty, raise exception to trigger retry if empty
     if not result or not result.strip():
-        raise ValueError("O3 final answer extraction returned empty result")
+        raise ValueError("Final answer extraction returned empty result")
 
     # Verify boxed answer exists
     boxed_match = re.search(r"\\boxed{([^}]*)}", result)
     if not boxed_match:
-        raise ValueError("O3 final answer extraction returned empty answer")
+        raise ValueError("Final answer extraction returned empty answer")
 
     print("response:", result)
 
@@ -454,12 +484,21 @@ The boxed content must be **one** of:
     return result
 
 
-@retry(wait=wait_exponential(multiplier=15), stop=stop_after_attempt(5))
-async def o3_extract_browsecomp_zh_final_answer(
-    task_description_detail: str, summary: str, api_key: str
+@retry(
+    wait=wait_exponential(multiplier=15),
+    stop=stop_after_attempt(5),
+    retry_error_callback=lambda retry_state: print(
+        f"Retry attempt {retry_state.attempt_number} for extract_browsecomp_zh_final_answer"
+    ),
+)
+async def extract_browsecomp_zh_final_answer(
+    task_description_detail: str,
+    summary: str,
+    api_key: str,
+    base_url: str = "https://api.openai.com/v1",
 ) -> str:
-    """Use O3 model to extract final answer from summary"""
-    client = AsyncOpenAI(api_key=api_key, timeout=600)
+    """Use LLM to extract final answer from summary"""
+    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
     chinese_supplement = """
 
@@ -567,7 +606,7 @@ async def o3_extract_browsecomp_zh_final_answer(
         + common_confidence_section
     )
 
-    print("O3 Extract Final Answer Prompt:")
+    print("Extract Final Answer Prompt:")
     print(full_prompt)
 
     message_id = _generate_message_id()
@@ -580,12 +619,12 @@ async def o3_extract_browsecomp_zh_final_answer(
 
     # Check if result is empty, raise exception to trigger retry if empty
     if not result or not result.strip():
-        raise ValueError("O3 final answer extraction returned empty result")
+        raise ValueError("Final answer extraction returned empty result")
 
     # Verify boxed answer exists
     boxed_match = re.search(r"\\boxed{([^}]*)}", result)
     if not boxed_match:
-        raise ValueError("O3 final answer extraction returned empty answer")
+        raise ValueError("Final answer extraction returned empty answer")
 
     print("response:", result)
 

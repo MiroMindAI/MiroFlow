@@ -51,7 +51,7 @@ OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
 ANTHROPIC_API_KEY="your-anthropic-api-key"
 GEMINI_API_KEY="your-gemini-api-key"
 
-# LLM judge, reasoning, and O3 hints
+# LLM judge, reasoning, and hint generation
 OPENAI_API_KEY="your-openai-api-key"
 OPENAI_BASE_URL="https://api.openai.com/v1"
 ```
