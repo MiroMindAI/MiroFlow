@@ -146,4 +146,4 @@ result = visual_question_answering(
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** January 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** October 2025 · **Doc Contributor:** Team @ MiroMind AI
