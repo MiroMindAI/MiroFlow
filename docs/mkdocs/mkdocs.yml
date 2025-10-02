@@ -65,7 +65,10 @@ nav:
     - Overview: tool_overview.md
     - Tools:
       - tool-reasoning: tool_reasoning.md
+      - tool-reasoning-os: tool_reasoning_os.md
       - tool-image-video: tool_vqa.md
+      - tool-image-video-os: tool_vqa_os.md
+      - tool-audio-os: tool_audio_os.md
       - tool-searching: tool_searching.md
       - tool-python: tool_python.md
     - Advanced Features:
