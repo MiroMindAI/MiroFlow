@@ -1,0 +1,9 @@
+name: "tool-image-video-os"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.vision_mcp_server_os"
+env:
+  VISION_API_KEY: "${oc.env:VISION_API_KEY}"
+  VISION_BASE_URL: "${oc.env:VISION_BASE_URL}"
+  VISION_MODEL_NAME: "${oc.env:VISION_MODEL_NAME}"
