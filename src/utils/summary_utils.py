@@ -100,7 +100,6 @@ Here is the question:
 async def get_gaia_answer_type(
     task_description: str, api_key: str, base_url: str = "https://api.openai.com/v1"
 ) -> str:
-
     client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
     instruction = f"""Input:
