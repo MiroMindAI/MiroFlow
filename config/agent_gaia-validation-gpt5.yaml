@@ -7,7 +7,7 @@ defaults:
 main_agent:
   prompt_class: MainAgentPrompt_GAIA
   llm: 
-    provider_class: "ClaudeOpenRouterClient"
+    provider_class: "GPT5OpenAIClient"
     model_name: "gpt-5-2025-08-07"
     async_client: true
     temperature: 1.0
