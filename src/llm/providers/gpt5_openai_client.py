@@ -37,14 +37,14 @@ class GPT5OpenAIClient(LLMProviderClientBase):
         """Create configured OpenAI client"""
         if self.async_client:
             return AsyncOpenAI(
-                api_key=self.cfg.llm.openrouter_api_key,
-                base_url=self.cfg.llm.openrouter_base_url,
+                api_key=self.cfg.llm.openai_api_key,
+                base_url=self.cfg.llm.openai_base_url,
                 timeout=1800,
             )
         else:
             return OpenAI(
-                api_key=self.cfg.llm.openrouter_api_key,
-                base_url=self.cfg.llm.openrouter_base_url,
+                api_key=self.cfg.llm.openai_api_key,
+                base_url=self.cfg.llm.openai_base_url,
                 timeout=1800,
             )
 
