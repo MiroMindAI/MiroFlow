@@ -32,19 +32,19 @@ class ContextLimitError(Exception):
 
 
 @dataclasses.dataclass
-class ClaudeOpenRouterClient(LLMProviderClientBase):
+class GPT5OpenAIClient(LLMProviderClientBase):
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client"""
         if self.async_client:
             return AsyncOpenAI(
-                api_key=self.cfg.llm.openrouter_api_key,
-                base_url=self.cfg.llm.openrouter_base_url,
+                api_key=self.cfg.llm.openai_api_key,
+                base_url=self.cfg.llm.openai_base_url,
                 timeout=1800,
             )
         else:
             return OpenAI(
-                api_key=self.cfg.llm.openrouter_api_key,
-                base_url=self.cfg.llm.openrouter_base_url,
+                api_key=self.cfg.llm.openai_api_key,
+                base_url=self.cfg.llm.openai_base_url,
                 timeout=1800,
             )
 
@@ -132,14 +132,16 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
                 extra_body["min_p"] = self.min_p
             if self.repetition_penalty != 1.0:
                 extra_body["repetition_penalty"] = self.repetition_penalty
-
+            
+            assert self.model_name in ["gpt-5-2025-08-07", "gpt-5"]
             params = {
                 "model": self.model_name,
                 "temperature": temperature,
-                "max_tokens": self.max_tokens,
+                "max_completion_tokens": self.max_tokens,
                 "messages": processed_messages,
                 "stream": False,
                 "extra_body": extra_body,
+                "reasoning_effort": self.reasoning_effort,
             }
 
             # Add optional parameters only if they have non-default values
@@ -191,10 +193,6 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
                 or "exceeds the maximum length" in error_str
                 or "exceeds the maximum allowed length" in error_str
                 or "Input tokens exceed the configured limit" in error_str
-                or "Requested token count exceeds the model's maximum context length"
-                in error_str
-                or "BadRequestError" in error_str
-                and "context length" in error_str
             ):
                 logger.debug(f"OpenRouter LLM Context limit exceeded: {error_str}")
                 raise ContextLimitError(f"Context limit exceeded: {error_str}")

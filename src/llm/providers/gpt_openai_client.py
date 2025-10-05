@@ -18,7 +18,7 @@ import os
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 # OPENAI reasoning models only support temperature=1
-OPENAI_REASONING_MODEL_SET = set(["o1", "o3", "o3-mini", "o4-mini"])
+OPENAI_REASONING_MODEL_SET = set(["o1", "o3", "o3-mini", "o4-mini", "gpt-5", "gpt-5-2025-08-07"])
 
 logger = bootstrap_logger(level=LOGGER_LEVEL)
 
@@ -29,13 +29,15 @@ class GPTOpenAIClient(LLMProviderClientBase):
         """Create configured OpenAI client"""
         if self.async_client:
             return AsyncOpenAI(
-                api_key=config.env.openai_api_key,
-                base_url=config.env.openai_base_url,
+                api_key=self.cfg.llm.openai_api_key,
+                base_url=self.cfg.llm.openai_base_url,
+                timeout=1800,
             )
         else:
             return OpenAI(
-                api_key=config.env.openai_api_key,
-                base_url=config.env.openai_base_url,
+                api_key=self.cfg.llm.openai_api_key,
+                base_url=self.cfg.llm.openai_base_url,
+                timeout=1800,
             )
 
     @retry(wait=wait_fixed(10), stop=stop_after_attempt(5))
@@ -58,6 +60,7 @@ class GPTOpenAIClient(LLMProviderClientBase):
             or self.model_name.startswith("o4")
             or self.model_name.startswith("gpt-4.1")
             or self.model_name.startswith("gpt-4o")
+            or self.model_name.startswith("gpt-5")
         )
         logger.debug(f" Calling LLM ({'async' if self.async_client else 'sync'})")
         # put the system prompt in the first message since OpenAI API does not support system prompt in
@@ -88,21 +91,28 @@ class GPTOpenAIClient(LLMProviderClientBase):
         tool_list = await self.convert_tool_definition_to_tool_call(tools_definitions)
 
         try:
-            # Set temperature=1 for reasoning models
-            temperature = (
-                1.0
-                if self.model_name in OPENAI_REASONING_MODEL_SET
-                else self.temperature
-            )
-
-            params = {
-                "model": self.model_name,
-                "temperature": temperature,
-                "max_completion_tokens": self.max_tokens,
-                "messages": messages_copy,
-                "tools": tool_list,
-                "stream": False,
-            }
+            # Set temperature and reasoning_effort for reasoning models
+            if self.model_name in OPENAI_REASONING_MODEL_SET:
+                temperature = 1.0
+                params = {
+                    "model": self.model_name,
+                    "temperature": temperature,
+                    "max_completion_tokens": self.max_tokens,
+                    "messages": messages_copy,
+                    "reasoning_effort": self.reasoning_effort,
+                    "tools": tool_list,
+                    "stream": False,
+                }
+            else:
+                temperature = self.temperature
+                params = {
+                    "model": self.model_name,
+                    "temperature": temperature,
+                    "max_completion_tokens": self.max_tokens,
+                    "messages": messages_copy,
+                    "tools": tool_list,
+                    "stream": False,
+                }
 
             if self.top_p != 1.0:
                 params["top_p"] = self.top_p
