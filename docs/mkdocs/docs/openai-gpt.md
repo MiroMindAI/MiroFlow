@@ -6,14 +6,14 @@ OpenAI's latest models including GPT-5, GPT-4o and advanced reasoning models wit
 
 `GPT5OpenAIClient`
 
-## Environment Setup
+### Environment Setup
 
 ```bash title="Environment Variables"
 export OPENAI_API_KEY="your-openai-key"
 export OPENAI_BASE_URL="https://api.openai.com/v1"  # optional
 ```
 
-## Configuration
+### Configuration
 
 ```yaml title="Agent Configuration"
 main_agent:
@@ -31,7 +31,7 @@ main_agent:
     openai_base_url: "${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}"
 ```
 
-## Usage
+### Usage
 
 ```bash title="Example Command"
 # Create custom OpenAI config
@@ -43,14 +43,14 @@ uv run main.py trace --config_file_name=your_config_file \
 
 `GPTOpenAIClient`
 
-## Environment Setup
+### Environment Setup
 
 ```bash title="Environment Variables"
 export OPENAI_API_KEY="your-openai-key"
 export OPENAI_BASE_URL="https://api.openai.com/v1"  # optional
 ```
 
-## Configuration
+### Configuration
 
 ```yaml title="Agent Configuration"
 main_agent:
@@ -61,7 +61,7 @@ main_agent:
     openai_base_url: "${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}"
 ```
 
-## Usage
+### Usage
 
 ```bash title="Example Command"
 # Create custom OpenAI config

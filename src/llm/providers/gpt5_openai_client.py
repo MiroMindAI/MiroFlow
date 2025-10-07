@@ -132,7 +132,7 @@ class GPT5OpenAIClient(LLMProviderClientBase):
                 extra_body["min_p"] = self.min_p
             if self.repetition_penalty != 1.0:
                 extra_body["repetition_penalty"] = self.repetition_penalty
-            
+
             assert self.model_name in ["gpt-5-2025-08-07", "gpt-5"]
             params = {
                 "model": self.model_name,
