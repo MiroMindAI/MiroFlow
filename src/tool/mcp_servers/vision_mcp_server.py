@@ -88,6 +88,7 @@ async def call_claude_vision(image_path_or_url: str, question: str) -> str:
 
     try:
         from urllib.parse import urlparse, unquote
+
         parsed = urlparse(image_path_or_url)
         if parsed.scheme == "file":
             image_path_or_url = unquote(parsed.path)

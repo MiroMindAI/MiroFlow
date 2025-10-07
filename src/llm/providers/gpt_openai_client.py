@@ -18,7 +18,9 @@ import os
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 # OPENAI reasoning models only support temperature=1
-OPENAI_REASONING_MODEL_SET = set(["o1", "o3", "o3-mini", "o4-mini", "gpt-5", "gpt-5-2025-08-07"])
+OPENAI_REASONING_MODEL_SET = set(
+    ["o1", "o3", "o3-mini", "o4-mini", "gpt-5", "gpt-5-2025-08-07"]
+)
 
 logger = bootstrap_logger(level=LOGGER_LEVEL)
 
