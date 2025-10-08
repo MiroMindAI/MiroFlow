@@ -97,9 +97,8 @@ async def execute_task_pipeline(
                     "No LLM configuration found in sub-agent. Please ensure the agent configuration includes an LLM section."
                 )
         else:
-            raise ValueError(
-                "No sub agents defined. Please ensure the agent configuration includes sub-agent sections."
-            )
+            sub_agent_llm_client = None
+            logger.info("No sub agents defined, using main agent only for the task")
 
         # Initialize orchestrator
         orchestrator = Orchestrator(
@@ -181,15 +180,16 @@ def create_pipeline_components(cfg: DictConfig, logs_dir: str | None = None):
     )
 
     sub_agent_tool_managers = {}
-    for sub_agent in cfg.sub_agents:
-        sub_agent_mcp_server_configs, sub_agent_blacklist = (
-            create_mcp_server_parameters(cfg, cfg.sub_agents[sub_agent], logs_dir)
-        )
-        sub_agent_tool_manager = ToolManager(
-            sub_agent_mcp_server_configs,
-            tool_blacklist=sub_agent_blacklist,
-        )
-        sub_agent_tool_managers[sub_agent] = sub_agent_tool_manager
+    if cfg.sub_agents is not None:
+        for sub_agent in cfg.sub_agents:
+            sub_agent_mcp_server_configs, sub_agent_blacklist = (
+                create_mcp_server_parameters(cfg, cfg.sub_agents[sub_agent], logs_dir)
+            )
+            sub_agent_tool_manager = ToolManager(
+                sub_agent_mcp_server_configs,
+                tool_blacklist=sub_agent_blacklist,
+            )
+            sub_agent_tool_managers[sub_agent] = sub_agent_tool_manager
 
     # Create OutputFormatter
     output_formatter = OutputFormatter()
