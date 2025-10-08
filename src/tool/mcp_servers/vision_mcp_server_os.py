@@ -92,6 +92,8 @@ async def visual_question_answering(image_path_or_url: str, question: str) -> st
                         )
                     else:
                         return f"Failed to fetch image from URL: {image_path_or_url}"
+        elif "home/user" in image_path_or_url:
+            return "The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction"
         else:
             messages_for_llm[0]["content"][0]["image_url"]["url"] = image_path_or_url
 
