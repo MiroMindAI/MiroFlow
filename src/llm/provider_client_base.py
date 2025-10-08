@@ -43,6 +43,7 @@ class LLMProviderClientBase(ABC):
         self.top_p: float = self.cfg.llm.top_p
         self.min_p: float = self.cfg.llm.min_p
         self.top_k: int = self.cfg.llm.top_k
+        self.reasoning_effort: str = self.cfg.llm.get("reasoning_effort", "medium")
         self.repetition_penalty: float = self.cfg.llm.get("repetition_penalty", 1.0)
         self.max_tokens: int = self.cfg.llm.max_tokens
         self.max_context_length: int = self.cfg.llm.get("max_context_length", -1)

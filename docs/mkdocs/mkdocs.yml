@@ -52,6 +52,7 @@ nav:
       - GAIA-Validation:
         - Prerequisites: gaia_validation_prerequisites.md
         - Claude-3.7-Sonnet: gaia_validation_claude37sonnet.md
+        - GPT-5: gaia_validation_gpt5.md
         - MiroThinker: gaia_validation_mirothinker.md
       - GAIA-Validation-Text-Only: gaia_validation_text_only.md
       - GAIA-Test: gaia_test.md
