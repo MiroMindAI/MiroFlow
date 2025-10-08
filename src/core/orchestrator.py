@@ -767,7 +767,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
 
         # 2. Get tool definitions
         tool_definitions = await self.main_agent_tool_manager.get_all_tool_definitions()
-        if self.cfg.sub_agents is not None:
+        if self.cfg.sub_agents is not None and self.cfg.sub_agents:
             tool_definitions += expose_sub_agents_as_tools(self.cfg.sub_agents)
         if not tool_definitions:
             logger.debug(
