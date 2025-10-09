@@ -231,4 +231,5 @@ The technical report is coming soon!
 }
 ```
 
-[![Star History Chart](https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Date)](https://star-history.com/#MiroMindAI/MiroFlow&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Timeline)](https://www.star-history.com/#MiroMindAI/MiroFlow&Timeline)
+
