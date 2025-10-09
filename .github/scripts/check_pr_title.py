@@ -9,36 +9,25 @@ import re
 import string
 import sys
 
-# we follow angular convention:
-# https://github.com/angular/angular/blob/22b96b9/CONTRIBUTING.md#type
 VALID_TYPES = {
-    "revert",  # Revert a previous commit
-    "build",  # Changes that affect build system or dependencies
-    "ci",  # Changes to CI configuration files and scripts
-    "docs",  # Documentation only changes
-    "feat",  # A new feature
-    "fix",  # A bug fix
-    "perf",  # Performance improvements
-    "refactor",  # Code changes that neither fix bugs nor add features
-    "style",  # Code style changes (formatting, etc)
-    "test",  # Adding or fixing tests
+    "revert",
+    "build",
+    "ci",
+    "docs",
+    "feat",
+    "fix",
+    "perf",
+    "refactor",
+    "style",
+    "test",
 }
 
-# this helps user debug messages
-# see: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#adding-a-job-summary
-MARKDOWN_SUMMARY = string.Template(
-    """
-### Result
+MARKDOWN_TEMPLATE = string.Template(
+    """### Result
 
 | PR title | expected format | status | message |
 |---|---|---|---|
 | `${title}` | `<type>(<scope>): <subject>` | `${status}` | `${message}` |
-
-
-### Useful Links
-- how to write a good PR. link coming!
-- [why we do `check-pr-title`](https://github.com/MiroMindAsia/OpenDeepResearch-GAIA/blob/main/docs/contribute.md#why-use-check-pr-title-error)
-- [how to fix `check-pr-title` error](https://github.com/MiroMindAsia/OpenDeepResearch-GAIA/blob/main/docs/contribute.md#how-to-fix-check-pr-title-error)
 """
 )
 
@@ -51,18 +40,13 @@ class CheckResult:
 
     def to_markdown(self) -> str:
         emoji = "PASSED ✅" if self.status else "FAILED ❌"
-        return MARKDOWN_SUMMARY.substitute(
-            title=self.title,
-            status=emoji,
-            message=self.message,
+        return MARKDOWN_TEMPLATE.substitute(
+            title=self.title, status=emoji, message=self.message
         ).strip()
 
 
 def check_pr_title(title: str) -> CheckResult:
-    """
-    Validate if PR title follows the format: <type>(<scope>): <subject>
-    """
-    # Split patterns for detailed error checking
+    """Validate PR title follows format: <type>(<scope>): <subject>"""
     type_pattern = rf"^({'|'.join(sorted(VALID_TYPES))})"
     scope_pattern = r"\([a-z0-9-]+\)"
     subject_pattern = r": .+"
@@ -73,7 +57,7 @@ def check_pr_title(title: str) -> CheckResult:
         return CheckResult(
             title=title,
             status=False,
-            message="<type> must be one of: " + ", ".join(sorted(VALID_TYPES)),
+            message=f"<type> must be one of: {', '.join(sorted(VALID_TYPES))}",
         )
 
     remaining = title[type_match.end() :]
@@ -97,11 +81,7 @@ def check_pr_title(title: str) -> CheckResult:
             message="<subject> must start with ': ' and contain a description",
         )
 
-    return CheckResult(
-        title=title,
-        status=True,
-        message="Valid PR title format",
-    )
+    return CheckResult(title=title, status=True, message="Valid PR title format")
 
 
 def main() -> None:
@@ -109,25 +89,20 @@ def main() -> None:
         description="Validate PR title following Angular commit convention"
     )
     parser.add_argument(
-        "title",
-        type=str,
-        help="PR title to validate (format: <type>(<scope>): <subject>)",
+        "title", help="PR title to validate (format: <type>(<scope>): <subject>)"
     )
 
     args = parser.parse_args()
     result = check_pr_title(args.title)
 
-    step_summary_path = os.environ.get("GITHUB_STEP_SUMMARY", None)
-    # print(f"GITHUB_STEP_SUMMARY: {step_summary_path}")
-    # print("github step summary is:", result.to_markdown())
-    if step_summary_path is not None:
-        with open(step_summary_path, "a") as f:
+    print(result)
+
+    # Write to GitHub step summary if available
+    if step_summary := os.environ.get("GITHUB_STEP_SUMMARY"):
+        with open(step_summary, "a") as f:
             f.write(result.to_markdown())
 
-    if not result.status:
-        sys.exit(1)
-
-    sys.exit(0)
+    sys.exit(0 if result.status else 1)
 
 
 if __name__ == "__main__":
