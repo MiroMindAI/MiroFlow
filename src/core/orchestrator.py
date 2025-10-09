@@ -40,10 +40,14 @@ def _list_tools(sub_agent_tool_managers: dict[str, ToolManager]):
         nonlocal cache
         if cache is None:
             # Only fetch tool definitions if not already cached
-            result = {
-                name: await tool_manager.get_all_tool_definitions()
-                for name, tool_manager in sub_agent_tool_managers.items()
-            }
+            # Handle empty sub_agent_tool_managers (single agent mode)
+            if not sub_agent_tool_managers:
+                result = {}
+            else:
+                result = {
+                    name: await tool_manager.get_all_tool_definitions()
+                    for name, tool_manager in sub_agent_tool_managers.items()
+                }
             cache = result
         return cache
 
@@ -409,6 +413,8 @@ class Orchestrator:
             )
 
         # Generate sub-agent system prompt
+        if not self.cfg.sub_agents or sub_agent_name not in self.cfg.sub_agents:
+            raise ValueError(f"Sub-agent {sub_agent_name} not found in configuration")
         sub_agent_prompt_instance = _load_agent_prompt_class(
             self.cfg.sub_agents[sub_agent_name].prompt_class
         )
@@ -761,7 +767,8 @@ Your objective is maximum completeness, transparency, and detailed documentation
 
         # 2. Get tool definitions
         tool_definitions = await self.main_agent_tool_manager.get_all_tool_definitions()
-        tool_definitions += expose_sub_agents_as_tools(self.cfg.sub_agents)
+        if self.cfg.sub_agents is not None and self.cfg.sub_agents:
+            tool_definitions += expose_sub_agents_as_tools(self.cfg.sub_agents)
         if not tool_definitions:
             logger.debug(
                 "Warning: No tool definitions found. LLM cannot use any tools."
