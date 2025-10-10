@@ -2,14 +2,23 @@ name: lint
 
 on:
   pull_request:
-    branches: [ "main" ]
     types: [opened, synchronize, edited]
+  push:
+    branches: [ "main" ]
 
 jobs:
   lint:
     name: lint pull request
     runs-on: ubuntu-latest
     steps:
+    - name: Debug workflow trigger
+      run: |
+        echo "Workflow triggered by: ${{ github.event_name }}"
+        echo "PR number: ${{ github.event.pull_request.number }}"
+        echo "PR title: ${{ github.event.pull_request.title }}"
+        echo "Repository: ${{ github.repository }}"
+        echo "Branch: ${{ github.head_ref }}"
+    
     - name: checkout code
       uses: actions/checkout@v4
     
