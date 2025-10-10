@@ -215,6 +215,9 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 **P065** - AlphaApollo: Orchestrating Foundation Models and Professional Tools into a Self-Evolving System for Deep Agentic Reasoning
     - [:material-file-document: Paper](https://arxiv.org/abs/2510.06261)
 
+**P066** - Democratizing AI Scientists using ToolUniverse
+    - [:material-file-document: Paper](https://arxiv.org/abs/2509.23426) · [:material-github: GitHub](https://github.com/mims-harvard/ToolUniverse)
+
 
 ---
 
