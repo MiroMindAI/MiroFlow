@@ -25,12 +25,14 @@ import requests
 from fastmcp import FastMCP
 from mutagen import File as MutagenFile
 from openai import OpenAI
+from src.logging.logger import setup_mcp_logging
 
 WHISPER_API_KEY = os.environ.get("WHISPER_API_KEY")
 WHISPER_BASE_URL = os.environ.get("WHISPER_BASE_URL")
 WHISPER_MODEL_NAME = os.environ.get("WHISPER_MODEL_NAME")
 
 # Initialize FastMCP server
+setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("audio-mcp-server-os")
 
 
@@ -210,4 +212,4 @@ async def audio_transcription(audio_path_or_url: str) -> str:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio", show_banner=False)

@@ -12,6 +12,8 @@ from google import genai
 from google.genai import types
 import requests
 import asyncio
+from src.logging.logger import setup_mcp_logging
+
 
 # Anthropic credentials
 ENABLE_CLAUDE_VISION = os.environ.get("ENABLE_CLAUDE_VISION", "false").lower() == "true"
@@ -31,7 +33,6 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL_NAME = os.environ.get("GEMINI_MODEL_NAME", "gemini-2.5-pro")
 
 # Initialize FastMCP server
-from src.logging.logger import setup_mcp_logging
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("vision-mcp-server")
 
@@ -514,4 +515,4 @@ async def visual_audio_youtube_analyzing(
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio",show_banner=False)
+    mcp.run(transport="stdio", show_banner=False)

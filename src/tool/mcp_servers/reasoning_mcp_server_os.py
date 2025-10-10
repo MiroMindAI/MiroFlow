@@ -19,6 +19,7 @@ import time
 
 import requests
 from fastmcp import FastMCP
+from src.logging.logger import setup_mcp_logging
 
 logger = logging.getLogger("miroflow")
 
@@ -27,6 +28,7 @@ REASONING_BASE_URL = os.environ.get("REASONING_BASE_URL")
 REASONING_MODEL_NAME = os.environ.get("REASONING_MODEL_NAME")
 
 # Initialize FastMCP server
+setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("reasoning-mcp-server-os")
 
 # Retry configuration
@@ -100,4 +102,4 @@ async def reasoning(question: str) -> str:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio", show_banner=False)

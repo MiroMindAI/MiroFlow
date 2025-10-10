@@ -8,7 +8,7 @@ import zmq.asyncio
 import logging
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal, Dict
+from typing import Literal
 from contextvars import ContextVar
 import hydra
 from rich.console import Console
@@ -16,7 +16,9 @@ from rich.logging import RichHandler
 import asyncio
 import threading
 from contextlib import contextmanager
+
 TASK_CONTEXT_VAR: ContextVar[str | None] = ContextVar("CURRENT_TASK_ID", default=None)
+
 
 class ZMQLogHandler(logging.Handler):
     def __init__(self, addr="tcp://127.0.0.1:6000", tool_name="unknown_tool"):
@@ -34,6 +36,7 @@ class ZMQLogHandler(logging.Handler):
         except Exception:
             self.handleError(record)
 
+
 async def zmq_log_listener(bind_addr="tcp://127.0.0.1:6000"):
     ctx = zmq.asyncio.Context()
     sock = ctx.socket(zmq.PULL)
@@ -47,10 +50,13 @@ async def zmq_log_listener(bind_addr="tcp://127.0.0.1:6000"):
             task_id, tool_name, msg = raw.split("||", 2)
 
             record = root_logger.makeRecord(
-                name=f'[TOOL] {tool_name}',
+                name=f"[TOOL] {tool_name}",
                 level=logging.INFO,
-                fn="", lno=0, msg=msg, args=(),
-                exc_info=None
+                fn="",
+                lno=0,
+                msg=msg,
+                args=(),
+                exc_info=None,
             )
             record.task_id = task_id
 
@@ -58,12 +64,16 @@ async def zmq_log_listener(bind_addr="tcp://127.0.0.1:6000"):
         else:
             root_logger.info(raw)
 
+
 def start_zmq_listener():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(zmq_log_listener())
 
-def setup_mcp_logging(level="INFO", addr="tcp://127.0.0.1:6000", tool_name="unknown_tool"):
+
+def setup_mcp_logging(
+    level="INFO", addr="tcp://127.0.0.1:6000", tool_name="unknown_tool"
+):
     root = logging.getLogger()
     root.setLevel(level)
 
@@ -78,28 +88,35 @@ def setup_mcp_logging(level="INFO", addr="tcp://127.0.0.1:6000", tool_name="unkn
             for h in logger.handlers[:]:
                 logger.removeHandler(h)
                 h.close()
-            logger.propagate = True  # 确保冒泡到 root
+            logger.propagate = True  # Ensure bubbling to root
 
     # Re-add the ZMQ handler
     handler = ZMQLogHandler(addr=addr, tool_name=tool_name)
-    handler.setFormatter(logging.Formatter("[TOOL] %(asctime)s %(levelname)s: %(message)s"))
+    handler.setFormatter(
+        logging.Formatter("[TOOL] %(asctime)s %(levelname)s: %(message)s")
+    )
     root.addHandler(handler)
+
 
 def setup_log_record_factory():
     old_factory = logging.getLogRecordFactory()
+
     def record_factory(*args, **kwargs):
         record = old_factory(*args, **kwargs)
         record.task_id = TASK_CONTEXT_VAR.get()
         return record
+
     logging.setLogRecordFactory(record_factory)
+
 
 class TaskFilter(logging.Filter):
     def __init__(self, task_id: str):
         super().__init__()
         self.task_id = task_id
-    
+
     def filter(self, record: logging.LogRecord) -> bool:
         return getattr(record, "task_id", None) == self.task_id
+
 
 def make_task_logger(task_id: str, log_dir: Path) -> logging.Handler:
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -111,9 +128,10 @@ def make_task_logger(task_id: str, log_dir: Path) -> logging.Handler:
     logging.getLogger().addHandler(fh)
     return fh
 
+
 def remove_all_console_handlers():
     """
-    移除当前进程中所有 logger 上的 console handler (StreamHandler/RichHandler)。
+    Remove all console handlers (StreamHandler/RichHandler) from all loggers in the current process.
     """
     for name, logger in logging.Logger.manager.loggerDict.items():
         if isinstance(logger, logging.Logger):
@@ -134,6 +152,7 @@ def remove_all_console_handlers():
         root_logger.removeHandler(h)
         h.close()
 
+
 @contextmanager
 def task_logging_context(task_id: str, log_dir: Path):
     token = TASK_CONTEXT_VAR.set(task_id)
@@ -145,21 +164,25 @@ def task_logging_context(task_id: str, log_dir: Path):
         logging.getLogger().removeHandler(handler)
         handler.close()
 
+
 def init_logging_for_benchmark_evaluation(print_task_logs=False):
-    threading.Thread(target=start_zmq_listener, daemon=True).start() #monitoring tool logs
-    logging.basicConfig(handlers=[]) 
+    threading.Thread(
+        target=start_zmq_listener, daemon=True
+    ).start()  # monitoring tool logs
+    logging.basicConfig(handlers=[])
     setup_log_record_factory()
     if not print_task_logs:
-        remove_all_console_handlers()  
+        remove_all_console_handlers()
+
 
 @lru_cache
 def bootstrap_logger(
     level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] | int = "INFO",
     logger_name: str = "miroflow",
     logger: logging.Logger | None = None,
-    log_dir: str | Path | None = None,   # 日志存储目录
-    log_filename: str = "miroflow.log",  # 默认日志文件名
-    to_console: bool = True,             # 是否显示到 console
+    log_dir: str | Path | None = None,  # Log storage directory
+    log_filename: str = "miroflow.log",  # Default log filename
+    to_console: bool = True,  # Whether to display to console
 ) -> logging.Logger:
     """Configure only this logger, not the root logger"""
     if logger is None:
@@ -173,7 +196,7 @@ def bootstrap_logger(
             console=Console(
                 stderr=True,
                 width=200,
-                color_system=None,   
+                color_system=None,
                 force_terminal=False,
                 legacy_windows=False,
             ),
@@ -191,9 +214,9 @@ def bootstrap_logger(
         log_dir.mkdir(parents=True, exist_ok=True)
         file_path = log_dir / log_filename
         file_handler = logging.FileHandler(file_path, encoding="utf-8")
-        file_handler.setFormatter(logging.Formatter(
-            "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
-        ))
+        file_handler.setFormatter(
+            logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+        )
         logger.addHandler(file_handler)
 
     logger.setLevel(level)

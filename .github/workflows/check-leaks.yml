@@ -15,7 +15,6 @@ permissions:
 
 jobs:
   scan:
-    if: github.repository_owner == 'MiroMindAI'
     name: gitleaks
     runs-on: ubuntu-latest
     steps:

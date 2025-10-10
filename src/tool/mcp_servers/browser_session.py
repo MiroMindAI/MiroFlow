@@ -97,4 +97,4 @@ async def test_persistent_session():
 
 
 if __name__ == "__main__":
-    asyncio.run(test_persistent_session(),show_banner=False)
+    asyncio.run(test_persistent_session(), show_banner=False)

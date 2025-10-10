@@ -14,6 +14,8 @@ import wave
 import contextlib
 from mutagen import File as MutagenFile
 import asyncio
+from src.logging.logger import setup_mcp_logging
+
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
@@ -25,9 +27,9 @@ OPENAI_AUDIO_MODEL_NAME = os.environ.get(
 )
 
 # Initialize FastMCP server
-from src.logging.logger import setup_mcp_logging
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("audio-mcp-server")
+
 
 def _get_audio_extension(url: str, content_type: str = None) -> str:
     """
@@ -290,4 +292,4 @@ async def audio_question_answering(audio_path_or_url: str, question: str) -> str
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio",show_banner=False)
+    mcp.run(transport="stdio", show_banner=False)

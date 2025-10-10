@@ -53,6 +53,23 @@ Explore the complete MiroMind AI ecosystem:
     | **MiroTrain** | Complete training recipes and tools | [GitHub](https://github.com/MiroMindAI/MiroTrain) :material-arrow-right: |
 
 
+## 📝 Recent Updates
+
+!!! success "Latest Changes & Improvements"
+    
+    **Oct 2025** - 
+
+    - 📊 Added support for FinSearchComp evaluation benchmark [#51](https://github.com/MiroMindAI/MiroFlow/pull/51)
+    - 🔍 Added support for XBench-DS (Deep Search) evaluation [#47](https://github.com/MiroMindAI/MiroFlow/pull/47)
+    - 🧠 Updated o3 hints and summary to more models [#58](https://github.com/MiroMindAI/MiroFlow/pull/58)
+    - ✨ Added support for GPT-5 integration [#52](https://github.com/MiroMindAI/MiroFlow/pull/52)
+    - 🔧 Improved tool logs and per-task log storage [#69](https://github.com/MiroMindAI/MiroFlow/pull/69)
+    - 🤖 Added support for single agent mode [#67](https://github.com/MiroMindAI/MiroFlow/pull/67)
+    - 📚 Added comprehensive collection of agentic AI research papers [#65](https://github.com/MiroMindAI/MiroFlow/pull/65)
+
+
+
+
 
 ---
 

@@ -10,6 +10,7 @@ from fastmcp import FastMCP
 
 # Initialize FastMCP server
 from src.logging.logger import setup_mcp_logging
+
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("e2b-python-interpreter")
 
@@ -413,4 +414,4 @@ async def download_file_from_sandbox_to_local(
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio",show_banner=False)
+    mcp.run(transport="stdio", show_banner=False)
