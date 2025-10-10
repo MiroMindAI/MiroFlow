@@ -80,7 +80,7 @@ def setup_mcp_logging(level="INFO", addr="tcp://127.0.0.1:6000", tool_name="unkn
                 h.close()
             logger.propagate = True  # 确保冒泡到 root
 
-    # 重新加上 ZMQ handler
+    # Re-add the ZMQ handler
     handler = ZMQLogHandler(addr=addr, tool_name=tool_name)
     handler.setFormatter(logging.Formatter("[TOOL] %(asctime)s %(levelname)s: %(message)s"))
     root.addHandler(handler)
