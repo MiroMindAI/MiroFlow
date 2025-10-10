@@ -20,6 +20,14 @@ logger = bootstrap_logger(level=LOGGER_LEVEL)
 
 R = TypeVar("R")
 
+def update_server_params_with_context_var(server_params: StdioServerParameters) -> StdioServerParameters:
+    """
+    Update the server params with the context var.
+    """
+    from src.logging.logger import TASK_CONTEXT_VAR
+    if TASK_CONTEXT_VAR.get() is not None:
+        server_params.env["TASK_ID"] = TASK_CONTEXT_VAR.get()
+    return server_params
 
 def with_timeout(timeout_s: float = 300.0):
     """
@@ -108,7 +116,7 @@ class ToolManager(ToolManagerProtocol):
 
             try:
                 if isinstance(server_params, StdioServerParameters):
-                    async with stdio_client(server_params) as (read, write):
+                    async with stdio_client(update_server_params_with_context_var(server_params)) as (read, write):
                         async with ClientSession(
                             read, write, sampling_callback=None
                         ) as session:
@@ -168,7 +176,7 @@ class ToolManager(ToolManagerProtocol):
 
             try:
                 if isinstance(server_params, StdioServerParameters):
-                    async with stdio_client(server_params) as (read, write):
+                    async with stdio_client(update_server_params_with_context_var(server_params)) as (read, write):
                         async with ClientSession(
                             read, write, sampling_callback=None
                         ) as session:
@@ -342,7 +350,7 @@ class ToolManager(ToolManagerProtocol):
             try:
                 result_content = None
                 if isinstance(server_params, StdioServerParameters):
-                    async with stdio_client(server_params) as (read, write):
+                    async with stdio_client(update_server_params_with_context_var(server_params)) as (read, write):
                         async with ClientSession(
                             read, write, sampling_callback=None
                         ) as session:

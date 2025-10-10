@@ -31,6 +31,8 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 GEMINI_MODEL_NAME = os.environ.get("GEMINI_MODEL_NAME", "gemini-2.5-pro")
 
 # Initialize FastMCP server
+from src.logging.logger import setup_mcp_logging
+setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("vision-mcp-server")
 
 
@@ -512,4 +514,4 @@ async def visual_audio_youtube_analyzing(
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio",show_banner=False)

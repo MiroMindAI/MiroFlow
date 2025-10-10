@@ -19,6 +19,8 @@ OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
 OPENAI_MODEL_NAME = os.environ.get("OPENAI_MODEL_NAME", "o3")
 
 # Initialize FastMCP server
+from src.logging.logger import setup_mcp_logging
+setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("reasoning-mcp-server")
 
 
@@ -124,4 +126,4 @@ async def reasoning(question: str) -> str:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio",show_banner=False)

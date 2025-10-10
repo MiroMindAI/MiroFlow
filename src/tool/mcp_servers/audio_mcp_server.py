@@ -25,8 +25,9 @@ OPENAI_AUDIO_MODEL_NAME = os.environ.get(
 )
 
 # Initialize FastMCP server
+from src.logging.logger import setup_mcp_logging
+setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("audio-mcp-server")
-
 
 def _get_audio_extension(url: str, content_type: str = None) -> str:
     """
@@ -289,4 +290,4 @@ async def audio_question_answering(audio_path_or_url: str, question: str) -> str
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio",show_banner=False)

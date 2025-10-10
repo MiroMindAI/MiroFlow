@@ -19,13 +19,13 @@ import openai
 from omegaconf import DictConfig, OmegaConf
 
 from utils.eval_utils import verify_answer_for_datasets
-from src.logging.logger import bootstrap_logger
+from src.logging.logger import bootstrap_logger, task_logging_context, init_logging_for_benchmark_evaluation
 from config import config_name, config_path
 from src.core.pipeline import (
     create_pipeline_components,
     execute_task_pipeline,
 )
-
+init_logging_for_benchmark_evaluation(print_task_logs=False)
 
 class TaskStatus(StrEnum):
     PENDING = "pending"
@@ -179,7 +179,8 @@ class BenchmarkEvaluator(ABC):
         found_correct_answer = False
 
         # Print debug info about log directory
-        print(f"  Current log directory: {self.output_dir}")
+        print(f"  Current result directory: {self.output_dir}")
+        print(f"  Current task log directory: {self.output_dir}/task_logs")
 
         try:
             # Prepare task
@@ -371,7 +372,9 @@ class BenchmarkEvaluator(ABC):
 
         async def run_with_semaphore(task):
             async with semaphore:
-                return await self.run_single_task(task)
+                with task_logging_context(task.task_id, self.get_log_dir()):
+                        result = await self.run_single_task(task)
+                return result
 
         # Shuffle tasks to avoid order bias and improve balancing
         shuffled_tasks = tasks.copy()
