@@ -72,7 +72,7 @@ def setup_mcp_logging(level="INFO", addr="tcp://127.0.0.1:6000", tool_name="unkn
         root.removeHandler(h)
         h.close()
 
-    # 移除所有 fastmcp 子 logger 的 handler
+    # Remove all handlers from fastmcp child loggers
     for name, logger in logging.Logger.manager.loggerDict.items():
         if isinstance(logger, logging.Logger):
             for h in logger.handlers[:]:
