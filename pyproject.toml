@@ -30,6 +30,7 @@ dependencies = [
     "requests>=2.32.4",
     "filetype>=1.2.0",
     "Pillow",
+    "pyzmq"
 ]
 
 [build-system]
