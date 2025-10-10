@@ -67,7 +67,7 @@ def setup_mcp_logging(level="INFO", addr="tcp://127.0.0.1:6000", tool_name="unkn
     root = logging.getLogger()
     root.setLevel(level)
 
-    # 移除 root handlers
+    # Remove root handlers
     for h in root.handlers[:]:
         root.removeHandler(h)
         h.close()
