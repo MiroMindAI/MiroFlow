@@ -16,6 +16,7 @@ from .utils.smart_request import smart_request
 
 # Initialize FastMCP server
 from src.logging.logger import setup_mcp_logging
+
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("reading-mcp-server")
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
@@ -155,7 +156,12 @@ if __name__ == "__main__":
 
     # Run the server with the specified transport method
     if args.transport == "stdio":
-        mcp.run(transport="stdio",show_banner=False)
+        mcp.run(transport="stdio", show_banner=False)
     else:
         # For HTTP transport, include port and path options
-        mcp.run(transport="streamable-http", port=args.port, path=args.path,show_banner=False)
+        mcp.run(
+            transport="streamable-http",
+            port=args.port,
+            path=args.path,
+            show_banner=False,
+        )

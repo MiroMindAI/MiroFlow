@@ -18,12 +18,14 @@ import os
 import aiohttp
 import requests
 from fastmcp import FastMCP
+from src.logging.logger import setup_mcp_logging
 
 VISION_API_KEY = os.environ.get("VISION_API_KEY")
 VISION_BASE_URL = os.environ.get("VISION_BASE_URL")
 VISION_MODEL_NAME = os.environ.get("VISION_MODEL_NAME")
 
 # Initialize FastMCP server
+setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("vision-mcp-server-os")
 
 
@@ -111,4 +113,4 @@ async def visual_question_answering(image_path_or_url: str, question: str) -> st
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio", show_banner=False)

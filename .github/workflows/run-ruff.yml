@@ -6,7 +6,6 @@ on:
 
 jobs:
   lint:
-    if: github.repository_owner == 'MiroMindAI'
     name: lint pull request
     runs-on: ubuntu-latest
     steps:

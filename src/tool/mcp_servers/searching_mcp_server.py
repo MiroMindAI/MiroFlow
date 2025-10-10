@@ -13,6 +13,8 @@ from mcp import ClientSession, StdioServerParameters  # (already imported in con
 import wikipedia
 import asyncio
 from .utils.smart_request import smart_request, request_to_json
+from src.logging.logger import setup_mcp_logging
+
 
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
 JINA_API_KEY = os.environ.get("JINA_API_KEY", "")
@@ -31,7 +33,6 @@ REMOVE_ANSWER_BOX = os.environ.get("REMOVE_ANSWER_BOX", "").lower() in (
 )
 
 # Initialize FastMCP server
-from src.logging.logger import setup_mcp_logging
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("searching-mcp-server")
 
@@ -668,4 +669,4 @@ async def scrape_website(url: str) -> str:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio",show_banner=False)
+    mcp.run(transport="stdio", show_banner=False)

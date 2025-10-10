@@ -2,11 +2,10 @@ name: check-pr-title
 
 on:
   pull_request:
-   types: [opened, synchronize]
+   types: [opened, synchronize, edited]
 
 jobs:
   check-pr-title:
-    if: github.repository_owner == 'MiroMindAI'
     name: Check PR Title
     runs-on: ubuntu-latest
     steps:

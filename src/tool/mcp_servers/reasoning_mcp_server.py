@@ -8,6 +8,8 @@ from anthropic import Anthropic
 from fastmcp import FastMCP
 from openai import OpenAI
 import asyncio
+from src.logging.logger import setup_mcp_logging
+
 
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 ANTHROPIC_BASE_URL = os.environ.get("ANTHROPIC_BASE_URL", "https://api.anthropic.com")
@@ -19,7 +21,6 @@ OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
 OPENAI_MODEL_NAME = os.environ.get("OPENAI_MODEL_NAME", "o3")
 
 # Initialize FastMCP server
-from src.logging.logger import setup_mcp_logging
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("reasoning-mcp-server")
 
@@ -126,4 +127,4 @@ async def reasoning(question: str) -> str:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio",show_banner=False)
+    mcp.run(transport="stdio", show_banner=False)
