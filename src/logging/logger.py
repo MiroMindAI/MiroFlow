@@ -88,8 +88,12 @@ class ZMQLogHandler(logging.Handler):
             logging.getLogger(__name__).info(f"ZMQ handler connected to: {addr}")
         except zmq.error.ZMQError as e:
             # If connection fails, disable the handler
-            logging.getLogger(__name__).warning(f"Could not connect to ZMQ listener at {addr}: {e}")
-            logging.getLogger(__name__).warning("Disabling ZMQ logging for this handler")
+            logging.getLogger(__name__).warning(
+                f"Could not connect to ZMQ listener at {addr}: {e}"
+            )
+            logging.getLogger(__name__).warning(
+                "Disabling ZMQ logging for this handler"
+            )
             self.sock = None
 
         self.task_id = os.environ.get("TASK_ID", "0")
@@ -98,7 +102,7 @@ class ZMQLogHandler(logging.Handler):
     def emit(self, record):
         if self.sock is None:
             return
-        
+
         try:
             msg = f"{record.getMessage()}"
             self.sock.send_string(f"{self.task_id}||{self.tool_name}||{msg}")
