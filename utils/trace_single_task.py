@@ -17,10 +17,6 @@ from src.core.pipeline import (
 )
 from omegaconf import DictConfig
 
-import os
-
-LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-
 
 async def single_task(
     cfg: DictConfig,
@@ -75,6 +71,10 @@ def main(
     dotenv.load_dotenv()
     with hydra.initialize_config_dir(config_dir=config_path(), version_base=None):
         cfg = hydra.compose(config_name=chosen_config_name, overrides=list(args))
-        logger = bootstrap_logger(level=LOGGER_LEVEL)
+        logger = bootstrap_logger(level="DEBUG", to_console=True)
+
+        # Test if logger is working
+        logger.info("Logger initialized successfully")
+
         # Tracing functionality removed - miroflow-contrib deleted
         asyncio.run(single_task(cfg, logger, str(task_id), task, task_file_name))

@@ -5,16 +5,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Multiple runs FutureX evaluation script
-# Based on the working command: uv run main.py common-benchmark --config_file_name=agent_quickstart_1 benchmark=futurex output_dir=logs/futurex-test
+# Based on the working command: uv run main.py common-benchmark --config_file_name=agent_quickstart_reading benchmark=futurex output_dir=logs/futurex-test
 
 # Configuration parameters
 NUM_RUNS=${NUM_RUNS:-3}
 MAX_TASKS=${MAX_TASKS:-null}
 MAX_CONCURRENT=${MAX_CONCURRENT:-5}
 BENCHMARK_NAME="futurex"
-AGENT_SET=${AGENT_SET:-"agent_quickstart_1"}
+AGENT_SET=${AGENT_SET:-"agent_quickstart_reading"}
 
-# TODO: Add more settings like message ID and max turns, currently not supported using agent_quickstart_1
+# TODO: Add more settings like message ID and max turns, currently not supported using agent_quickstart_reading
 # ADD_MESSAGE_ID=${ADD_MESSAGE_ID:-"false"}
 # MAX_TURNS=${MAX_TURNS:-1}
 

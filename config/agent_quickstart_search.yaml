@@ -22,13 +22,8 @@ main_agent:
     keep_tool_result: -1
     oai_tool_thinking: false
   
-  tool_config: 
-    - tool-reasoning-os
-    - tool-searching
-    - tool-image-video-os
-    - tool-reading
-    - tool-code
-    - tool-audio-os
+  tool_config:
+    - tool-searching-serper
 
   max_turns: -1  # Maximum number of turns for main agent execution
   max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn

@@ -86,7 +86,7 @@ cp .env.template .env
 # .env を編集して OPENROUTER_API_KEY を追加
 
 # 3. 最初のエージェントを実行
-uv run main.py trace --config_file_name=agent_quickstart_1 --task="What is the first country listed in the XLSX file that have names starting with Co?" --task_file_name="data/FSI-2023-DOWNLOAD.xlsx"
+uv run main.py trace --config_file_name=agent_quickstart_reading --task="What is the first country listed in the XLSX file that have names starting with Co?" --task_file_name="data/FSI-2023-DOWNLOAD.xlsx"
 ```
 
 🎉 **想定出力**: エージェントは **\boxed{Congo Democratic Republic}** を返すはずです 😊
