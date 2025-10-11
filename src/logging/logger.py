@@ -16,20 +16,93 @@ from rich.logging import RichHandler
 import asyncio
 import threading
 from contextlib import contextmanager
+import socket
 
 TASK_CONTEXT_VAR: ContextVar[str | None] = ContextVar("CURRENT_TASK_ID", default=None)
 
+# Global variable to store the actual ZMQ address being used
+_ZMQ_ADDRESS: str = "tcp://127.0.0.1:6000"
+
+
+def find_available_port(start_port: int = 6000, max_attempts: int = 10) -> int:
+    """Find an available port starting from start_port."""
+    for port in range(start_port, start_port + max_attempts):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(("127.0.0.1", port))
+                return port
+        except OSError:
+            continue
+    raise RuntimeError(
+        f"Could not find an available port in range {start_port}-{start_port + max_attempts - 1}"
+    )
+
+
+def get_zmq_address() -> str:
+    """Get the current ZMQ address."""
+    return _ZMQ_ADDRESS
+
+
+def set_zmq_address(address: str) -> None:
+    """Set the ZMQ address."""
+    global _ZMQ_ADDRESS
+    _ZMQ_ADDRESS = address
+
+
+def _extract_port_from_address(addr: str) -> int:
+    """Extract port number from ZMQ address."""
+    try:
+        return int(addr.split(":")[-1])
+    except (ValueError, IndexError):
+        return 6000
+
+
+def _bind_zmq_socket(sock, bind_addr: str) -> str:
+    """Bind ZMQ socket to an available port and return the actual address."""
+    port = _extract_port_from_address(bind_addr)
+
+    try:
+        available_port = find_available_port(port)
+        actual_addr = f"tcp://127.0.0.1:{available_port}"
+        sock.bind(actual_addr)
+        return actual_addr
+    except RuntimeError:
+        # Fallback to random port
+        port = sock.bind_to_random_port("tcp://127.0.0.1")
+        return f"tcp://127.0.0.1:{port}"
+
 
 class ZMQLogHandler(logging.Handler):
-    def __init__(self, addr="tcp://127.0.0.1:6000", tool_name="unknown_tool"):
+    def __init__(self, addr=None, tool_name="unknown_tool"):
         super().__init__()
         ctx = zmq.Context()
         self.sock = ctx.socket(zmq.PUSH)
-        self.sock.connect(addr)
+
+        # Use the global ZMQ address if no specific address is provided
+        if addr is None:
+            addr = get_zmq_address()
+
+        # Try to connect to the address
+        try:
+            self.sock.connect(addr)
+            logging.getLogger(__name__).info(f"ZMQ handler connected to: {addr}")
+        except zmq.error.ZMQError as e:
+            # If connection fails, disable the handler
+            logging.getLogger(__name__).warning(
+                f"Could not connect to ZMQ listener at {addr}: {e}"
+            )
+            logging.getLogger(__name__).warning(
+                "Disabling ZMQ logging for this handler"
+            )
+            self.sock = None
+
         self.task_id = os.environ.get("TASK_ID", "0")
         self.tool_name = tool_name
 
     def emit(self, record):
+        if self.sock is None:
+            return
+
         try:
             msg = f"{record.getMessage()}"
             self.sock.send_string(f"{self.task_id}||{self.tool_name}||{msg}")
@@ -40,13 +113,17 @@ class ZMQLogHandler(logging.Handler):
 async def zmq_log_listener(bind_addr="tcp://127.0.0.1:6000"):
     ctx = zmq.asyncio.Context()
     sock = ctx.socket(zmq.PULL)
-    sock.bind(bind_addr)
+
+    # Bind to available port
+    actual_addr = _bind_zmq_socket(sock, bind_addr)
+    set_zmq_address(actual_addr)
+    logging.getLogger(__name__).info(f"ZMQ listener bound to: {actual_addr}")
 
     root_logger = logging.getLogger()
 
     while True:
         raw = await sock.recv_string()
-        if "|" in raw:
+        if "||" in raw:
             task_id, tool_name, msg = raw.split("||", 2)
 
             record = root_logger.makeRecord(
@@ -71,9 +148,7 @@ def start_zmq_listener():
     loop.run_until_complete(zmq_log_listener())
 
 
-def setup_mcp_logging(
-    level="INFO", addr="tcp://127.0.0.1:6000", tool_name="unknown_tool"
-):
+def setup_mcp_logging(level="INFO", addr=None, tool_name="unknown_tool"):
     root = logging.getLogger()
     root.setLevel(level)
 
@@ -90,7 +165,7 @@ def setup_mcp_logging(
                 h.close()
             logger.propagate = True  # Ensure bubbling to root
 
-    # Re-add the ZMQ handler
+    # Re-add the ZMQ handler (will use global address if addr is None)
     handler = ZMQLogHandler(addr=addr, tool_name=tool_name)
     handler.setFormatter(
         logging.Formatter("[TOOL] %(asctime)s %(levelname)s: %(message)s")
