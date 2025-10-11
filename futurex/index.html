@@ -2335,9 +2335,9 @@
 <h3 id="step-3-run-the-evaluation">Step 3: Run the Evaluation</h3>
 <div class="admonition example">
 <p class="admonition-title">Evaluation Execution</p>
-<p>Execute the following command to run evaluation on the Futurex-Online dataset. This uses the basic <code>agent_quickstart_1</code> configuration for quick start purposes.</p>
+<p>Execute the following command to run evaluation on the Futurex-Online dataset. This uses the basic <code>agent_quickstart_reading</code> configuration for quick start purposes.</p>
 </div>
-<div class="highlight"><span class="filename">Run Futurex-Online Evaluation</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span>--config_file_name<span class="o">=</span>agent_quickstart_1<span class="w"> </span><span class="nv">benchmark</span><span class="o">=</span>futurex<span class="w"> </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/futurex/</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y%m%d_%H%M&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+<div class="highlight"><span class="filename">Run Futurex-Online Evaluation</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span>--config_file_name<span class="o">=</span>agent_quickstart_reading<span class="w"> </span><span class="nv">benchmark</span><span class="o">=</span>futurex<span class="w"> </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/futurex/</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y%m%d_%H%M&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
 </code></pre></div>
 <div class="admonition tip">
 <p class="admonition-title">Progress Monitoring and Resume</p>
@@ -2345,7 +2345,7 @@
 <div class="highlight"><span class="filename">Check Progress</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>utils/progress_check/check_futurex_progress.py<span class="w"> </span><span class="nv">$PATH_TO_LOG</span>
 </code></pre></div>
 <p>If you need to resume an interrupted evaluation, specify the same output directory to continue from where you left off.</p>
-<div class="highlight"><span class="filename">Resume Evaluation, e.g.</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span>--config_file_name<span class="o">=</span>agent_quickstart_1<span class="w"> </span><span class="nv">benchmark</span><span class="o">=</span>futurex<span class="w"> </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/futurex/20250918_1010&quot;</span>
+<div class="highlight"><span class="filename">Resume Evaluation, e.g.</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span>--config_file_name<span class="o">=</span>agent_quickstart_reading<span class="w"> </span><span class="nv">benchmark</span><span class="o">=</span>futurex<span class="w"> </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/futurex/20250918_1010&quot;</span>
 </code></pre></div>
 </div>
 <h3 id="step-4-extract-results">Step 4: Extract Results</h3>
@@ -2420,24 +2420,24 @@
 <h3 id="step-4-analyze-voting-results">Step 4: Analyze Voting Results</h3>
 <p>Check the generated files for voting analysis:</p>
 <div class="highlight"><span class="filename">Check Voting Results</span><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># View submission file with voting results</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>cat<span class="w"> </span>logs/futurex/agent_quickstart_1_*/futurex_submission.jsonl
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>cat<span class="w"> </span>logs/futurex/agent_quickstart_reading_*/futurex_submission.jsonl
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
 <a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Check individual run results</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>ls<span class="w"> </span>logs/futurex/agent_quickstart_1_*/run_*/
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>ls<span class="w"> </span>logs/futurex/agent_quickstart_reading_*/run_*/
 <a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
 <a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Check progress and voting statistics</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>utils/progress_check/check_futurex_progress.py<span class="w"> </span>logs/futurex/agent_quickstart_1_*
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>utils/progress_check/check_futurex_progress.py<span class="w"> </span>logs/futurex/agent_quickstart_reading_*
 </code></pre></div>
 <h3 id="manual-voting-aggregation">Manual Voting Aggregation</h3>
 <p>You can also manually run the voting aggregation:</p>
 <div class="highlight"><span class="filename">Manual Voting Aggregation</span><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Aggregate multiple runs with majority voting</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>utils/extract_futurex_results.py<span class="w"> </span>logs/futurex/agent_quickstart_1_*<span class="w"> </span>--aggregate
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>utils/extract_futurex_results.py<span class="w"> </span>logs/futurex/agent_quickstart_reading_*<span class="w"> </span>--aggregate
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
 <a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Force single run mode (if needed)</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>utils/extract_futurex_results.py<span class="w"> </span>logs/futurex/agent_quickstart_1_*/run_1<span class="w"> </span>--single
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>utils/extract_futurex_results.py<span class="w"> </span>logs/futurex/agent_quickstart_reading_*/run_1<span class="w"> </span>--single
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
 <a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># Specify custom output file</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>utils/extract_futurex_results.py<span class="w"> </span>logs/futurex/agent_quickstart_1_*<span class="w"> </span>-o<span class="w"> </span>my_voted_predictions.jsonl
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>utils/extract_futurex_results.py<span class="w"> </span>logs/futurex/agent_quickstart_reading_*<span class="w"> </span>-o<span class="w"> </span>my_voted_predictions.jsonl
 </code></pre></div>
 <h3 id="voting-output-format">Voting Output Format</h3>
 <p>The voting aggregation generates a submission file with the following format:</p>
@@ -2474,7 +2474,7 @@
 </div>
 <h3 id="directory-structure">Directory Structure</h3>
 <p>After running multiple evaluations, you'll find the following structure:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>logs/futurex/agent_quickstart_1_YYYYMMDD_HHMM/
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>logs/futurex/agent_quickstart_reading_YYYYMMDD_HHMM/
 <a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>├── futurex_submission.jsonl          # Final voted predictions
 <a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>├── run_1/                            # First run results
 <a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>│   ├── benchmark_results.jsonl       # Individual task results
