@@ -86,7 +86,7 @@ cp .env.template .env
 # 编辑 .env 并添加您的 OPENROUTER_API_KEY
 
 # 3. 运行您的第一个智能体
-uv run main.py trace --config_file_name=agent_quickstart_1 --task="What is the first country listed in the XLSX file that have names starting with Co?" --task_file_name="data/FSI-2023-DOWNLOAD.xlsx"
+uv run main.py trace --config_file_name=agent_quickstart_reading --task="What is the first country listed in the XLSX file that have names starting with Co?" --task_file_name="data/FSI-2023-DOWNLOAD.xlsx"
 ```
 
 🎉 **预期输出**: 您的智能体应该返回 **\boxed{Congo Democratic Republic}** 😊

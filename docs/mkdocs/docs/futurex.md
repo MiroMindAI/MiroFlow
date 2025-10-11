@@ -72,10 +72,10 @@ OPENAI_BASE_URL="https://api.openai.com/v1"
 ### Step 3: Run the Evaluation
 
 !!! example "Evaluation Execution"
-    Execute the following command to run evaluation on the Futurex-Online dataset. This uses the basic `agent_quickstart_1` configuration for quick start purposes.
+    Execute the following command to run evaluation on the Futurex-Online dataset. This uses the basic `agent_quickstart_reading` configuration for quick start purposes.
 
 ```bash title="Run Futurex-Online Evaluation"
-uv run main.py common-benchmark --config_file_name=agent_quickstart_1 benchmark=futurex output_dir="logs/futurex/$(date +"%Y%m%d_%H%M")"
+uv run main.py common-benchmark --config_file_name=agent_quickstart_reading benchmark=futurex output_dir="logs/futurex/$(date +"%Y%m%d_%H%M")"
 ```
 
 !!! tip "Progress Monitoring and Resume"
@@ -88,7 +88,7 @@ uv run main.py common-benchmark --config_file_name=agent_quickstart_1 benchmark=
     If you need to resume an interrupted evaluation, specify the same output directory to continue from where you left off.
 
     ```bash title="Resume Evaluation, e.g."
-    uv run main.py common-benchmark --config_file_name=agent_quickstart_1 benchmark=futurex output_dir="logs/futurex/20250918_1010"
+    uv run main.py common-benchmark --config_file_name=agent_quickstart_reading benchmark=futurex output_dir="logs/futurex/20250918_1010"
     ```
 
 ### Step 4: Extract Results
@@ -184,13 +184,13 @@ Check the generated files for voting analysis:
 
 ```bash title="Check Voting Results"
 # View submission file with voting results
-cat logs/futurex/agent_quickstart_1_*/futurex_submission.jsonl
+cat logs/futurex/agent_quickstart_reading_*/futurex_submission.jsonl
 
 # Check individual run results
-ls logs/futurex/agent_quickstart_1_*/run_*/
+ls logs/futurex/agent_quickstart_reading_*/run_*/
 
 # Check progress and voting statistics
-uv run python utils/progress_check/check_futurex_progress.py logs/futurex/agent_quickstart_1_*
+uv run python utils/progress_check/check_futurex_progress.py logs/futurex/agent_quickstart_reading_*
 ```
 
 ### Manual Voting Aggregation
@@ -199,13 +199,13 @@ You can also manually run the voting aggregation:
 
 ```bash title="Manual Voting Aggregation"
 # Aggregate multiple runs with majority voting
-uv run python utils/extract_futurex_results.py logs/futurex/agent_quickstart_1_* --aggregate
+uv run python utils/extract_futurex_results.py logs/futurex/agent_quickstart_reading_* --aggregate
 
 # Force single run mode (if needed)
-uv run python utils/extract_futurex_results.py logs/futurex/agent_quickstart_1_*/run_1 --single
+uv run python utils/extract_futurex_results.py logs/futurex/agent_quickstart_reading_*/run_1 --single
 
 # Specify custom output file
-uv run python utils/extract_futurex_results.py logs/futurex/agent_quickstart_1_* -o my_voted_predictions.jsonl
+uv run python utils/extract_futurex_results.py logs/futurex/agent_quickstart_reading_* -o my_voted_predictions.jsonl
 ```
 
 ### Voting Output Format
@@ -249,7 +249,7 @@ For example, `"vote_counts": {"No": 2}` means 2 out of 2 runs predicted "No", in
 After running multiple evaluations, you'll find the following structure:
 
 ```
-logs/futurex/agent_quickstart_1_YYYYMMDD_HHMM/
+logs/futurex/agent_quickstart_reading_YYYYMMDD_HHMM/
 ├── futurex_submission.jsonl          # Final voted predictions
 ├── run_1/                            # First run results
 │   ├── benchmark_results.jsonl       # Individual task results

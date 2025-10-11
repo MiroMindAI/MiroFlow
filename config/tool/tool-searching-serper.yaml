@@ -1,4 +1,4 @@
-name: "tool-serper-search"
+name: "tool-searching-serper"
 tool_command: "npx"
 args:
   - "-y"

@@ -30,7 +30,7 @@ uv run main.py common-benchmark \
 **Single Task**
 ```bash
 uv run main.py trace \
-  --config_file_name=agent_quickstart_1 \
+  --config_file_name=agent_quickstart_reading \
   --task="Your task here" \
   --task_file_name="data/file.xlsx"
 ```
@@ -174,7 +174,7 @@ CHINESE_CONTEXT="false"
 ## Best Practices
 
 !!! success "Quick Tips"
-    - **Start simple**: Use `agent_quickstart_1.yaml` as a base
+    - **Start simple**: Use `agent_quickstart_reading.yaml` as a base
     - **Tool selection**: Choose tools based on your task requirements
     - **API keys**: Always use environment variables, never hardcode
     - **Resource limits**: Set `max_concurrent` and `max_tokens` appropriately

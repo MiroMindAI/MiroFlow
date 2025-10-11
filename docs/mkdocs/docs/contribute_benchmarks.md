@@ -148,7 +148,7 @@ Start with a small subset to verify everything works correctly:
 
 ```bash title="Test Benchmark Integration"
 uv run main.py common-benchmark \
-  --config_file_name=agent_quickstart_1 \
+  --config_file_name=agent_quickstart_reading \
   benchmark=your-benchmark \
   benchmark.execution.max_tasks=3 \
   output_dir="logs/test-your-benchmark/$(date +"%Y%m%d_%H%M")"
@@ -160,7 +160,7 @@ Once testing passes, run the complete benchmark:
 
 ```bash title="Run Full Benchmark"
 uv run main.py common-benchmark \
-  --config_file_name=agent_quickstart_1 \
+  --config_file_name=agent_quickstart_reading \
   benchmark=your-benchmark \
   output_dir="logs/your-benchmark/$(date +"%Y%m%d_%H%M")"
 ```
