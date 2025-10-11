@@ -68,7 +68,8 @@ def _bind_zmq_socket(sock, bind_addr: str) -> str:
         return actual_addr
     except RuntimeError:
         # Fallback to random port
-        return sock.bind_to_random_port("tcp://127.0.0.1")
+        port = sock.bind_to_random_port("tcp://127.0.0.1")
+        return f"tcp://127.0.0.1:{port}"
 
 
 class ZMQLogHandler(logging.Handler):
@@ -84,21 +85,23 @@ class ZMQLogHandler(logging.Handler):
         # Try to connect to the address
         try:
             self.sock.connect(addr)
-            print(f"ZMQ handler connected to: {addr}")
+            logging.getLogger(__name__).info(f"ZMQ handler connected to: {addr}")
         except zmq.error.ZMQError as e:
             # If connection fails, disable the handler
-            print(f"Warning: Could not connect to ZMQ listener at {addr}: {e}")
-            print("Disabling ZMQ logging for this handler")
+            logging.getLogger(__name__).warning(f"Could not connect to ZMQ listener at {addr}: {e}")
+            logging.getLogger(__name__).warning("Disabling ZMQ logging for this handler")
             self.sock = None
 
         self.task_id = os.environ.get("TASK_ID", "0")
         self.tool_name = tool_name
 
     def emit(self, record):
+        if self.sock is None:
+            return
+        
         try:
-            if self.sock is not None:
-                msg = f"{record.getMessage()}"
-                self.sock.send_string(f"{self.task_id}||{self.tool_name}||{msg}")
+            msg = f"{record.getMessage()}"
+            self.sock.send_string(f"{self.task_id}||{self.tool_name}||{msg}")
         except Exception:
             self.handleError(record)
 
@@ -110,13 +113,13 @@ async def zmq_log_listener(bind_addr="tcp://127.0.0.1:6000"):
     # Bind to available port
     actual_addr = _bind_zmq_socket(sock, bind_addr)
     set_zmq_address(actual_addr)
-    print(f"ZMQ listener bound to: {actual_addr}")
+    logging.getLogger(__name__).info(f"ZMQ listener bound to: {actual_addr}")
 
     root_logger = logging.getLogger()
 
     while True:
         raw = await sock.recv_string()
-        if "|" in raw:
+        if "||" in raw:
             task_id, tool_name, msg = raw.split("||", 2)
 
             record = root_logger.makeRecord(
