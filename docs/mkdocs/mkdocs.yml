@@ -74,6 +74,7 @@ nav:
       - tool-python: tool_python.md
     - Advanced Features:
       - E2B Advanced Features: e2b_advanced_features.md
+      - MiroAPI: miro_api.md
     - Add New Tools: contribute_tools.md
 
   - LLM Clients: 
