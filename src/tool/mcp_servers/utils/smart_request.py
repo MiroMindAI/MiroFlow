@@ -13,8 +13,6 @@ from mcp import (
 import urllib.parse
 from markitdown import MarkItDown
 import io
-from typing import Optional
-import os
 
 
 def request_to_json(content: str) -> dict:
