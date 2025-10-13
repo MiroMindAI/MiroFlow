@@ -30,12 +30,15 @@ async def smart_request(url: str, params: dict = None, env: dict = None) -> str:
     if env:
         JINA_API_KEY = env.get("JINA_API_KEY", "")
         SERPER_API_KEY = env.get("SERPER_API_KEY", "")
+        JINA_BASE_URL = env.get("JINA_BASE_URL", "https://r.jina.ai")
     else:
         JINA_API_KEY = ""
         SERPER_API_KEY = ""
 
     if JINA_API_KEY == "" and SERPER_API_KEY == "":
         return "[ERROR]: JINA_API_KEY and SERPER_API_KEY are not set, smart_request is not available."
+
+    IS_MIRO_API = True if "miro" in JINA_BASE_URL else False
 
     # Auto-add https:// if no protocol is specified
     protocol_hint = ""
@@ -65,7 +68,7 @@ async def smart_request(url: str, params: dict = None, env: dict = None) -> str:
             ):
                 youtube_hint = "[NOTE]: If you need to get information about its visual or audio content, please use tool 'visual_audio_youtube_analyzing' instead. This tool may not be able to provide visual and audio content of a YouTube Video.\n\n"
 
-            content, jina_err = await scrape_jina(url, JINA_API_KEY)
+            content, jina_err = await scrape_jina(url, JINA_API_KEY, JINA_BASE_URL)
             if jina_err:
                 error_msg += f"Failed to get content from Jina.ai: {jina_err}\n"
             elif content is None or content.strip() == "":
@@ -73,13 +76,16 @@ async def smart_request(url: str, params: dict = None, env: dict = None) -> str:
             else:
                 return protocol_hint + youtube_hint + content
 
-            content, serper_err = await scrape_serper(url, SERPER_API_KEY)
-            if serper_err:
-                error_msg += f"Failed to get content from SERPER: {serper_err}\n"
-            elif content is None or content.strip() == "":
-                error_msg += "No content got from SERPER.\n"
-            else:
-                return protocol_hint + youtube_hint + content
+            if not IS_MIRO_API:
+                # Try Serper API for scraping if not using Miro API
+                # (Miro API does not support caching Serper scraping results)
+                content, serper_err = await scrape_serper(url, SERPER_API_KEY)
+                if serper_err:
+                    error_msg += f"Failed to get content from SERPER: {serper_err}\n"
+                elif content is None or content.strip() == "":
+                    error_msg += "No content got from SERPER.\n"
+                else:
+                    return protocol_hint + youtube_hint + content
 
             content, request_err = scrape_request(url)
             if request_err:
@@ -99,7 +105,9 @@ async def smart_request(url: str, params: dict = None, env: dict = None) -> str:
                 await asyncio.sleep(4**retry_count)
 
 
-async def scrape_jina(url: str, jina_api_key: str) -> tuple[str, str]:
+async def scrape_jina(
+    url: str, jina_api_key: str, jina_base_url: str
+) -> tuple[str, str]:
     # Use Jina.ai reader API to convert URL to LLM-friendly text
     if jina_api_key == "":
         return (
@@ -116,7 +124,7 @@ async def scrape_jina(url: str, jina_api_key: str) -> tuple[str, str]:
         "X-With-Shadow-Dom": "true",
     }
 
-    jina_url = f"https://r.jina.ai/{url}"
+    jina_url = f"{jina_base_url}/{url}"
     try:
         response = requests.get(jina_url, headers=jina_headers, timeout=120)
         if response.status_code == 422:

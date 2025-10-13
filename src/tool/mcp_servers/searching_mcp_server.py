@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import sys
 import os
 import json
 import requests
@@ -17,7 +18,11 @@ from src.logging.logger import setup_mcp_logging
 
 
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
+SERPER_BASE_URL = os.environ.get("SERPER_BASE_URL", "https://google.serper.dev")
 JINA_API_KEY = os.environ.get("JINA_API_KEY", "")
+JINA_BASE_URL = os.environ.get("JINA_BASE_URL", "https://r.jina.ai")
+
+IS_MIRO_API = True if "miro" in SERPER_BASE_URL or "miro" in JINA_BASE_URL else False
 
 # Google search result filtering environment variables
 REMOVE_SNIPPETS = os.environ.get("REMOVE_SNIPPETS", "").lower() in ("true", "1", "yes")
@@ -122,11 +127,18 @@ async def google_search(
         arguments["location"] = location
     if tbs:
         arguments["tbs"] = tbs
-    server_params = StdioServerParameters(
-        command="npx",
-        args=["-y", "serper-search-scrape-mcp-server"],
-        env={"SERPER_API_KEY": SERPER_API_KEY},
-    )
+    if IS_MIRO_API:
+        server_params = StdioServerParameters(
+            command=sys.executable,
+            args=["-m", "src.tool.mcp_servers.miroapi_serper_mcp_server"],
+            env={"SERPER_API_KEY": SERPER_API_KEY, "SERPER_BASE_URL": SERPER_BASE_URL},
+        )
+    else:
+        server_params = StdioServerParameters(
+            command="npx",
+            args=["-y", "serper-search-scrape-mcp-server"],
+            env={"SERPER_API_KEY": SERPER_API_KEY},
+        )
     result_content = ""
     retry_count = 0
     max_retries = 5
@@ -348,7 +360,12 @@ async def search_wiki_revision(
         content = await smart_request(
             url=base_url,
             params=params,
-            env={"SERPER_API_KEY": SERPER_API_KEY, "JINA_API_KEY": JINA_API_KEY},
+            env={
+                "SERPER_API_KEY": SERPER_API_KEY,
+                "JINA_API_KEY": JINA_API_KEY,
+                "SERPER_BASE_URL": SERPER_BASE_URL,
+                "JINA_BASE_URL": JINA_BASE_URL,
+            },
         )
         data = request_to_json(content)
 
@@ -527,6 +544,8 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
                     env={
                         "SERPER_API_KEY": SERPER_API_KEY,
                         "JINA_API_KEY": JINA_API_KEY,
+                        "SERPER_BASE_URL": SERPER_BASE_URL,
+                        "JINA_BASE_URL": JINA_BASE_URL,
                     },
                 )
                 data = request_to_json(content)
@@ -585,7 +604,12 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
             content = await smart_request(
                 url=base_url,
                 params={"url": url},
-                env={"SERPER_API_KEY": SERPER_API_KEY, "JINA_API_KEY": JINA_API_KEY},
+                env={
+                    "SERPER_API_KEY": SERPER_API_KEY,
+                    "JINA_API_KEY": JINA_API_KEY,
+                    "SERPER_BASE_URL": SERPER_BASE_URL,
+                    "JINA_BASE_URL": JINA_BASE_URL,
+                },
             )
             data = request_to_json(content)
             if "archived_snapshots" in data and "closest" in data["archived_snapshots"]:
@@ -664,7 +688,13 @@ async def scrape_website(url: str) -> str:
     """
     # TODO: Long Content Handling
     return await smart_request(
-        url, env={"SERPER_API_KEY": SERPER_API_KEY, "JINA_API_KEY": JINA_API_KEY}
+        url,
+        env={
+            "SERPER_API_KEY": SERPER_API_KEY,
+            "JINA_API_KEY": JINA_API_KEY,
+            "SERPER_BASE_URL": SERPER_BASE_URL,
+            "JINA_BASE_URL": JINA_BASE_URL,
+        },
     )
 
 
