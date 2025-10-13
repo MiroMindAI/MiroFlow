@@ -218,6 +218,27 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 **P066** - Democratizing AI Scientists using ToolUniverse
     - [:material-file-document: Paper](https://arxiv.org/abs/2509.23426) · [:material-github: GitHub](https://github.com/mims-harvard/ToolUniverse)
 
+**P067** - Dyna-Mind: Learning to Simulate from Experience for Better AI Agents
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.09577)
+
+**P068** - DeepTravel: An End-to-End Agentic Reinforcement Learning Framework for Autonomous Travel Planning Agents
+    - [:material-file-document: Paper](https://arxiv.org/abs/2509.21842)
+
+**P069** - DSPO: Stable and Efficient Policy Optimization for Agentic Search and Reasoning
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.09255)
+
+**P070** - MOSAIC: Multi-agent Orchestration for Task-Intelligent Scientific Coding
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.08804)
+
+**P071** - MASA: LLM-Driven Multi-Agent Systems for Autoformalization
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.08988)
+
+**P072** - Exploiting Web Search Tools of AI Agents for Data Exfiltration
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.09093)
+
+**P073** - Auto-scaling Continuous Memory for GUI Agent
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.09038)
+
 
 ---
 
@@ -282,6 +303,7 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 
 **E010** - GPQA: A Graduate-Level Google-Proof Q&A Benchmark
     - [:material-file-document: Paper](https://arxiv.org/abs/2311.12022) · [:material-github: GitHub](https://github.com/idavidrein/gpqa/)
+    
 **E011** - WebWalkerQA: WebWalker: Benchmarking LLMs in Web Traversal
     - [:material-file-document: Paper](https://arxiv.org/abs/2501.07572) · [:material-github: GitHub](https://github.com/Alibaba-NLP/DeepResearch) · [:material-trophy: Leaderboard](https://huggingface.co/spaces/callanwu/WebWalkerQALeaderboard)
 
@@ -336,6 +358,9 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 **E028** - Haystack Engineering: Context Engineering for Heterogeneous and Agentic Long-Context Evaluation
     - [:material-file-document: Paper](https://arxiv.org/abs/2510.07414) · [:material-github: GitHub](https://github.com/Graph-COM/HaystackCraft)
 
+**E029** - DITING: A Multi-Agent Evaluation Framework for Benchmarking Web Novel Translation
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.09116)
+
 
 ---
 
@@ -388,6 +413,12 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 
 **M015** - ToolMem: Enhancing Multimodal Agents with Learnable Tool Capability Memory
     - [:material-file-document: Paper](https://arxiv.org/abs/2510.06664)
+
+**M016** - CAM: A Constructivist View of Agentic Memory for LLM-Based Reading Comprehension
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.05520)
+
+**M017** - Mem-α: Learning Memory Construction via Reinforcement Learning
+    - [:material-file-document: Paper](https://arxiv.org/abs/2509.25911)
 
 
 ---
