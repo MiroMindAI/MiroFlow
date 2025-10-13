@@ -303,6 +303,7 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 
 **E010** - GPQA: A Graduate-Level Google-Proof Q&A Benchmark
     - [:material-file-document: Paper](https://arxiv.org/abs/2311.12022) · [:material-github: GitHub](https://github.com/idavidrein/gpqa/)
+    
 **E011** - WebWalkerQA: WebWalker: Benchmarking LLMs in Web Traversal
     - [:material-file-document: Paper](https://arxiv.org/abs/2501.07572) · [:material-github: GitHub](https://github.com/Alibaba-NLP/DeepResearch) · [:material-trophy: Leaderboard](https://huggingface.co/spaces/callanwu/WebWalkerQALeaderboard)
 
