@@ -2,7 +2,7 @@
 
 MiroFlow's evaluation on the FinSearchComp benchmark demonstrates capabilities in financial information search and analysis tasks, showcasing advanced reasoning abilities in complex financial research scenarios.
 
-More details: [FinSearchComp Dataset](https://huggingface.co/datasets/ByteSeedXpert/FinSearchComp)
+More details: [FinSearchComp: Towards a Realistic, Expert-Level Evaluation of Financial Search and Reasoning](https://arxiv.org/abs/2509.13160)
 
 ---
 
@@ -59,9 +59,9 @@ JINA_API_KEY="xxx"
 # For Linux sandbox (code execution environment)
 E2B_API_KEY="xxx"
 
-# We use MiroThinker model for financial analysis
-OAI_MIROTHINKER_API_KEY="xxx"
-OAI_MIROTHINKER_BASE_URL="http://localhost:61005/v1"
+# We use Claude 3.7 Sonnet for financial analysis via OpenRouter
+OPENROUTER_API_KEY="xxx"
+OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
 
 # Used for hint generation and final answer extraction
 OPENAI_API_KEY="xxx"
@@ -80,7 +80,7 @@ GEMINI_API_KEY="xxx"
     Execute the following command to run evaluation on the FinSearchComp dataset:
 
 ```bash title="Run FinSearchComp Evaluation"
-uv run main.py common-benchmark --config_file_name=agent_finsearchcomp benchmark=finsearchcomp output_dir="logs/finsearchcomp/$(date +"%Y%m%d_%H%M")"
+uv run main.py common-benchmark --config_file_name=agent_finsearchcomp_claude37sonnet benchmark=finsearchcomp output_dir="logs/finsearchcomp/$(date +"%Y%m%d_%H%M")"
 ```
 
 !!! tip "Progress Monitoring and Resume"
@@ -93,7 +93,7 @@ uv run main.py common-benchmark --config_file_name=agent_finsearchcomp benchmark
     If you need to resume an interrupted evaluation, specify the same output directory to continue from where you left off.
 
     ```bash title="Resume Evaluation, e.g."
-    uv run main.py common-benchmark --config_file_name=agent_finsearchcomp benchmark=finsearchcomp output_dir=${PATH_TO_LOG}
+    uv run main.py common-benchmark --config_file_name=agent_finsearchcomp_claude37sonnet benchmark=finsearchcomp output_dir=${PATH_TO_LOG}
     ```
 
 ### Step 4: Extract Results
@@ -129,7 +129,7 @@ uv run main.py common-benchmark --config_file_name=agent_finsearchcomp benchmark
 After running evaluations, you'll find the following structure:
 
 ```
-logs/finsearchcomp/agent_finsearchcomp_YYYYMMDD_HHMM/
+logs/finsearchcomp/agent_finsearchcomp_claude37sonnet_YYYYMMDD_HHMM/
 ├── benchmark_results.jsonl              # Task results summary
 ├── benchmark_results_pass_at_1_accuracy.txt  # Accuracy statistics
 ├── task_(T1)Time_Sensitive_Data_Fetching_*.json  # T1 task traces
@@ -154,12 +154,12 @@ The progress checker provides detailed statistics:
 
 ### Single Run Evaluation
 ```bash title="Basic Evaluation"
-uv run main.py common-benchmark --config_file_name=agent_finsearchcomp benchmark=finsearchcomp output_dir="logs/finsearchcomp/$(date +"%Y%m%d_%H%M")"
+uv run main.py common-benchmark --config_file_name=agent_finsearchcomp_claude37sonnet benchmark=finsearchcomp output_dir="logs/finsearchcomp/$(date +"%Y%m%d_%H%M")"
 ```
 
 ### Limited Task Testing
 ```bash title="Test with Limited Tasks"
-uv run main.py common-benchmark --config_file_name=agent_finsearchcomp benchmark=finsearchcomp benchmark.execution.max_tasks=5 output_dir="logs/finsearchcomp/$(date +"%Y%m%d_%H%M")"
+uv run main.py common-benchmark --config_file_name=agent_finsearchcomp_claude37sonnet benchmark=finsearchcomp benchmark.execution.max_tasks=5 output_dir="logs/finsearchcomp/$(date +"%Y%m%d_%H%M")"
 ```
 
 ### Custom Agent Configuration

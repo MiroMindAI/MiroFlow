@@ -37,62 +37,86 @@ repo_url: https://github.com/MiroMindAI/MiroFlow
 
 
 nav:
-  - Introduction: 
+  - 🏠 Introduction: 
     - News & Updates: index.md
     - License: license.md
 
-  - Quick Start:
+  - 🚀 Quick Start:
     - Quickstart: quickstart.md
     - Core Concepts: core_concepts.md
     - YAML Configuration: yaml_config.md
 
-  - Evaluation:
+  - "📊 Evaluation":
     - Overview: evaluation_overview.md
-    - Benchmarks: 
-      - GAIA-Validation:
-        - Prerequisites: gaia_validation_prerequisites.md
-        - Claude-3.7-Sonnet: gaia_validation_claude37sonnet.md
-        - GPT-5: gaia_validation_gpt5.md
-        - MiroThinker: gaia_validation_mirothinker.md
-      - GAIA-Validation-Text-Only: gaia_validation_text_only.md
-      - GAIA-Test: gaia_test.md
-      - FutureX: futurex.md
-      - xBench-DeepSearch: xbench_ds.md
-      - FinSearchComp: finsearchcomp.md
-    - Download Datasets: download_datasets.md
-    - Add New Benchmarks: contribute_benchmarks.md
+    - How to add new benchmarks: contribute_benchmarks.md
+    - "": ""
+    - "": ""
+    - "": ""
+    - "": ""
+    - GAIA-Val:
+      - Prepare Dataset: gaia_validation_prerequisites.md
+      - Claude-3.7-Sonnet: gaia_validation_claude37sonnet.md
+      - GPT-5: gaia_validation_gpt5.md
+      - MiroThinker: gaia_validation_mirothinker.md
+    - GAIA-Val-Text: gaia_validation_text_only.md
+    - GAIA-Test: gaia_test.md
+    - BrowseComp-EN: browsecomp_en.md
+    - FutureX: futurex.md
+    - xBench-DeepSearch: xbench_ds.md
+    - FinSearchComp: finsearchcomp.md
 
-  - Tools: 
+    # - Benchmarks: 
+    #   - GAIA-Validation-Text-Only: gaia_validation_text_only.md
+    #   - GAIA-Test: gaia_test.md
+    #   - BrowseComp-EN: browsecomp_en.md
+    #   - FutureX: futurex.md
+    #   - xBench-DeepSearch: xbench_ds.md
+    #   - FinSearchComp: finsearchcomp.md
+    # - Download Datasets: download_datasets.md
+
+
+
+  - 🔧 Tools: 
     - Overview: tool_overview.md
-    - Tools:
-      - tool-reasoning: tool_reasoning.md
-      - tool-reasoning-os: tool_reasoning_os.md
-      - tool-image-video: tool_vqa.md
-      - tool-image-video-os: tool_vqa_os.md
-      - tool-audio-os: tool_audio_os.md
-      - tool-searching: tool_searching.md
-      - tool-python: tool_python.md
+    - How to add new tools: contribute_tools.md
+    - "": ""
+    - "": ""
+    - "": ""
+    - "": ""
+    - tool-reasoning: tool_reasoning.md
+    - tool-reasoning-os: tool_reasoning_os.md
+    - tool-image-video: tool_vqa.md
+    - tool-image-video-os: tool_vqa_os.md
+    - tool-audio-os: tool_audio_os.md
+    - tool-searching: tool_searching.md
+    - tool-python: tool_python.md
+    - "": ""
+    - "": ""
+    - "": ""
+    - "": ""
     - Advanced Features:
       - E2B Advanced Features: e2b_advanced_features.md
       - MiroAPI: miro_api.md
-    - Add New Tools: contribute_tools.md
 
-  - LLM Clients: 
+  - 🤖 LLM Clients: 
     - Overview: llm_clients_overview.md
-    - Models:
-      - MiroThinker: mirothinker.md
-      - Claude-3.7-Sonnet: 
-        - Official SDK: claude-3.7-sonnet.md
-        - OpenRouter: openrouter-claude-3.7-sonnet.md
-      - OpenAI-GPT: openai-gpt.md
-    - Add New LLM Clients: contribute_llm_clients.md
+    - How to add new LLM clients: contribute_llm_clients.md
+    - "": ""
+    - "": ""
+    - "": ""
+    - "": ""
+    - MiroThinker: mirothinker.md
+    - Claude 3.7 Sonnet (Official SDK): claude-3.7-sonnet.md
+    - Claude 3.7 Sonnet (OpenRouter): openrouter-claude-3.7-sonnet.md
+    - GPT-5: openai-gpt5.md
+    - GPT-4o: openai-gpt4o.md
 
-  - Resources: 
-    - 📚 All About Agents: all_about_agents.md
-    - 📊 Open Source Data: data.md
-    - 📱 Applications: applications.md
-    - 🐛 FAQs: faqs.md
-    - 📝 Contributors: contributors.md
+  - 📚 Resources: 
+    - All About Agents: all_about_agents.md
+    - Open Source Data: data.md
+    - Applications: applications.md
+    - FAQs: faqs.md
+    - Contributors: contributors.md
 
 
 extra:

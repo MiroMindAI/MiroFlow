@@ -2,6 +2,9 @@
 
 MiroFlow's evaluation on the Futurex-Online benchmark demonstrates capabilities in future event prediction tasks.
 
+More details: [FutureX: An Advanced Live Benchmark for LLM Agents in Future Prediction](https://arxiv.org/abs/2508.11987)
+
+
 ---
 
 ## Dataset Overview

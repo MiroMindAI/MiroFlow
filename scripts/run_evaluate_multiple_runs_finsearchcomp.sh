@@ -5,14 +5,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Multiple runs FinSearchComp evaluation script
-# Based on the working command: uv run main.py common-benchmark --config_file_name=agent_finsearchcomp benchmark=finsearchcomp output_dir=logs/finsearchcomp/$(date +"%Y%m%d_%H%M")
+# Based on the working command: uv run main.py common-benchmark --config_file_name=agent_finsearchcomp_claude37sonnet benchmark=finsearchcomp output_dir=logs/finsearchcomp/$(date +"%Y%m%d_%H%M")
 
 # Configuration parameters
 NUM_RUNS=${NUM_RUNS:-3}
 MAX_TASKS=${MAX_TASKS:-1}
 MAX_CONCURRENT=${MAX_CONCURRENT:-5}
 BENCHMARK_NAME="finsearchcomp"
-AGENT_SET=${AGENT_SET:-"agent_finsearchcomp"}
+AGENT_SET=${AGENT_SET:-"agent_finsearchcomp_claude37sonnet"}
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)

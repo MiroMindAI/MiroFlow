@@ -56,19 +56,17 @@ OAI_MIROTHINKER_BASE_URL="http://localhost:61005/v1"
 Test your setup with the following command:
 
 ```bash title="Test Command"
-uv run main.py trace --config_file_name=agent_mirothinker \
-    --task="What is the first country listed in the XLSX file that have names starting with Co?" \
-    --task_file_name="data/FSI-2023-DOWNLOAD.xlsx"
+uv run main.py common-benchmark --config_file_name=agent_llm_mirothinker output_dir="logs/test"
 ```
 
 This command will:
-- Use the `agent_mirothinker` configuration with the dedicated MiroThinkerSGLangClient
-- Process the specified Excel file
-- Query the model to find countries starting with "Co"
+- Use the `agent_llm_mirothinker` configuration with the dedicated MiroThinkerSGLangClient
+- Run the example dataset benchmark (configured in the YAML file)
+- Test the model's question-answering capabilities
 
 ### Configuration Details
 
-The `./config/agent_mirothinker.yaml` configuration file uses:
+The `./config/agent_llm_mirothinker.yaml` configuration file uses:
 
 - `provider_class: "MiroThinkerSGLangClient"` - A dedicated client for MiroThinker models deployed with SGLang
 - Model path and generation parameters (temperature, top_p, max_tokens, etc.)
