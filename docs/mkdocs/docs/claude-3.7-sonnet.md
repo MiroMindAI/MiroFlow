@@ -20,17 +20,32 @@ main_agent:
   llm: 
     provider_class: "ClaudeAnthropicClient"
     model_name: "claude-3-7-sonnet-20250219"  # Use actual model name from Anthropic API
+    async_client: true
+    temperature: 0.3
+    top_p: 0.95
+    min_p: 0.0
+    top_k: -1
+    max_tokens: 32000
     anthropic_api_key: "${oc.env:ANTHROPIC_API_KEY,???}"
     anthropic_base_url: "${oc.env:ANTHROPIC_BASE_URL,https://api.anthropic.com}"
+    disable_cache_control: false
+    keep_tool_result: -1
+    oai_tool_thinking: false
 ```
+
+!!! tip "Sampling Parameters"
+    - `min_p` and `top_k` are required in the configuration
+    - Anthropic API natively supports `top_k`, but `min_p` is not used by the API
+    - Set `min_p: 0.0` (disabled) and `top_k: -1` (disabled) or a specific value like `top_k: 40`
 
 ## Usage
 
 ```bash title="Example Command"
-# Use existing config
-uv run main.py trace --config_file_name=your_config_file \
-    --task="Your task" --task_file_name="data/file.txt"
+# Run with Claude 3.7 Sonnet (Anthropic SDK) on example dataset
+uv run main.py common-benchmark --config_file_name=agent_llm_claude37sonnet_anthropic output_dir="logs/test"
 ```
+
+The `agent_llm_claude37sonnet_anthropic.yaml` configuration file provides a ready-to-use setup with the example dataset benchmark.
 
 ---
 

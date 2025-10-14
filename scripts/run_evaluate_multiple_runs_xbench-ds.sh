@@ -6,7 +6,7 @@
 
 # Configuration parameters
 NUM_RUNS=3
-AGENT_SET="agent_xbench-ds"
+AGENT_SET="agent_xbench-ds_claude37sonnet"
 BENCHMARK_NAME="xbench-ds"
 MAX_CONCURRENT=5
 export CHINESE_CONTEXT="true"

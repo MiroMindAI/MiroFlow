@@ -29,17 +29,19 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
 
     def _create_client(self, config: DictConfig):
         """Create Anthropic client"""
-        api_key = config.env.anthropic_api_key
+        api_key = self.cfg.llm.anthropic_api_key
 
         if self.async_client:
             return AsyncAnthropic(
                 api_key=api_key,
                 base_url=self.cfg.llm.anthropic_base_url,
+                timeout=600.0,  # 10 minutes timeout for long requests
             )
         else:
             return Anthropic(
                 api_key=api_key,
                 base_url=self.cfg.llm.anthropic_base_url,
+                timeout=600.0,  # 10 minutes timeout for long requests
             )
 
     @retry(wait=wait_fixed(10), stop=stop_after_attempt(5))

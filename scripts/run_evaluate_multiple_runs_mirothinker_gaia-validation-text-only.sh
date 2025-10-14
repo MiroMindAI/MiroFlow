@@ -5,9 +5,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Configuration parameters
-NUM_RUNS=3
-AGENT_SET="agent_gaia-validation-text-only_mirothinker"
-MAX_CONCURRENT=15
+NUM_RUNS=8
+AGENT_SET="agent_gaia-validation-text-only_mirothinker_single_agent"
+MAX_CONCURRENT=8
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)

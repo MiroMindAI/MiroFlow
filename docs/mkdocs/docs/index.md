@@ -9,7 +9,29 @@
 
 ## 🚀 What is MiroFlow?
 
-**MiroFlow** is a comprehensive agentic foundation platform for building intelligent AI agents that achieve state-of-the-art performance on complex tasks. It provides enhanced conversation management, flexible tool integration, and extensive benchmark evaluations across multiple datasets.
+**MiroFlow** is an agentic AI platform for building intelligent agents with flexible tool integration and comprehensive benchmark evaluations.
+
+
+## 📝 Recent Updates
+
+!!! success "Latest Changes & Improvements"
+    
+    **Oct 2025** - 
+
+    - Add support for Index
+    - Add support for BrowseComp-EN evaluation
+    - Add support for MiroAPI https://github.com/MiroMindAI/MiroFlow/pull/76
+
+
+    - 📊 Added support for FinSearchComp evaluation benchmark [#51](https://github.com/MiroMindAI/MiroFlow/pull/51)
+    - 🔍 Added support for XBench-DS (Deep Search) evaluation [#47](https://github.com/MiroMindAI/MiroFlow/pull/47)
+    - 🧠 Updated o3 hints and summary to more models [#58](https://github.com/MiroMindAI/MiroFlow/pull/58)
+    - ✨ Added support for GPT-5 integration [#52](https://github.com/MiroMindAI/MiroFlow/pull/52)
+    - 🔧 Improved tool logs and per-task log storage [#69](https://github.com/MiroMindAI/MiroFlow/pull/69)
+    - 🤖 Added support for single agent mode [#67](https://github.com/MiroMindAI/MiroFlow/pull/67)
+    - 📚 Added comprehensive collection of agentic AI research papers [#65](https://github.com/MiroMindAI/MiroFlow/pull/65)
+
+
 
 
 
@@ -51,21 +73,6 @@ Explore the complete MiroMind AI ecosystem:
     | **MiroThinker** | State-of-the-art agent foundation models | [Hugging Face](https://huggingface.co/collections/miromind-ai/mirothinker-v01-689301b6d0563321862d44a1) :material-arrow-right: |
     | **MiroVerse** | Curated datasets for model training | [Dataset](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1) :material-arrow-right: |
     | **MiroTrain** | Complete training recipes and tools | [GitHub](https://github.com/MiroMindAI/MiroTrain) :material-arrow-right: |
-
-
-## 📝 Recent Updates
-
-!!! success "Latest Changes & Improvements"
-    
-    **Oct 2025** - 
-
-    - 📊 Added support for FinSearchComp evaluation benchmark [#51](https://github.com/MiroMindAI/MiroFlow/pull/51)
-    - 🔍 Added support for XBench-DS (Deep Search) evaluation [#47](https://github.com/MiroMindAI/MiroFlow/pull/47)
-    - 🧠 Updated o3 hints and summary to more models [#58](https://github.com/MiroMindAI/MiroFlow/pull/58)
-    - ✨ Added support for GPT-5 integration [#52](https://github.com/MiroMindAI/MiroFlow/pull/52)
-    - 🔧 Improved tool logs and per-task log storage [#69](https://github.com/MiroMindAI/MiroFlow/pull/69)
-    - 🤖 Added support for single agent mode [#67](https://github.com/MiroMindAI/MiroFlow/pull/67)
-    - 📚 Added comprehensive collection of agentic AI research papers [#65](https://github.com/MiroMindAI/MiroFlow/pull/65)
 
 
 

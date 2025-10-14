@@ -1,5 +1,5 @@
 defaults:
-  - benchmark: gaia-validation
+  - benchmark: example_dataset
   - override hydra/job_logging: none
   - _self_  # Allow defining variables at the top of this file
 

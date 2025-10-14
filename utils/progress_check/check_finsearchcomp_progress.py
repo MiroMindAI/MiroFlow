@@ -348,7 +348,7 @@ def main():
         print(f"Error: {e}")
         print(f"\nUsage: python {sys.argv[0]} [LOG_FOLDER_PATH]")
         print(
-            f"Example: python {sys.argv[0]} logs/finsearchcomp/agent_finsearchcomp_20250924_1555"
+            f"Example: python {sys.argv[0]} logs/finsearchcomp/agent_finsearchcomp_claude37sonnet_20250924_1555"
         )
         return 1
 
