@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../data/">
+        <link rel="prev" href="../finsearchcomp/">
       
       
-        <link rel="next" href="../faqs/">
+        <link rel="next" href="../tool_overview/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Applications - MiroFlow</title>
+        <title>HLE - MiroFlow</title>
       
     
     
@@ -62,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#applications" class="md-skip">
+        <a href="#hle" class="md-skip">
           Skip to content
         </a>
       
@@ -100,7 +100,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Applications
+              HLE
             
           </span>
         </div>
@@ -223,10 +223,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../evaluation_overview/" class="md-tabs__link">
           
   
@@ -283,12 +285,10 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
+      <li class="md-tabs__item">
         <a href="../all_about_agents/" class="md-tabs__link">
           
   
@@ -561,24 +561,29 @@
       
   
   
+    
   
   
+  
     
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -591,7 +596,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             📊 Evaluation
@@ -1019,10 +1024,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../hle/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    HLE
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1033,6 +1060,119 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dataset-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start Guide
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start Guide">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-prepare-the-hle-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Prepare the HLE Dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-configure-api-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Configure API Keys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-run-the-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Run the Evaluation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-review-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Review Results
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-with-limited-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test with Limited Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adjust-concurrency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adjust Concurrency
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1884,29 +2024,24 @@
       
   
   
-    
   
   
-  
     
     
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
             
   
   
@@ -1919,7 +2054,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             📚 Resources
@@ -1976,32 +2111,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    Applications
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../applications/" class="md-nav__link">
         
   
   
@@ -2012,68 +2125,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#available-applications" class="md-nav__link">
-    <span class="md-ellipsis">
-      🎯 Available Applications
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="🎯 Available Applications">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#gradio-demo" class="md-nav__link">
-    <span class="md-ellipsis">
-      Gradio Demo
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#live-demo" class="md-nav__link">
-    <span class="md-ellipsis">
-      Live Demo
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#development-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      🔄 Development Status
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -2159,28 +2210,55 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#available-applications" class="md-nav__link">
+  <a href="#dataset-overview" class="md-nav__link">
     <span class="md-ellipsis">
-      🎯 Available Applications
+      Dataset Overview
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="🎯 Available Applications">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-guide" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start Guide
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick Start Guide">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#gradio-demo" class="md-nav__link">
+  <a href="#step-1-prepare-the-hle-dataset" class="md-nav__link">
     <span class="md-ellipsis">
-      Gradio Demo
+      Step 1: Prepare the HLE Dataset
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#live-demo" class="md-nav__link">
+  <a href="#step-2-configure-api-keys" class="md-nav__link">
     <span class="md-ellipsis">
-      Live Demo
+      Step 2: Configure API Keys
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-run-the-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Run the Evaluation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-review-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Review Results
     </span>
   </a>
   
@@ -2192,11 +2270,35 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#development-status" class="md-nav__link">
+  <a href="#usage-examples" class="md-nav__link">
     <span class="md-ellipsis">
-      🔄 Development Status
+      Usage Examples
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Usage Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-with-limited-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Test with Limited Tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adjust-concurrency" class="md-nav__link">
+    <span class="md-ellipsis">
+      Adjust Concurrency
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2219,35 +2321,78 @@
   
 
 
-<h1 id="applications">📱 Applications</h1>
-<p>MiroFlow enables building a wide variety of intelligent applications across different domains and use cases.</p>
+<h1 id="hle">HLE</h1>
+<p>MiroFlow's evaluation on the HLE benchmark demonstrates capabilities in multimodal reasoning and question answering tasks that require human-level understanding across vision and language.</p>
+<p>More details: <a href="https://huggingface.co/datasets/cais/hle">HLE Dataset on HuggingFace</a></p>
 <hr />
-<h2 id="available-applications">🎯 Available Applications</h2>
-<div class="admonition success">
-<p class="admonition-title">Ready-to-Use Applications</p>
-<p>Experience MiroFlow's capabilities through these available interfaces and demos.</p>
-</div>
-<h3 id="gradio-demo">Gradio Demo</h3>
-<div class="admonition example">
-<p class="admonition-title">Local Development Interface</p>
-<p>Interactive web interface for testing MiroFlow agents locally. Currently available at <a href="https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo">MiroThinker Gradio Demo</a>.</p>
-</div>
-<h3 id="live-demo">Live Demo</h3>
-<div class="admonition tip">
-<p class="admonition-title">Online Experience</p>
-<p>Experience MiroFlow's capabilities through our <a href="https://dr.miromind.ai/">online demo</a> for deep research tasks.</p>
-</div>
-<hr />
-<h2 id="development-status">🔄 Development Status</h2>
+<h2 id="dataset-overview">Dataset Overview</h2>
 <div class="admonition info">
-<p class="admonition-title">Integration Progress</p>
-<p>The MiroThinker model workflows are being integrated into the main MiroFlow framework. This will provide a unified experience for all applications and demos.</p>
-<p>Stay tuned for updates on application availability and new integrations!</p>
+<p class="admonition-title">HLE Dataset</p>
+<p>The HLE dataset consists of challenging multimodal tasks that test AI systems' ability to perform human-level reasoning with both visual and textual information.</p>
 </div>
+<div class="admonition abstract">
+<p class="admonition-title">Key Dataset Characteristics</p>
+<ul>
+<li><strong>Total Tasks</strong>: Test split from HuggingFace <code>cais/hle</code> dataset</li>
+<li><strong>Task Type</strong>: Multimodal question answering and reasoning</li>
+<li><strong>Modalities</strong>: Text + Images</li>
+<li><strong>Ground Truth</strong>: Available for evaluation</li>
+</ul>
+</div>
+<hr />
+<h2 id="quick-start-guide">Quick Start Guide</h2>
+<h3 id="step-1-prepare-the-hle-dataset">Step 1: Prepare the HLE Dataset</h3>
+<div class="highlight"><span class="filename">Download HLE Dataset</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>prepare-benchmark<span class="w"> </span>get<span class="w"> </span>hle
+</code></pre></div>
+<p>This will download the dataset and save images to <code>data/hle/images/</code>.</p>
+<h3 id="step-2-configure-api-keys">Step 2: Configure API Keys</h3>
+<div class="highlight"><span class="filename">.env Configuration</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a># For searching and web scraping
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>SERPER_API_KEY=&quot;xxx&quot;
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>JINA_API_KEY=&quot;xxx&quot;
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a># For Linux sandbox (code execution environment)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>E2B_API_KEY=&quot;xxx&quot;
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a># Claude-3.7-Sonnet via OpenRouter
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>OPENROUTER_API_KEY=&quot;xxx&quot;
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>OPENROUTER_BASE_URL=&quot;https://openrouter.ai/api/v1&quot;
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a># Vision understanding
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>ANTHROPIC_API_KEY=&quot;xxx&quot;
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>GEMINI_API_KEY=&quot;xxx&quot;
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a># Hint generation and final answer extraction
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>OPENAI_API_KEY=&quot;xxx&quot;
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>OPENAI_BASE_URL=&quot;https://api.openai.com/v1&quot;
+</code></pre></div>
+<h3 id="step-3-run-the-evaluation">Step 3: Run the Evaluation</h3>
+<div class="highlight"><span class="filename">Run HLE Evaluation</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span>--config_file_name<span class="o">=</span>agent_hle_claude37sonnet<span class="w"> </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/hle/</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y%m%d_%H%M&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Resume Interrupted Evaluation</p>
+<p>Specify the same output directory to continue from where you left off:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span>--config_file_name<span class="o">=</span>agent_hle_claude37sonnet<span class="w"> </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/hle/20251014_1504&quot;</span>
+</code></pre></div>
+</div>
+<h3 id="step-4-review-results">Step 4: Review Results</h3>
+<div class="highlight"><span class="filename">Check Results</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># View accuracy summary</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>cat<span class="w"> </span>logs/hle/*/benchmark_results_pass_at_1_accuracy.txt
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># View detailed results</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>cat<span class="w"> </span>logs/hle/*/benchmark_results.jsonl
+</code></pre></div>
+<hr />
+<h2 id="usage-examples">Usage Examples</h2>
+<h3 id="test-with-limited-tasks">Test with Limited Tasks</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span>--config_file_name<span class="o">=</span>agent_hle_claude37sonnet<span class="w"> </span>benchmark.execution.max_tasks<span class="o">=</span><span class="m">10</span><span class="w"> </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/hle/</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y%m%d_%H%M&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+<h3 id="adjust-concurrency">Adjust Concurrency</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uv<span class="w"> </span>run<span class="w"> </span>main.py<span class="w"> </span>common-benchmark<span class="w"> </span>--config_file_name<span class="o">=</span>agent_hle_claude37sonnet<span class="w"> </span>benchmark.execution.max_concurrent<span class="o">=</span><span class="m">5</span><span class="w"> </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/hle/</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y%m%d_%H%M&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
 <hr />
 <div class="admonition info">
 <p class="admonition-title">Documentation Info</p>
-<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<p><strong>Last Updated:</strong> October 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
 </div>
 
 
