@@ -56,14 +56,14 @@ OPENAI_BASE_URL="https://api.openai.com/v1"
 ### Step 3: Run the Evaluation
 
 ```bash title="Run HLE Evaluation"
-uv run main.py common-benchmark --config_file_name=agent_hle_claude37sonnet benchmark=hle output_dir="logs/hle/$(date +"%Y%m%d_%H%M")"
+uv run main.py common-benchmark --config_file_name=agent_hle_claude37sonnet output_dir="logs/hle/$(date +"%Y%m%d_%H%M")"
 ```
 
 !!! tip "Resume Interrupted Evaluation"
     Specify the same output directory to continue from where you left off:
     
     ```bash
-    uv run main.py common-benchmark --config_file_name=agent_hle_claude37sonnet benchmark=hle output_dir="logs/hle/20251014_1504"
+    uv run main.py common-benchmark --config_file_name=agent_hle_claude37sonnet output_dir="logs/hle/20251014_1504"
     ```
 
 ### Step 4: Review Results
@@ -83,13 +83,13 @@ cat logs/hle/*/benchmark_results.jsonl
 ### Test with Limited Tasks
 
 ```bash
-uv run main.py common-benchmark --config_file_name=agent_hle_claude37sonnet benchmark=hle benchmark.execution.max_tasks=10 output_dir="logs/hle/$(date +"%Y%m%d_%H%M")"
+uv run main.py common-benchmark --config_file_name=agent_hle_claude37sonnet benchmark.execution.max_tasks=10 output_dir="logs/hle/$(date +"%Y%m%d_%H%M")"
 ```
 
 ### Adjust Concurrency
 
 ```bash
-uv run main.py common-benchmark --config_file_name=agent_hle_claude37sonnet benchmark=hle benchmark.execution.max_concurrent=5 output_dir="logs/hle/$(date +"%Y%m%d_%H%M")"
+uv run main.py common-benchmark --config_file_name=agent_hle_claude37sonnet benchmark.execution.max_concurrent=5 output_dir="logs/hle/$(date +"%Y%m%d_%H%M")"
 ```
 
 ---
