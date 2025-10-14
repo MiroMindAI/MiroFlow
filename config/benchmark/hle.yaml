@@ -15,6 +15,6 @@ execution:
   max_concurrent: 10    # Number of parallel tasks
   pass_at_k: 1         # Number of attempts per task
 
-# OpenAI API key for evaluation (required for browsecomp since it has ground truth)
+# OpenAI API key for evaluation (required for hle since it has ground truth)
 openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
 
