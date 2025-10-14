@@ -239,6 +239,34 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 **P073** - Auto-scaling Continuous Memory for GUI Agent
     - [:material-file-document: Paper](https://arxiv.org/abs/2510.09038)
 
+**P074** - StoryBox: Collaborative Multi-Agent Simulation for Hybrid Bottom-Up Long-Form Story Generation Using Large Language Models
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.11618)
+
+**P075** - WebRouter: Query-specific Router via Variational Information Bottleneck for Cost-sensitive Web Agent
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.11221)
+
+**P076** - LLM×MapReduce-V3: Enabling Interactive In-Depth Survey Generation through a MCP-Driven Hierarchically Modular Agent System
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.10890)
+
+**P077** - BrowserAgent: Building Web Agents with Human-Inspired Web Browsing Actions
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.10666)
+
+**P078** - AGENTIQL: An Agent-Inspired Multi-Expert Framework for Text-to-SQL Generation
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.10661)
+
+**P079** - FML-bench: A Benchmark for Automatic ML Research Agents Highlighting the Importance of Exploration Breadth
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.10472)
+
+**P080** - MedAgentAudit: Diagnosing and Quantifying Collaborative Failure Modes in Medical Multi-Agent Systems
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.10185)
+
+**P081** - Can Tool-Integrated Reinforcement Learning Generalize Across Diverse Domains?
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.11184)
+
+**P082** - A Survey on Agentic Multimodal Large Language Models
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.10991)
+
+
 
 ---
 
@@ -361,6 +389,12 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 **E029** - DITING: A Multi-Agent Evaluation Framework for Benchmarking Web Novel Translation
     - [:material-file-document: Paper](https://arxiv.org/abs/2510.09116)
 
+**E030** - When Agents Trade: Live Multi-Market Trading Benchmark for LLM Agents
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.11695)
+
+**E031** - A Comprehensive Survey on Benchmarks and Solutions in Software Engineering of LLM-Empowered Agentic System
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.09721)
+
 
 ---
 
@@ -420,6 +454,8 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 **M017** - Mem-α: Learning Memory Construction via Reinforcement Learning
     - [:material-file-document: Paper](https://arxiv.org/abs/2509.25911)
 
+**M018** - Preference-Aware Memory Update for Long-Term LLM Agents
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.09720)
 
 ---
 
