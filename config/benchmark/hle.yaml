@@ -1,4 +1,4 @@
-# config/benchmark/browsecomp-en.yaml
+# config/benchmark/hle.yaml
 defaults:
   - default
   - _self_
