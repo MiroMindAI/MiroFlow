@@ -1,0 +1,20 @@
+# config/benchmark/hle-text-only.yaml
+defaults:
+  - default
+  - _self_
+
+name: "hle-text-only"
+
+data:
+  data_dir: "${data_dir}/hle-text-only"  # Path to hle-text-only dataset
+  metadata_file: "standardized_data.jsonl"  # Metadata filename
+  whitelist: []  # Optional: List of specific task_ids to run
+
+execution:
+  max_tasks: null      # null = no limit, or specify a number
+  max_concurrent: 10    # Number of parallel tasks
+  pass_at_k: 1         # Number of attempts per task
+
+# OpenAI API key for evaluation (required for hle-text-only since it has ground truth)
+openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
+

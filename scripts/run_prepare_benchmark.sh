@@ -20,6 +20,7 @@ uv run main.py prepare-benchmark get webwalkerqa
 uv run main.py prepare-benchmark get browsecomp-test
 uv run main.py prepare-benchmark get browsecomp-zh-test
 uv run main.py prepare-benchmark get hle
+uv run main.py prepare-benchmark get hle-text-only
 uv run main.py prepare-benchmark get xbench-ds
 uv run main.py prepare-benchmark get futurex
 uv run main.py prepare-benchmark get finsearchcomp
