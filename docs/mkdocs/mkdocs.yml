@@ -65,6 +65,7 @@ nav:
     - xBench-DeepSearch: xbench_ds.md
     - FinSearchComp: finsearchcomp.md
     - HLE: hle.md
+    - HLE(text only): hle_text_only.md
 
     # - Benchmarks: 
     #   - GAIA-Validation-Text-Only: gaia_validation_text_only.md
