@@ -19,6 +19,7 @@ main_agent:
     oai_mirothinker_base_url: "${oc.env:OAI_MIROTHINKER_BASE_URL,http://localhost:61005/v1}"
     keep_tool_result: -1
     oai_tool_thinking: false
+    enable_streaming: true
   
   tool_config:
     - tool-reasoning
@@ -55,13 +56,12 @@ sub_agents:
       oai_mirothinker_base_url: "${oc.env:OAI_MIROTHINKER_BASE_URL,http://localhost:61005/v1}"
       keep_tool_result: -1
       oai_tool_thinking: false
+      enable_streaming: true
     
     tool_config:
       - tool-searching
-      - tool-image-video
-      - tool-reading
+      - tool-reasoning
       - tool-code
-      - tool-audio
 
     max_turns: 20  # Maximum number of turns for main agent execution
     max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn

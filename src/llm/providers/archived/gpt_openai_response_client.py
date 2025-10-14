@@ -5,14 +5,14 @@
 import asyncio
 import dataclasses
 import os
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from omegaconf import DictConfig
 from openai import AsyncOpenAI, OpenAI
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 from src.llm.provider_client_base import LLMProviderClientBase
-
+from src.llm.util import collect_openai_stream
 from src.logging.logger import bootstrap_logger
 
 
@@ -45,6 +45,7 @@ class GPTOpenAIResponseClient(LLMProviderClientBase):
         messages: List[Dict[str, Any]],
         tools_definitions,
         keep_tool_result: int = -1,
+        stream_message_callback: Optional[Callable] = None,
     ):
         """
         Send message to OpenAI Response API.
@@ -75,7 +76,7 @@ class GPTOpenAIResponseClient(LLMProviderClientBase):
                 "temperature": temperature,
                 "input": conversation_text,
                 "tools": tool_list,
-                "stream": False,
+                "stream": self.enable_streaming,
             }
 
             if self.top_p != 1.0:
@@ -146,9 +147,15 @@ class GPTOpenAIResponseClient(LLMProviderClientBase):
     async def _create_response(self, params: Dict[str, Any], is_async: bool):
         """Helper to create a response using OpenAI's Response API."""
         if is_async:
-            return await self.client.responses.create(**params)
+            response = await self.client.responses.create(**params)
         else:
-            return self.client.responses.create(**params)
+            response = self.client.responses.create(**params)
+
+        # If streaming is enabled, collect all chunks into a complete response
+        if self.enable_streaming:
+            return await collect_openai_stream(response)
+
+        return response
 
     @staticmethod
     async def convert_tool_definition_to_tool_call(tools_definitions):

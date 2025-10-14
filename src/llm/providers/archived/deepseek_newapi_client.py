@@ -13,13 +13,13 @@ import os
 
 # from tenacity import retry, stop_after_attempt, wait_fixed
 import json
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from omegaconf import DictConfig
 from openai import AsyncOpenAI, OpenAI
 
 from src.llm.provider_client_base import LLMProviderClientBase
-
+from src.llm.util import collect_openai_stream
 from src.logging.logger import bootstrap_logger
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
@@ -48,6 +48,7 @@ class DeepSeekNewAPIClient(LLMProviderClientBase):
         messages: List[Dict[str, Any]],
         tools_definitions,
         keep_tool_result: int = -1,
+        stream_message_callback: Optional[Callable] = None,
     ):
         """
         Send message to OpenAI API.
@@ -97,7 +98,7 @@ class DeepSeekNewAPIClient(LLMProviderClientBase):
                 "max_tokens": self.max_tokens,
                 "messages": messages_copy,
                 "tools": tool_list,
-                "stream": False,
+                "stream": self.enable_streaming,
             }
 
             response = await self._create_completion(params, self.async_client)
@@ -119,9 +120,15 @@ class DeepSeekNewAPIClient(LLMProviderClientBase):
     async def _create_completion(self, params: Dict[str, Any], is_async: bool):
         """Helper to create a completion, handling async and sync calls."""
         if is_async:
-            return await self.client.chat.completions.create(**params)
+            response = await self.client.chat.completions.create(**params)
         else:
-            return self.client.chat.completions.create(**params)
+            response = self.client.chat.completions.create(**params)
+
+        # If streaming is enabled, collect all chunks into a complete response
+        if self.enable_streaming:
+            return await collect_openai_stream(response)
+
+        return response
 
     def process_llm_response(
         self, llm_response, message_history, agent_type="main"

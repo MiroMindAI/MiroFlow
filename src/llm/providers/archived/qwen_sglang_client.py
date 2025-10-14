@@ -3,14 +3,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import dataclasses
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from omegaconf import DictConfig
 from openai import AsyncOpenAI, OpenAI
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 from src.llm.provider_client_base import LLMProviderClientBase
-
+from src.llm.util import collect_openai_stream
 from src.logging.logger import bootstrap_logger
 
 import os
@@ -41,6 +41,7 @@ class QwenSGLangClient(LLMProviderClientBase):
         messages: List[Dict[str, Any]],
         tools_definitions,
         keep_tool_result: int = -1,
+        stream_message_callback: Optional[Callable] = None,
     ):
         """
         Send message to OpenAI API.
@@ -81,7 +82,7 @@ class QwenSGLangClient(LLMProviderClientBase):
             "max_tokens": self.max_tokens,
             "messages": messages_copy,
             "tools": [],
-            "stream": False,
+            "stream": self.enable_streaming,
         }
 
         if self.top_p != 1.0:
@@ -97,6 +98,10 @@ class QwenSGLangClient(LLMProviderClientBase):
                 response = await self.client.chat.completions.create(**params)
             else:
                 response = self.client.chat.completions.create(**params)
+
+            # If streaming is enabled, collect all chunks into a complete response
+            if self.enable_streaming:
+                response = await collect_openai_stream(response)
 
             logger.debug(
                 f"LLM call status: {getattr(response.choices[0], 'finish_reason', 'N/A')}"

@@ -5,6 +5,7 @@
 import asyncio
 import dataclasses
 import os
+from typing import Callable, Optional
 
 from anthropic import (
     NOT_GIVEN,
@@ -15,7 +16,7 @@ from omegaconf import DictConfig
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 from src.llm.provider_client_base import LLMProviderClientBase
-
+from src.llm.util import collect_anthropic_stream
 from src.logging.logger import bootstrap_logger
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
@@ -51,6 +52,7 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
         messages,
         tools_definitions,
         keep_tool_result: int = -1,
+        stream_message_callback: Optional[Callable] = None,
     ):
         """
         Send message to Anthropic API.
@@ -82,7 +84,7 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
                         }
                     ],
                     messages=processed_messages,
-                    stream=False,
+                    stream=self.enable_streaming,
                 )
             else:
                 response = self.client.messages.create(
@@ -99,8 +101,13 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
                         }
                     ],
                     messages=processed_messages,
-                    stream=False,
+                    stream=self.enable_streaming,
                 )
+
+            # If streaming is enabled, collect all chunks into a complete response
+            if self.enable_streaming:
+                response = await collect_anthropic_stream(response)
+
             logger.debug(f"LLM call status: {getattr(response, 'stop_reason', 'N/A')}")
             return response
         except asyncio.CancelledError:

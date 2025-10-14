@@ -6,6 +6,8 @@ import os
 import zmq
 import zmq.asyncio
 import logging
+import json
+import uuid
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -18,10 +20,68 @@ import threading
 from contextlib import contextmanager
 import socket
 
+# Task context variable
 TASK_CONTEXT_VAR: ContextVar[str | None] = ContextVar("CURRENT_TASK_ID", default=None)
+
+# Context variables for logging identifiers
+trace_id_var: ContextVar[str] = ContextVar('trace_id', default='')
+chat_id_var: ContextVar[str] = ContextVar('chat_id', default='')
+user_id_var: ContextVar[str] = ContextVar('user_id', default='')
+message_id_var: ContextVar[str] = ContextVar('message_id', default='')
 
 # Global variable to store the actual ZMQ address being used
 _ZMQ_ADDRESS: str = "tcp://127.0.0.1:6000"
+
+
+def generate_trace_id() -> str:
+    """Generate a new trace ID"""
+    return str(uuid.uuid4())
+
+
+def get_trace_id() -> str:
+    """Get current trace ID from context"""
+    return trace_id_var.get()
+
+
+def set_trace_id(trace_id: str = None) -> str:
+    """Set trace ID in context, generate new one if not provided"""
+    if trace_id is None:
+        trace_id = generate_trace_id()
+    trace_id_var.set(trace_id)
+    return trace_id
+
+
+def get_chat_id() -> str:
+    """Get current chat ID from context"""
+    return chat_id_var.get()
+
+
+def set_chat_id(chat_id: str) -> str:
+    """Set chat ID in context"""
+    chat_id_var.set(chat_id)
+    return chat_id
+
+
+def get_user_id() -> str:
+    """Get current user ID from context"""
+    return user_id_var.get()
+
+
+def set_user_id(user_id: str) -> str:
+    """Set user ID in context"""
+    user_id_var.set(user_id)
+    return user_id
+
+
+def get_message_id() -> str:
+    """Get current message ID from context"""
+    return message_id_var.get()
+
+
+def set_message_id(message_id: str) -> str:
+    """Set message ID in context"""
+    message_id_var.set(message_id)
+    return message_id
 
 
 def find_available_port(start_port: int = 6000, max_attempts: int = 10) -> int:
@@ -204,6 +264,30 @@ def make_task_logger(task_id: str, log_dir: Path) -> logging.Handler:
     return fh
 
 
+class JSONFormatter(logging.Formatter):
+    """Custom JSON formatter that includes trace_id, chat_id, user_id, and message_id"""
+
+    def format(self, record):
+        log_obj = {
+            'timestamp': self.formatTime(record, datefmt='%Y-%m-%d %H:%M:%S'),
+            'level': record.levelname,
+            'logger': record.name,
+            'file': record.filename,
+            'line': record.lineno,
+            'message': record.getMessage(),
+            'trace_id': get_trace_id(),
+            'chat_id': get_chat_id(),
+            'user_id': get_user_id(),
+            'message_id': get_message_id()
+        }
+
+        # Add exception info if present
+        if record.exc_info:
+            log_obj['exception'] = self.formatException(record.exc_info)
+
+        return json.dumps(log_obj, ensure_ascii=False)
+
+
 def remove_all_console_handlers():
     """
     Remove all console handlers (StreamHandler/RichHandler) from all loggers in the current process.
@@ -266,22 +350,31 @@ def bootstrap_logger(
     for handler in logger.handlers[:]:
         logger.removeHandler(handler)
 
+    # Check if we should use JSON logging (production mode)
+    is_prod = os.getenv("ENV") == "prod"
+
     if to_console:
-        handler = RichHandler(
-            console=Console(
-                stderr=True,
-                width=200,
-                color_system=None,
-                force_terminal=False,
-                legacy_windows=False,
-            ),
-            rich_tracebacks=True,
-            tracebacks_suppress=[hydra],
-            tracebacks_show_locals=True,
-            show_level=False,
-        )
-        formatter = logging.Formatter("[%(levelname)s] %(message)s")
-        handler.setFormatter(formatter)
+        if is_prod:
+            # Use JSON formatter in production
+            handler = logging.StreamHandler()
+            handler.setFormatter(JSONFormatter())
+        else:
+            # Use Rich handler in development
+            handler = RichHandler(
+                console=Console(
+                    stderr=True,
+                    width=200,
+                    color_system=None,
+                    force_terminal=False,
+                    legacy_windows=False,
+                ),
+                rich_tracebacks=True,
+                tracebacks_suppress=[hydra],
+                tracebacks_show_locals=True,
+                show_level=False,
+            )
+            formatter = logging.Formatter("[%(levelname)s] %(message)s")
+            handler.setFormatter(formatter)
         logger.addHandler(handler)
 
     if log_dir is not None:
@@ -289,9 +382,14 @@ def bootstrap_logger(
         log_dir.mkdir(parents=True, exist_ok=True)
         file_path = log_dir / log_filename
         file_handler = logging.FileHandler(file_path, encoding="utf-8")
-        file_handler.setFormatter(
-            logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-        )
+        if is_prod:
+            # Use JSON formatter for file logging in production
+            file_handler.setFormatter(JSONFormatter())
+        else:
+            # Use standard formatter in development
+            file_handler.setFormatter(
+                logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+            )
         logger.addHandler(file_handler)
 
     logger.setLevel(level)

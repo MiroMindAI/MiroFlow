@@ -4,11 +4,12 @@
 
 import asyncio
 import datetime
+import json
 import os
 import sys
 import time
 import uuid
-from typing import Any, Optional
+from typing import Any, Callable, Dict, List, Literal, Optional
 import importlib
 from config.agent_prompts.base_agent_prompt import BaseAgentPrompt
 
@@ -27,9 +28,16 @@ from src.utils.summary_utils import (
     extract_gaia_final_answer,
     extract_browsecomp_zh_final_answer,
 )
+from src.utils.stream_parsing_utils import TextInterceptor
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
+
+SCRAPE_MAX_LENGTH = 20000
+try:
+    SCRAPE_MAX_LENGTH = int(os.getenv("SCRAPE_MAX_LENGTH", "20000"))
+except:
+    pass
 
 
 def _list_tools(sub_agent_tool_managers: dict[str, ToolManager]):
@@ -76,7 +84,7 @@ def _load_agent_prompt_class(prompt_class_name: str) -> BaseAgentPrompt:
         )
     return PromptClass()
 
-
+AgentName = Literal["main", "reporter", "browsing"]
 class Orchestrator:
     def __init__(
         self,
@@ -87,6 +95,9 @@ class Orchestrator:
         cfg: DictConfig,
         task_log: TaskTracer,
         sub_agent_llm_client: Optional[LLMProviderClientBase] = None,
+        stream_queue: Optional[Any] = None,
+        tool_definitions: Optional[List[Dict[str, Any]]] = None,
+        sub_agent_tool_definitions: Optional[Dict[str, List[Dict[str, Any]]]] = None,
     ):
         self.main_agent_tool_manager = main_agent_tool_manager
         self.sub_agent_tool_managers = sub_agent_tool_managers
@@ -97,6 +108,10 @@ class Orchestrator:
         self.output_formatter = output_formatter
         self.cfg = cfg
         self.task_log = task_log
+        self.stream_queue = stream_queue
+        self.key_message_interceptor = TextInterceptor(["<use_mcp_tool>"])
+        self.tool_definitions = tool_definitions
+        self.sub_agent_tool_definitions = sub_agent_tool_definitions
         # call this once, then use cache value
         self._list_sub_agent_tools = _list_tools(sub_agent_tool_managers)
 
@@ -124,6 +139,163 @@ class Orchestrator:
         ):
             self.sub_agent_llm_client.task_log = task_log
 
+    async def _stream_update(self, event_type: str, data: dict):
+        """Send streaming update in new SSE protocol format"""
+        if self.stream_queue:
+            try:
+                stream_message = {
+                    "event": event_type,
+                    "data": data,
+                }
+                await self.stream_queue.put(stream_message)
+            except Exception as e:
+                logger.warning(f"Failed to send stream update: {e}")
+    
+    async def _stream_start_workflow(self,  user_input: str, workflow_id: str = None) -> str:
+        """Send start_of_workflow event"""
+        if not workflow_id:
+            workflow_id = str(uuid.uuid4())
+        await self._stream_update("start_of_workflow", {
+            "workflow_id": workflow_id,
+            "input": [
+                {
+                    "role": "user",
+                    "content": user_input,
+                }
+            ]
+        })
+        return workflow_id
+    
+    async def _stream_end_workflow(self, workflow_id: str):
+        """Send end_of_workflow event"""
+        await self._stream_update("end_of_workflow", {
+            "workflow_id": workflow_id,
+        })
+        if self.stream_queue:
+            try:
+                await self.stream_queue.put(None)
+            except Exception as e:
+                logger.warning(f"Failed to send end_of_workflow: {e}")
+        
+    async def _stream_show_error(self, error: str):
+        """Send show_error event"""
+        await self._stream_tool_call("show_error", {"error": error})
+        if self.stream_queue:
+            try:
+                await self.stream_queue.put(None)
+            except Exception as e:
+                logger.warning(f"Failed to send show_error: {e}")
+    
+    async def _stream_start_agent(self, agent_name: AgentName, display_name: str = None):
+        """Send start_of_agent event"""
+        agent_id = str(uuid.uuid4())
+        await self._stream_update("start_of_agent", {
+            "agent_name": agent_name,
+            "display_name": display_name,
+            "agent_id": agent_id,
+        })
+        return agent_id
+    
+    async def _stream_end_agent(self, agent_name: AgentName, agent_id: str):
+        """Send end_of_agent event"""
+        await self._stream_update("end_of_agent", {
+            "agent_name": agent_name,
+            "agent_id": agent_id,
+        })
+    
+    async def _stream_start_llm(self, agent_name: AgentName, display_name: str = None):
+        """Send start_of_llm event"""
+        await self._stream_update("start_of_llm", {
+            "agent_name": agent_name,
+            "display_name": display_name,
+        })
+    
+    async def _stream_end_llm(self, agent_name: AgentName):
+        """Send end_of_llm event"""
+        await self._stream_update("end_of_llm", {
+            "agent_name": agent_name,
+        })
+    
+    async def _stream_message(self, message_id: str, delta_content: str):
+        """Send message event"""
+        await self._stream_update("message", {
+            "message_id": message_id,
+            "delta": {
+                "content": delta_content,
+            },
+        })
+
+    async def _stream_tool_call(self, tool_name: str, payload: dict, streaming: bool = False, tool_call_id: str = None) -> str:
+        """Send tool_call event"""
+        if not tool_call_id:
+            tool_call_id = str(uuid.uuid4())
+        
+        if streaming:
+            for key, value in payload.items():
+                await self._stream_update("tool_call", {
+                    "tool_call_id": tool_call_id,
+                    "tool_name": tool_name,
+                    "delta_input": {
+                        key: value
+                    },
+                })
+        else:
+            # Send complete tool call
+            await self._stream_update("tool_call", {
+                "tool_call_id": tool_call_id,
+                "tool_name": tool_name,
+                "tool_input": payload,
+            })
+        
+        return tool_call_id
+
+    async def _intercept_key_message(self, message_id: str, message: str, is_last: bool):
+        """拦截关键字，如果关键字在消息中，则不发送，返回False，否则发送，返回True"""
+        # logger.info(f"✅收到消息：{message}, 是否是最后一个：{is_last}")
+        result = self.key_message_interceptor.process(message, is_last)
+        if result is not None:
+            if self.key_message_interceptor.is_unbreakable_string(result):
+                return False
+            else:
+                await self._stream_tool_call("show_text", {"text": result}, True, message_id)
+                await asyncio.sleep(0)
+                return True
+        return True
+    
+    async def _streaming_final_message(self, message_id: str, message: str, is_last: bool):
+        """拦截关键字，如果关键字在消息中，则不发送，返回False，否则发送，返回True"""
+        result = self.key_message_interceptor.process(message, is_last)
+        if result is not None:
+            if self.key_message_interceptor.is_unbreakable_string(result):
+                return False
+            else:
+                await self._stream_message(message_id=message_id, delta_content=result)
+                await asyncio.sleep(0)
+                return True
+        return True
+
+    def get_scrape_result(self, result: str) -> str:
+        """
+        Check if the scrape result is an error
+        """
+        try:
+            scrape_result_dict = json.loads(result)
+            text = scrape_result_dict.get("text")
+            if text and len(text) > SCRAPE_MAX_LENGTH:
+                text = text[:SCRAPE_MAX_LENGTH]
+            return json.dumps({"text": text},ensure_ascii=False)
+        except json.JSONDecodeError:
+            if isinstance(result, str) and len(result) > SCRAPE_MAX_LENGTH:
+                result = result[:SCRAPE_MAX_LENGTH]
+            return result
+
+    def post_process_tool_call_result(self, tool_name, tool_call_result: dict):
+        """处理工具调用结果"""
+        if "result" in tool_call_result and tool_name == "scrape":
+            tool_call_result['result'] = self.get_scrape_result( tool_call_result['result'])
+        return tool_call_result
+
+
     async def _handle_llm_call_with_logging(
         self,
         system_prompt,
@@ -133,6 +305,7 @@ class Orchestrator:
         purpose: str = "LLM call",
         keep_tool_result: int = -1,
         agent_type: str = "main",
+        stream_message_callback: Callable = None    
     ) -> tuple[str | None, bool, Any | None]:
         """Unified LLM call and logging handling
         Returns:
@@ -186,6 +359,7 @@ class Orchestrator:
                 step_id=step_id,
                 task_log=self.task_log,
                 agent_type=agent_type,
+                stream_message_callback=stream_message_callback,
             )
 
             if response:
@@ -240,6 +414,7 @@ class Orchestrator:
 
         except asyncio.TimeoutError:
             logger.debug(f"⚠️ {purpose} timed out")
+            await self._stream_tool_call("show_error", {"error": f"LLM Response Error: {purpose} timed out"}, True)
             self.task_log.log_step(
                 f"{purpose.lower().replace(' ', '_')}_timeout",
                 f"{purpose} timed out",
@@ -259,6 +434,7 @@ class Orchestrator:
 
         except Exception as e:
             logger.debug(f"⚠️ {purpose} call failed: {e}")
+            await self._stream_tool_call("show_error", {"error": f"LLM Response Error: {purpose} {str(e)}"}, True)
             self.task_log.log_step(
                 f"{purpose.lower().replace(' ', '_')}_error",
                 f"{purpose} failed: {str(e)}",
@@ -277,6 +453,7 @@ class Orchestrator:
         task_failed,
         agent_type="main",
         task_guidence="",
+        stream_message_callback: Callable = None
     ):
         """
         Handle context limit retry logic when processing summary
@@ -324,6 +501,7 @@ class Orchestrator:
                     999,
                     purpose,
                     agent_type=agent_type,
+                    stream_message_callback=stream_message_callback
                 )
                 if response_text or tool_calls_info == "context_limit":
                     break
@@ -388,6 +566,12 @@ class Orchestrator:
         task_description += "\n\nPlease provide the answer and detailed supporting information of the subtask given to you."
         logger.debug(f"Subtask: {task_description}")
 
+        # Stream sub-agent start
+        display_name = sub_agent_name.replace('agent-', '')
+        sub_agent_id = await self._stream_start_agent(display_name)
+        await self._stream_start_llm(display_name)
+
+
         # Start new sub-agent session
         self.task_log.start_sub_agent_session(sub_agent_name, task_description)
 
@@ -395,9 +579,12 @@ class Orchestrator:
         initial_user_content = [{"type": "text", "text": task_description}]
         message_history = [{"role": "user", "content": initial_user_content}]
 
-        # Get sub-agent tool definitions
-        tool_definitions = await self._list_sub_agent_tools()
-        tool_definitions = tool_definitions.get(sub_agent_name, [])
+        # 获取sub-agent的工具定义
+        if not self.sub_agent_tool_definitions:
+            tool_definitions = await self._list_sub_agent_tools()
+            tool_definitions = tool_definitions.get(sub_agent_name, [])
+        else:
+            tool_definitions = self.sub_agent_tool_definitions[sub_agent_name]
         self.task_log.log_step(
             f"get_sub_{sub_agent_name}_tool_definitions", f"{tool_definitions}"
         )
@@ -449,6 +636,7 @@ class Orchestrator:
                 f"Sub agent {sub_agent_name} turn {turn_count}",
                 keep_tool_result=keep_tool_result,
                 agent_type=sub_agent_name,
+                stream_message_callback=self._intercept_key_message,
             )
 
             # Handle LLM response
@@ -521,10 +709,13 @@ class Orchestrator:
 
                 call_start_time = time.time()
                 try:
+                    tool_call_id = await self._stream_tool_call(tool_name, arguments)
                     tool_result = await self.sub_agent_tool_managers[
                         sub_agent_name
                     ].execute_tool_call(server_name, tool_name, arguments)
-
+                    tool_result = self.post_process_tool_call_result(tool_name,tool_result)
+                    result = tool_result.get("result") if tool_result.get("result") else tool_result.get("error")
+                    await self._stream_tool_call(tool_name, {"result": result }, tool_call_id=tool_call_id)
                     call_end_time = time.time()
                     call_duration_ms = int((call_end_time - call_start_time) * 1000)
 
@@ -632,6 +823,9 @@ class Orchestrator:
             f"Generating sub agent {sub_agent_name} final summary",
         )
 
+        await self._stream_tool_call("Partial Summary", {}, tool_call_id=str(uuid.uuid4()))
+
+
         # Use context limit retry logic to generate final summary
         final_answer_text = await self._handle_summary_with_context_limit_retry(
             system_prompt,
@@ -642,6 +836,7 @@ class Orchestrator:
             task_description,
             task_failed,
             agent_type=sub_agent_name,
+            stream_message_callback=self._intercept_key_message
         )
 
         if final_answer_text:
@@ -672,6 +867,10 @@ class Orchestrator:
             "sub_agent_completed", f"Sub agent {sub_agent_name} completed", "info"
         )
 
+        # Stream sub-agent end
+        await self._stream_end_llm(display_name)
+        await self._stream_end_agent(display_name, sub_agent_id)
+
         # Return final answer instead of dialogue log, so main agent can use directly
         return final_answer_text
 
@@ -681,6 +880,7 @@ class Orchestrator:
         """
         Execute the main end-to-end task.
         """
+        workflow_id = await self._stream_start_workflow(task_description,  task_id )
         keep_tool_result = int(self.cfg.main_agent.keep_tool_result)
 
         logger.debug(f"\n{'=' * 20} Starting Task: {task_id} {'=' * 20}")
@@ -765,10 +965,13 @@ Your objective is maximum completeness, transparency, and detailed documentation
         logger.info("Initial user input content: %s", initial_user_content)
         message_history = [{"role": "user", "content": initial_user_content}]
 
-        # 2. Get tool definitions
-        tool_definitions = await self.main_agent_tool_manager.get_all_tool_definitions()
-        if self.cfg.sub_agents is not None and self.cfg.sub_agents:
-            tool_definitions += expose_sub_agents_as_tools(self.cfg.sub_agents)
+        # 2. 获取工具定义
+        if not self.tool_definitions:
+            tool_definitions = await self.main_agent_tool_manager.get_all_tool_definitions()
+            if self.cfg.sub_agents is not None and self.cfg.sub_agents:
+                tool_definitions += expose_sub_agents_as_tools(self.cfg.sub_agents)
+        else:
+            tool_definitions = self.tool_definitions
         if not tool_definitions:
             logger.debug(
                 "Warning: No tool definitions found. LLM cannot use any tools."
@@ -793,6 +996,8 @@ Your objective is maximum completeness, transparency, and detailed documentation
             max_turns = sys.maxsize
         turn_count = 0
         task_failed = False  # Track whether task failed
+        self.current_agent_id = await self._stream_start_agent("main")
+        await self._stream_start_llm("main")
         while turn_count < max_turns:
             turn_count += 1
             logger.debug(f"\n--- Main Agent Turn {turn_count} ---")
@@ -811,6 +1016,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 f"Main agent turn {turn_count}",
                 keep_tool_result=keep_tool_result,
                 agent_type="main",
+                stream_message_callback=self._intercept_key_message,
             )
 
             # Handle LLM response
@@ -868,6 +1074,9 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 call_start_time = time.time()
                 try:
                     if server_name.startswith("agent-"):
+                        # 进入到子 agent
+                        await self._stream_end_llm("main")
+                        await self._stream_end_agent("main", self.current_agent_id)
                         sub_agent_result = await self.run_sub_agent(
                             server_name, str(arguments), keep_tool_result
                         )
@@ -876,7 +1085,11 @@ Your objective is maximum completeness, transparency, and detailed documentation
                             "tool_name": tool_name,
                             "result": sub_agent_result,
                         }
+                        # 重新进入主 agent
+                        self.current_agent_id = await self._stream_start_agent("main", display_name="Summarizing")
+                        await self._stream_start_llm("main", display_name="Summarizing")
                     else:
+                        tool_call_id = await self._stream_tool_call(tool_name,arguments)
                         tool_result = (
                             await self.main_agent_tool_manager.execute_tool_call(
                                 server_name=server_name,
@@ -884,6 +1097,9 @@ Your objective is maximum completeness, transparency, and detailed documentation
                                 arguments=arguments,
                             )
                         )
+                        tool_result = self.post_process_tool_call_result(tool_name,tool_result)
+                        result = tool_result.get("result") if tool_result.get("result") else tool_result.get("error")
+                        await self._stream_tool_call(tool_name,{"result": result}, tool_call_id=tool_call_id)
 
                     call_end_time = time.time()
                     call_duration_ms = int((call_end_time - call_start_time) * 1000)
@@ -958,6 +1174,10 @@ Your objective is maximum completeness, transparency, and detailed documentation
             message_history = self.llm_client.update_message_history(
                 message_history, all_tool_results_content_with_id, tool_calls_exceeded
             )
+        
+        # 退出主 llm,agent
+        await self._stream_end_llm("main")
+        await self._stream_end_agent("main", self.current_agent_id)
 
         # Record main loop end
         if turn_count >= max_turns:
@@ -979,6 +1199,9 @@ Your objective is maximum completeness, transparency, and detailed documentation
         # Final summary
         self.task_log.log_step("final_summary", "Generating final summary")
 
+        self.current_agent_id = await self._stream_start_agent("reporter")
+        await self._stream_start_llm("reporter")
+
         # Use context limit retry logic to generate final summary
         final_answer_text = await self._handle_summary_with_context_limit_retry(
             system_prompt,
@@ -990,6 +1213,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
             task_failed,
             agent_type="main",
             task_guidence=task_guidence,
+            stream_message_callback=self._streaming_final_message,
         )
 
         # Handle response result
@@ -1097,6 +1321,9 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 final_answer_text, self.llm_client
             )
         )
+        await self._stream_end_llm("reporter")
+        await self._stream_end_agent("reporter", self.current_agent_id)
+        await self._stream_end_workflow(workflow_id)
 
         logger.debug(f"\n{'=' * 20} Task {task_id} Finished {'=' * 20}")
         self.task_log.log_step(

@@ -6,6 +6,7 @@ import pathlib
 import traceback
 import os
 from datetime import datetime
+from typing import Any, Optional, List, Dict
 from omegaconf import DictConfig
 
 from src.llm.client import LLMClient
@@ -32,6 +33,10 @@ async def execute_task_pipeline(
     log_path: pathlib.Path,
     ground_truth: str | None = None,
     metadata: dict | None = None,
+     stream_queue: Optional[Any] = None,
+    tool_definitions: Optional[List[Dict[str, Any]]] = None,
+    sub_agent_tool_definitions: Optional[Dict[str, List[Dict[str, Any]]]] = None,
+    history: Optional[List[Dict[str, Any]]] = None,
 ) -> tuple[str, str, pathlib.Path]:
     """
     Executes the full pipeline for a single task.
@@ -53,7 +58,7 @@ async def execute_task_pipeline(
         - The final boxed answer.
         - The path to the log file.
     """
-    logger.debug(f"Starting Task Execution: {task_id}")
+    logger.debug(f"Starting Task Execution: {task_id}, cfg.keys: {list(cfg.keys())}")
 
     # Create task log
     task_log = TaskTracer(
@@ -109,6 +114,9 @@ async def execute_task_pipeline(
             output_formatter=output_formatter,
             task_log=task_log,
             cfg=cfg,
+            stream_queue=stream_queue,
+            tool_definitions=tool_definitions,
+            sub_agent_tool_definitions=sub_agent_tool_definitions,
         )
 
         task_log.status = "running"

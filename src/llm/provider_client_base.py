@@ -9,6 +9,7 @@ import os
 from abc import ABC, abstractmethod
 from typing import (
     Any,
+    Callable,
     Dict,
     List,
     Optional,
@@ -49,6 +50,7 @@ class LLMProviderClientBase(ABC):
         self.max_context_length: int = self.cfg.llm.get("max_context_length", -1)
         self.oai_tool_thinking: bool = self.cfg.llm.oai_tool_thinking
         self.async_client: bool = self.cfg.llm.async_client
+        self.enable_streaming: bool = self.cfg.llm.get("enable_streaming", False)
 
         self.use_tool_calls: Optional[bool] = self.cfg.llm.get("use_tool_calls")
         self.openrouter_provider: Optional[str] = self.cfg.llm.get(
@@ -89,6 +91,7 @@ class LLMProviderClientBase(ABC):
         messages: List[Dict],
         tools_definitions: List[Dict],
         keep_tool_result: int = -1,
+        stream_message_callback: Optional[Callable] = None,
     ) -> Any:
         """Create provider-specific message - implemented by subclass"""
         raise NotImplementedError("subclass must implement this")
@@ -178,6 +181,7 @@ class LLMProviderClientBase(ABC):
         step_id: int = 1,
         task_log: Optional["TaskTracer"] = None,
         agent_type: str = "main",
+        stream_message_callback: Optional[Callable] = None,
     ):
         """
         Call LLM to generate response, supports tool calls - unified implementation
@@ -195,6 +199,7 @@ class LLMProviderClientBase(ABC):
             filtered_history,
             tool_definitions,
             keep_tool_result=keep_tool_result,
+            stream_message_callback=stream_message_callback,
         )
         return response
 

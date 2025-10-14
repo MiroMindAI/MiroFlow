@@ -7,7 +7,7 @@ import dataclasses
 import json
 import os
 import re
-from typing import Any, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 import tiktoken
 from omegaconf import DictConfig
@@ -20,7 +20,7 @@ from tenacity import (
 )
 
 from src.llm.provider_client_base import LLMProviderClientBase
-
+from src.llm.util import collect_openai_stream
 from src.logging.logger import bootstrap_logger
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
@@ -59,6 +59,7 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
         messages: List[Dict[str, Any]],
         tools_definitions,
         keep_tool_result: int = -1,
+        stream_message_callback: Optional[Callable] = None,
     ):
         """
         Send message to OpenAI API.
@@ -138,7 +139,7 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
                 "temperature": temperature,
                 "max_tokens": self.max_tokens,
                 "messages": processed_messages,
-                "stream": False,
+                "stream": self.enable_streaming,
                 "extra_body": extra_body,
             }
 
@@ -208,9 +209,15 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
     async def _create_completion(self, params: Dict[str, Any], is_async: bool):
         """Helper to create a completion, handling async and sync calls."""
         if is_async:
-            return await self.client.chat.completions.create(**params)
+            response = await self.client.chat.completions.create(**params)
         else:
-            return self.client.chat.completions.create(**params)
+            response = self.client.chat.completions.create(**params)
+
+        # If streaming is enabled, collect all chunks into a complete response
+        if self.enable_streaming:
+            return await collect_openai_stream(response)
+
+        return response
 
     def _clean_user_content_from_response(self, text: str) -> str:
         """Remove content between \\n\\nUser: and <use_mcp_tool> in assistant response (if no <use_mcp_tool>, remove to end)"""
