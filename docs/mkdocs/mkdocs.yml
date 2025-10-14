@@ -64,6 +64,7 @@ nav:
     - FutureX: futurex.md
     - xBench-DeepSearch: xbench_ds.md
     - FinSearchComp: finsearchcomp.md
+    - HLE: hle.md
 
     # - Benchmarks: 
     #   - GAIA-Validation-Text-Only: gaia_validation_text_only.md
