@@ -65,16 +65,7 @@ nav:
     - xBench-DeepSearch: xbench_ds.md
     - FinSearchComp: finsearchcomp.md
     - HLE: hle.md
-    - HLE(text only): hle_text_only.md
-
-    # - Benchmarks: 
-    #   - GAIA-Validation-Text-Only: gaia_validation_text_only.md
-    #   - GAIA-Test: gaia_test.md
-    #   - BrowseComp-EN: browsecomp_en.md
-    #   - FutureX: futurex.md
-    #   - xBench-DeepSearch: xbench_ds.md
-    #   - FinSearchComp: finsearchcomp.md
-    # - Download Datasets: download_datasets.md
+    - HLE-Text-Only: hle_text_only.md
 
 
 
@@ -85,12 +76,15 @@ nav:
     - "": ""
     - "": ""
     - "": ""
+    - tool-reading: tool_reading.md
+    - tool-searching: tool_searching.md
+    - tool-searching-serper: tool_searching_serper.md
+    - tool-audio: tool_audio.md
+    - tool-audio-os: tool_audio_os.md
     - tool-reasoning: tool_reasoning.md
     - tool-reasoning-os: tool_reasoning_os.md
     - tool-image-video: tool_vqa.md
     - tool-image-video-os: tool_vqa_os.md
-    - tool-audio-os: tool_audio_os.md
-    - tool-searching: tool_searching.md
     - tool-python: tool_python.md
     - "": ""
     - "": ""

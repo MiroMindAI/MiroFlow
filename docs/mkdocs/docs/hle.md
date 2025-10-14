@@ -2,7 +2,7 @@
 
 MiroFlow's evaluation on the HLE benchmark demonstrates capabilities in multimodal reasoning and question answering tasks that require human-level understanding across vision and language.
 
-More details: [HLE Dataset on HuggingFace](https://huggingface.co/datasets/cais/hle)
+More details: [Humanity's Last Exam](https://arxiv.org/abs/2501.14249)
 
 ---
 
