@@ -1,0 +1,56 @@
+defaults:
+  - benchmark: webwalkerqa
+  - override hydra/job_logging: none
+  - _self_  # Allow defining variables at the top of this file
+
+
+main_agent:
+  prompt_class: MainAgentPrompt_GAIA
+  llm: 
+    provider_class: "MiroThinkerSGLangClient"
+    model_name: "DUMMY_MODEL_NAME"
+    async_client: true
+    temperature: 0.3
+    top_p: 0.95
+    min_p: 0.0
+    top_k: -1
+    max_tokens: 4096
+    oai_mirothinker_api_key: "${oc.env:OAI_MIROTHINKER_API_KEY,dummy_key}"
+    oai_mirothinker_base_url: "${oc.env:OAI_MIROTHINKER_BASE_URL,http://localhost:61005/v1}"
+    keep_tool_result: -1
+    oai_tool_thinking: false
+  
+  tool_config:
+    - tool-searching
+    - tool-image-video
+    - tool-reading
+    - tool-code
+    - tool-audio
+    - tool-reasoning
+
+  max_turns: 50  # Maximum number of turns for main agent execution
+  max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
+  
+  input_process:
+    hint_generation: false
+    hint_llm_base_url: "${oc.env:HINT_LLM_BASE_URL,https://api.openai.com/v1}"
+
+  output_process:
+    final_answer_extraction: true
+    final_answer_llm_base_url: "${oc.env:FINAL_ANSWER_LLM_BASE_URL,https://api.openai.com/v1}"
+
+  openai_api_key: "${oc.env:OPENAI_API_KEY,???}" # used for hint generation and final answer extraction
+  add_message_id: true
+  keep_tool_result: -1
+  chinese_context: "${oc.env:CHINESE_CONTEXT,false}"
+
+
+sub_agents: null
+
+
+# Can define some top-level or default parameters here
+output_dir: logs/
+data_dir: "${oc.env:DATA_DIR,data}"  # Points to where data is stored
+
+
+
