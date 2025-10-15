@@ -5,9 +5,9 @@ defaults:
 
 
 main_agent:
-  prompt_class: MainAgentPromptBoxedAnswer
+  prompt_class: MainAgentPromptBoxedOpenAI
   llm: 
-    provider_class: "ClaudeOpenRouterClient"
+    provider_class: "DeepSeekOpenRouterClient"
     model_name: "deepseek/deepseek-chat-v3.1"  # Available DeepSeek models via OpenRouter
     async_client: true
     temperature: 0.3
