@@ -266,6 +266,11 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 **P082** - A Survey on Agentic Multimodal Large Language Models
     - [:material-file-document: Paper](https://arxiv.org/abs/2510.10991)
 
+**P083** - R-WoM: Retrieval-augmented World Model For Computer-use Agents
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.11892)
+
+**P084** - HackWorld: Evaluating Computer-Use Agents on Exploiting Web Application Vulnerabilities
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.12200)
 
 
 ---
