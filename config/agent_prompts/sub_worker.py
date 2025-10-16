@@ -247,7 +247,7 @@ Be cautious and transparent in your output:
         return tool_definition
 
 
-class SubAgentWorkerPromptOpenAI(SubAgentWorkerPrompt):
+class SubAgentWorkerPromptDeepSeek(SubAgentWorkerPrompt):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.is_main_agent = False

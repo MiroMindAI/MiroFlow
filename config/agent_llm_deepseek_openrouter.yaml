@@ -5,7 +5,7 @@ defaults:
 
 
 main_agent:
-  prompt_class: MainAgentPromptBoxedOpenAI
+  prompt_class: MainAgentPromptBoxedDeepSeek
   llm: 
     provider_class: "DeepSeekOpenRouterClient"
     model_name: "deepseek/deepseek-chat-v3.1"  # Available DeepSeek models via OpenRouter
