@@ -107,6 +107,7 @@ nav:
     - Claude 3.7 Sonnet (OpenRouter): openrouter-claude-3.7-sonnet.md
     - GPT-5: openai-gpt5.md
     - GPT-4o: openai-gpt4o.md
+    - DeepSeek: deepseek.md
 
   - 📚 Resources: 
     - All About Agents: all_about_agents.md
