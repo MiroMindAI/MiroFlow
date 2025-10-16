@@ -60,6 +60,7 @@ uv run main.py common-benchmark --config_file_name=agent_llm_mirothinker output_
 ```
 
 This command will:
+
 - Use the `agent_llm_mirothinker` configuration with the dedicated MiroThinkerSGLangClient
 - Run the example dataset benchmark (configured in the YAML file)
 - Test the model's question-answering capabilities

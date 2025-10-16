@@ -1,0 +1,21 @@
+# config/benchmark/webwalkerqa.yaml
+defaults:
+  - default
+  - _self_
+
+name: "webwalkerqa"
+
+data:
+  data_dir: "${data_dir}/webwalkerqa"  # Path to webwalkerqa dataset
+  metadata_file: "standardized_data.jsonl"  # Metadata filename
+  whitelist: []  # Optional: List of specific task_ids to run
+
+execution:
+  max_tasks: null      # null = no limit, or specify a number
+  max_concurrent: 5    # Number of parallel tasks
+  pass_at_k: 1         # Number of attempts per task
+
+# OpenAI API key for evaluation (required for webwalkerqa since it has ground truth)
+openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
+
+

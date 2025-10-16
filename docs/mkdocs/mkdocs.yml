@@ -61,6 +61,7 @@ nav:
     - GAIA-Val-Text: gaia_validation_text_only.md
     - GAIA-Test: gaia_test.md
     - BrowseComp-EN: browsecomp_en.md
+    - WebWalkerQA: webwalkerqa.md
     - FutureX: futurex.md
     - xBench-DeepSearch: xbench_ds.md
     - FinSearchComp: finsearchcomp.md
