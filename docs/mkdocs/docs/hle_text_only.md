@@ -9,7 +9,7 @@ More details: [HLE text only Dataset on HuggingFace](https://huggingface.co/data
 ## Dataset Overview
 
 !!! info "HLE Dataset (text only)"
-    The dataset is a text-only subset of HLE. 
+    The experiments are conducted on the **500 text-only subset** of the HLE dataset, available from [WebThinker](https://github.com/RUC-NLPIR/WebThinker/blob/main/data/HLE/test.json).
 
 ---
 
