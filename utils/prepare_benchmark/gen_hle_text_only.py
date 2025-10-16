@@ -2,29 +2,31 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+
+import json
 from typing import Generator, MutableMapping
 
-from datasets import load_dataset
+import requests
 
 from utils.prepare_benchmark.common import Task
 
 
 def gen_hle_text_only(hf_token: str) -> Generator[Task, None, None]:
-    dataset = load_dataset("macabdul9/hle_text_only", split="test", token=hf_token)
-    for x in dataset:
-        metadata: MutableMapping = x  # type: ignore
-        task_id = metadata.pop("id")
-        question = metadata.pop("question")
-        gt = metadata.pop("answer")
-        metadata.pop("image_preview")
-        metadata.pop("rationale_image")
+    response = requests.get(
+        "https://raw.githubusercontent.com/RUC-NLPIR/WebThinker/refs/heads/main/data/HLE/test.json"
+    )
+    dataset = json.loads(response.content)
+    for row in dataset:
+        metadata: MutableMapping = row
+        task_id = str(metadata.pop("id", ""))
+        question = metadata.pop("Question", "")
+        answer = metadata.pop("answer", "")
         task = Task(
             task_id=task_id,
             task_question=question,
-            ground_truth=gt,
+            ground_truth=answer,
             file_path=None,
             metadata=metadata,
         )
         yield task
-
     return
