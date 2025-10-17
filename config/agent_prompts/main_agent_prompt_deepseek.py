@@ -5,7 +5,7 @@ from typing import Any
 
 class MainAgentPromptBoxedDeepSeek(BaseAgentPrompt):
     """
-        Adapted from MainAgentPromptBoxedAnswer. Since the tool-use is DeepSeek format, we remove the <use_mcp_tool> tags and its corresponding format instructions.
+    Adapted from MainAgentPromptBoxedAnswer. Since the tool-use is DeepSeek format, we remove the <use_mcp_tool> tags and its corresponding format instructions.
     """
 
     def __init__(self, *args, **kwargs):
