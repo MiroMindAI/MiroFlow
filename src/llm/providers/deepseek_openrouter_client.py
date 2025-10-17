@@ -97,7 +97,7 @@ class DeepSeekOpenRouterClient(LLMProviderClientBase):
             processed_messages = messages_copy
         else:
             processed_messages = self._apply_cache_control(messages_copy)
-        
+
         # For deepseek, we need to explicitly specify the tool list and add it to the messages
         tool_list = await self.convert_tool_definition_to_tool_call(tools_definitions)
 

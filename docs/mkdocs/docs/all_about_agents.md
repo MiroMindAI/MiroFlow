@@ -272,6 +272,15 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 **P084** - HackWorld: Evaluating Computer-Use Agents on Exploiting Web Application Vulnerabilities
     - [:material-file-document: Paper](https://arxiv.org/abs/2510.12200)
 
+**P085** - Deep Research Brings Deeper Harm
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.11851)
+
+
+A\textsuperscript{2}FM: An Adaptive Agent Foundation Model for Tool-Aware Hybrid Reasoning, https://arxiv.org/abs/2510.12838
+
+DeepPlanner: Scaling Planning Capability for Deep Research Agents via Advantage Shaping, https://arxiv.org/abs/2510.12979
+
+
 
 ---
 
@@ -399,6 +408,9 @@ Welcome to our comprehensive resource collection for AI agents. This page curate
 
 **E031** - A Comprehensive Survey on Benchmarks and Solutions in Software Engineering of LLM-Empowered Agentic System
     - [:material-file-document: Paper](https://arxiv.org/abs/2510.09721)
+
+**E032** - Holistic Agent Leaderboard: The Missing Infrastructure for AI Agent Evaluation
+    - [:material-file-document: Paper](https://arxiv.org/abs/2510.11977)
 
 
 ---

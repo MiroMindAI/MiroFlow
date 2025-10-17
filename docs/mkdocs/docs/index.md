@@ -18,12 +18,19 @@
     
     **Oct 2025** - 
 
-    
+    **Week 2**
+
+    - 🌐 Added support for BrowseComp-ZH (Chinese) evaluation benchmark [#88](https://github.com/MiroMindAI/MiroFlow/pull/88)
+    - 🤖 Added support for DeepSeek V3.1 with OpenRouter and tool call format [#86](https://github.com/MiroMindAI/MiroFlow/pull/86)
+    - 🚶 Added support for WebWalkerQA dataset evaluation [#84](https://github.com/MiroMindAI/MiroFlow/pull/84)
+    - 📖 Updated documentation for reading and audio tools [#83](https://github.com/MiroMindAI/MiroFlow/pull/83)
     - 📝 Added support for HLE-Text evaluation benchmark [#81](https://github.com/MiroMindAI/MiroFlow/pull/81)
     - 🧠 Added support for HLE (Humanity's Last Exam) benchmark [#79](https://github.com/MiroMindAI/MiroFlow/pull/79)
     - 🌐 Added support for BrowseComp-EN evaluation benchmark [#78](https://github.com/MiroMindAI/MiroFlow/pull/78)
     - 🔌 Added support for MiroAPI integration [#76](https://github.com/MiroMindAI/MiroFlow/pull/76)
 
+    **Week 1**
+    
     - 📊 Added support for FinSearchComp evaluation benchmark [#51](https://github.com/MiroMindAI/MiroFlow/pull/51)
     - 🔍 Added support for XBench-DS (Deep Search) evaluation [#47](https://github.com/MiroMindAI/MiroFlow/pull/47)
     - 🧠 Updated o3 hints and summary to more models [#58](https://github.com/MiroMindAI/MiroFlow/pull/58)
