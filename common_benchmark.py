@@ -700,9 +700,11 @@ def preprocess_config(cfg: DictConfig, chosen_config_name: str) -> DictConfig:
         cfg.num_runs = 1
         OmegaConf.set_struct(cfg, True)
     # set output_dir to logs/benchmark.name/agent_set/timestamp if not set
-    if cfg.output_dir == 'logs/':
+    if cfg.output_dir == "logs/":
         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
-        cfg.output_dir = Path(cfg.output_dir) / cfg.benchmark.name / chosen_config_name / timestamp
+        cfg.output_dir = (
+            Path(cfg.output_dir) / cfg.benchmark.name / chosen_config_name / timestamp
+        )
     return cfg
 
 
@@ -736,6 +738,7 @@ def main_runs_multiprocess(cfg, args, max_workers: int | None = None):
 
     futures = []
     import multiprocessing as mp
+
     try:
         mp.set_start_method("spawn", force=True)
     except RuntimeError:
@@ -744,10 +747,7 @@ def main_runs_multiprocess(cfg, args, max_workers: int | None = None):
     with ProcessPoolExecutor(max_workers=max_workers) as ex:
         for i in range(num_runs):
             run_id = i + 1
-            fut = ex.submit(
-                _run_one_process,
-                cfg, list(args), run_id, num_runs
-            )
+            fut = ex.submit(_run_one_process, cfg, list(args), run_id, num_runs)
             futures.append(fut)
 
         ok_count, fail_count = 0, 0
@@ -757,7 +757,7 @@ def main_runs_multiprocess(cfg, args, max_workers: int | None = None):
                 ok_count += 1
             else:
                 fail_count += 1
-                
+
         print("==========================================")
         print(f"All {num_runs} runs finished. OK={ok_count}, FAIL={fail_count}")
         print("==========================================")
