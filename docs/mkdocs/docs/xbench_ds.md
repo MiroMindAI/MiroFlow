@@ -87,11 +87,7 @@ uv run main.py common-benchmark \
     - Uses another agent (o3 by default) to make final decisions based on equivalence and source reliability criteria
     - Provides more robust and accurate final answers
 
-Execute the following command to run multiple xbench-DeepSearch evaluations and automatically enable parallel thinking for enhanced performance.
-
-```bash title="Multiple runs with parallel thinking post-processing"
-bash scripts/run_evaluate_mulitple_runs_xbench-ds.sh
-```
+Set `num_runs` in relevant config to the desired number of runs to run multiple xbench-DeepSearch evaluations and automatically enable parallel thinking for enhanced performance.
 
 ### Running Parallel Thinking Analysis alone
 

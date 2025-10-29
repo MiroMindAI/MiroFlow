@@ -61,11 +61,8 @@ Follow the [progress monitoring instructions](gaia_validation_prerequisites.md#p
 
 Due to performance variance in MiroThinker models, it's recommended to run multiple evaluations for more reliable results.
 
-```bash title="Run Multiple MiroThinker Evaluations"
-bash ./scripts/run_evaluate_multiple_runs_mirothinker_gaia-validation.sh
-```
 
-This script runs 3 evaluations in parallel and calculates average scores. You can modify `NUM_RUNS` in the script to change the number of runs.
+Set `num_runs` in relevant config to the desired number of runs to run multiple evaluations and automatically enable parallel thinking for enhanced performance.
 
 ---
 

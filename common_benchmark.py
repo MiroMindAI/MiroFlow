@@ -12,7 +12,9 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Tuple, TypedDict
 import random
-
+from datetime import datetime
+from copy import deepcopy
+from concurrent.futures import ProcessPoolExecutor, as_completed
 import dotenv
 import hydra
 import openai
@@ -691,6 +693,76 @@ def signal_handler(signum, frame):
     os._exit(1)  # Force immediate exit
 
 
+def preprocess_config(cfg: DictConfig, chosen_config_name: str) -> DictConfig:
+    # set num_runs to 1 if not set
+    if "num_runs" not in cfg:
+        OmegaConf.set_struct(cfg, False)
+        cfg.num_runs = 1
+        OmegaConf.set_struct(cfg, True)
+    # set output_dir to logs/benchmark.name/agent_set/timestamp if not set
+    if cfg.output_dir == 'logs/':
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+        cfg.output_dir = Path(cfg.output_dir) / cfg.benchmark.name / chosen_config_name / timestamp
+    return cfg
+
+
+def _run_one_process(cfg, args, run_id: int, total_runs: int):
+    cfg_new = deepcopy(cfg)
+    cfg_new.output_dir = Path(cfg_new.output_dir) / f"run_{run_id}"
+    cfg_new = setup_hydra_output_dir(cfg_new, list(args))
+
+    print("==========================================")
+    print(f"🚀 Launching experiment {run_id}/{total_runs}")
+    print(f"📝 Output dir: {cfg_new.output_dir}")
+    print("==========================================")
+    try:
+        asyncio.run(entrypoint(cfg_new))
+        print(f"Run {run_id} finished.")
+        return
+    except Exception as e:
+        print(f"Run {run_id} failed: {e!r}")
+        return
+
+
+def main_runs_multiprocess(cfg, args, max_workers: int | None = None):
+    num_runs = int(cfg.num_runs)
+    if num_runs <= 1:
+        asyncio.run(entrypoint(cfg))
+        return
+
+    if max_workers is None:
+        hw = os.cpu_count() or 1
+        max_workers = min(num_runs, hw)
+
+    futures = []
+    import multiprocessing as mp
+    try:
+        mp.set_start_method("spawn", force=True)
+    except RuntimeError:
+        pass
+
+    with ProcessPoolExecutor(max_workers=max_workers) as ex:
+        for i in range(num_runs):
+            run_id = i + 1
+            fut = ex.submit(
+                _run_one_process,
+                cfg, list(args), run_id, num_runs
+            )
+            futures.append(fut)
+
+        ok_count, fail_count = 0, 0
+        for fut in as_completed(futures):
+            res = fut.result()
+            if res["ok"]:
+                ok_count += 1
+            else:
+                fail_count += 1
+                
+        print("==========================================")
+        print(f"All {num_runs} runs finished. OK={ok_count}, FAIL={fail_count}")
+        print("==========================================")
+
+
 def main(*args, config_file_name: str = ""):
     # Register signal handlers for immediate response to Ctrl+C
     signal.signal(signal.SIGINT, signal_handler)
@@ -708,8 +780,8 @@ def main(*args, config_file_name: str = ""):
         config_dir=os.path.abspath(config_path()), version_base=None
     ):
         cfg = hydra.compose(config_name=chosen_config_name, overrides=list(args))
-        cfg = setup_hydra_output_dir(cfg, list(args))
+        cfg = preprocess_config(cfg, chosen_config_name)
 
         _ = bootstrap_logger(level=LOGGER_LEVEL)
         # Tracing functionality removed - miroflow-contrib deleted
-        asyncio.run(entrypoint(cfg))
+        main_runs_multiprocess(cfg, args)
