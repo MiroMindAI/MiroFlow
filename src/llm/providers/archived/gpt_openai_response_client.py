@@ -29,12 +29,12 @@ class GPTOpenAIResponseClient(LLMProviderClientBase):
         """Create configured OpenAI client"""
         if self.async_client:
             return AsyncOpenAI(
-                api_key=self.cfg.llm.openai_api_key,
+                api_key=os.environ.get("OPENAI_API_KEY"),
                 base_url=self.cfg.llm.openai_base_url,
             )
         else:
             return OpenAI(
-                api_key=self.cfg.llm.openai_api_key,
+                api_key=os.environ.get("OPENAI_API_KEY"),
                 base_url=self.cfg.llm.openai_base_url,
             )
 
