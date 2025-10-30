@@ -390,7 +390,7 @@ class Orchestrator:
 
         # Start new sub-agent session
         self.task_log.start_sub_agent_session(sub_agent_name, task_description)
-        
+
         # Reset sub-agent usage stats for independent tracking
         self.sub_agent_llm_client.reset_usage_stats()
 
@@ -673,7 +673,7 @@ class Orchestrator:
         # Record sub-agent cumulative usage
         usage_log = self.sub_agent_llm_client.get_usage_log()
         self.task_log.log_step(
-            "usage_calculation", 
+            "usage_calculation",
             usage_log,
             metadata={"session_id": self.task_log.current_sub_agent_session_id},
         )
@@ -1120,7 +1120,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
         # Record main agent cumulative usage
         usage_log = self.llm_client.get_usage_log()
         self.task_log.log_step(
-            "usage_calculation", 
+            "usage_calculation",
             usage_log,
             metadata={"session_id": "main_agent"},
         )

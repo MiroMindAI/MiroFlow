@@ -272,27 +272,27 @@ class GPTOpenAIResponseClient(LLMProviderClientBase):
 
     def _extract_usage_from_response(self, response):
         """Extract usage - OpenAI Responses API format"""
-        if not response or not response.get('usage'):
+        if not response or not response.get("usage"):
             return {
                 "input_tokens": 0,
                 "cached_tokens": 0,
                 "output_tokens": 0,
-                "reasoning_tokens": 0
+                "reasoning_tokens": 0,
             }
-        
-        usage = response.get('usage', {}) or {}
-        input_tokens_details = usage.get('input_tokens_details', {}) or {}
+
+        usage = response.get("usage", {}) or {}
+        input_tokens_details = usage.get("input_tokens_details", {}) or {}
         if hasattr(input_tokens_details, "to_dict"):
             input_tokens_details = input_tokens_details.to_dict()
-        output_tokens_details = usage.get('output_tokens_details', {}) or {}
+        output_tokens_details = usage.get("output_tokens_details", {}) or {}
         if hasattr(output_tokens_details, "to_dict"):
             output_tokens_details = output_tokens_details.to_dict()
-        
+
         usage_dict = {
-            "input_tokens": usage.get('input_tokens', 0),
-            "cached_tokens": input_tokens_details.get('cached_tokens', 0),
-            "output_tokens": usage.get('output_tokens', 0),
-            "reasoning_tokens": output_tokens_details.get('reasoning_tokens', 0)
+            "input_tokens": usage.get("input_tokens", 0),
+            "cached_tokens": input_tokens_details.get("cached_tokens", 0),
+            "output_tokens": usage.get("output_tokens", 0),
+            "reasoning_tokens": output_tokens_details.get("reasoning_tokens", 0),
         }
-        
+
         return usage_dict
