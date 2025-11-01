@@ -5,6 +5,7 @@
 import utils.calculate_average_score
 import utils.calculate_score_from_log
 import common_benchmark
+import run_gaia_with_monitor
 import dotenv
 import utils.eval_answer_from_log
 import fire
@@ -27,7 +28,6 @@ def print_config(*args):
         cfg = hydra.compose(config_name=config_name(), overrides=list(args))
         debug_config(cfg, logger)
 
-
 if __name__ == "__main__":
     install(suppress=[fire, hydra], show_locals=True)
     fire.Fire(
@@ -35,6 +35,7 @@ if __name__ == "__main__":
             "print-config": print_config,
             "trace": utils.trace_single_task.main,
             "common-benchmark": common_benchmark.main,
+            "run-gaia-with-monitor": run_gaia_with_monitor.main,
             "eval-answer": utils.eval_answer_from_log.main,
             "avg-score": utils.calculate_average_score.main,
             "score-from-log": utils.calculate_score_from_log.main,
