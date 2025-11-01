@@ -28,6 +28,7 @@ def print_config(*args):
         cfg = hydra.compose(config_name=config_name(), overrides=list(args))
         debug_config(cfg, logger)
 
+
 if __name__ == "__main__":
     install(suppress=[fire, hydra], show_locals=True)
     fire.Fire(
