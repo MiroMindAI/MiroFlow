@@ -141,6 +141,22 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
                     "LLM finish_reason is 'stop', but content is empty, triggering Error"
                 )
                 raise Exception("LLM finish_reason is 'stop', but content is empty")
+            
+            # identify repeated messages and retry
+            # Check if the last 100 characters of the response appear more than 5 times in the response content.
+            # If so, treat it as a severe repeat and trigger a retry.
+            resp_content = response.choices[0].message.content or ""
+
+            if resp_content and len(resp_content) >= 50:
+                tail_50 = resp_content[-50:]
+                repeat_count = resp_content.count(tail_50)
+                if repeat_count > 5:
+                    self.task_log.log_step(
+                        "warning",
+                        "LLM | Repeat Detected",
+                        "Severe repeat: the last 50 chars appeared over 5 times, retrying...",
+                    )
+                    raise Exception("Severe repeat detected in response, please retry.")
 
             logger.debug(
                 f"LLM call finish_reason: {getattr(response.choices[0], 'finish_reason', 'N/A')}"
