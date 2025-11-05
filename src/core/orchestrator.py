@@ -140,9 +140,25 @@ class Orchestrator:
         elif tool_name == "wiki_get_page_content":
             return "entity:" + arguments.get("entity")
         elif tool_name == "search_wiki_revision":
-            return "entity:" + arguments.get("entity") + "_year:" + str(arguments.get("year")) + "_month:" + str(arguments.get("month"))
+            return (
+                "entity:"
+                + arguments.get("entity")
+                + "_year:"
+                + str(arguments.get("year"))
+                + "_month:"
+                + str(arguments.get("month"))
+            )
         elif tool_name == "search_archived_webpage":
-            return "url:" + arguments.get("url") + "_year:" + str(arguments.get("year")) + "_month:" + str(arguments.get("month")) + "_day:" + str(arguments.get("day"))
+            return (
+                "url:"
+                + arguments.get("url")
+                + "_year:"
+                + str(arguments.get("year"))
+                + "_month:"
+                + str(arguments.get("month"))
+                + "_day:"
+                + str(arguments.get("day"))
+            )
         elif tool_name == "scrape_website":
             return "url:" + arguments.get("url")
         return None
@@ -548,7 +564,9 @@ class Orchestrator:
                     query_str = self._get_query_from_tool_call(tool_name, arguments)
                     if query_str:
                         cache_name = sub_agent_name + "_" + tool_name
-                        self.used_queries.setdefault(cache_name, defaultdict(lambda: [0, ""]))
+                        self.used_queries.setdefault(
+                            cache_name, defaultdict(lambda: [0, ""])
+                        )
                         count = self.used_queries[cache_name][query_str][0]
                         cache_result = self.used_queries[cache_name][query_str][1]
                         if count > 0:
@@ -565,7 +583,9 @@ class Orchestrator:
                                 sub_agent_name
                             ].execute_tool_call(server_name, tool_name, arguments)
                             if "error" not in tool_result:
-                                self.used_queries[cache_name][query_str][1] = tool_result["result"]
+                                self.used_queries[cache_name][query_str][1] = (
+                                    tool_result["result"]
+                                )
                                 self.used_queries[cache_name][query_str][0] += 1
                     else:
                         tool_result = await self.sub_agent_tool_managers[
@@ -934,12 +954,12 @@ Your objective is maximum completeness, transparency, and detailed documentation
                             "result": sub_agent_result,
                         }
                     else:
-                        query_str = self._get_query_from_tool_call(
-                            tool_name, arguments
-                        )
+                        query_str = self._get_query_from_tool_call(tool_name, arguments)
                         if query_str:
                             cache_name = "main_" + tool_name
-                            self.used_queries.setdefault(cache_name, defaultdict(lambda: [0, ""]))
+                            self.used_queries.setdefault(
+                                cache_name, defaultdict(lambda: [0, ""])
+                            )
                             count = self.used_queries[cache_name][query_str][0]
                             cache_result = self.used_queries[cache_name][query_str][1]
                             if count > 0:
@@ -952,17 +972,17 @@ Your objective is maximum completeness, transparency, and detailed documentation
                                     should_hard_stop = True
                                 self.used_queries[cache_name][query_str][0] += 1
                             else:
-                                tool_result = (
-                                    await self.main_agent_tool_manager.execute_tool_call(
-                                        server_name=server_name,
-                                        tool_name=tool_name,
-                                        arguments=arguments,
-                                    )
+                                tool_result = await self.main_agent_tool_manager.execute_tool_call(
+                                    server_name=server_name,
+                                    tool_name=tool_name,
+                                    arguments=arguments,
                                 )
                                 if "error" not in tool_result:
-                                    self.used_queries[cache_name][query_str][1] = tool_result["result"]
+                                    self.used_queries[cache_name][query_str][1] = (
+                                        tool_result["result"]
+                                    )
                                     self.used_queries[cache_name][query_str][0] += 1
-                        else:       
+                        else:
                             tool_result = (
                                 await self.main_agent_tool_manager.execute_tool_call(
                                     server_name=server_name,

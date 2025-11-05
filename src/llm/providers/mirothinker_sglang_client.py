@@ -141,7 +141,7 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
                     "LLM finish_reason is 'stop', but content is empty, triggering Error"
                 )
                 raise Exception("LLM finish_reason is 'stop', but content is empty")
-            
+
             # identify repeated messages and retry
             # Check if the last 100 characters of the response appear more than 5 times in the response content.
             # If so, treat it as a severe repeat and trigger a retry.
