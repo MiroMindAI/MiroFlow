@@ -133,6 +133,8 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
             if self.repetition_penalty != 1.0:
                 extra_body["repetition_penalty"] = self.repetition_penalty
 
+            extra_body["usage"] = {"include": True}
+
             params = {
                 "model": self.model_name,
                 "temperature": temperature,
