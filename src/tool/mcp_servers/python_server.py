@@ -263,7 +263,7 @@ async def run_python_code(sandbox_id: str, code_block: str) -> str:
                 pass  # Ignore timeout setting errors
 
 
-@mcp.tool()
+# @mcp.tool()
 async def upload_file_from_local_to_sandbox(
     sandbox_id: str, local_file_path: str, sandbox_file_path: str = "/home/user"
 ) -> str:
@@ -357,7 +357,7 @@ async def download_file_from_internet_to_sandbox(
             pass  # Ignore timeout setting errors
 
 
-@mcp.tool()
+# @mcp.tool()
 async def download_file_from_sandbox_to_local(
     sandbox_id: str, sandbox_file_path: str, local_filename: str = None
 ) -> str:
