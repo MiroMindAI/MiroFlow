@@ -21,7 +21,7 @@ import json
 import re
 import sys
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
 
 
 def extract_task_type(task_id: str) -> str:
@@ -61,7 +61,7 @@ def extract_region_from_label(label: str) -> str:
         return "Unknown"
 
 
-def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, any]:
+def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, Any]:
     """
     Analyze FinSearchComp benchmark results from JSON log files.
 
@@ -192,7 +192,7 @@ def analyze_finsearchcomp_results(log_folder: str) -> Dict[str, any]:
 
 
 def display_results(
-    results: Dict[str, any],
+    results: Dict[str, Any],
     correct_files: List[str],
     incorrect_files: List[Tuple[str, str]],
     error_files: List[Tuple[str, str]],
