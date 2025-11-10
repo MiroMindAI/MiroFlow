@@ -22,7 +22,6 @@ main_agent:
     enable_streaming: true
   
   tool_config:
-    - tool-reasoning
     - tool-searching
     - tool-reading
     - tool-code
