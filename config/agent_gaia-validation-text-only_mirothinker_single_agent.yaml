@@ -24,10 +24,8 @@ main_agent:
   tool_config:
     - tool-reasoning
     - tool-searching
-    - tool-image-video
     - tool-reading
     - tool-code
-    - tool-audio
 
   max_turns: 100  # Maximum number of turns for main agent execution
   max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
@@ -41,7 +39,7 @@ main_agent:
     final_answer_llm_base_url: "${oc.env:FINAL_ANSWER_LLM_BASE_URL,https://api.openai.com/v1}"
 
   openai_api_key: "${oc.env:OPENAI_API_KEY,???}" # used for hint generation and final answer extraction
-  add_message_id: true
+  add_message_id: false
   keep_tool_result: -1
   chinese_context: "${oc.env:CHINESE_CONTEXT,false}"
 
