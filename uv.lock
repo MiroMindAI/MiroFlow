@@ -1346,7 +1346,7 @@ wheels = [
 
 [[package]]
 name = "openai"
-version = "1.78.1"
+version = "2.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -1358,9 +1358,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a4/3f/4e5e7b0548a15eabc4a755c93cd5f9564887e3d2fd45b6ff531352e5859d/openai-1.78.1.tar.gz", hash = "sha256:8b26b364531b100df1b961d03560042e5f5be11301d7d49a6cd1a2b9af824dca", size = 442985, upload-time = "2025-05-12T09:59:51.098Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/72/39/aa3767c920c217ef56f27e89cbe3aaa43dd6eea3269c95f045c5761b9df1/openai-2.5.0.tar.gz", hash = "sha256:f8fa7611f96886a0f31ac6b97e58bc0ada494b255ee2cfd51c8eb502cfcb4814", size = 590333, upload-time = "2025-10-17T18:14:47.669Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/3c/4c/3889bc332a6c743751eb78a4bada5761e50a8a847ff0e46c1bd23ce12362/openai-1.78.1-py3-none-any.whl", hash = "sha256:7368bf147ca499804cc408fe68cdb6866a060f38dec961bbc97b04f9d917907e", size = 680917, upload-time = "2025-05-12T09:59:48.948Z" },
+    { url = "https://files.pythonhosted.org/packages/14/f3/ebbd700d8dc1e6380a7a382969d96bc0cbea8717b52fb38ff0ca2a7653e8/openai-2.5.0-py3-none-any.whl", hash = "sha256:21380e5f52a71666dbadbf322dd518bdf2b9d11ed0bb3f96bea17310302d6280", size = 999851, upload-time = "2025-10-17T18:14:45.528Z" },
 ]
 
 [[package]]
@@ -2148,6 +2148,7 @@ dependencies = [
     { name = "rich" },
     { name = "ruff" },
     { name = "tenacity" },
+    { name = "tencentcloud-sdk-python-common" },
     { name = "tiktoken" },
     { name = "wikipedia" },
 ]
@@ -2167,7 +2168,7 @@ requires-dist = [
     { name = "markitdown-mcp", specifier = ">=0.0.1a3" },
     { name = "mcp", specifier = ">=1.12.2" },
     { name = "mutagen", specifier = ">=1.47.0" },
-    { name = "openai", specifier = "==1.78.1" },
+    { name = "openai", specifier = "==2.5.0" },
     { name = "openpyxl", specifier = ">=3.1.5" },
     { name = "pandas", specifier = ">=2.3.0" },
     { name = "pillow" },
@@ -2178,6 +2179,7 @@ requires-dist = [
     { name = "rich", specifier = ">=14.1.0" },
     { name = "ruff", specifier = "==0.8.0" },
     { name = "tenacity", specifier = ">=8.2.3,<9.0.0" },
+    { name = "tencentcloud-sdk-python-common", specifier = ">=3.0.1485" },
     { name = "tiktoken", specifier = ">=0.9.0" },
     { name = "wikipedia", specifier = ">=1.4.0" },
 ]
@@ -2289,6 +2291,18 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/a3/4d/6a19536c50b849338fcbe9290d562b52cbdcf30d8963d3588a68a4107df1/tenacity-8.5.0.tar.gz", hash = "sha256:8bc6c0c8a09b31e6cad13c47afbed1a567518250a9a171418582ed8d9c20ca78", size = 47309, upload-time = "2024-07-05T07:25:31.836Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d2/3f/8ba87d9e287b9d385a02a7114ddcef61b26f86411e121c9003eb509a1773/tenacity-8.5.0-py3-none-any.whl", hash = "sha256:b594c2a5945830c267ce6b79a166228323ed52718f30302c1359836112346687", size = 28165, upload-time = "2024-07-05T07:25:29.591Z" },
+]
+
+[[package]]
+name = "tencentcloud-sdk-python-common"
+version = "3.0.1485"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/24/05/272dc0f6f63a4ae740100b9167552384fade3c5ade4de65ac367c2335cf2/tencentcloud_sdk_python_common-3.0.1485.tar.gz", hash = "sha256:ea500d2ce61d672d7f85d8c9fb681d91fc0e140cc7a06fd90cd4a949166afb9c", size = 18286, upload-time = "2025-11-09T20:57:25.172Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/90/20/8f0a8f0093aae57ece1536454cd4815a9c4a4436ca72da9119ab2c091937/tencentcloud_sdk_python_common-3.0.1485-py2.py3-none-any.whl", hash = "sha256:02b116236ae223fd9a29094e307d702c48d0092d263fc20b9b1536b2a9055d04", size = 24948, upload-time = "2025-11-09T20:57:21.69Z" },
 ]
 
 [[package]]

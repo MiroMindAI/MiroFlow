@@ -15,7 +15,14 @@ import wikipedia
 import asyncio
 from .utils.smart_request import smart_request, request_to_json
 from src.logging.logger import setup_mcp_logging
-
+from tencentcloud.common.common_client import CommonClient
+from tencentcloud.common import credential
+import traceback  # 确保导入 traceback 模块
+from tencentcloud.common.exception.tencent_cloud_sdk_exception import (
+    TencentCloudSDKException,
+)
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
 
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
 SERPER_BASE_URL = os.environ.get("SERPER_BASE_URL", "https://google.serper.dev")
@@ -36,6 +43,10 @@ REMOVE_ANSWER_BOX = os.environ.get("REMOVE_ANSWER_BOX", "").lower() in (
     "1",
     "yes",
 )
+
+TENCENTCLOUD_SECRET_ID = os.environ.get("TENCENTCLOUD_SECRET_ID", "")
+TENCENTCLOUD_SECRET_KEY = os.environ.get("TENCENTCLOUD_SECRET_KEY", "")
+
 
 # Initialize FastMCP server
 setup_mcp_logging(tool_name=os.path.basename(__file__))
@@ -83,6 +94,57 @@ def filter_google_search_result(result_content: str) -> str:
     except (json.JSONDecodeError, Exception):
         # If filtering fails, return original content
         return result_content
+
+
+def sougou_search(Query: str, Cnt: int = 10) -> str:
+    if TENCENTCLOUD_SECRET_ID == "" or TENCENTCLOUD_SECRET_KEY == "":
+        return []
+
+    retry_count = 0
+    max_retries = 3
+
+    while retry_count < max_retries:
+        try:
+            cred = credential.Credential(
+                TENCENTCLOUD_SECRET_ID, TENCENTCLOUD_SECRET_KEY
+            )
+            httpProfile = HttpProfile()
+            httpProfile.endpoint = "wsa.tencentcloudapi.com"
+            clientProfile = ClientProfile()
+            clientProfile.httpProfile = httpProfile
+
+            params = f'{{"Query":"{Query}","Mode":0, "Cnt":{Cnt}}}'
+            common_client = CommonClient(
+                "wsa", "2025-05-08", cred, "", profile=clientProfile
+            )
+            result = common_client.call_json("SearchPro", json.loads(params))[
+                "Response"
+            ]
+            del result["RequestId"]
+            pages = []
+            for index, page in enumerate(result["Pages"]):
+                page_json = json.loads(page)
+                new_page = {}
+                new_page["title"] = page_json["title"]
+                new_page["link"] = page_json["url"]
+                new_page["snippet"] = page_json["passage"]
+                new_page["position"] = index
+                new_page["date"] = page_json["date"]
+                pages.append(new_page)
+            result["Pages"] = pages
+            return result
+        except TencentCloudSDKException:
+            retry_count += 1
+
+            if retry_count >= max_retries:
+                return None
+                # return f"Tool execution failed after {max_retries} connection attempts: Unexpected error occurred."
+
+            asyncio.sleep(
+                min(3 * retry_count, 10)
+            )  # Exponential backoff with ca
+
+
 
 
 @mcp.tool()
@@ -143,6 +205,15 @@ async def google_search(
     retry_count = 0
     max_retries = 5
 
+    def no_chinese(text):
+        import re
+        return not bool(re.search(r'[\u4e00-\u9fff]', text))
+    
+    no_chinese_q = no_chinese(q)
+    sougou_search_result = None
+    if not no_chinese_q:
+        sougou_search_result = sougou_search(q, 10)
+
     while retry_count < max_retries:
         try:
             async with stdio_client(server_params) as (read, write):
@@ -161,6 +232,12 @@ async def google_search(
                     ), "Empty result from google_search tool, please try again."
                     # Apply filtering based on environment variables
                     filtered_result = filter_google_search_result(result_content)
+                    if not no_chinese_q and sougou_search_result and sougou_search_result["Pages"]:
+                        google_result = json.loads(filtered_result)
+                        google_result["organic"] = sougou_search_result["Pages"] + google_result["organic"]
+                        for index, page in enumerate(google_result["organic"]):
+                            page["position"] = index + 1
+                        return json.dumps(google_result, ensure_ascii=False, indent=2)  # Success, exit retry loop
                     return filtered_result  # Success, exit retry loop
         except Exception as error:
             retry_count += 1

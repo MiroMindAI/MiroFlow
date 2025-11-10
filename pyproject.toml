@@ -30,7 +30,8 @@ dependencies = [
     "requests>=2.32.4",
     "filetype>=1.2.0",
     "Pillow",
-    "pyzmq"
+    "pyzmq",
+    "tencentcloud-sdk-python-common>=3.0.1485",
 ]
 
 [build-system]
