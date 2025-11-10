@@ -37,7 +37,7 @@ main_agent:
     hint_llm_base_url: "${oc.env:HINT_LLM_BASE_URL,https://api.openai.com/v1}"
 
   output_process:
-    final_answer_extraction: true
+    final_answer_extraction: false
     final_answer_llm_base_url: "${oc.env:FINAL_ANSWER_LLM_BASE_URL,https://api.openai.com/v1}"
 
   openai_api_key: "${oc.env:OPENAI_API_KEY,???}" # used for hint generation and final answer extraction
