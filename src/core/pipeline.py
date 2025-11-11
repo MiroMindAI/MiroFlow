@@ -59,6 +59,7 @@ async def execute_task_pipeline(
         - The path to the log file.
     """
     logger.debug(f"Starting Task Execution: {task_id}, cfg.keys: {list(cfg.keys())}")
+    
 
     # Create task log
     task_log = TaskTracer(
@@ -124,6 +125,7 @@ async def execute_task_pipeline(
             task_description=task_description,
             task_file_name=task_file_name,
             task_id=task_id,
+            history=history,
         )
 
         task_log.final_boxed_answer = final_boxed_answer

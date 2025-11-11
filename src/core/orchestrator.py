@@ -6,6 +6,7 @@ import asyncio
 import datetime
 import json
 import os
+import re
 import sys
 import time
 import uuid
@@ -875,7 +876,7 @@ class Orchestrator:
         return final_answer_text
 
     async def run_main_agent(
-        self, task_description, task_file_name=None, task_id="default_task"
+        self, task_description, task_file_name=None, task_id="default_task", history=None
     ):
         """
         Execute the main end-to-end task.
@@ -947,7 +948,17 @@ class Orchestrator:
                 hint_notes = ""  # Continue execution but without hints
 
         logger.info("Initial user input content: %s", initial_user_content)
-        message_history = [{"role": "user", "content": initial_user_content}]
+        message_history = []
+        if history:
+            for turn_history in history:
+                for message in turn_history["main_agent"]:
+                    # 去掉 <think>...</think> 标签及其内容
+                    content = message["content"]
+                    if isinstance(content, str):
+                        content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
+                    message_history.append({"role": message["role"], "content": content})
+
+        message_history.append({"role": "user", "content": initial_user_content})
 
         # 2. 获取工具定义
         if not self.tool_definitions:
