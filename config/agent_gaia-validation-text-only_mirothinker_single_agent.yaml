@@ -14,7 +14,7 @@ main_agent:
     top_p: 0.95
     min_p: 0.0
     top_k: -1
-    max_tokens: 16384
+    max_tokens: 8192
     oai_mirothinker_api_key: "${oc.env:OAI_MIROTHINKER_API_KEY,dummy_key}"
     oai_mirothinker_base_url: "${oc.env:OAI_MIROTHINKER_BASE_URL,http://localhost:61005/v1}"
     keep_tool_result: -1
