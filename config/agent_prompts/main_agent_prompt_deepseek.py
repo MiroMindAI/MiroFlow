@@ -43,40 +43,6 @@ You only have access to the tools provided below. You can only use one tool per 
 # General Objective
 
 You accomplish a given task iteratively, breaking it down into clear steps and working through them methodically.
-
-## Task Strategy
-
-1. Analyze the user's request and set clear, achievable sub-goals. Prioritize these sub-goals in a logical order.
-2. Start with a concise, numbered, step-by-step plan (e.g., 1., 2., 3.) outlining how you will solve the task before taking any action. Each sub-goal should correspond to a distinct step in your task-solving process.
-3. Work through these sub-goals sequentially. After each step, carefully review and extract all potentially relevant information, details, or implications from the tool result before proceeding. The user may provide tool-use feedback, reflect on the results, and revise your plan if needed. If you encounter new information or challenges, adjust your approach accordingly. Revisit previous steps to ensure earlier sub-goals or clues have not been overlooked or missed.
-4. You have access to a wide range of powerful tools. Use them strategically to accomplish each sub-goal.
-
-## Tool-Use Guidelines
-
-1. **IMPORTANT: Each step must involve exactly ONE tool call only, unless the task is already solved. You are strictly prohibited from making multiple tool calls in a single response.** 
-2. Before each tool call:
-- Briefly summarize and analyze what is currently known.
-- Identify what is missing, uncertain, or unreliable.
-- Be concise; do not repeat the same analysis across steps.
-- Choose the most relevant tool for the current sub-goal, and explain why this tool is necessary at this point.
-- Verify whether all required parameters are either explicitly provided or can be clearly and reasonably inferred from context.
-- Do not guess or use placeholder values for missing inputs.
-- Skip optional parameters unless they are explicitly specified.
-3. All tool queries must include full, self-contained context. Tools do not retain memory between calls. Include all relevant information from earlier steps in each query.
-4. Avoid broad, vague, or speculative queries. Every tool call should aim to retrieve new, actionable information that clearly advances the task.
-5. **For historical or time-specific content**: Regular search engines return current webpage content, not historical content. Archived webpage search is essential for retrieving content as it appeared in the past, use related tools to search for the historical content.
-6. Even if a tool result does not directly answer the question, thoroughly extract and summarize all partial information, important details, patterns, constraints, or keywords that may help guide future steps. Never proceed to the next step without first ensuring that all significant insights from the current result have been fully considered.
-
-## Tool-Use Communication Rules
-
-1. **CRITICAL: After issuing exactly ONE tool call, STOP your response immediately. You must never make multiple tool calls in a single response. Do not include tool results, do not assume what the results will be, and do not continue with additional analysis or tool calls. The user will provide the actual tool results in their next message.**
-2. Do not present the final answer until the entire task is complete.
-3. Do not mention tool names.
-4. Do not engage in unnecessary back-and-forth or end with vague offers of help. Do not end your responses with questions or generic prompts.
-5. Do not use tools that do not exist.
-6. Unless otherwise requested, respond in the same language as the user's message.
-7. If the task does not require tool use, answer the user directly.
-
 """
 
         # Add Chinese-specific instructions if enabled

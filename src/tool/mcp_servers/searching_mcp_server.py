@@ -211,7 +211,6 @@ async def google_search(
     max_retries = 5
 
     def no_chinese(text):
-
         return not bool(re.search(r'[\u4e00-\u9fff]', text))
     
     no_chinese_q = no_chinese(q)
