@@ -23,7 +23,8 @@ from tencentcloud.common.exception.tencent_cloud_sdk_exception import (
 )
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
-
+import re
+import logging
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
 SERPER_BASE_URL = os.environ.get("SERPER_BASE_URL", "https://google.serper.dev")
 JINA_API_KEY = os.environ.get("JINA_API_KEY", "")
@@ -52,6 +53,7 @@ TENCENTCLOUD_SECRET_KEY = os.environ.get("TENCENTCLOUD_SECRET_KEY", "")
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("searching-mcp-server")
 
+logger = logging.getLogger(__name__)
 
 def filter_google_search_result(result_content: str) -> str:
     """Filter google search result content based on environment variables.
@@ -120,6 +122,7 @@ def sougou_search(Query: str, Cnt: int = 10) -> str:
             result = common_client.call_json("SearchPro", json.loads(params))[
                 "Response"
             ]
+            logger.info(f"Sougou Search Tool result: {result}")
             del result["RequestId"]
             pages = []
             for index, page in enumerate(result["Pages"]):
@@ -133,9 +136,9 @@ def sougou_search(Query: str, Cnt: int = 10) -> str:
                 pages.append(new_page)
             result["Pages"] = pages
             return result
-        except TencentCloudSDKException:
+        except TencentCloudSDKException as e:
             retry_count += 1
-
+            logger.error(f"Sougou Search Tool execution failed after {retry_count} connection attempts: Unexpected error occurred. {e}")
             if retry_count >= max_retries:
                 return None
                 # return f"Tool execution failed after {max_retries} connection attempts: Unexpected error occurred."
@@ -143,7 +146,9 @@ def sougou_search(Query: str, Cnt: int = 10) -> str:
             asyncio.sleep(
                 min(3 * retry_count, 10)
             )  # Exponential backoff with ca
-
+        except Exception as e:
+            logger.error(f"Sougou Search Tool execution failed: Unexpected error occurred. {e}")
+            return None
 
 
 
@@ -206,12 +211,13 @@ async def google_search(
     max_retries = 5
 
     def no_chinese(text):
-        import re
+
         return not bool(re.search(r'[\u4e00-\u9fff]', text))
     
     no_chinese_q = no_chinese(q)
     sougou_search_result = None
     if not no_chinese_q:
+        logger.info(f"Sougou Search Tool is used for the query: {q}")
         sougou_search_result = sougou_search(q, 10)
 
     while retry_count < max_retries:
