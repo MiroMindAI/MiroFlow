@@ -132,7 +132,8 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
                 "Organize the content into logical sections with appropriate headings.\n"
                 "Do NOT include any tool call instructions, speculative filler, or vague summaries.\n"
                 "Focus on factual, specific, and well-organized information.\n\n"
-                "**Important: Always respond in the same language as the original question. For example, if the original question is in Chinese, respond in Chinese; if it is in English, respond in English. This applies to any language — match the language of your response to the language of the question.**"
+                "**Important: Always respond in the same language as the original question. For example, if the original question is in Chinese, respond in Chinese; if it is in English, respond in English. This applies to any language — match the language of your response to the language of the question.**\n\n"
+                "**Formatting Note: When using markdown tables, do NOT use code block syntax (triple backticks ``` ) inside table cells, as it will break the table formatting. Instead, present code, JSON, or data directly as plain text within the cells, or use inline code formatting (`code`) if needed.**"
             )
         )
 
