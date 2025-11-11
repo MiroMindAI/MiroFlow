@@ -139,6 +139,7 @@ async def google_search(
                 payload["page"] = page
             if autocorrect is not None:
                 payload["autocorrect"] = autocorrect
+            payload["autocorrect"] = True
 
             # Set up headers
             headers = {
