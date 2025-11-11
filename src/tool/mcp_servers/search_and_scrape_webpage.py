@@ -24,7 +24,17 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
 )
-
+from tencentcloud.common.common_client import CommonClient
+from tencentcloud.common import credential
+import traceback  # 确保导入 traceback 模块
+from tencentcloud.common.exception.tencent_cloud_sdk_exception import (
+    TencentCloudSDKException,
+)
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+import re
+import json
+import asyncio
 from ..mcp_servers.utils.url_unquote import decode_http_urls_in_dict
 
 # Configure logging
@@ -32,6 +42,8 @@ logger = logging.getLogger("miroflow")
 
 SERPER_BASE_URL = os.getenv("SERPER_BASE_URL", "https://google.serper.dev")
 SERPER_API_KEY = os.getenv("SERPER_API_KEY", "")
+TENCENTCLOUD_SECRET_ID = os.environ.get("TENCENTCLOUD_SECRET_ID", "")
+TENCENTCLOUD_SECRET_KEY = os.environ.get("TENCENTCLOUD_SECRET_KEY", "")
 
 # Initialize FastMCP server
 mcp = FastMCP("search_and_scrape_webpage")
@@ -67,6 +79,60 @@ def _is_huggingface_dataset_or_space_url(url):
     if not url:
         return False
     return "huggingface.co/datasets" in url or "huggingface.co/spaces" in url
+def no_chinese(text): 
+    return not bool(re.search(r'[\u4e00-\u9fff]', text))
+    
+def sougou_search(Query: str, Cnt: int = 10) -> str:
+    if TENCENTCLOUD_SECRET_ID == "" or TENCENTCLOUD_SECRET_KEY == "":
+        return []
+
+    retry_count = 0
+    max_retries = 3
+
+    while retry_count < max_retries:
+        try:
+            cred = credential.Credential(
+                TENCENTCLOUD_SECRET_ID, TENCENTCLOUD_SECRET_KEY
+            )
+            httpProfile = HttpProfile()
+            httpProfile.endpoint = "wsa.tencentcloudapi.com"
+            clientProfile = ClientProfile()
+            clientProfile.httpProfile = httpProfile
+
+            params = f'{{"Query":"{Query}","Mode":0, "Cnt":{Cnt}}}'
+            common_client = CommonClient(
+                "wsa", "2025-05-08", cred, "", profile=clientProfile
+            )
+            result = common_client.call_json("SearchPro", json.loads(params))[
+                "Response"
+            ]
+            del result["RequestId"]
+            pages = []
+            for index, page in enumerate(result["Pages"]):
+                page_json = json.loads(page)
+                new_page = {}
+                new_page["title"] = page_json["title"]
+                new_page["link"] = page_json["url"]
+                new_page["snippet"] = page_json["passage"]
+                new_page["position"] = index
+                new_page["date"] = page_json["date"]
+                pages.append(new_page)
+            result["Pages"] = pages
+            return result
+        except TencentCloudSDKException:
+            retry_count += 1
+
+            if retry_count >= max_retries:
+                return None
+                # return f"Tool execution failed after {max_retries} connection attempts: Unexpected error occurred."
+
+            asyncio.sleep(
+                min(3 * retry_count, 10)
+            )  # Exponential backoff with ca
+
+
+
+
 
 
 @mcp.tool()
@@ -181,6 +247,15 @@ async def google_search(
             "organic": organic_results,
             "searchParameters": search_params,
         }
+        no_chinese_q = no_chinese(q)
+        sougou_search_result = None
+        if not no_chinese_q:
+            sougou_search_result = sougou_search(q, 10)
+        
+        if not no_chinese_q and sougou_search_result and sougou_search_result["Pages"]:
+            response_data["organic"] = sougou_search_result["Pages"] + response_data["organic"]
+            for index, page in enumerate(response_data["organic"]):
+                page["position"] = index + 1
         response_data = decode_http_urls_in_dict(response_data)
 
         return response_data
