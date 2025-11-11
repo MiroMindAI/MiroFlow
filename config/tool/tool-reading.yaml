@@ -2,7 +2,10 @@ name: "tool-reading"
 tool_command: "python"
 args:
   - "-m"
-  - "src.tool.mcp_servers.reading_mcp_server"
+  - "src.tool.mcp_servers.jina_scrape_llm_summary"
 env:
   SERPER_API_KEY: "${oc.env:SERPER_API_KEY}"
   JINA_API_KEY: "${oc.env:JINA_API_KEY}"
+  SUMMARY_LLM_API_KEY: "${oc.env:SUMMARY_LLM_API_KEY}"
+  SUMMARY_LLM_BASE_URL: "${oc.env:SUMMARY_LLM_BASE_URL}"
+  SUMMARY_LLM_MODEL_NAME: "${oc.env:SUMMARY_LLM_MODEL_NAME}"

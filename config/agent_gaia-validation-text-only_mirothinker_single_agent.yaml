@@ -22,9 +22,9 @@ main_agent:
     enable_streaming: true
   
   tool_config:
+    - tool-code
     - tool-searching
     - tool-reading
-    - tool-code
 
   max_turns: 100  # Maximum number of turns for main agent execution
   max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
