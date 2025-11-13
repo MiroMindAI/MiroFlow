@@ -365,15 +365,17 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
 
     def handle_max_turns_reached_summary_prompt(self, message_history, summary_prompt):
         """Handle max turns reached summary prompt"""
-        if message_history[-1]["role"] == "user":
-            last_user_message = message_history.pop()
-            return (
-                last_user_message["content"][0]["text"]
-                + "\n\n-----------------\n\n"
-                + summary_prompt
-            )
-        else:
-            return summary_prompt
+        return summary_prompt
+        
+        # if message_history[-1]["role"] == "user":
+        #     last_user_message = message_history.pop()
+        #     return (
+        #         last_user_message["content"][0]["text"]
+        #         + "\n\n-----------------\n\n"
+        #         + summary_prompt
+        #     )
+        # else:
+        #     return summary_prompt
 
     def _apply_cache_control(self, messages):
         """Apply cache control to the last user message and system message (if applicable)"""

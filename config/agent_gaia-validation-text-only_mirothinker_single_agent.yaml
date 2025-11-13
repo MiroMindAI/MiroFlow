@@ -27,7 +27,7 @@ main_agent:
     - tool-reading
 
   max_turns: 100  # Maximum number of turns for main agent execution
-  max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
+  max_tool_calls_per_turn: 1  # Maximum number of tool calls per turn
   
   input_process:
     hint_generation: false
