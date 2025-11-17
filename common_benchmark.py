@@ -597,8 +597,10 @@ async def entrypoint(cfg: DictConfig) -> float:
         if isinstance(data.get("task_id"), (str, bytes, os.PathLike)) is False:
             try:
                 data["task_id"] = str(data["task_id"])
-            except:
-                raise TypeError("expected task_id to be a string, bytes or os.PathLike object")
+            except TypeError:
+                raise TypeError(
+                    "expected task_id to be a string, bytes or os.PathLike object"
+                )
         return BenchmarkTask(
             task_id=data["task_id"],
             task_question=data["task_question"],
