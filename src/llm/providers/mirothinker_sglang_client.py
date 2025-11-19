@@ -105,6 +105,7 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
                 "max_tokens": self.max_tokens,
                 "messages": messages_copy,
                 "stream": self.enable_streaming,
+                "extra_headers": {"x-upstream-session-id": self.task_id},
             }
 
             # Add optional parameters only if they have non-default values
@@ -114,7 +115,6 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
                 params["min_p"] = self.min_p
             if self.top_k != -1:
                 params["top_k"] = self.top_k
-
             response = await self._create_completion(params, self.async_client, stream_message_callback)
 
             if (
