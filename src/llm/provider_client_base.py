@@ -320,3 +320,25 @@ class LLMProviderClientBase(ABC):
         self, message_history: list[dict[str, Any]], summary_prompt: str
     ):
         raise NotImplementedError("must implement in subclass")
+
+    def get_usage(self) -> Dict[str, Any]:
+        """
+        Get usage statistics for this LLM client.
+        
+        Default implementation returns an empty result indicating usage tracking is not supported.
+        Subclasses should override this method to provide actual usage statistics.
+        
+        :return: Dictionary containing usage statistics with keys:
+            - records: List of all usage records (each with prompt_tokens, completion_tokens, total_tokens)
+            - total_prompt_tokens: Sum of all prompt tokens
+            - total_completion_tokens: Sum of all completion tokens
+            - total_tokens: Sum of all total tokens
+            - request_count: Number of API requests made
+        """
+        return {
+            "records": [],
+            "total_prompt_tokens": 0,
+            "total_completion_tokens": 0,
+            "total_tokens": 0,
+            "request_count": 0,
+        }

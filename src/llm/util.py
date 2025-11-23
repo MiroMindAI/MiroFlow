@@ -45,6 +45,7 @@ async def collect_openai_stream(stream: AsyncIterator[Any], stream_message_callb
     collected_tool_calls = []
     first_chunk = None
     finish_reason = None
+    usage_data = None
     msg_id = str(uuid.uuid4())
     
     # Streaming buffer variables
@@ -56,6 +57,10 @@ async def collect_openai_stream(stream: AsyncIterator[Any], stream_message_callb
     async for chunk in stream:
         if first_chunk is None:
             first_chunk = chunk
+
+        # Collect usage data if present
+        if hasattr(chunk, "usage") and chunk.usage:
+            usage_data = chunk.usage
 
         # Merge chunk data
         if hasattr(chunk, "choices") and len(chunk.choices) > 0:
@@ -134,6 +139,14 @@ async def collect_openai_stream(stream: AsyncIterator[Any], stream_message_callb
     # Add tool_calls if present
     if collected_tool_calls:
         response_dict["choices"][0]["message"]["tool_calls"] = collected_tool_calls
+
+    # Add usage data if present
+    if usage_data:
+        response_dict["usage"] = {
+            "prompt_tokens": getattr(usage_data, "prompt_tokens", 0),
+            "completion_tokens": getattr(usage_data, "completion_tokens", 0),
+            "total_tokens": getattr(usage_data, "total_tokens", 0),
+        }
 
     # Use ChatCompletion (non-streaming response type)
     final_response = ChatCompletion.model_validate(response_dict)

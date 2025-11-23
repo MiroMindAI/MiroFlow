@@ -250,6 +250,20 @@ class Orchestrator:
         
         return tool_call_id
 
+    async def _stream_usage_info(self, agent_name: AgentName, usage_data: Dict[str, Any], scene: str):
+        """
+        Send usage_info event
+        
+        :param agent_name: Name of the agent
+        :param usage_data: Usage data dictionary
+        :param scene: Scene identifier - "tool_call", "main_agent_end", or "sub_agent_end"
+        """
+        await self._stream_update("usage_info", {
+            "agent_name": agent_name,
+            "scene": scene,
+            "usage": usage_data,
+        })
+
     async def _intercept_key_message(self, message_id: str, message: str, is_last: bool):
         """拦截关键字，如果关键字在消息中，则不发送，返回False，否则发送，返回True"""
         # logger.info(f"✅收到消息：{message}, 是否是最后一个：{is_last}")
@@ -717,6 +731,8 @@ class Orchestrator:
                     tool_result = self.post_process_tool_call_result(tool_name,tool_result)
                     result = tool_result.get("result") if tool_result.get("result") else tool_result.get("error")
                     await self._stream_tool_call(tool_name, {"result": result }, tool_call_id=tool_call_id)
+                    # Stream usage info for tool call (tool calls don't have usage, just report tool name)
+                    await self._stream_usage_info(sub_agent_name, {"tool_name": tool_name}, "tool_call")
                     call_end_time = time.time()
                     call_duration_ms = int((call_end_time - call_start_time) * 1000)
 
@@ -868,7 +884,7 @@ class Orchestrator:
             "sub_agent_completed", f"Sub agent {sub_agent_name} completed", "info"
         )
 
-        # Stream sub-agent end
+        # Stream sub-agent end (usage will be reported together with main agent at the end)
         await self._stream_end_llm(display_name)
         await self._stream_end_agent(display_name, sub_agent_id)
 
@@ -1095,6 +1111,8 @@ class Orchestrator:
                         tool_result = self.post_process_tool_call_result(tool_name,tool_result)
                         result = tool_result.get("result") if tool_result.get("result") else tool_result.get("error")
                         await self._stream_tool_call(tool_name,{"result": result}, tool_call_id=tool_call_id)
+                        # Stream usage info for tool call (tool calls don't have usage, just report tool name)
+                        await self._stream_usage_info("main", {"tool_name": tool_name}, "tool_call")
 
                     call_end_time = time.time()
                     call_duration_ms = int((call_end_time - call_start_time) * 1000)
@@ -1170,6 +1188,7 @@ class Orchestrator:
                 message_history, all_tool_results_content_with_id, tool_calls_exceeded
             )
         
+
         # 退出主 llm,agent
         await self._stream_end_llm("main")
         await self._stream_end_agent("main", self.current_agent_id)
@@ -1318,6 +1337,15 @@ class Orchestrator:
         )
         await self._stream_end_llm("reporter")
         await self._stream_end_agent("reporter", self.current_agent_id)
+        # Stream usage info for main agent
+        main_agent_usage = self.llm_client.get_usage()
+        await self._stream_usage_info("main", main_agent_usage, "main_agent_end")
+        
+        # Stream usage info for sub agents if they use a different client
+        if self.sub_agent_llm_client and self.sub_agent_llm_client is not self.llm_client:
+            sub_agent_usage = self.sub_agent_llm_client.get_usage()
+            await self._stream_usage_info("sub_agent", sub_agent_usage, "sub_agent_end")
+        
         await self._stream_end_workflow(workflow_id)
 
         logger.debug(f"\n{'=' * 20} Task {task_id} Finished {'=' * 20}")

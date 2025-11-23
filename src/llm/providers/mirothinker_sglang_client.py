@@ -33,6 +33,11 @@ class ContextLimitError(Exception):
 
 @dataclasses.dataclass
 class MiroThinkerSGLangClient(LLMProviderClientBase):
+    def __post_init__(self):
+        """Initialize usage tracking after dataclass initialization"""
+        super().__post_init__()
+        self._usage_records = []
+
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client for MiroThinker via SGLang"""
         if self.async_client:
@@ -108,6 +113,10 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
                 "extra_headers": {"x-upstream-session-id": self.task_id},
             }
 
+            # Add stream_options to include usage in streaming mode
+            if self.enable_streaming:
+                params["stream_options"] = {"include_usage": True}
+
             # Add optional parameters only if they have non-default values
             if self.top_p != 1.0:
                 params["top_p"] = self.top_p
@@ -146,6 +155,17 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
             logger.debug(
                 f"LLM call finish_reason: {getattr(response.choices[0], 'finish_reason', 'N/A')}"
             )
+            
+            # Record usage if present
+            if hasattr(response, "usage") and response.usage:
+                usage_dict = {
+                    "prompt_tokens": getattr(response.usage, "prompt_tokens", 0),
+                    "completion_tokens": getattr(response.usage, "completion_tokens", 0),
+                    "total_tokens": getattr(response.usage, "total_tokens", 0),
+                }
+                self._usage_records.append(usage_dict)
+                logger.debug(f"Recorded usage: {usage_dict}")
+            
             return response
         except asyncio.CancelledError:
             logger.debug("[WARNING] LLM API call was cancelled during execution")
@@ -342,3 +362,26 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
         #     )
         # else:
         return summary_prompt
+
+    def get_usage(self) -> Dict[str, Any]:
+        """
+        Get all recorded usage statistics.
+        
+        :return: Dictionary containing:
+            # - records: List of all usage records
+            - total_prompt_tokens: Sum of all prompt tokens
+            - total_completion_tokens: Sum of all completion tokens
+            - total_tokens: Sum of all total tokens
+            - request_count: Number of API requests made
+        """
+        total_prompt_tokens = sum(record["prompt_tokens"] for record in self._usage_records)
+        total_completion_tokens = sum(record["completion_tokens"] for record in self._usage_records)
+        total_tokens = sum(record["total_tokens"] for record in self._usage_records)
+        
+        return {
+            # "records": self._usage_records.copy(),
+            "total_prompt_tokens": total_prompt_tokens,
+            "total_completion_tokens": total_completion_tokens,
+            "total_tokens": total_tokens,
+            "request_count": len(self._usage_records),
+        }
