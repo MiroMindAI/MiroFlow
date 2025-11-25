@@ -34,6 +34,11 @@ class LLMProviderClientBase(ABC):
 
     # post_init
     client: Any = dataclasses.field(init=False)
+    # Usage tracking - cumulative for each agent session
+    total_input_tokens: int = dataclasses.field(init=False, default=0)
+    total_input_cached_tokens: int = dataclasses.field(init=False, default=0)
+    total_output_tokens: int = dataclasses.field(init=False, default=0)
+    total_output_reasoning_tokens: int = dataclasses.field(init=False, default=0)
 
     def __post_init__(self):
         # Explicitly assign from cfg object
@@ -196,6 +201,21 @@ class LLMProviderClientBase(ABC):
             tool_definitions,
             keep_tool_result=keep_tool_result,
         )
+
+        # Accumulate usage for agent session
+        if response:
+            try:
+                usage = self._extract_usage_from_response(response)
+                if usage:
+                    self.total_input_tokens += usage.get("input_tokens", 0)
+                    self.total_input_cached_tokens += usage.get("cached_tokens", 0)
+                    self.total_output_tokens += usage.get("output_tokens", 0)
+                    self.total_output_reasoning_tokens += usage.get(
+                        "reasoning_tokens", 0
+                    )
+            except Exception as e:
+                logger.warning(f"Failed to accumulate usage: {e}")
+
         return response
 
     @staticmethod
@@ -315,3 +335,54 @@ class LLMProviderClientBase(ABC):
         self, message_history: list[dict[str, Any]], summary_prompt: str
     ):
         raise NotImplementedError("must implement in subclass")
+
+    def _extract_usage_from_response(self, response):
+        """Default Extract usage - OpenAI Chat Completions format"""
+        if not hasattr(response, "usage"):
+            return {
+                "input_tokens": 0,
+                "cached_tokens": 0,
+                "output_tokens": 0,
+                "reasoning_tokens": 0,
+            }
+
+        usage = response.usage
+        prompt_tokens_details = getattr(usage, "prompt_tokens_details", {}) or {}
+        if hasattr(prompt_tokens_details, "to_dict"):
+            prompt_tokens_details = prompt_tokens_details.to_dict()
+        completion_tokens_details = (
+            getattr(usage, "completion_tokens_details", {}) or {}
+        )
+        if hasattr(completion_tokens_details, "to_dict"):
+            completion_tokens_details = completion_tokens_details.to_dict()
+
+        usage_dict = {
+            "input_tokens": getattr(usage, "prompt_tokens", 0),
+            "cached_tokens": prompt_tokens_details.get("cached_tokens", 0),
+            "output_tokens": getattr(usage, "completion_tokens", 0),
+            "reasoning_tokens": completion_tokens_details.get("reasoning_tokens", 0),
+        }
+
+        return usage_dict
+
+    def get_usage_log(self) -> str:
+        """Get cumulative usage for current agent session as formatted string"""
+        # Format: [Provider | Model] Total Input: X, Cache Input: Y, Output: Z, ...
+        provider_model = f"[{self.provider_class} | {self.model_name}]"
+        input_uncached = self.total_input_tokens - self.total_input_cached_tokens
+        output_response = self.total_output_tokens - self.total_output_reasoning_tokens
+        total_tokens = self.total_input_tokens + self.total_output_tokens
+
+        return (
+            f"Usage log: {provider_model}, "
+            f"Total Input: {self.total_input_tokens} (Cached: {self.total_input_cached_tokens}, Uncached: {input_uncached}), "
+            f"Total Output: {self.total_output_tokens} (Reasoning: {self.total_output_reasoning_tokens}, Response: {output_response}), "
+            f"Total Tokens: {total_tokens}"
+        )
+
+    def reset_usage_stats(self):
+        """Reset usage stats for new agent session"""
+        self.total_input_tokens = 0
+        self.total_input_cached_tokens = 0
+        self.total_output_tokens = 0
+        self.total_output_reasoning_tokens = 0

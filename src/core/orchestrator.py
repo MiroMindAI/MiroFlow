@@ -391,6 +391,9 @@ class Orchestrator:
         # Start new sub-agent session
         self.task_log.start_sub_agent_session(sub_agent_name, task_description)
 
+        # Reset sub-agent usage stats for independent tracking
+        self.sub_agent_llm_client.reset_usage_stats()
+
         # Simplified initial user content (no file attachments)
         initial_user_content = [{"type": "text", "text": task_description}]
         message_history = [{"role": "user", "content": initial_user_content}]
@@ -667,6 +670,14 @@ class Orchestrator:
         ] = {"system_prompt": system_prompt, "message_history": message_history}  # type: ignore
         self.task_log.save()
 
+        # Record sub-agent cumulative usage
+        usage_log = self.sub_agent_llm_client.get_usage_log()
+        self.task_log.log_step(
+            "usage_calculation",
+            usage_log,
+            metadata={"session_id": self.task_log.current_sub_agent_session_id},
+        )
+
         self.task_log.end_sub_agent_session(sub_agent_name)
         self.task_log.log_step(
             "sub_agent_completed", f"Sub agent {sub_agent_name} completed", "info"
@@ -687,6 +698,9 @@ class Orchestrator:
         logger.debug(f"Task Description: {task_description}")
         if task_file_name:
             logger.debug(f"Associated File: {task_file_name}")
+
+        # Reset main agent usage stats for independent tracking
+        self.llm_client.reset_usage_stats()
 
         # 1. Process input
         initial_user_content, task_description = process_input(
@@ -1101,6 +1115,14 @@ Your objective is maximum completeness, transparency, and detailed documentation
         logger.debug(f"\n{'=' * 20} Task {task_id} Finished {'=' * 20}")
         self.task_log.log_step(
             "task_completed", f"Main agent task {task_id} completed successfully"
+        )
+
+        # Record main agent cumulative usage
+        usage_log = self.llm_client.get_usage_log()
+        self.task_log.log_step(
+            "usage_calculation",
+            usage_log,
+            metadata={"session_id": "main_agent"},
         )
 
         if "browsecomp-zh" in self.cfg.benchmark.name:
