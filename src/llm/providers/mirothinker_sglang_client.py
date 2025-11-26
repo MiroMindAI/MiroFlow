@@ -11,7 +11,7 @@ from typing import Any, Dict, List
 
 import tiktoken
 from omegaconf import DictConfig
-from openai import AsyncOpenAI, OpenAI
+from openai import AsyncOpenAI, OpenAI, AuthenticationError
 from tenacity import (
     retry,
     retry_if_not_exception_type,
@@ -19,7 +19,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from src.llm.provider_client_base import LLMProviderClientBase
+from src.llm.provider_client_base import LLMProviderClientBase, LLMAuthError
 
 from src.logging.logger import bootstrap_logger
 
@@ -51,7 +51,8 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
     @retry(
         wait=wait_exponential(multiplier=5),
         stop=stop_after_attempt(5),
-        retry=retry_if_not_exception_type(ContextLimitError),
+        # Do NOT retry on context-limit or auth failures; those are handled explicitly.
+        retry=retry_if_not_exception_type((ContextLimitError, LLMAuthError)),
     )
     async def _create_message(
         self,
@@ -174,11 +175,19 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
             raise e
 
     async def _create_completion(self, params: Dict[str, Any], is_async: bool):
-        """Helper to create a completion, handling async and sync calls."""
-        if is_async:
-            return await self.client.chat.completions.create(**params)
-        else:
-            return self.client.chat.completions.create(**params)
+        """Helper to create a completion, handling async and sync calls.
+
+        Authentication / credentials errors are surfaced as LLMAuthError so that
+        higher-level orchestration can fail fast instead of retrying indefinitely.
+        """
+        try:
+            if is_async:
+                return await self.client.chat.completions.create(**params)
+            else:
+                return self.client.chat.completions.create(**params)
+        except AuthenticationError as e:
+            logger.error("MiroThinker/SGLang authentication failed: %s", str(e))
+            raise LLMAuthError(str(e)) from e
 
     def _clean_user_content_from_response(self, text: str) -> str:
         """Remove content between \\n\\nUser: and <use_mcp_tool> in assistant response (if no <use_mcp_tool>, remove to end)"""

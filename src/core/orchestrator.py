@@ -15,7 +15,7 @@ from config.agent_prompts.base_agent_prompt import BaseAgentPrompt
 from omegaconf import DictConfig
 
 
-from src.llm.provider_client_base import LLMProviderClientBase
+from src.llm.provider_client_base import LLMProviderClientBase, LLMAuthError, LLMClientInitError
 from src.llm.providers.claude_openrouter_client import ContextLimitError
 from src.logging.logger import bootstrap_logger
 from src.logging.task_tracer import TaskTracer
@@ -243,6 +243,18 @@ class Orchestrator:
                     "failed",
                 )
                 return None, True, None
+
+        except (LLMClientInitError, LLMAuthError) as e:
+            # Configuration / authentication failures should immediately abort execution.
+            logger.error("LLM client/authentication failed during %s: %s", purpose, str(e))
+            if self.task_log:
+                self.task_log.log_step(
+                    f"{purpose.lower().replace(' ', '_')}_auth_failed",
+                    f"{purpose} failed due to LLM client/authentication error: {str(e)}",
+                    "failed",
+                )
+            # Re-raise so that caller (main loop / summary) can stop without retries.
+            raise
 
         except asyncio.TimeoutError:
             logger.debug(f"⚠️ {purpose} timed out")

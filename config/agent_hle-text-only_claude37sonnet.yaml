@@ -15,8 +15,8 @@ main_agent:
     min_p: 0.0
     top_k: -1
     max_tokens: 32000
-    openrouter_api_key: "${oc.env:LLM_GATEWAY_API_KEY,???}"
-    openrouter_base_url: "${oc.env:LLM_GATEWAY_URL,https://openrouter.ai/api/v1}"
+    openrouter_api_key: "${oc.env:OPENROUTER_API_KEY,???}"
+    openrouter_base_url: "${oc.env:OPENROUTER_BASE_URL,https://openrouter.ai/api/v1}"
     openrouter_provider: "anthropic"
     disable_cache_control: false
     keep_tool_result: -1
@@ -25,8 +25,8 @@ main_agent:
   tool_config:
     - tool-reasoning
 
-  max_turns: 20  # Maximum number of turns for main agent execution
-  max_tool_calls_per_turn: 5  # Maximum number of tool calls per turn
+  max_turns: 50  # Maximum number of turns for main agent execution
+  max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
   
   input_process:
     hint_generation: true
@@ -62,17 +62,15 @@ sub_agents:
     
     tool_config:
       - tool-searching
-      # - tool-image-video
+      - tool-image-video
       - tool-reading
-      # - tool-code
-      # - tool-audio
+      - tool-code
+      - tool-audio
 
-    max_turns: 20  # Maximum number of turns for main agent execution
-    max_tool_calls_per_turn: 5  # Maximum number of tool calls per turn
+    max_turns: 50  # Maximum number of turns for main agent execution
+    max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
 
 
 # Can define some top-level or default parameters here
 output_dir: logs/
 data_dir: "${oc.env:DATA_DIR,data}"  # Points to where data is stored
-
-

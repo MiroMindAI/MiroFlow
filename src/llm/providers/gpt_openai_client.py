@@ -7,10 +7,10 @@ import dataclasses
 from typing import Any, Dict, List
 
 from omegaconf import DictConfig
-from openai import AsyncOpenAI, OpenAI
+from openai import AsyncOpenAI, OpenAI, AuthenticationError
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from src.llm.provider_client_base import LLMProviderClientBase
+from src.llm.provider_client_base import LLMProviderClientBase, LLMAuthError
 
 from src.logging.logger import bootstrap_logger
 
@@ -140,16 +140,27 @@ class GPTOpenAIClient(LLMProviderClientBase):
         except asyncio.CancelledError:
             logger.exception("[WARNING] LLM API call was cancelled during execution")
             raise
+        except LLMAuthError:
+            # Let authentication failures bubble up so orchestrator can abort immediately.
+            raise
         except Exception as e:
             logger.exception(f"OpenAI LLM call failed: {str(e)}")
             raise e
 
     async def _create_completion(self, params: Dict[str, Any], is_async: bool):
-        """Helper to create a completion, handling async and sync calls."""
-        if is_async:
-            return await self.client.chat.completions.create(**params)
-        else:
-            return self.client.chat.completions.create(**params)
+        """Helper to create a completion, handling async and sync calls.
+
+        Authentication / credentials errors are surfaced as LLMAuthError so that
+        higher-level orchestration can fail fast instead of retrying indefinitely.
+        """
+        try:
+            if is_async:
+                return await self.client.chat.completions.create(**params)
+            else:
+                return self.client.chat.completions.create(**params)
+        except AuthenticationError as e:
+            logger.error("OpenAI authentication failed: %s", str(e))
+            raise LLMAuthError(str(e)) from e
 
     async def _handle_oai_tool_thinking(
         self, params: Dict[str, Any], messages: List[Dict[str, Any]], is_async: bool

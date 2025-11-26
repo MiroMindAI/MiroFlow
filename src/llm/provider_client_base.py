@@ -23,6 +23,14 @@ LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
 
 
+class LLMClientInitError(Exception):
+    """Raised when an LLM client cannot be initialized (e.g. bad base URL, network failure)."""
+
+
+class LLMAuthError(Exception):
+    """Raised when an LLM request fails due to authentication / invalid credentials."""
+
+
 @dataclasses.dataclass
 class LLMProviderClientBase(ABC):
     # Required arguments (no default value)
@@ -76,10 +84,29 @@ class LLMProviderClientBase(ABC):
             f"disable_cache_control config value: {disable_cache_control_val} (type: {type(disable_cache_control_val)}) -> parsed as: {self.disable_cache_control}"
         )
 
-        self.client = self._create_client(self.cfg)
+        # Create underlying client once per agent session.
+        # Any failure here should abort execution immediately instead of being retried later.
+        try:
+            self.client = self._create_client(self.cfg)
+        except Exception as e:  # noqa: BLE001
+            logger.error(
+                "LLM client initialization failed for %s (provider=%s, model=%s): %s",
+                self.__class__.__name__,
+                self.provider_class,
+                self.model_name,
+                str(e),
+                exc_info=True,
+            )
+            # Wrap in a dedicated error type so callers can distinguish init failures
+            raise LLMClientInitError(
+                f"LLM client initialization failed for {self.provider_class}/{self.model_name}: {e}"
+            ) from e
 
         logger.info(
-            f"LLMClient (class={self.__class__.__name__},provider={self.provider_class},model_name={self.model_name}) initialized"
+            "LLMClient (class=%s,provider=%s,model_name=%s) initialized",
+            self.__class__.__name__,
+            self.provider_class,
+            self.model_name,
         )
 
     @abstractmethod
