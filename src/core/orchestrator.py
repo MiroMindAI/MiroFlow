@@ -124,6 +124,29 @@ class Orchestrator:
         ):
             self.sub_agent_llm_client.task_log = task_log
 
+    def _apply_message_ids(self, message_history: list[dict[str, Any]]) -> None:
+        """Prefix user messages with unique IDs to simplify debugging."""
+        if not self.add_message_id:
+            return
+
+        user_messages = [msg for msg in message_history if msg.get("role") == "user"]
+        for message in user_messages:
+            content = message.get("content")
+            if isinstance(content, list):
+                text_items = [
+                    item
+                    for item in content
+                    if isinstance(item, dict)
+                    and item.get("type") == "text"
+                    and isinstance(item.get("text"), str)
+                ]
+                for content_item in text_items:
+                    text = content_item["text"]
+                    if not text.startswith("[msg_"):
+                        content_item["text"] = f"[{_generate_message_id()}] {text}"
+            elif isinstance(content, str) and not content.startswith("[msg_"):
+                message["content"] = f"[{_generate_message_id()}] {content}"
+
     async def _handle_llm_call_with_logging(
         self,
         system_prompt,
@@ -145,24 +168,7 @@ class Orchestrator:
         )
 
         # Add message ID to user messages (if configured and message doesn't have ID yet)
-        if self.add_message_id:
-            for message in message_history:
-                if message.get("role") == "user":
-                    content = message.get("content")
-                    if isinstance(content, list):
-                        # content is list format (Anthropic style)
-                        for content_item in content:
-                            if content_item.get("type") == "text":
-                                text = content_item["text"]
-                                # Check if message ID already exists
-                                if not text.startswith("[msg_"):
-                                    message_id = _generate_message_id()
-                                    content_item["text"] = f"[{message_id}] {text}"
-                    elif isinstance(content, str):
-                        # content is string format (simple format)
-                        if not content.startswith("[msg_"):
-                            message_id = _generate_message_id()
-                            message["content"] = f"[{message_id}] {content}"
+        self._apply_message_ids(message_history)
 
         # Save message history before LLM call
         if self.task_log:
@@ -277,9 +283,18 @@ class Orchestrator:
         task_failed,
         agent_type="main",
         task_guidence="",
+        *,
+        max_retry: int = 3,
+        retry_fallback: str = "truncate",
+        network_retry_limit: int = 3,
+        retry_delay_seconds: int = 60,
     ):
         """
         Handle context limit retry logic when processing summary
+
+        retry_fallback: str = "truncate" | "abort"
+        - truncate: remove assistant-user dialogue and retry, mark task as failed
+        - abort: abort summary generation, return error response
 
         Returns:
             str: final_answer_text - LLM generated summary text, error message on failure
@@ -289,7 +304,7 @@ class Orchestrator:
         2. Context limit exceeded or network issues: remove assistant-user dialogue and retry, mark task as failed
         3. Until only initial system-user messages remain
         """
-        retry_count = 0
+        retry_attempt = 0
 
         while True:
             # Generate summary prompt
@@ -312,7 +327,9 @@ class Orchestrator:
                 {"role": "user", "content": [{"type": "text", "text": summary_prompt}]}
             )
 
-            for network_retry_count in range(5):
+            response_text: str | None = None
+            tool_calls_info: Any | None = None
+            for network_retry_count in range(network_retry_limit):
                 (
                     response_text,
                     _,
@@ -329,48 +346,73 @@ class Orchestrator:
                     break
                 else:
                     logger.error(
-                        f"LLM summary process call failed, attempt {network_retry_count+1}/5, retrying after 60 seconds..."
+                        f"LLM summary process call failed, attempt {network_retry_count+1}/{network_retry_limit}, retrying after {retry_delay_seconds} seconds..."
                     )
                     self.task_log.log_step(
                         f"{agent_type}_summary_retry",
-                        f"LLM summary process call failed, attempt {network_retry_count+1}/5, retrying after 60 seconds...",
+                        f"LLM summary process call failed, attempt {network_retry_count+1}/{network_retry_limit}, retrying after {retry_delay_seconds} seconds...",
                         "warning",
                     )
-                    await asyncio.sleep(60)
+                    if retry_delay_seconds > 0:
+                        await asyncio.sleep(retry_delay_seconds)
 
             if response_text:
                 # Call successful: return generated summary text
                 return response_text
 
-            # Context limit exceeded or network issues: try removing messages and retry
-            retry_count += 1
-            logger.debug(
-                f"LLM call failed (context_limit), attempt {retry_count} retry, removing recent assistant-user dialogue"
-            )
-            # First remove the just-added summary prompt
+            # Remove the just-added summary prompt before evaluating fallback strategies
             if message_history and message_history[-1]["role"] == "user":
                 message_history.pop()
-            # Remove the most recent assistant message (tool call request)
-            if message_history and message_history[-1]["role"] == "assistant":
-                message_history.pop()
-            # Once assistant-user dialogue needs to be removed, task fails (information is lost)
-            task_failed = True
-            # If there are no more dialogues to remove
-            if len(message_history) <= 2:  # Only initial system-user messages remain
+
+            if tool_calls_info != "context_limit":
                 logger.warning(
-                    "Removed all removable dialogues, but still unable to generate summary"
+                    "Summary generation failed without hitting context limit; aborting retries."
                 )
                 break
-            self.task_log.log_step(
-                f"{agent_type}_summary_context_retry",
-                f"Removed assistant-user pair, retry {retry_count}, task marked as failed",
-                "warning",
+
+            # Context limit exceeded or network issues: try removing messages and retry
+            if retry_attempt >= max_retry:
+                logger.warning(
+                    "Summary retry limit reached; no additional context truncation will be attempted."
+                )
+                break
+
+            retry_attempt += 1
+            logger.debug(
+                f"LLM call failed (context_limit), attempt {retry_attempt}/{max_retry} retry, applying fallback '{retry_fallback}'"
             )
 
-        # If still fails after removing all dialogues
-        logger.error(
-            "Summary failed after several attempts (removing all possible messages)"
-        )
+            if retry_fallback.lower() == "truncate":
+                # Remove the most recent assistant message (tool call request)
+                if message_history and message_history[-1]["role"] == "assistant":
+                    message_history.pop()
+                task_failed = True
+                if len(message_history) <= 2:  # Only initial system-user messages remain
+                    logger.warning(
+                        "Removed all removable dialogues, but still unable to generate summary"
+                    )
+                    break
+                self.task_log.log_step(
+                    f"{agent_type}_summary_context_retry",
+                    f"Removed assistant-user pair, retry {retry_attempt}, task marked as failed",
+                    "warning",
+                )
+                continue
+
+            if retry_fallback.lower() == "abort":
+                logger.warning(
+                    "Summary retry aborted per configuration; returning error response."
+                )
+                break
+
+            logger.warning(
+                "Unsupported retry_fallback option '%s'. Aborting summary retries.",
+                retry_fallback,
+            )
+            break
+
+        # If still fails after retries
+        logger.error("Summary failed after several attempts of context truncation")
         self.task_log.log_step(
             f"{agent_type}_summary_failed",
             "Summary failed after several attempts (removing all possible messages)",
@@ -694,8 +736,8 @@ class Orchestrator:
         """
         keep_tool_result = int(self.cfg.main_agent.keep_tool_result)
 
-        logger.debug(f"\n{'=' * 20} Starting Task: {task_id} {'=' * 20}")
-        logger.debug(f"Task Description: {task_description}")
+        logger.info(f"{'=' * 20} Starting Task: {task_id} {'=' * 20}")
+        logger.debug("Task Description: %s", task_description)
         if task_file_name:
             logger.debug(f"Associated File: {task_file_name}")
 
@@ -776,7 +818,7 @@ Your objective is maximum completeness, transparency, and detailed documentation
                 )
                 hint_notes = ""  # Continue execution but without hints
 
-        logger.info("Initial user input content: %s", initial_user_content)
+        logger.debug("Initial user input content: %s", initial_user_content)
         message_history = [{"role": "user", "content": initial_user_content}]
 
         # 2. Get tool definitions

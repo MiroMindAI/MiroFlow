@@ -34,7 +34,8 @@ class ExtractedAnswer(BaseModel):
 BENCHMARK_NAME = "gaia-validation"  # Benchmark name for evaluation
 RESULTS_DIRS = ["<your_results_dirs>"]
 
-DEFAULT_MODEL = "o3"
+# Default reasoning model for evaluation; can be overridden via env
+DEFAULT_MODEL = os.getenv("OPENAI_REASONING_MODEL_NAME", "o3")
 OPENAI_BASE_URL = "https://api.openai.com/v1"
 MAX_RETRY_ATTEMPTS = 3
 RETRY_WAIT_MIN = 1  # seconds
@@ -42,6 +43,26 @@ RETRY_WAIT_MAX = 10  # seconds
 MAX_CONCURRENT_REQUESTS = 25  # Maximum concurrent API requests
 SEMAPHORE_TIMEOUT = 300  # Timeout for acquiring semaphore in seconds
 VERBOSE = True
+
+
+_OPENAI_CLIENT: AsyncOpenAI | None = None
+
+
+def get_openai_client() -> AsyncOpenAI:
+    """Return a shared AsyncOpenAI client for this module."""
+    global _OPENAI_CLIENT
+
+    if _OPENAI_CLIENT is None:
+        api_key = OPENAI_API_KEY
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable not set")
+
+        _OPENAI_CLIENT = AsyncOpenAI(
+            base_url=OPENAI_BASE_URL,
+            api_key=api_key,
+        )
+
+    return _OPENAI_CLIENT
 
 
 def process_message_history(main_agent_message_history: Dict[str, Any]) -> str:
@@ -113,16 +134,7 @@ async def select_best_solution(
 
     async def _make_api_call():
         """Make the actual API call with proper error handling."""
-        api_key = OPENAI_API_KEY
-
-        if not api_key:
-            raise ValueError("OPENAI_API_KEY environment variable not set")
-
-        client = AsyncOpenAI(
-            base_url=OPENAI_BASE_URL,
-            api_key=api_key,
-        )
-
+        client = get_openai_client()
         completion = await client.beta.chat.completions.parse(
             model=model,
             messages=[

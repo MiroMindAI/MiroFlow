@@ -147,9 +147,14 @@ async def audio_transcription(audio_path_or_url: str) -> str:
     retry = 0
     transcription = None
 
+    # Initialize client once; if this fails due to configuration, do not retry
+    try:
+        client = OpenAI(base_url=WHISPER_BASE_URL, api_key=WHISPER_API_KEY)
+    except Exception as e:  # noqa: BLE001
+        return f"[ERROR]: Audio transcription client initialization failed: {e}"
+
     while retry < max_retries:
         try:
-            client = OpenAI(base_url=WHISPER_BASE_URL, api_key=WHISPER_API_KEY)
             if os.path.exists(audio_path_or_url):  # Check if the file exists locally
                 with open(audio_path_or_url, "rb") as audio_file:
                     transcription = client.audio.transcriptions.create(

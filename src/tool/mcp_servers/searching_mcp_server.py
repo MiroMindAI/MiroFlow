@@ -17,6 +17,9 @@ from .utils.smart_request import smart_request, request_to_json
 from src.logging.logger import setup_mcp_logging
 
 
+import dotenv
+dotenv.load_dotenv()
+
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
 SERPER_BASE_URL = os.environ.get("SERPER_BASE_URL", "https://google.serper.dev")
 JINA_API_KEY = os.environ.get("JINA_API_KEY", "")
@@ -127,6 +130,7 @@ async def google_search(
         arguments["location"] = location
     if tbs:
         arguments["tbs"] = tbs
+
     if IS_MIRO_API:
         server_params = StdioServerParameters(
             command=sys.executable,
@@ -139,6 +143,7 @@ async def google_search(
             args=["-y", "serper-search-scrape-mcp-server"],
             env={"SERPER_API_KEY": SERPER_API_KEY},
         )
+
     result_content = ""
     retry_count = 0
     max_retries = 5

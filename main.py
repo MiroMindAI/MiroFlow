@@ -16,11 +16,12 @@ from config import config_name, config_path, debug_config
 from rich.traceback import install
 import os
 
+dotenv.load_dotenv()
+
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 
 
 def print_config(*args):
-    dotenv.load_dotenv()
     print("LOGGER_LEVEL=", LOGGER_LEVEL)
     logger = bootstrap_logger(level=LOGGER_LEVEL)
     with hydra.initialize_config_dir(config_dir=config_path(), version_base=None):

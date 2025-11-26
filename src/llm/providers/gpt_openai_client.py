@@ -56,13 +56,15 @@ class GPTOpenAIClient(LLMProviderClientBase):
         :param messages: Message history list.
         :return: OpenAI API response object or None (if error occurs).
         """
+        base_name = self.model_name.split("/")[-1]
         is_oai_new_model = (
-            self.model_name.startswith("o1")
-            or self.model_name.startswith("o3")
-            or self.model_name.startswith("o4")
-            or self.model_name.startswith("gpt-4.1")
-            or self.model_name.startswith("gpt-4o")
-            or self.model_name.startswith("gpt-5")
+            base_name.startswith("o1")
+            or base_name.startswith("o3")
+            or base_name.startswith("o4")
+            or base_name.startswith("gpt-4.1")
+            or base_name.startswith("gpt-4o")
+            or base_name.startswith("gpt-5")
+            or base_name.startswith("gpt-5.1")
         )
         logger.debug(f" Calling LLM ({'async' if self.async_client else 'sync'})")
         # put the system prompt in the first message since OpenAI API does not support system prompt in

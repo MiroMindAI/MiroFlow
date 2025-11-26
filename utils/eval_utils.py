@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import os
 import re
 import string
 import warnings
@@ -111,8 +112,12 @@ async def verify_answer_llm_simpleqa(
     ]
     CHOICE_MAP = {"A": "CORRECT", "B": "INCORRECT", "C": "NOT_ATTEMPTED"}
 
+    eval_model = os.getenv("OPENAI_EVAL_MODEL_NAME", "gpt-4o-mini")
     llm_response = await openai_client.chat.completions.create(
-        model="gpt-4o-mini", messages=messages, max_completion_tokens=2, temperature=0.0
+        model=eval_model,
+        messages=messages,
+        max_completion_tokens=2,
+        temperature=0.0,
     )
     content = llm_response.choices[0].message.content
     match = re.search(r"(A|B|C)", content)
@@ -169,8 +174,9 @@ async def verify_answer_llm_xbench(
         question=question, correct_answer=target, response=predicted_answer
     )
 
+    model = os.getenv("OPENAI_REASONING_MODEL_NAME", "o3")
     response = await openai_client.beta.chat.completions.parse(
-        model="o3",  # xbench by default uses deepseek-v3 ?
+        model=model,  # default reasoning model can be overridden via env
         max_completion_tokens=4096,
         messages=[{"role": "user", "content": prompt}],
         response_format=XBenchExtractedAnswer,
@@ -240,8 +246,9 @@ async def verify_answer_llm_hle(
         question=question, correct_answer=target, response=predicted_answer
     )
 
+    small_model = os.getenv("OPENAI_REASONING_SMALL_MODEL_NAME", "o3-mini-2025-01-31")
     response = await openai_client.beta.chat.completions.parse(
-        model="o3-mini-2025-01-31",
+        model=small_model,
         max_completion_tokens=4096,
         messages=[{"role": "user", "content": prompt}],
         response_format=HLEExtractedAnswer,
@@ -418,9 +425,10 @@ async def verify_answer_llm_finsearchcomp(
     ]
 
     try:
-        # NOTE: no explicit LLM model is specified here, so we use gpt-4o-mini for consistency
+        # Default evaluation model can be overridden via env
+        eval_model = os.getenv("OPENAI_EVAL_MODEL_NAME", "gpt-4o-mini")
         response = await openai_client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=eval_model,
             messages=messages,
             max_completion_tokens=2048,
             temperature=0.0,  # Deterministic evaluation

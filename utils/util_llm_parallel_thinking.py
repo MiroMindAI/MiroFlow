@@ -37,7 +37,8 @@ class ExtractedAnswer(BaseModel):
 
 BENCHMARK_NAME = "gaia-validation"  # Benchmark name for evaluation
 
-DEFAULT_MODEL = "o3"
+# Default reasoning model for evaluation; can be overridden via env
+DEFAULT_MODEL = os.getenv("OPENAI_REASONING_MODEL_NAME", "o3")
 OPENAI_BASE_URL = "https://api.openai.com/v1"
 MAX_RETRY_ATTEMPTS = 3
 RETRY_WAIT_MIN = 1  # seconds
@@ -50,6 +51,26 @@ VERBOSE = True
 O3_INPUT_PRICE = 2.00  # $2.00 per 1M input tokens
 O3_CACHED_INPUT_PRICE = 0.50  # $0.50 per 1M cached input tokens
 O3_OUTPUT_PRICE = 8.00  # $8.00 per 1M output tokens
+
+
+_OPENAI_CLIENT: AsyncOpenAI | None = None
+
+
+def get_openai_client() -> AsyncOpenAI:
+    """Return a shared AsyncOpenAI client for this module."""
+    global _OPENAI_CLIENT
+
+    if _OPENAI_CLIENT is None:
+        api_key = OPENAI_API_KEY
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable not set")
+
+        _OPENAI_CLIENT = AsyncOpenAI(
+            base_url=OPENAI_BASE_URL,
+            api_key=api_key,
+        )
+
+    return _OPENAI_CLIENT
 
 
 def process_message_history(main_agent_message_history: Dict[str, Any]) -> str:
@@ -121,15 +142,7 @@ async def select_best_solution(
 
     async def _make_api_call():
         """Make the actual API call with proper error handling."""
-        api_key = OPENAI_API_KEY
-
-        if not api_key:
-            raise ValueError("OPENAI_API_KEY environment variable not set")
-
-        client = AsyncOpenAI(
-            base_url=OPENAI_BASE_URL,
-            api_key=api_key,
-        )
+        client = get_openai_client()
 
         completion = await client.beta.chat.completions.parse(
             model=model,
@@ -391,10 +404,7 @@ async def process_single_task(
     response, usage = await select_best_solution(prompt, n_runs, semaphore=semaphore)
     selected_solution = response["final_answer"]
     reasoning = response["reasoning"]
-    client = AsyncOpenAI(
-        base_url=OPENAI_BASE_URL,
-        api_key=OPENAI_API_KEY,
-    )
+    client = get_openai_client()
 
     result = await verify_answer_for_datasets(
         client, benchmark_name, "", data[0]["ground_truth"], selected_solution, {}

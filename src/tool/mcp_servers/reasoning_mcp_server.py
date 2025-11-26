@@ -3,11 +3,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+import asyncio
 
 from anthropic import Anthropic
 from fastmcp import FastMCP
-from openai import OpenAI
-import asyncio
+from openai import (
+    OpenAI,
+    APIError,
+    APIConnectionError,
+    RateLimitError,
+    APITimeoutError,
+    AuthenticationError,
+)
 from src.logging.logger import setup_mcp_logging
 
 
@@ -23,6 +30,31 @@ OPENAI_MODEL_NAME = os.environ.get("OPENAI_MODEL_NAME", "o3")
 # Initialize FastMCP server
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("reasoning-mcp-server")
+
+_OPENAI_CLIENT: OpenAI | None = None
+_ANTHROPIC_CLIENT: Anthropic | None = None
+
+
+def _get_openai_client() -> OpenAI:
+    """Return a shared OpenAI client for reasoning MCP."""
+    global _OPENAI_CLIENT
+    if _OPENAI_CLIENT is None:
+        if not OPENAI_API_KEY:
+            raise ValueError("OPENAI_API_KEY is not set for reasoning_mcp_server")
+        _OPENAI_CLIENT = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
+    return _OPENAI_CLIENT
+
+
+def _get_anthropic_client() -> Anthropic:
+    """Return a shared Anthropic client for reasoning MCP."""
+    global _ANTHROPIC_CLIENT
+    if _ANTHROPIC_CLIENT is None:
+        if not ANTHROPIC_API_KEY:
+            raise ValueError("ANTHROPIC_API_KEY is not set for reasoning_mcp_server")
+        _ANTHROPIC_CLIENT = Anthropic(
+            api_key=ANTHROPIC_API_KEY, base_url=ANTHROPIC_BASE_URL
+        )
+    return _ANTHROPIC_CLIENT
 
 
 @mcp.tool()
@@ -61,9 +93,9 @@ async def reasoning(question: str) -> str:
 
     if OPENAI_API_KEY:
         max_retries = 5
+        client = _get_openai_client()
         for attempt in range(1, max_retries + 1):
             try:
-                client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
                 response = client.chat.completions.create(
                     model=OPENAI_MODEL_NAME,
                     messages=messages_for_llm,
@@ -74,27 +106,24 @@ async def reasoning(question: str) -> str:
                 # Check if content is empty and retry if so
                 if content and content.strip():
                     return content
-                else:
-                    if attempt >= max_retries:
-                        return f"Reasoning (OpenRouter Client) failed after {max_retries} retries: Empty response received\n"
-                    await asyncio.sleep(
-                        5 * (2**attempt)
-                    )  # Exponential backoff with max 30s
-                    continue
-
-            except Exception as e:
+                if attempt >= max_retries:
+                    return f"Reasoning (OpenRouter Client) failed after {max_retries} retries: Empty response received\n"
+                await asyncio.sleep(5 * (2**attempt))  # Exponential backoff
+            except (APITimeoutError, RateLimitError) as e:
                 if attempt >= max_retries:
                     return f"Reasoning (OpenRouter Client) failed after {max_retries} retries: {e}\n"
-                await asyncio.sleep(
-                    5 * (2**attempt)
-                )  # Exponential backoff with max 30s
+                await asyncio.sleep(5 * (2**attempt))
+            except (AuthenticationError, APIConnectionError, APIError) as e:
+                # Configuration or non-retryable server error: abort immediately
+                return f"Reasoning (OpenRouter Client) failed due to configuration or authentication error: {e}\n"
+            except Exception as e:
+                # Unknown error: treat as non-retryable to avoid wasted attempts
+                return f"Reasoning (OpenRouter Client) failed with unexpected error: {e}\n"
     else:
         max_retries = 5
+        client = _get_anthropic_client()
         for attempt in range(1, max_retries + 1):
             try:
-                client = Anthropic(
-                    api_key=ANTHROPIC_API_KEY, base_url=ANTHROPIC_BASE_URL
-                )
                 response = client.messages.create(
                     model=ANTHROPIC_MODEL_NAME,
                     max_tokens=21000,
@@ -110,20 +139,14 @@ async def reasoning(question: str) -> str:
                 # Check if content is empty and retry if so
                 if content and content.strip():
                     return content
-                else:
-                    if attempt >= max_retries:
-                        return f"[ERROR]: Reasoning (Anthropic Client) failed after {max_retries} retries: Empty response received\n"
-                    await asyncio.sleep(
-                        5 * (2**attempt)
-                    )  # Exponential backoff with max 30s
-                    continue
-
+                if attempt >= max_retries:
+                    return f"[ERROR]: Reasoning (Anthropic Client) failed after {max_retries} retries: Empty response received\n"
+                await asyncio.sleep(5 * (2**attempt))
             except Exception as e:
+                # Without fine-grained Anthropic error types, treat all as non-retryable beyond first failure
                 if attempt >= max_retries:
                     return f"[ERROR]: Reasoning (Anthropic Client) failed after {max_retries} retries: {e}\n"
-                await asyncio.sleep(
-                    5 * (2**attempt)
-                )  # Exponential backoff with max 30s
+                await asyncio.sleep(5 * (2**attempt))
 
 
 if __name__ == "__main__":

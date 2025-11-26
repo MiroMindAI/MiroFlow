@@ -371,46 +371,80 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
             return summary_prompt
 
     def _apply_cache_control(self, messages):
-        """Apply cache control to the last user message and system message (if applicable)"""
-        cached_messages = []
-        user_turns_processed = 0
-        for turn in reversed(messages):
-            if (turn["role"] == "user" and user_turns_processed < 1) or (
-                turn["role"] == "system"
-            ):
-                # Add ephemeral cache control to the text part of the last user message
+        """Apply cache control to system messages and the last user message.
+
+        Strategy:
+        - All `system` messages are tagged as cacheable (typically long, stable prompts).
+        - The last `user` message is also tagged, but earlier user turns are left untouched.
+        - Only the first text block in each targeted message gets the `cache_control`
+          field, following Anthropic/OpenRouter prompt caching examples.
+        
+        See example here:
+        https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+        """
+        if not messages:
+            return messages
+
+        # Find the index of the last user message (if any)
+        last_user_index = None
+        for idx in range(len(messages) - 1, -1, -1):
+            if messages[idx].get("role") == "user":
+                last_user_index = idx
+                break
+
+        tagged_system_count = 0
+        tagged_user = bool(False)
+
+        processed: list[dict[str, Any]] = []
+
+        for idx, turn in enumerate(messages):
+            role = turn.get("role")
+            should_tag = role == "system" or (
+                role == "user" and last_user_index is not None and idx == last_user_index
+            )
+
+            # Only attempt to add cache_control when content is a list
+            content = turn.get("content")
+            if should_tag and isinstance(content, list):
                 new_content = []
                 processed_text = False
-                # Check if content is a list
-                if isinstance(turn.get("content"), list):
-                    # see example here
-                    # https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
-                    for item in turn["content"]:
-                        if (
-                            item.get("type") == "text"
-                            and len(item.get("text")) > 0
-                            and not processed_text
-                        ):
-                            # Copy and add cache control
-                            text_item = item.copy()
-                            text_item["cache_control"] = {"type": "ephemeral"}
-                            new_content.append(text_item)
-                            processed_text = True
-                        else:
-                            # Other types of content (like image) copy directly
-                            new_content.append(item.copy())
-                    cached_messages.append(
-                        {"role": turn["role"], "content": new_content}
-                    )
-                else:
-                    # If content is not a list (e.g., plain text), add as is without cache control
-                    # Or adjust logic as needed
-                    logger.debug(
-                        "Warning: User message content is not in expected list format, cache control not applied."
-                    )
-                    cached_messages.append(turn)
-                user_turns_processed += 1
+
+                for item in content:
+                    # Copy each item so we never mutate the original message history
+                    item_copy = dict(item) if isinstance(item, dict) else item
+                    if (
+                        isinstance(item_copy, dict)
+                        and item_copy.get("type") == "text"
+                        and isinstance(item_copy.get("text"), str)
+                        and len(item_copy["text"]) > 0
+                        and not processed_text
+                        and "cache_control" not in item_copy
+                    ):
+                        # Add ephemeral cache control to the first text block
+                        item_copy["cache_control"] = {"type": "ephemeral"}
+                        processed_text = True
+                    new_content.append(item_copy)
+
+                if role == "system" and processed_text:
+                    tagged_system_count += 1
+                if role == "user" and processed_text:
+                    tagged_user = True
+
+                processed.append({"role": role, "content": new_content})
             else:
-                # Other messages add directly
-                cached_messages.append(turn)
-        return list(reversed(cached_messages))
+                if should_tag and not isinstance(content, list):
+                    logger.debug(
+                        "Prompt caching: expected list content for %s message, "
+                        "but got %s; cache_control not applied.",
+                        role,
+                        type(content).__name__,
+                    )
+                processed.append(turn)
+
+        logger.debug(
+            "Prompt caching: applied ephemeral cache_control to %d system message(s)%s.",
+            tagged_system_count,
+            " and the last user message" if tagged_user else "",
+        )
+
+        return processed

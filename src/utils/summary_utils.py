@@ -2,10 +2,27 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
+import os
 import re
+import uuid
+
+from functools import lru_cache
+
 from openai import AsyncOpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
-import uuid
+
+
+logger = logging.getLogger(__name__)
+DEBUG_MODE = os.getenv("DEBUG", "").lower() in ("1", "true", "yes")
+
+
+@lru_cache(maxsize=None)
+def _get_async_openai_client(api_key: str, base_url: str) -> AsyncOpenAI:
+    """Return a cached AsyncOpenAI client for the given key/base_url."""
+    if not api_key:
+        raise ValueError("API key must be provided for AsyncOpenAI client.")
+    return AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
 
 def _generate_message_id() -> str:
@@ -17,8 +34,8 @@ def _generate_message_id() -> str:
 @retry(
     wait=wait_exponential(multiplier=15),
     stop=stop_after_attempt(5),
-    retry_error_callback=lambda retry_state: print(
-        f"Retry attempt {retry_state.attempt_number} for extract_hints"
+    retry_error_callback=lambda retry_state: logger.warning(
+        "Retry attempt %s for extract_hints", retry_state.attempt_number
     ),
 )
 async def extract_hints(
@@ -29,7 +46,7 @@ async def extract_hints(
     base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract task hints"""
-    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
+    client = _get_async_openai_client(api_key, base_url)
 
     instruction = """Carefully analyze the given task description (question) without attempting to solve it directly. Your role is to identify potential challenges and areas that require special attention during the solving process, and provide practical guidance for someone who will solve this task by actively gathering and analyzing information from the web.
 
@@ -69,16 +86,24 @@ Here is the question:
 
 """
 
-    # Add message ID for O3 messages (if configured)
+    # Add message ID for messages (if configured)
     content = instruction + question
     if add_message_id:
         message_id = _generate_message_id()
         content = f"[{message_id}] {content}"
 
+    # Use env-configured model (may be provider-prefixed like "openai/o3")
+    model = os.getenv("OPENAI_MODEL_NAME", "o3")
+    extra_kwargs: dict[str, object] = {}
+    # Only pass reasoning_effort for o-series models that support it
+    base_model_name = model.split("/")[-1]
+    if base_model_name.startswith("o"):
+        extra_kwargs["reasoning_effort"] = "high"
+
     response = await client.chat.completions.create(
-        model="o3",
+        model=model,
         messages=[{"role": "user", "content": content}],
-        reasoning_effort="high",
+        **extra_kwargs,
     )
 
     result = response.choices[0].message.content
@@ -91,16 +116,16 @@ Here is the question:
 
 
 @retry(
-    wait=wait_exponential(multiplier=15),
-    stop=stop_after_attempt(5),
-    retry_error_callback=lambda retry_state: print(
-        f"Retry attempt {retry_state.attempt_number} for get_gaia_answer_type"
+    wait=wait_exponential(multiplier=1),
+    stop=stop_after_attempt(1),
+    retry_error_callback=lambda retry_state: logger.warning(
+        "Retry attempt %s for get_gaia_answer_type", retry_state.attempt_number
     ),
 )
 async def get_gaia_answer_type(
     task_description: str, api_key: str, base_url: str = "https://api.openai.com/v1"
 ) -> str:
-    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
+    client = _get_async_openai_client(api_key, base_url)
 
     instruction = f"""Input:
 `{task_description}`
@@ -115,11 +140,15 @@ Determine the expected data type of the answer. For questions asking to "identif
 Output:
 Return exactly one of the [number, date, time, string], nothing else.
 """
-    print(f"Answer type instruction: {instruction}")
+    # Debug-only: full prompt for answer type detection (noisy for normal runs)
+    if DEBUG_MODE:
+        logger.debug("Answer type instruction: %s", instruction)
 
     message_id = _generate_message_id()
+    # Use environment variable or fallback to anthropic/claude-3.7-sonnet for Miromind gateway
+    model = os.getenv("OPENAI_MODEL_NAME", "anthropic/claude-3.7-sonnet")
     response = await client.chat.completions.create(
-        model="gpt-4.1",
+        model=model,
         messages=[{"role": "user", "content": f"[{message_id}] {instruction}"}],
     )
     answer_type = response.choices[0].message.content
@@ -127,16 +156,18 @@ Return exactly one of the [number, date, time, string], nothing else.
     if not answer_type or not answer_type.strip():
         raise ValueError("answer type returned empty result")
 
-    print(f"Answer type: {answer_type}")
+    logger.info("GAIA answer type detected: %s", answer_type)
+    # Debug-only: detected GAIA answer type and raw response
+    logger.debug("Answer type message_id=%s raw_response=%s", message_id, response)
 
     return answer_type.strip()
 
 
 @retry(
-    wait=wait_exponential(multiplier=15),
-    stop=stop_after_attempt(5),
-    retry_error_callback=lambda retry_state: print(
-        f"Retry attempt {retry_state.attempt_number} for extract_gaia_final_answer"
+    wait=wait_exponential(multiplier=1),
+    stop=stop_after_attempt(1),
+    retry_error_callback=lambda retry_state: logger.warning(
+        "Retry attempt %s for extract_gaia_final_answer", retry_state.attempt_number
     ),
 )
 async def extract_gaia_final_answer(
@@ -149,7 +180,7 @@ async def extract_gaia_final_answer(
     """Use LLM to extract final answer from summary"""
     answer_type = await get_gaia_answer_type(task_description_detail, api_key, base_url)
 
-    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
+    client = _get_async_openai_client(api_key, base_url)
 
     # Add Chinese-specific instructions and output format if enabled
     chinese_supplement = ""
@@ -457,12 +488,15 @@ The boxed content must be **one** of:
         answer_type if answer_type in ["number", "time"] else "string"
     )
 
-    print("Extract Final Answer Prompt:")
-    print(full_prompt)
+    # Debug-only: full extraction prompt can be extremely long; avoid printing at INFO
+    if DEBUG_MODE:
+        logger.debug("Extract Final Answer Prompt:\n%s", full_prompt)
 
     message_id = _generate_message_id()
+    # Use environment variable or fallback to anthropic/claude-3.7-sonnet for Miromind gateway
+    model = os.getenv("OPENAI_MODEL_NAME", "anthropic/claude-3.7-sonnet")
     response = await client.chat.completions.create(
-        model="o3",
+        model=model,
         messages=[{"role": "user", "content": f"[{message_id}] {full_prompt}"}],
     )
     result = response.choices[0].message.content
@@ -476,7 +510,9 @@ The boxed content must be **one** of:
     if not boxed_match:
         raise ValueError("Final answer extraction returned empty answer")
 
-    print("response:", result)
+    logger.info("GAIA final answer extraction completed")
+    # Debug-only: raw extraction response
+    logger.debug("GAIA final answer extraction response: %s", result)
 
     # Return the full response directly for downstream LLM processing
     # This contains all structured information: analysis, boxed answer, confidence, evidence, and weaknesses
@@ -486,8 +522,9 @@ The boxed content must be **one** of:
 @retry(
     wait=wait_exponential(multiplier=15),
     stop=stop_after_attempt(5),
-    retry_error_callback=lambda retry_state: print(
-        f"Retry attempt {retry_state.attempt_number} for extract_browsecomp_zh_final_answer"
+    retry_error_callback=lambda retry_state: logger.warning(
+        "Retry attempt %s for extract_browsecomp_zh_final_answer",
+        retry_state.attempt_number,
     ),
 )
 async def extract_browsecomp_zh_final_answer(
@@ -497,7 +534,7 @@ async def extract_browsecomp_zh_final_answer(
     base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract final answer from summary"""
-    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
+    client = _get_async_openai_client(api_key, base_url)
 
     chinese_supplement = """
 
@@ -605,14 +642,16 @@ async def extract_browsecomp_zh_final_answer(
         + common_confidence_section
     )
 
-    print("Extract Final Answer Prompt:")
-    print(full_prompt)
+    # Debug-only: full extraction prompt can be extremely long; avoid printing at INFO
+    logger.debug("Extract BrowseComp-ZH Final Answer Prompt:\n%s", full_prompt)
 
     message_id = _generate_message_id()
+    # Use environment variable or fallback to anthropic/claude-3.7-sonnet for Miromind gateway
+    model = os.getenv("OPENAI_MODEL_NAME", "anthropic/claude-3.7-sonnet")
     response = await client.chat.completions.create(
-        model="o3",
+        model=model,
         messages=[{"role": "user", "content": f"[{message_id}] {full_prompt}"}],
-        reasoning_effort="medium",
+        # reasoning_effort only works with o-series models, skip for other models
     )
     result = response.choices[0].message.content
 
@@ -625,7 +664,8 @@ async def extract_browsecomp_zh_final_answer(
     if not boxed_match:
         raise ValueError("Final answer extraction returned empty answer")
 
-    print("response:", result)
+    # Debug-only: raw extraction response
+    logger.debug("BrowseComp-ZH final answer extraction response: %s", result)
 
     # Return the full response directly for downstream LLM processing
     # This contains all structured information: analysis, boxed answer, confidence, evidence, and weaknesses

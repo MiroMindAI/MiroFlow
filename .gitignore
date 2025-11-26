@@ -1,5 +1,7 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+**/__pycache__/
+
 *.py[codz]
 *$py.class
 
@@ -60,6 +62,9 @@ cover/
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+
+# local tests
+tests/
 
 # Flask stuff:
 instance/
@@ -136,6 +141,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.bak*
 .envrc
 .venv
 env/

@@ -108,8 +108,15 @@ class TaskTracer(BaseModel):
             metadata=metadata or {},
         )
         self.step_logs.append(step_log)
-        # Also print to console
-        logger.debug(f"{step_name}: {message}")
+        # Also log to console with appropriate level
+        if status == "debug":
+            logger.debug("%s: %s", step_name, message)
+        elif status in ("info", "success"):
+            logger.info("%s: %s", step_name, message)
+        elif status == "warning":
+            logger.warning("%s: %s", step_name, message)
+        elif status == "failed":
+            logger.error("%s: %s", step_name, message)
 
     def save(self):
         """Persist TaskTracer to disk. used in a finally block, thus never raise Exception."""

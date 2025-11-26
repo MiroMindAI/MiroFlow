@@ -36,6 +36,32 @@ GEMINI_MODEL_NAME = os.environ.get("GEMINI_MODEL_NAME", "gemini-2.5-pro")
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("vision-mcp-server")
 
+_OPENAI_VISION_CLIENT: OpenAI | None = None
+_GEMINI_CLIENT: genai.Client | None = None
+
+
+def _get_openai_vision_client() -> OpenAI:
+    """Return shared OpenAI client for vision tools."""
+    global _OPENAI_VISION_CLIENT
+    if _OPENAI_VISION_CLIENT is None:
+        if not OPENAI_API_KEY:
+            raise ValueError("OPENAI_API_KEY is not set for vision_mcp_server")
+        _OPENAI_VISION_CLIENT = OpenAI(
+            api_key=OPENAI_API_KEY,
+            base_url=OPENAI_BASE_URL,
+        )
+    return _OPENAI_VISION_CLIENT
+
+
+def _get_gemini_client() -> genai.Client:
+    """Return shared Gemini client for vision tools."""
+    global _GEMINI_CLIENT
+    if _GEMINI_CLIENT is None:
+        if not GEMINI_API_KEY:
+            raise ValueError("GEMINI_API_KEY is not set for vision_mcp_server")
+        _GEMINI_CLIENT = genai.Client(api_key=GEMINI_API_KEY)
+    return _GEMINI_CLIENT
+
 
 async def detect_image_format(file_path: str) -> str:
     try:
@@ -178,10 +204,7 @@ async def call_openai_vision(image_path_or_url: str, question: str) -> str:
             }
         ]
 
-        client = OpenAI(
-            api_key=OPENAI_API_KEY,
-            base_url=OPENAI_BASE_URL,
-        )
+        client = _get_openai_vision_client()
 
         response = client.chat.completions.create(
             model=OPENAI_MODEL_NAME,
@@ -234,14 +257,13 @@ async def call_gemini_vision(image_path_or_url: str, question: str) -> str:
     except Exception as e:
         return f"[ERROR]: Failed to get image data {image_path_or_url}: {e}.\nNote: The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction or http url. If you are using http url, make sure it is an image file url."
 
+    client = _get_gemini_client()
     retry_count = 0
     max_retry = 3  # 3 retries with smart timing to avoid thundering herd
     while retry_count <= max_retry:
         try:
-            client = genai.Client(api_key=GEMINI_API_KEY)
-
             response = client.models.generate_content(
-                model="gemini-2.5-pro",
+                model=GEMINI_MODEL_NAME,
                 contents=[
                     image,
                     types.Part(text=question),
@@ -389,7 +411,7 @@ async def visual_audio_youtube_analyzing(
         while retry_count <= max_retry:
             try:
                 transcribe_response = client.models.generate_content(
-                    model="gemini-2.5-pro",
+                    model=GEMINI_MODEL_NAME,
                     contents=types.Content(
                         parts=[
                             types.Part(file_data=types.FileData(file_uri=url)),
@@ -455,7 +477,7 @@ async def visual_audio_youtube_analyzing(
         while retry_count <= max_retry:
             try:
                 response = client.models.generate_content(
-                    model="gemini-2.5-pro",
+                    model=GEMINI_MODEL_NAME,
                     contents=types.Content(
                         parts=[
                             types.Part(file_data=types.FileData(file_uri=url)),

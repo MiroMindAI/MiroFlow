@@ -74,4 +74,3 @@ sub_agents:
 # Can define some top-level or default parameters here
 output_dir: logs/
 data_dir: "${oc.env:DATA_DIR,data}"  # Points to where data is stored
-

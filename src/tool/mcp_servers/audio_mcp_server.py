@@ -30,6 +30,21 @@ OPENAI_AUDIO_MODEL_NAME = os.environ.get(
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("audio-mcp-server")
 
+_OPENAI_AUDIO_CLIENT: OpenAI | None = None
+
+
+def _get_openai_audio_client() -> OpenAI:
+    """Return shared OpenAI client for audio tools."""
+    global _OPENAI_AUDIO_CLIENT
+    if _OPENAI_AUDIO_CLIENT is None:
+        if not OPENAI_API_KEY:
+            raise ValueError("OPENAI_API_KEY is not set for audio_mcp_server")
+        _OPENAI_AUDIO_CLIENT = OpenAI(
+            api_key=OPENAI_API_KEY,
+            base_url=OPENAI_BASE_URL,
+        )
+    return _OPENAI_AUDIO_CLIENT
+
 
 def _get_audio_extension(url: str, content_type: str = None) -> str:
     """
@@ -142,13 +157,18 @@ async def audio_transcription(audio_path_or_url: str) -> str:
     retry = 0
     transcription = None
 
+    # Initialize client once; if this fails due to configuration, do not retry
+    try:
+        client = _get_openai_audio_client()
+    except Exception as e:  # noqa: BLE001
+        return f"[ERROR]: Audio transcription client initialization failed: {e}"
+
     while retry < max_retries:
         try:
-            client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
             if os.path.exists(audio_path_or_url):  # Check if the file exists locally
                 with open(audio_path_or_url, "rb") as audio_file:
                     transcription = client.audio.transcriptions.create(
-                        model="gpt-4o-transcribe", file=audio_file
+                        model=OPENAI_TRANSCRIPTION_MODEL_NAME, file=audio_file
                     )
             elif "home/user" in audio_path_or_url:
                 return "The audio_transcription tool cannot access to sandbox file, please use the local path provided by original instruction"
@@ -212,7 +232,7 @@ async def audio_question_answering(audio_path_or_url: str, question: str) -> str
         The answer to the question, and the duration of the audio file.
     """
     try:
-        client = OpenAI(api_key=OPENAI_API_KEY, base_url=OPENAI_BASE_URL)
+        client = _get_openai_audio_client()
 
         text_prompt = f"""Answer the following question based on the given \
         audio information:\n\n{question}"""
