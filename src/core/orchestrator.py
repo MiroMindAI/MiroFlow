@@ -30,6 +30,7 @@ from src.utils.summary_utils import (
     extract_browsecomp_zh_final_answer,
 )
 from src.utils.stream_parsing_utils import TextInterceptor
+from src.utils.history_input import make_muti_turn_prompt
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
@@ -964,15 +965,13 @@ class Orchestrator:
                 hint_notes = ""  # Continue execution but without hints
 
         logger.info("Initial user input content: %s", initial_user_content)
+        
         message_history = []
+        
         if history:
-            for turn_history in history:
-                for message in turn_history["main_agent"]:
-                    # 去掉 <think>...</think> 标签及其内容
-                    content = message["content"]
-                    if isinstance(content, str):
-                        content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
-                    message_history.append({"role": message["role"], "content": content})
+            initial_user_content = make_muti_turn_prompt(history, task_description)
+            logger.info(f"Multi-turn prompt: {initial_user_content}")
+            
 
         message_history.append({"role": "user", "content": initial_user_content})
 

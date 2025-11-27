@@ -112,36 +112,21 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
         chinese_context: bool = False,
     ) -> str:
         summarize_prompt = (
-            (
-                "This is a direct instruction to you (the assistant), not the result of a tool call.\n\n"
-            )
-            + (
-                "**Important: You have either exhausted the context token limit or reached the maximum number of interaction turns without arriving at a conclusive answer. Therefore, you failed to complete the task. You Must explicitly state that you failed to complete the task in your response.**\n\n"
-                if task_failed
-                else ""
-            )
-            + (
-                "We are now ending this session, and your conversation history will be deleted. "
-                "You must NOT initiate any further tool use. This is your final opportunity to report "
-                "*all* of the information gathered during the session.\n\n"
-                "Summarize the above conversation, and output the FINAL ANSWER to the original question.\n\n"
-                "If a clear answer has already been provided earlier in the conversation, do not rethink or recalculate it — "
-                "simply extract that answer and reformat it to match the required format below.\n"
-                "If a definitive answer could not be determined, make a well-informed educated guess based on the conversation.\n\n"
-                "The original question is repeated here for reference:\n\n"
-                f"---\n{task_description}\n---\n\n"
-                "Summarize ALL working history for this task, including your step-by-step thoughts, all tool calls, and all tool results (i.e., the full solving trajectory so far).\n"
-                "Output the FINAL ANSWER and detailed supporting information of the task given to you.\n\n"
-                "If you found any useful facts, data, or quotes directly relevant to the original task, include them clearly and completely.\n"
-                "If you reached a conclusion or answer, include it as part of the response.\n"
-                "If the task could not be fully answered, return all partially relevant findings, search results, quotes, and observations that might help a downstream agent solve the problem.\n"
-                "If partial, conflicting, or inconclusive information was found, clearly indicate this in your response.\n\n"
-                "Your final response should be a clear, complete, and structured report.\n"
-                "Organize the content into logical sections with appropriate headings.\n"
-                "Do NOT include any tool call instructions, speculative filler, or vague summaries.\n"
-                "Focus on factual, specific, and well-organized information.\n\n"
-                "**Important: Always respond in the same language as the original question. For example, if the original question is in Chinese, respond in Chinese; if it is in English, respond in English. This applies to any language — match the language of your response to the language of the question.**\n\n"
-                "**Formatting Note: When using markdown tables, do NOT use code block syntax (triple backticks ``` ) inside table cells, as it will break the table formatting. Instead, present code, JSON, or data directly as plain text within the cells, or use inline code formatting (`code`) if needed.**"
+             (
+             '''Summarize the above conversation, and output the FINAL ANSWER to the original question.
+
+If a clear answer has already been provided earlier in the conversation, do not rethink or recalculate it — simply extract that answer and reformat it to match the required format below.
+If a definitive answer could not be determined, make a well-informed educated guess based on the conversation.
+
+The original question is repeated here for reference:\n\n'''
+                f"\"{task_description}\"\n\n"
+                '''First provide the final answer to the original question, then provide the detailed supporting information like a scientific report of the task given to you.If the task is not solved, do not make up any content. Instead, return all partially relevant findings organized like a scientific report.If partial, conflicting, or inconclusive information was found, clearly indicate this in your response.
+
+Your final response should be a clear, complete, and structured report.
+Organize the content into logical sections with appropriate headings.
+Do NOT include any tool call instructions, speculative filler, or vague summaries.
+Focus on factual, specific, and well-organized information.'''
+"**Important: Always respond in the same language as the original question. For example, if the original question is in Chinese, respond in Chinese; if it is in English, respond in English. This applies to any language — match the language of your response to the language of the question.**\n\n"
             )
         )
 
