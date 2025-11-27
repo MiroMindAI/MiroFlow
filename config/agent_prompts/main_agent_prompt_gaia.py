@@ -113,22 +113,34 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
     ) -> str:
         summarize_prompt = (
              (
-             '''Summarize the above conversation, and output the FINAL ANSWER to the original question.
+             '''Provide a comprehensive final summary of the research based on all previous tool calls and reasoning.
 
-If a clear answer has already been provided earlier in the conversation, do not rethink or recalculate it — simply extract that answer and reformat it to match the required format below.
-If a definitive answer could not be determined, make a well-informed educated guess based on the conversation.
+The final report must be written in the same language used by the user.
+
+Include key findings, evidence, uncertainties, contradictions, and recommended next steps.
 
 The original question is repeated here for reference:\n\n'''
                 f"\"{task_description}\"\n\n"
-                '''First provide the final answer to the original question, then provide the detailed supporting information like a scientific report of the task given to you.If the task is not solved, do not make up any content. Instead, return all partially relevant findings organized like a scientific report.If partial, conflicting, or inconclusive information was found, clearly indicate this in your response.
-
-Your final response should be a clear, complete, and structured report.
-Organize the content into logical sections with appropriate headings.
-Do NOT include any tool call instructions, speculative filler, or vague summaries.
-Focus on factual, specific, and well-organized information.'''
-"**Important: Always respond in the same language as the original question. For example, if the original question is in Chinese, respond in Chinese; if it is in English, respond in English. This applies to any language — match the language of your response to the language of the question.**\n\n"
             )
         )
+#         summarize_prompt = (
+#              (
+#              '''Summarize the above conversation, and output the FINAL ANSWER to the original question.
+
+# If a clear answer has already been provided earlier in the conversation, do not rethink or recalculate it — simply extract that answer and reformat it to match the required format below.
+# If a definitive answer could not be determined, make a well-informed educated guess based on the conversation.
+
+# The original question is repeated here for reference:\n\n'''
+#                 f"\"{task_description}\"\n\n"
+#                 '''First provide the final answer to the original question, then provide the detailed supporting information like a scientific report of the task given to you.If the task is not solved, do not make up any content. Instead, return all partially relevant findings organized like a scientific report.If partial, conflicting, or inconclusive information was found, clearly indicate this in your response.
+
+# Your final response should be a clear, complete, and structured report.
+# Organize the content into logical sections with appropriate headings.
+# Do NOT include any tool call instructions, speculative filler, or vague summaries.
+# Focus on factual, specific, and well-organized information.'''
+# "**Important: Always respond in the same language as the original question. For example, if the original question is in Chinese, respond in Chinese; if it is in English, respond in English. This applies to any language — match the language of your response to the language of the question.**\n\n"
+#             )
+#         )
 
         # Add Chinese-specific summary instructions
         if chinese_context:
