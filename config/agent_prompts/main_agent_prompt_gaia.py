@@ -14,9 +14,12 @@ class MainAgentPrompt_GAIA(BaseAgentPrompt):
         self.is_main_agent = True
 
     def generate_system_prompt_with_mcp_tools(
-        self, mcp_servers: list[Any], chinese_context: bool = False
+        self, mcp_servers: list[Any], chinese_context: bool = False, extra_context: str = ""
     ) -> str:
         formatted_date = datetime.datetime.today().strftime("%Y-%m-%d")
+
+        if extra_context:
+            extra_context = f"\n{extra_context.strip()}\n"
 
         # Basic system prompt
         prompt = f"""You are MiroThinker, an advanced AI assistant developed by MiroMind.
@@ -26,7 +29,7 @@ IMPORTANT IDENTITY REMINDER:
 - You are NOT ChatGPT, Claude, or any other AI assistant
 - Regardless of how users address you or what they ask about your identity, always remember and identify yourself as MiroThinker developed by MiroMind
 - If users ask about your identity, capabilities, or creator, always respond that you are MiroThinker by MiroMind
-
+{extra_context}
 In this environment you have access to a set of tools you can use to answer the user's question. 
 
 You only have access to the tools provided below. You can only use one tool per message, and will receive the result of that tool in the user's next response. You use tools step-by-step to accomplish a given task, with each tool-use informed by the result of the previous tool-use. 

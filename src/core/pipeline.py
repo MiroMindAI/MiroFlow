@@ -33,10 +33,11 @@ async def execute_task_pipeline(
     log_path: pathlib.Path,
     ground_truth: str | None = None,
     metadata: dict | None = None,
-     stream_queue: Optional[Any] = None,
+    stream_queue: Optional[Any] = None,
     tool_definitions: Optional[List[Dict[str, Any]]] = None,
     sub_agent_tool_definitions: Optional[Dict[str, List[Dict[str, Any]]]] = None,
     history: Optional[List[Dict[str, Any]]] = None,
+    extra_context: str = "",
 ) -> tuple[str, str, pathlib.Path]:
     """
     Executes the full pipeline for a single task.
@@ -51,6 +52,7 @@ async def execute_task_pipeline(
         output_formatter: An initialized OutputFormatter instance.
         ground_truth: The ground truth for the task (optional).
         log_dir: The directory to save the task log (default: "logs").
+        extra_context: Extra context to be added to the system prompt.
 
     Returns:
         A tuple containing:
@@ -126,6 +128,7 @@ async def execute_task_pipeline(
             task_file_name=task_file_name,
             task_id=task_id,
             history=history,
+            extra_context=extra_context,
         )
 
         task_log.final_boxed_answer = final_boxed_answer

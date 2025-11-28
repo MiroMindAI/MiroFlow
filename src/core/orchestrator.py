@@ -893,7 +893,7 @@ class Orchestrator:
         return final_answer_text
 
     async def run_main_agent(
-        self, task_description, task_file_name=None, task_id="default_task", history=None
+        self, task_description, task_file_name=None, task_id="default_task", history=None, extra_context: str = ""
     ):
         """
         Execute the main end-to-end task.
@@ -997,6 +997,7 @@ class Orchestrator:
             main_agent_prompt_instance.generate_system_prompt_with_mcp_tools(
                 mcp_servers=tool_definitions,
                 chinese_context=self.chinese_context,
+                extra_context=extra_context,
             )
         )
 
