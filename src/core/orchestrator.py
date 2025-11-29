@@ -100,10 +100,10 @@ class Orchestrator:
         stream_queue: Optional[Any] = None,
         tool_definitions: Optional[List[Dict[str, Any]]] = None,
         sub_agent_tool_definitions: Optional[Dict[str, List[Dict[str, Any]]]] = None,
-        summary_prompt_overwrite: Optional[str] = None,
+        debug_config: Optional[dict] = None,
     ):
-        if summary_prompt_overwrite:
-            self.summary_prompt_overwrite = summary_prompt_overwrite
+        if debug_config:
+            self.debug_config = debug_config
         self.main_agent_tool_manager = main_agent_tool_manager
         self.sub_agent_tool_managers = sub_agent_tool_managers
         self.llm_client = llm_client
@@ -495,8 +495,9 @@ class Orchestrator:
                 task_failed=task_failed,
                 chinese_context=self.chinese_context,
             )
-            if self.summary_prompt_overwrite:
-                summary_prompt = self.summary_prompt_overwrite
+            if self.debug_config and self.debug_config.get("summaryPrompt"):
+                summary_prompt = self.debug_config.get("summaryPrompt")
+                logger.info(f"Using custom summary prompt: {summary_prompt}")
 
             # Handle merging of message history and summary prompt
             current_llm_client = (
