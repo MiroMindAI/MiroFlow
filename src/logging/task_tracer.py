@@ -39,6 +39,7 @@ class TaskTracer(BaseModel):
     task_file_name: str | None = ""
     ground_truth: str | None
     input: Any = None
+    mirothinker_base_url: str = ""
 
     # not task-related info. hydrated BEFORE task execution.
     log_path: Path
@@ -80,6 +81,9 @@ class TaskTracer(BaseModel):
         )
 
         return session_id
+    def set_mirothinker_base_url(self, mirothinker_base_url: str):
+        """Set the MiroThinker base URL"""
+        self.mirothinker_base_url = mirothinker_base_url
 
     def end_sub_agent_session(self, sub_agent_name: str):
         """End the current sub-agent session"""

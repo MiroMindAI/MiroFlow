@@ -100,6 +100,7 @@ async def execute_task_pipeline(
             raise ValueError(
                 "No LLM configuration found in main_agent. Please ensure the agent configuration includes an LLM section."
             )
+        task_log.set_mirothinker_base_url(cfg.main_agent.llm.oai_mirothinker_base_url)
 
         # Initialize sub agent LLM client
         # Require agent-specific LLM configuration for sub-agents
@@ -124,6 +125,7 @@ async def execute_task_pipeline(
         else:
             sub_agent_llm_client = None
             logger.info("No sub agents defined, using main agent only for the task")
+
 
         # Initialize orchestrator
         orchestrator = Orchestrator(
