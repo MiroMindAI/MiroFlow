@@ -104,6 +104,8 @@ class Orchestrator:
     ):
         if debug_config:
             self.debug_config = debug_config
+        else:
+            self.debug_config = {}
         self.main_agent_tool_manager = main_agent_tool_manager
         self.sub_agent_tool_managers = sub_agent_tool_managers
         self.llm_client = llm_client
