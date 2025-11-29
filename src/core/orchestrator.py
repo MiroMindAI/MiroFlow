@@ -100,7 +100,10 @@ class Orchestrator:
         stream_queue: Optional[Any] = None,
         tool_definitions: Optional[List[Dict[str, Any]]] = None,
         sub_agent_tool_definitions: Optional[Dict[str, List[Dict[str, Any]]]] = None,
+        summary_prompt_overwrite: Optional[str] = None,
     ):
+        if summary_prompt_overwrite:
+            self.summary_prompt_overwrite = summary_prompt_overwrite
         self.main_agent_tool_manager = main_agent_tool_manager
         self.sub_agent_tool_managers = sub_agent_tool_managers
         self.llm_client = llm_client
@@ -485,12 +488,15 @@ class Orchestrator:
         retry_count = 0
 
         while True:
+
             # Generate summary prompt
             summary_prompt = agent_prompt_instance.generate_summarize_prompt(
                 task_description + task_guidence,
                 task_failed=task_failed,
                 chinese_context=self.chinese_context,
             )
+            if self.summary_prompt_overwrite:
+                summary_prompt = self.summary_prompt_overwrite
 
             # Handle merging of message history and summary prompt
             current_llm_client = (

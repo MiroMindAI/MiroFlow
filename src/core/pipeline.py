@@ -38,6 +38,7 @@ async def execute_task_pipeline(
     sub_agent_tool_definitions: Optional[Dict[str, List[Dict[str, Any]]]] = None,
     history: Optional[List[Dict[str, Any]]] = None,
     extra_context: str = "",
+    summary_prompt_overwrite: Optional[str] = None,
 ) -> tuple[str, str, pathlib.Path]:
     """
     Executes the full pipeline for a single task.
@@ -120,6 +121,7 @@ async def execute_task_pipeline(
             stream_queue=stream_queue,
             tool_definitions=tool_definitions,
             sub_agent_tool_definitions=sub_agent_tool_definitions,
+            summary_prompt_overwrite=summary_prompt_overwrite,
         )
 
         task_log.status = "running"
