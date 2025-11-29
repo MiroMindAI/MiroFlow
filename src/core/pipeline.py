@@ -85,6 +85,14 @@ async def execute_task_pipeline(
         # Initialize main agent LLM client
         # Require agent-specific LLM configuration
         if hasattr(cfg.main_agent, "llm") and cfg.main_agent.llm is not None:
+            # Allow debug_config to override endpoint
+            if debug_config and "endpoint" in debug_config:
+                from omegaconf import OmegaConf
+                OmegaConf.set_struct(cfg, False)  # Allow modification
+                cfg.main_agent.llm.oai_mirothinker_base_url = debug_config["endpoint"]
+                OmegaConf.set_struct(cfg, True)  # Re-enable struct mode
+                logger.info(f"Overriding main agent LLM endpoint to: {debug_config['endpoint']}")
+            
             main_agent_llm_client = LLMClient(
                 task_id=task_id, llm_config=cfg.main_agent.llm
             )
@@ -98,6 +106,14 @@ async def execute_task_pipeline(
         if cfg.sub_agents is not None and cfg.sub_agents:
             first_sub_agent = next(iter(cfg.sub_agents.values()))
             if hasattr(first_sub_agent, "llm") and first_sub_agent.llm is not None:
+                # Allow debug_config to override sub-agent endpoint too
+                if debug_config and "endpoint" in debug_config:
+                    from omegaconf import OmegaConf
+                    OmegaConf.set_struct(cfg, False)
+                    first_sub_agent.llm.oai_mirothinker_base_url = debug_config["endpoint"]
+                    OmegaConf.set_struct(cfg, True)
+                    logger.info(f"Overriding sub agent LLM endpoint to: {debug_config['endpoint']}")
+                
                 sub_agent_llm_client = LLMClient(
                     task_id=f"{task_id}_sub", llm_config=first_sub_agent.llm
                 )
