@@ -118,7 +118,11 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
     ) -> str:
         summarize_prompt = (
              (
-             '''Summarize the above conversation, and output the FINAL ANSWER to the original question.'''
+             '''Please provide a comprehensive final research summary based entirely on all previous reasoning. 
+
+The final report must be written in the same language as the user.
+
+Important: no further tool calls are allowed at this stage, and the summary must rely solely on the information already obtained.'''
             )
         )
 #         summarize_prompt = (
