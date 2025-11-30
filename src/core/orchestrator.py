@@ -463,6 +463,108 @@ class Orchestrator:
             )
             return None, True, None
 
+
+    async def _handle_summary_with_no_tool_call_retry(
+        self,
+        system_prompt,
+        agent_prompt_instance,
+        message_history,
+        tool_definitions,
+        purpose,
+        task_description,
+        task_failed,
+        agent_type="main",
+        task_guidence="",
+    ):
+        """
+        Handle summary generation with retry logic to ensure no MCP tool calls in response
+        
+        This method wraps _handle_summary_with_context_limit_retry and adds validation
+        to ensure the summary doesn't contain any MCP tool calls. If tool calls are detected,
+        it will retry up to 5 times.
+        
+        Returns:
+            str: final_answer_text - LLM generated summary text without tool calls
+        """
+        max_no_tool_call_retries = 5
+        final_answer_text = ""
+        
+        for retry_count in range(max_no_tool_call_retries):
+            # Call the context limit retry wrapper to get summary
+            final_answer_text, tool_calls_info = await self._handle_summary_with_context_limit_retry(
+                system_prompt,
+                agent_prompt_instance,
+                message_history,
+                tool_definitions,
+                purpose,
+                task_description,
+                task_failed,
+                agent_type=agent_type,
+                task_guidence=task_guidence,
+                stream_message_callback=None,
+            )
+            
+            # Check if there are any MCP tool calls in the response
+            has_tool_calls = False
+            if tool_calls_info and tool_calls_info != "context_limit":
+                # tool_calls_info is typically a tuple: (valid_tool_calls, invalid_tool_calls)
+                if isinstance(tool_calls_info, tuple) and len(tool_calls_info) >= 2:
+                    valid_calls = tool_calls_info[0]
+                    if valid_calls and len(valid_calls) > 0:
+                        has_tool_calls = True
+                elif tool_calls_info:
+                    # If tool_calls_info is not None and not "context_limit", assume there are tool calls
+                    has_tool_calls = True
+            
+            if not has_tool_calls:
+                # Success: no tool calls detected
+                if retry_count > 0:
+                    logger.info(
+                        f"Summary generated successfully without tool calls after {retry_count + 1} attempts"
+                    )
+                    self.task_log.log_step(
+                        f"{agent_type}_summary_no_tool_call_success",
+                        f"Successfully generated summary without tool calls after {retry_count + 1} attempts",
+                    )
+                return final_answer_text
+            
+            # Tool calls detected, need to retry
+            logger.warning(
+                f"Summary contains MCP tool calls (attempt {retry_count + 1}/{max_no_tool_call_retries}), retrying..."
+            )
+            self.task_log.log_step(
+                f"{agent_type}_summary_tool_call_detected",
+                f"Tool calls detected in summary (attempt {retry_count + 1}/{max_no_tool_call_retries}), retrying",
+                "warning",
+            )
+            
+            # Clean up messages before retry (must remove in reverse order: assistant first, then user)
+            if retry_count < max_no_tool_call_retries - 1:
+                # Remove the assistant response with tool calls (last message)
+                if message_history and message_history[-1]["role"] == "assistant":
+                    message_history.pop()
+                    logger.debug("Removed assistant response with tool calls from history")
+                
+                # Remove the user message (summary prompt) that triggered this response
+                if message_history and message_history[-1]["role"] == "user":
+                    message_history.pop()
+                    logger.debug("Removed summary prompt from history")
+        
+        # If we've exhausted all retries, return the last result anyway
+        logger.error(
+            f"Failed to generate summary without tool calls after {max_no_tool_call_retries} attempts. Returning last result."
+        )
+        self.task_log.log_step(
+            f"{agent_type}_summary_tool_call_retry_exhausted",
+            f"Exhausted all {max_no_tool_call_retries} retries, summary may contain tool calls",
+            "warning",
+        )
+        msg_id = str(_generate_message_id())
+        await self._streaming_final_message(final_answer_text , msg_id,  True)
+        
+        return final_answer_text
+
+
     async def _handle_summary_with_context_limit_retry(
         self,
         system_prompt,
@@ -480,10 +582,10 @@ class Orchestrator:
         Handle context limit retry logic when processing summary
 
         Returns:
-            str: final_answer_text - LLM generated summary text, error message on failure
+            tuple: (final_answer_text, tool_calls_info) - LLM generated summary text and tool calls info
 
         Handle three LLM scenarios:
-        1. Call successful: return generated summary text
+        1. Call successful: return generated summary text and tool calls info
         2. Context limit exceeded or network issues: remove assistant-user dialogue and retry, mark task as failed
         3. Until only initial system-user messages remain
         """
@@ -542,8 +644,8 @@ class Orchestrator:
                     await asyncio.sleep(60)
 
             if response_text:
-                # Call successful: return generated summary text
-                return response_text
+                # Call successful: return generated summary text and tool calls info
+                return response_text, tool_calls_info
 
             # Context limit exceeded or network issues: try removing messages and retry
             retry_count += 1
@@ -579,7 +681,7 @@ class Orchestrator:
             "Summary failed after several attempts (removing all possible messages)",
             "failed",
         )
-        return "[ERROR] Unable to generate final summary due to context limit or network issues. You should try again."
+        return "[ERROR] Unable to generate final summary due to context limit or network issues. You should try again.", None
 
     async def run_sub_agent(
         self, sub_agent_name, task_description, keep_tool_result: int = -1
@@ -854,7 +956,7 @@ class Orchestrator:
 
 
         # Use context limit retry logic to generate final summary
-        final_answer_text = await self._handle_summary_with_context_limit_retry(
+        final_answer_text, _ = await self._handle_summary_with_context_limit_retry(
             system_prompt,
             sub_agent_prompt_instance,
             message_history,
@@ -1226,7 +1328,7 @@ class Orchestrator:
         await self._stream_start_llm("reporter")
 
         # Use context limit retry logic to generate final summary
-        final_answer_text = await self._handle_summary_with_context_limit_retry(
+        final_answer_text = await self._handle_summary_with_no_tool_call_retry(
             system_prompt,
             main_agent_prompt_instance,
             message_history,
@@ -1236,7 +1338,6 @@ class Orchestrator:
             task_failed,
             agent_type="main",
             task_guidence=task_guidence,
-            stream_message_callback=self._streaming_final_message,
         )
 
         # Handle response result
