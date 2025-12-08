@@ -318,6 +318,7 @@ class ToolManager(ToolManagerProtocol):
                 "server_name": server_name,
                 "tool_name": tool_name,
                 "error": error_message,
+                "usage": {},
             }
 
         logger.info(
@@ -342,22 +343,26 @@ class ToolManager(ToolManagerProtocol):
                         "server_name": server_name,
                         "tool_name": tool_name,
                         "result": f"Tool '{tool_name}' returned empty result - this may be expected (e.g., delete operations) or indicate an issue with tool execution",
+                        "usage": {},
                     }
 
                 return {
                     "server_name": server_name,
                     "tool_name": tool_name,
                     "result": tool_result,
+                    "usage": {},
                 }
             except Exception as e:
                 return {
                     "server_name": server_name,
                     "tool_name": tool_name,
                     "error": f"Tool call failed: {str(e)}",
+                    "usage": {},
                 }
         else:
             try:
                 result_content = None
+                usage = {}
                 if isinstance(server_params, StdioServerParameters):
                     async with stdio_client(
                         update_server_params_with_context_var(server_params)
@@ -371,8 +376,11 @@ class ToolManager(ToolManagerProtocol):
                                     tool_name, arguments=arguments
                                 )
                                 # Safely extract result content without changing original format
-                                if tool_result.content and len(tool_result.content) > 0:
-                                    text_content = tool_result.content[-1].text
+                                if tool_result.structuredContent:
+                                    text_content = tool_result.structuredContent["text"]
+                                    usage = tool_result.structuredContent["usage"]
+                                    logger.info(f"Tool result content: {text_content}")
+                                    logger.info(f"Tool result usage: {usage}")
                                     if (
                                         text_content is not None
                                         and text_content.strip()
@@ -386,7 +394,7 @@ class ToolManager(ToolManagerProtocol):
                                     result_content = f"Tool '{tool_name}' completed but returned no content - this may be expected or indicate an issue"
 
                                 # If result is empty, log warning
-                                if not tool_result.content:
+                                if not tool_result.structuredContent:
                                     logger.error(
                                         f"Tool '{tool_name}' returned empty content, tool_result.content: {tool_result.content}"
                                     )
@@ -400,6 +408,7 @@ class ToolManager(ToolManagerProtocol):
                                     "server_name": server_name,
                                     "tool_name": tool_name,
                                     "error": f"Tool execution failed: {str(tool_error)}",
+                                    "usage": {},
                                 }
                 elif isinstance(server_params, str) and server_params.startswith(
                     ("http://", "https://")
@@ -414,8 +423,11 @@ class ToolManager(ToolManagerProtocol):
                                     tool_name, arguments=arguments
                                 )
                                 # Safely extract result content without changing original format
-                                if tool_result.content and len(tool_result.content) > 0:
-                                    text_content = tool_result.content[-1].text
+                                if tool_result.structuredContent:
+                                    text_content = tool_result.structuredContent["text"]
+                                    usage = tool_result.structuredContent["usage"]
+                                    logger.info(f"Tool result content: {text_content}")
+                                    logger.info(f"Tool result usage: {usage}")
                                     if (
                                         text_content is not None
                                         and text_content.strip()
@@ -429,7 +441,7 @@ class ToolManager(ToolManagerProtocol):
                                     result_content = f"Tool '{tool_name}' completed but returned no content - this may be expected or indicate an issue"
 
                                 # If result is empty, log warning
-                                if not tool_result.content:
+                                if not tool_result.structuredContent:
                                     logger.error(
                                         f"Tool '{tool_name}' returned empty content, tool_result.content: {tool_result.content}"
                                     )
@@ -443,6 +455,7 @@ class ToolManager(ToolManagerProtocol):
                                     "server_name": server_name,
                                     "tool_name": tool_name,
                                     "error": f"Tool execution failed: {str(tool_error)}",
+                                    "usage": {},
                                 }
                 else:
                     raise TypeError(
@@ -470,6 +483,7 @@ class ToolManager(ToolManagerProtocol):
                     "server_name": server_name,
                     "tool_name": tool_name,
                     "result": result_content,  # Return extracted text content
+                    "usage": usage,
                 }
 
             except Exception as outer_e:  # Rename this to outer_e to avoid shadowing
@@ -501,6 +515,7 @@ class ToolManager(ToolManagerProtocol):
                             "server_name": server_name,
                             "tool_name": tool_name,
                             "result": result.text_content,  # Return extracted text content
+                            "usage": {},
                         }
                     except (
                         Exception
@@ -514,4 +529,5 @@ class ToolManager(ToolManagerProtocol):
                     "server_name": server_name,
                     "tool_name": tool_name,
                     "error": f"Tool call failed: {error_message}",
+                    "usage": {},
                 }

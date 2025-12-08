@@ -100,17 +100,23 @@ def google_search(
     # Check for API key
     if not SERPER_API_KEY:
         return {
-            "success": False,
-            "error": "SERPER_API_KEY environment variable not set",
-            "results": [],
+            "text": {
+                "success": False,
+                "error": "SERPER_API_KEY environment variable not set",
+                "results": [],
+            },
+            "usage": {},
         }
 
     # Validate required parameter
     if not q or not q.strip():
         return {
-            "success": False,
-            "error": "Search query 'q' is required and cannot be empty",
-            "results": [],
+            "text": {
+                "success": False,
+                "error": "Search query 'q' is required and cannot be empty",
+                "results": [],
+            },
+            "usage": {},
         }
 
     try:
@@ -155,10 +161,17 @@ def google_search(
         response_data["organic"] = organic_results
         response_data = decode_http_urls_in_dict(response_data)
 
-        return response_data
+        return {"text": response_data, "usage": {"MIRO_SERPER": 1}}
 
     except Exception as e:
-        return {"success": False, "error": f"Unexpected error: {str(e)}", "results": []}
+        return {
+            "text": {
+                "success": False,
+                "error": f"Unexpected error: {str(e)}",
+                "results": [],
+            },
+            "usage": {},
+        }
 
 
 if __name__ == "__main__":

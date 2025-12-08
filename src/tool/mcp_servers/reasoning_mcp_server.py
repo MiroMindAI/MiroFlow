@@ -26,7 +26,7 @@ mcp = FastMCP("reasoning-mcp-server")
 
 
 @mcp.tool()
-async def reasoning(question: str) -> str:
+async def reasoning(question: str) -> dict:
     """This tool is for pure text-based reasoning, analysis, and logical thinking. It integrates collected information, organizes final logic, and provides planning insights.
 
     IMPORTANT: This tool cannot access the internet, read files, program, or process multimodal content. It only performs pure text reasoning.
@@ -73,10 +73,34 @@ async def reasoning(question: str) -> str:
 
                 # Check if content is empty and retry if so
                 if content and content.strip():
-                    return content
+                    if not hasattr(response, "usage"):
+                        return {"text": content, "usage": {}}
+                    else:
+                        usage = response.usage
+                        cache_tokens = getattr(
+                            getattr(usage, "prompt_tokens_details", {}),
+                            "cached_tokens",
+                            0,
+                        )
+                        text_input_tokens = getattr(usage, "prompt_tokens", 0)
+                        text_output_tokens = getattr(usage, "completion_tokens", 0)
+                    return {
+                        "text": content,
+                        "usage": {
+                            f"reasoning_openrouter_{OPENAI_MODEL_NAME}": {
+                                "cache_read": cache_tokens,
+                                "input_text": text_input_tokens,
+                                "output_text": text_output_tokens,
+                                "cost": getattr(usage, "cost", 0),
+                            }
+                        },
+                    }
                 else:
                     if attempt >= max_retries:
-                        return f"Reasoning (OpenRouter Client) failed after {max_retries} retries: Empty response received\n"
+                        return {
+                            "text": f"Reasoning (OpenRouter Client) failed after {max_retries} retries: Empty response received\n",
+                            "usage": {},
+                        }
                     await asyncio.sleep(
                         5 * (2**attempt)
                     )  # Exponential backoff with max 30s
@@ -84,7 +108,10 @@ async def reasoning(question: str) -> str:
 
             except Exception as e:
                 if attempt >= max_retries:
-                    return f"Reasoning (OpenRouter Client) failed after {max_retries} retries: {e}\n"
+                    return {
+                        "text": f"Reasoning (OpenRouter Client) failed after {max_retries} retries: {e}\n",
+                        "usage": {},
+                    }
                 await asyncio.sleep(
                     5 * (2**attempt)
                 )  # Exponential backoff with max 30s
@@ -109,10 +136,29 @@ async def reasoning(question: str) -> str:
 
                 # Check if content is empty and retry if so
                 if content and content.strip():
-                    return content
+                    if not hasattr(response, "usage"):
+                        usage = {}
+                    else:
+                        usage_temp = response.usage
+                        usage = {
+                            f"reasoning_anthropic_{ANTHROPIC_MODEL_NAME}": {
+                                "input": getattr(usage_temp, "input_tokens", 0),
+                                "output": getattr(usage_temp, "output_tokens", 0),
+                                "cache_read": getattr(
+                                    usage_temp, "cache_read_input_tokens", 0
+                                ),
+                                "cache_write": getattr(
+                                    usage_temp, "cache_creation_input_tokens", 0
+                                ),
+                            }
+                        }
+                    return {"text": content, "usage": usage}
                 else:
                     if attempt >= max_retries:
-                        return f"[ERROR]: Reasoning (Anthropic Client) failed after {max_retries} retries: Empty response received\n"
+                        return {
+                            "text": f"[ERROR]: Reasoning (Anthropic Client) failed after {max_retries} retries: Empty response received\n",
+                            "usage": {},
+                        }
                     await asyncio.sleep(
                         5 * (2**attempt)
                     )  # Exponential backoff with max 30s
@@ -120,7 +166,10 @@ async def reasoning(question: str) -> str:
 
             except Exception as e:
                 if attempt >= max_retries:
-                    return f"[ERROR]: Reasoning (Anthropic Client) failed after {max_retries} retries: {e}\n"
+                    return {
+                        "text": f"[ERROR]: Reasoning (Anthropic Client) failed after {max_retries} retries: {e}\n",
+                        "usage": {},
+                    }
                 await asyncio.sleep(
                     5 * (2**attempt)
                 )  # Exponential backoff with max 30s

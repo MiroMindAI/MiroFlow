@@ -13,6 +13,7 @@ from google.genai import types
 import requests
 import asyncio
 from src.logging.logger import setup_mcp_logging
+from collections import Counter
 
 
 # Anthropic credentials
@@ -30,11 +31,18 @@ OPENAI_BASE_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1")
 OPENAI_MODEL_NAME = os.environ.get("OPENAI_MODEL_NAME", "gpt-4o")
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-GEMINI_MODEL_NAME = os.environ.get("GEMINI_MODEL_NAME", "gemini-2.5-pro")
+GEMINI_MODEL_NAME = os.environ.get("GEMINI_MODEL_NAME", "gemini-3-pro-preview")
 
 # Initialize FastMCP server
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("vision-mcp-server")
+
+
+def merge_usage(*usage_dicts):
+    total = Counter()
+    for d in usage_dicts:
+        total.update(d)
+    return dict(total)
 
 
 async def detect_image_format(file_path: str) -> str:
@@ -71,7 +79,7 @@ async def guess_mime_media_type_from_extension(file_path: str) -> str:
         return "image/jpeg"  # Default to JPEG if unknown
 
 
-async def call_claude_vision(image_path_or_url: str, question: str) -> str:
+async def call_claude_vision(image_path_or_url: str, question: str) -> dict:
     """Call Claude vision API."""
     messages_for_llm = [
         {
@@ -104,7 +112,10 @@ async def call_claude_vision(image_path_or_url: str, question: str) -> str:
                     data=image_data,
                 )
         elif "home/user" in image_path_or_url:
-            return "The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction"
+            return {
+                "text": "The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction",
+                "usage": {},
+            }
         else:  # Otherwise, assume it's a URL
             # Convert to https URL for Claude vision API
             url = image_path_or_url
@@ -127,6 +138,19 @@ async def call_claude_vision(image_path_or_url: str, question: str) -> str:
                     max_tokens=4096,
                     messages=messages_for_llm,
                 )
+                if not hasattr(response, "usage"):
+                    usage = {}
+                else:
+                    usage_temp = response.usage
+                    usage = {
+                        "input": getattr(usage_temp, "input_tokens", 0),
+                        "output": getattr(usage_temp, "output_tokens", 0),
+                        "cache_read": getattr(usage_temp, "cache_read_input_tokens", 0),
+                        "cache_write": getattr(
+                            usage_temp, "cache_creation_input_tokens", 0
+                        ),
+                    }
+
                 result = response.content[0].text
 
                 # Check if response.text is None or empty after stripping
@@ -140,13 +164,13 @@ async def call_claude_vision(image_path_or_url: str, question: str) -> str:
                     break
                 await asyncio.sleep(4**attempt)  # Exponential backoff
 
-        return result
+        return {"text": result, "usage": usage}
 
     except Exception as e:
-        return f"[ERROR]: Claude Error: {e}"
+        return {"text": f"[ERROR]: Claude Error: {e}", "usage": {}}
 
 
-async def call_openai_vision(image_path_or_url: str, question: str) -> str:
+async def call_openai_vision(image_path_or_url: str, question: str) -> dict:
     """Call OpenAI vision API."""
     try:
         if os.path.exists(image_path_or_url):  # Check if the file exists locally
@@ -158,7 +182,10 @@ async def call_openai_vision(image_path_or_url: str, question: str) -> str:
                     "image_url": {"url": f"data:{mime_type};base64,{image_data}"},
                 }
         elif "home/user" in image_path_or_url:
-            return "The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction"
+            return {
+                "text": "The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction",
+                "usage": {},
+            }
         else:  # Otherwise, assume it's a URL
             image_content = {
                 "type": "image_url",
@@ -188,14 +215,27 @@ async def call_openai_vision(image_path_or_url: str, question: str) -> str:
             max_tokens=4096,
             messages=messages_for_llm,
         )
-
-        return response.choices[0].message.content
+        if not hasattr(response, "usage"):
+            usage = {}
+        else:
+            usage = response.usage
+            cache_tokens = getattr(
+                getattr(usage, "prompt_tokens_details", {}), "cached_tokens", 0
+            )
+            text_input_tokens = getattr(usage, "prompt_tokens", 0)
+            text_output_tokens = getattr(usage, "completion_tokens", 0)
+        usage = {
+            "cache_read": cache_tokens,
+            "input_text": text_input_tokens,
+            "output_text": text_output_tokens,
+        }
+        return {"text": response.choices[0].message.content, "usage": usage}
 
     except Exception as e:
-        return f"[ERROR]: OpenAI Error: {e}"
+        return {"text": f"[ERROR]: OpenAI Error: {e}", "usage": {}}
 
 
-async def call_gemini_vision(image_path_or_url: str, question: str) -> str:
+async def call_gemini_vision(image_path_or_url: str, question: str) -> dict:
     """Call Gemini vision API."""
     try:
         mime_type = await detect_image_format(image_path_or_url)
@@ -207,7 +247,10 @@ async def call_gemini_vision(image_path_or_url: str, question: str) -> str:
                     mime_type=mime_type,
                 )
         elif "home/user" in image_path_or_url:
-            return "The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction"
+            return {
+                "text": "The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction",
+                "usage": {},
+            }
         else:
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
@@ -232,7 +275,10 @@ async def call_gemini_vision(image_path_or_url: str, question: str) -> str:
                 mime_type=mime_type,
             )
     except Exception as e:
-        return f"[ERROR]: Failed to get image data {image_path_or_url}: {e}.\nNote: The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction or http url. If you are using http url, make sure it is an image file url."
+        return (
+            f"[ERROR]: Failed to get image data {image_path_or_url}: {e}.\nNote: The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction or http url. If you are using http url, make sure it is an image file url.",
+            {},
+        )
 
     retry_count = 0
     max_retry = 3  # 3 retries with smart timing to avoid thundering herd
@@ -241,7 +287,7 @@ async def call_gemini_vision(image_path_or_url: str, question: str) -> str:
             client = genai.Client(api_key=GEMINI_API_KEY)
 
             response = client.models.generate_content(
-                model="gemini-2.5-pro",
+                model="gemini-3-pro-preview",
                 contents=[
                     image,
                     types.Part(text=question),
@@ -249,11 +295,19 @@ async def call_gemini_vision(image_path_or_url: str, question: str) -> str:
                 # config=types.GenerateContentConfig(temperature=0.1),
             )
 
+            usage = response.usage_metadata
+            input_tokens = usage.prompt_token_count
+            output_tokens = usage.total_token_count - input_tokens
+            usage = {
+                "input": input_tokens,
+                "output": output_tokens,
+            }
+
             # Check if response.text is None or empty after stripping
             if response.text is None or response.text.strip() == "":
                 raise Exception("Response text is None or empty")
 
-            return response.text
+            return {"text": response.text, "usage": usage}
 
         except Exception as e:
             # Only retry for rate limit and server errors, or empty response
@@ -265,7 +319,10 @@ async def call_gemini_vision(image_path_or_url: str, question: str) -> str:
             ):
                 retry_count += 1
                 if retry_count > max_retry:
-                    return f"[ERROR]: Gemini Error after {retry_count} retries: {e}"
+                    return {
+                        "text": f"[ERROR]: Gemini Error after {retry_count} retries: {e}",
+                        "usage": {},
+                    }
 
                 # Rate limit is per minute, spread 5 requests across different minute windows
                 if retry_count == 1:
@@ -280,11 +337,11 @@ async def call_gemini_vision(image_path_or_url: str, question: str) -> str:
 
                 await asyncio.sleep(wait_time)
             else:
-                return f"[ERROR]: Gemini Error: {e}"
+                return {"text": f"[ERROR]: Gemini Error: {e}", "usage": {}}
 
 
 @mcp.tool()
-async def visual_question_answering(image_path_or_url: str, question: str) -> str:
+async def visual_question_answering(image_path_or_url: str, question: str) -> dict:
     """This tool is used to ask question about an image or a video and get the answer with Gemini vision language models. It also automatically performs OCR (text extraction) on the image for additional context.
 
     Args:
@@ -310,13 +367,19 @@ Remember: Your extraction will be used by someone who cannot see the image thems
 Return only the extracted text content, maintaining the original formatting and structure as much as possible. If there is no text in the image, respond with 'No text found'. If there are areas where text may exist but is unreadable or ambiguous, describe these as well."""
 
     if ANTHROPIC_API_KEY:
-        ocr_result = await call_claude_vision(image_path_or_url, ocr_prompt)
+        response = await call_claude_vision(image_path_or_url, ocr_prompt)
     elif OPENAI_API_KEY:
-        ocr_result = await call_openai_vision(image_path_or_url, ocr_prompt)
+        response = await call_openai_vision(image_path_or_url, ocr_prompt)
     elif GEMINI_API_KEY:
-        ocr_result = await call_gemini_vision(image_path_or_url, ocr_prompt)
+        response = await call_gemini_vision(image_path_or_url, ocr_prompt)
     else:
-        return "[ERROR]: No API key is set, visual_question_answering tool is not available."
+        return {
+            "text": "[ERROR]: No API key is set, visual_question_answering tool is not available.",
+            "usage": {},
+        }
+
+    ocr_result = response.get("text", "")
+    ocr_usage = response.get("usage", {})
 
     vqa_prompt = f"""You are a highly attentive visual analysis assistant. Your task is to carefully examine the image and provide a thorough, accurate answer to the question.
 
@@ -341,22 +404,45 @@ Please provide a comprehensive analysis that demonstrates careful observation an
     # Before answering, carefully analyze both the question and the image. Identify and briefly list potential subtle or easily overlooked VQA pitfalls or ambiguities that could arise in interpreting this question or image (e.g., confusing similar objects, missing small details, misreading text, ambiguous context, etc.). For each, suggest a method or strategy to avoid or mitigate these issues. Only after this analysis, proceed to answer the question, providing a thorough and detailed observation and reasoning process.
 
     if ANTHROPIC_API_KEY:
-        vqa_result = await call_claude_vision(image_path_or_url, vqa_prompt)
+        response = await call_claude_vision(image_path_or_url, vqa_prompt)
+        vqa_result = response.get("text", "")
+        vqa_usage = response.get("usage", {})
+        usage = {
+            f"vision_anthropic_{ANTHROPIC_MODEL_NAME}": merge_usage(
+                ocr_usage, vqa_usage
+            )
+        }
     elif OPENAI_API_KEY:
-        vqa_result = await call_openai_vision(image_path_or_url, vqa_prompt)
+        response = await call_openai_vision(image_path_or_url, vqa_prompt)
+        vqa_result = response.get("text", "")
+        vqa_usage = response.get("usage", {})
+        usage = {
+            f"vision_openai_{OPENAI_MODEL_NAME}": merge_usage(ocr_usage, vqa_usage)
+        }
     elif GEMINI_API_KEY:
-        vqa_result = await call_gemini_vision(image_path_or_url, vqa_prompt)
+        response = await call_gemini_vision(image_path_or_url, vqa_prompt)
+        vqa_result = response.get("text", "")
+        vqa_usage = response.get("usage", {})
+        usage = {
+            f"vision_gemini_{GEMINI_MODEL_NAME}": merge_usage(ocr_usage, vqa_usage)
+        }
     else:
-        return "[ERROR]: No API key is set, visual_question_answering tool is not available."
+        return {
+            "text": "[ERROR]: No API key is set, visual_question_answering tool is not available.",
+            "usage": {},
+        }
 
-    return f"OCR results:\n{ocr_result}\n\nVQA result:\n{vqa_result}"
+    return {
+        "text": f"OCR results:\n{ocr_result}\n\nVQA result:\n{vqa_result}",
+        "usage": usage,
+    }
 
 
 # The tool visual_audio_youtube_analyzing only support single YouTube URL as input for now, though GEMINI can support multiple URLs up to 10 per request.
 @mcp.tool()
 async def visual_audio_youtube_analyzing(
     url: str, question: str = "", provide_transcribe: bool = False
-) -> str:
+) -> dict:
     """Analyzes public YouTube video audiovisual content to answer questions or provide transcriptions. This tool processes both audio tracks and visual frames from YouTube videos. This tool could be primarily used when analyzing YouTube video content. Only supports YouTube Video URLs containing youtube.com/watch, youtube.com/shorts, or youtube.com/live for now.
 
     Args:
@@ -368,19 +454,30 @@ async def visual_audio_youtube_analyzing(
         The answer to the question or the transcription of the video.
     """
     if GEMINI_API_KEY == "":
-        return "[ERROR]: GEMINI_API_KEY is not set, visual_audio_youtube_analyzing tool is not available."
+        return {
+            "text": "[ERROR]: GEMINI_API_KEY is not set, visual_audio_youtube_analyzing tool is not available.",
+            "usage": {},
+        }
 
     if (
         "youtube.com/watch" not in url
         and "youtube.com/shorts" not in url
         and "youtube.com/live" not in url
     ):
-        return f"[ERROR]: Invalid URL: '{url}'. YouTube Video URL must contain youtube.com/watch, youtube.com/shorts, or youtube.com/live"
+        return {
+            "text": f"[ERROR]: Invalid URL: '{url}'. YouTube Video URL must contain youtube.com/watch, youtube.com/shorts, or youtube.com/live.",
+            "usage": {},
+        }
 
     if question == "" and not provide_transcribe:
-        return "[ERROR]: You must provide a question to ask about the video content or set provide_transcribe to True."
+        return {
+            "text": "[ERROR]: You must provide a question to ask about the video content or set provide_transcribe to True.",
+            "usage": {},
+        }
 
     client = genai.Client(api_key=GEMINI_API_KEY)
+    usage_transcribe = {}
+    usage_answer = {}
     if provide_transcribe:
         # prompt from GEMINI official document
         prompt = "Transcribe the audio from this video, giving timestamps for salient events in the video. Also provide visual descriptions."
@@ -389,7 +486,7 @@ async def visual_audio_youtube_analyzing(
         while retry_count <= max_retry:
             try:
                 transcribe_response = client.models.generate_content(
-                    model="gemini-2.5-pro",
+                    model="gemini-3-pro-preview",
                     contents=types.Content(
                         parts=[
                             types.Part(file_data=types.FileData(file_uri=url)),
@@ -397,6 +494,15 @@ async def visual_audio_youtube_analyzing(
                         ]
                     ),
                 )
+                usage_transcribe = transcribe_response.usage_metadata
+                input_tokens_transcribe = usage_transcribe.prompt_token_count
+                output_tokens_transcribe = (
+                    usage_transcribe.total_token_count - input_tokens_transcribe
+                )
+                usage_transcribe = {
+                    "input": input_tokens_transcribe,
+                    "output": output_tokens_transcribe,
+                }
 
                 # Check if response.text is None or empty after stripping
                 if (
@@ -455,7 +561,7 @@ async def visual_audio_youtube_analyzing(
         while retry_count <= max_retry:
             try:
                 response = client.models.generate_content(
-                    model="gemini-2.5-pro",
+                    model="gemini-3-pro-preview",
                     contents=types.Content(
                         parts=[
                             types.Part(file_data=types.FileData(file_uri=url)),
@@ -463,7 +569,15 @@ async def visual_audio_youtube_analyzing(
                         ]
                     ),
                 )
-
+                usage_answer = response.usage_metadata
+                input_tokens_answer = usage_answer.prompt_token_count
+                output_tokens_answer = (
+                    usage_answer.total_token_count - input_tokens_answer
+                )
+                usage_answer = {
+                    "input": input_tokens_answer,
+                    "output": output_tokens_answer,
+                }
                 # Check if response.text is None or empty after stripping
                 if response.text is None or response.text.strip() == "":
                     raise Exception("Response text is None or empty")
@@ -511,7 +625,14 @@ async def visual_audio_youtube_analyzing(
                     break
 
     hint = "\n\nHint: Large videos may trigger rate limits causing failures. If you need more website information rather than video visual content itself (such as video subtitles, titles, descriptions, key moments), you can also call tool `scrape_website` tool."
-    return transcribe_content + answer_content + hint
+    return {
+        "text": transcribe_content + answer_content + hint,
+        "usage": {
+            "youtube_gemini_gemini-3-pro-preview": merge_usage(
+                usage_transcribe, usage_answer
+            )
+        },
+    }
 
 
 if __name__ == "__main__":

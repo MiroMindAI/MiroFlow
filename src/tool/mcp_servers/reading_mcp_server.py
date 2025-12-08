@@ -24,7 +24,7 @@ JINA_API_KEY = os.environ.get("JINA_API_KEY", "")
 
 
 @mcp.tool()
-async def read_file(uri: str) -> str:
+async def read_file(uri: str) -> dict:
     """Read various types of resources (Doc, PPT, PDF, Excel, CSV, ZIP file etc.)
     described by an file: or data: URI.
 
@@ -35,10 +35,16 @@ async def read_file(uri: str) -> str:
         str: The content of the resource, or an error message if reading fails.
     """
     if not uri or not uri.strip():
-        return "[ERROR]: URI parameter is required and cannot be empty."
+        return {
+            "text": "[ERROR]: URI parameter is required and cannot be empty.",
+            "usage": {},
+        }
 
     if "home/user" in uri:
-        return "The read_file tool cannot access to sandbox file, please use the local path provided by original instruction"
+        return {
+            "text": "The read_file tool cannot access to sandbox file, please use the local path provided by original instruction",
+            "usage": {},
+        }
 
     # Validate URI scheme
     valid_schemes = ["http:", "https:", "file:", "data:"]
@@ -49,7 +55,10 @@ async def read_file(uri: str) -> str:
 
     # Validate URI scheme
     if not any(uri.lower().startswith(scheme) for scheme in valid_schemes):
-        return f"[ERROR]: Invalid URI scheme. Supported schemes are: {', '.join(valid_schemes)}"
+        return {
+            "text": f"[ERROR]: Invalid URI scheme. Supported schemes are: {', '.join(valid_schemes)}",
+            "usage": {},
+        }
 
     # If it’s an HTTP(S) URL, download it first with a compliant UA:
     if uri.lower().startswith(("http://", "https://")):
@@ -69,16 +78,24 @@ async def read_file(uri: str) -> str:
                 if retry_count > 3:
                     # Try scrape_website tool as fallback
                     try:
-                        scrape_result = await smart_request(
+                        response = await smart_request(
                             uri,
                             env={
                                 "SERPER_API_KEY": SERPER_API_KEY,
                                 "JINA_API_KEY": JINA_API_KEY,
                             },
                         )
-                        return f"[INFO]: Download failed, automatically tried `scrape_website` tool instead.\n\n{scrape_result}"
+                        scrape_result = response.get("text", None)
+                        scrape_usage = response.get("usage", {})
+                        return {
+                            "text": f"[INFO]: Download failed, automatically tried `scrape_website` tool instead.\n\n{scrape_result}",
+                            "usage": scrape_usage,
+                        }
                     except Exception as scrape_error:
-                        return f"[ERROR]: Failed to download {uri}: {e}. Also failed to scrape with `scrape_website` tool: {scrape_error}"
+                        return {
+                            "text": f"[ERROR]: Failed to download {uri}: {e}. Also failed to scrape with `scrape_website` tool: {scrape_error}",
+                            "usage": {},
+                        }
                 await asyncio.sleep(4**retry_count)
 
         # write to a temp file and switch URI to file:
@@ -120,13 +137,17 @@ async def read_file(uri: str) -> str:
                     )
                     result_content += "\n\nNote: If the document contains instructions or important information, please review them thoroughly and ensure you follow all relevant guidance."
                 except Exception as tool_error:
-                    return f"[ERROR]: Tool execution failed: {str(tool_error)}.\nHint: The reading tool cannot access to sandbox file, use the local path provided by original instruction instead."
+                    return {
+                        "text": f"[ERROR]: Tool execution failed: {str(tool_error)}.\nHint: The reading tool cannot access to sandbox file, use the local path provided by original instruction instead.",
+                        "usage": {},
+                    }
     except Exception as session_error:
-        return (
-            f"[ERROR]: Failed to connect to markitdown-mcp server: {str(session_error)}"
-        )
+        return {
+            "text": f"[ERROR]: Failed to connect to markitdown-mcp server: {str(session_error)}",
+            "usage": {},
+        }
 
-    return result_content
+    return {"text": result_content, "usage": {}}
 
 
 if __name__ == "__main__":

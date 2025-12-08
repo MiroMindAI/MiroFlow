@@ -25,7 +25,10 @@ def request_to_json(content: str) -> dict:
 async def smart_request(url: str, params: dict = None, env: dict = None) -> str:
     # Handle empty URL
     if not url:
-        return f"[ERROR]: Invalid URL: '{url}'. URL cannot be empty."
+        return {
+            "text": f"[ERROR]: Invalid URL: '{url}'. URL cannot be empty.",
+            "usage": {},
+        }
 
     if env:
         JINA_API_KEY = env.get("JINA_API_KEY", "")
@@ -36,7 +39,10 @@ async def smart_request(url: str, params: dict = None, env: dict = None) -> str:
         SERPER_API_KEY = ""
 
     if JINA_API_KEY == "" and SERPER_API_KEY == "":
-        return "[ERROR]: JINA_API_KEY and SERPER_API_KEY are not set, smart_request is not available."
+        return {
+            "text": "[ERROR]: JINA_API_KEY and SERPER_API_KEY are not set, smart_request is not available.",
+            "usage": {},
+        }
 
     IS_MIRO_API = True if "miro" in JINA_BASE_URL else False
 
@@ -52,7 +58,10 @@ async def smart_request(url: str, params: dict = None, env: dict = None) -> str:
 
     # Check for restricted domains
     if "huggingface.co/datasets" in url or "huggingface.co/spaces" in url:
-        return "You are trying to scrape a Hugging Face dataset for answers, please do not use the scrape tool for this purpose."
+        return {
+            "text": "You are trying to scrape a Hugging Face dataset for answers, please do not use the scrape tool for this purpose.",
+            "usage": {},
+        }
 
     retry_count = 0
     max_retries = 3
@@ -68,24 +77,36 @@ async def smart_request(url: str, params: dict = None, env: dict = None) -> str:
             ):
                 youtube_hint = "[NOTE]: If you need to get information about its visual or audio content, please use tool 'visual_audio_youtube_analyzing' instead. This tool may not be able to provide visual and audio content of a YouTube Video.\n\n"
 
-            content, jina_err = await scrape_jina(url, JINA_API_KEY, JINA_BASE_URL)
+            jina_response = await scrape_jina(url, JINA_API_KEY, JINA_BASE_URL)
+            content = jina_response.get("text", None)
+            jina_err = jina_response.get("error", None)
+            jina_usage = jina_response.get("usage", {})
             if jina_err:
                 error_msg += f"Failed to get content from Jina.ai: {jina_err}\n"
             elif content is None or content.strip() == "":
                 error_msg += "No content got from Jina.ai.\n"
             else:
-                return protocol_hint + youtube_hint + content
+                return {
+                    "text": protocol_hint + youtube_hint + content,
+                    "usage": jina_usage,
+                }
 
             if not IS_MIRO_API:
                 # Try Serper API for scraping if not using Miro API
                 # (Miro API does not support caching Serper scraping results)
-                content, serper_err = await scrape_serper(url, SERPER_API_KEY)
+                serper_response = await scrape_serper(url, SERPER_API_KEY)
+                content = serper_response.get("text", None)
+                serper_err = serper_response.get("error", None)
+                serper_usage = serper_response.get("usage", {})
                 if serper_err:
                     error_msg += f"Failed to get content from SERPER: {serper_err}\n"
                 elif content is None or content.strip() == "":
                     error_msg += "No content got from SERPER.\n"
                 else:
-                    return protocol_hint + youtube_hint + content
+                    return {
+                        "text": protocol_hint + youtube_hint + content,
+                        "usage": serper_usage,
+                    }
 
             content, request_err = scrape_request(url)
             if request_err:
@@ -93,29 +114,29 @@ async def smart_request(url: str, params: dict = None, env: dict = None) -> str:
             elif content is None or content.strip() == "":
                 error_msg += "No content got from requests.\n"
             else:
-                return protocol_hint + youtube_hint + content
+                return {"text": protocol_hint + youtube_hint + content, "usage": {}}
 
             raise Exception(error_msg)
 
         except Exception as e:
             retry_count += 1
             if retry_count >= max_retries:
-                return f"[ERROR]: {str(e)}"
+                return {"text": f"[ERROR]: {str(e)}", "usage": {}}
             else:
                 await asyncio.sleep(4**retry_count)
 
 
-async def scrape_jina(
-    url: str, jina_api_key: str, jina_base_url: str
-) -> tuple[str, str]:
+async def scrape_jina(url: str, jina_api_key: str, jina_base_url: str) -> dict:
     # Use Jina.ai reader API to convert URL to LLM-friendly text
     if jina_api_key == "":
-        return (
-            None,
-            "JINA_API_KEY is not set, JINA scraping is not available.",
-        )
+        return {
+            "text": None,
+            "error": "JINA_API_KEY is not set, JINA scraping is not available.",
+            "usage": {},
+        }
 
     jina_headers = {
+        "Accept": "application/json",
         "Authorization": f"Bearer {jina_api_key}",
         "X-Base": "final",
         "X-Engine": "browser",
@@ -129,12 +150,13 @@ async def scrape_jina(
         response = requests.get(jina_url, headers=jina_headers, timeout=120)
         if response.status_code == 422:
             # Return as error to allow fallback to other tools and retries
-            return (
-                None,
-                "Tool execution failed with Jina 422 error, which may indicate the URL is a file. This tool does not support files. If you believe the URL might point to a file, you should try using other applicable tools, or try to process it in the sandbox.",
-            )
+            return {
+                "text": None,
+                "error": "Tool execution failed with Jina 422 error, which may indicate the URL is a file. This tool does not support files. If you believe the URL might point to a file, you should try using other applicable tools, or try to process it in the sandbox.",
+                "usage": {},
+            }
         response.raise_for_status()
-        content = response.text
+        content = response.json().get("data", {}).get("content", "")
         if (
             "Warning: This page maybe not yet fully loaded, consider explicitly specify a timeout."
             in content
@@ -142,27 +164,42 @@ async def scrape_jina(
             # Try with longer timeout
             response = requests.get(jina_url, headers=jina_headers, timeout=300)
             if response.status_code == 422:
-                return (
-                    None,
-                    "Tool execution failed with Jina 422 error, which may indicate the URL is a file. This tool does not support files. If you believe the URL might point to a file, you should try using other applicable tools, or try to process it in the sandbox.",
-                )
+                return {
+                    "text": None,
+                    "error": "Tool execution failed with Jina 422 error, which may indicate the URL is a file. This tool does not support files. If you believe the URL might point to a file, you should try using other applicable tools, or try to process it in the sandbox.",
+                    "usage": {},
+                }
             response.raise_for_status()
-            content = response.text
-        return content, None
+            content = response.json().get("data", {}).get("content", "")
+        return {
+            "text": content,
+            "error": None,
+            "usage": {
+                "JINA": response.json()
+                .get("meta", {})
+                .get("usage", {})
+                .get("tokens", 0)
+            },
+        }
     except Exception as e:
-        return None, f"Failed to get content from Jina.ai: {str(e)}\n"
+        return {
+            "text": None,
+            "error": f"Failed to get content from Jina.ai: {str(e)}\n",
+            "usage": {},
+        }
 
 
-async def scrape_serper(url: str, serper_api_key: str) -> tuple[str, str]:
+async def scrape_serper(url: str, serper_api_key: str) -> dict:
     """This function uses SERPER for scraping a website.
     Args:
         url: The URL of the website to scrape.
     """
     if serper_api_key == "":
-        return (
-            None,
-            "SERPER_API_KEY is not set, SERPER scraping is not available.",
-        )
+        return {
+            "text": None,
+            "error": "SERPER_API_KEY is not set, SERPER scraping is not available.",
+            "usage": {},
+        }
 
     server_params = StdioServerParameters(
         command="npx",
@@ -179,9 +216,9 @@ async def scrape_serper(url: str, serper_api_key: str) -> tuple[str, str]:
                 result_content = (
                     tool_result.content[-1].text if tool_result.content else ""
                 )
-        return result_content, None
+        return {"text": result_content, "error": None, "usage": {"SERPER": 1}}
     except Exception as e:
-        return None, f"Tool execution failed: {str(e)}"
+        return {"text": None, "error": f"Tool execution failed: {str(e)}", "usage": {}}
 
 
 def scrape_request(url: str) -> tuple[str, str]:

@@ -594,6 +594,13 @@ async def entrypoint(cfg: DictConfig) -> float:
 
     def parse_func(x: str) -> BenchmarkTask:
         data = json.loads(x)
+        if isinstance(data.get("task_id"), (str, bytes, os.PathLike)) is False:
+            try:
+                data["task_id"] = str(data["task_id"])
+            except TypeError:
+                raise TypeError(
+                    "expected task_id to be a string, bytes or os.PathLike object"
+                )
         return BenchmarkTask(
             task_id=data["task_id"],
             task_question=data["task_question"],

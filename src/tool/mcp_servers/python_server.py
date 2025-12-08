@@ -11,6 +11,8 @@ from fastmcp import FastMCP
 # Initialize FastMCP server
 from src.logging.logger import setup_mcp_logging
 
+import time
+
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("e2b-python-interpreter")
 
@@ -135,7 +137,7 @@ async def _install_common_packages(sandbox, sandbox_id: str) -> bool:
 
 
 @mcp.tool()
-async def create_sandbox() -> str:
+async def create_sandbox() -> dict:
     """Create a linux sandbox and get the `sandbox_id` for safely executing commands and running python code. Note that the `sandbox_id` can only be assigned and cannot be manually specified.
 
     The sandbox may timeout and automatically shutdown. If so, you will need to create a new sandbox.
@@ -155,16 +157,40 @@ async def create_sandbox() -> str:
                 api_key=E2B_API_KEY,
             )
             info = sandbox.get_info()
+            metrics = None
+            for _ in range(10):
+                time.sleep(5)
+                metrics = sandbox.get_metrics()
+                if metrics:
+                    break
+            if not metrics:
+                raise TimeoutError("Failed to get metrics after 50s")
+
+            cpu_count = metrics[0].cpu_count
+            mem_total = metrics[0].mem_total
 
             # Install common packages before running code
             # await _install_common_packages(sandbox, info.sandbox_id)
             tmpfiles_dir = os.path.join(LOGS_DIR, "tmpfiles")
             os.makedirs(tmpfiles_dir, exist_ok=True)
 
-            return f"Sandbox created with sandbox_id: {info.sandbox_id}"
+            return {
+                "text": f"Sandbox created with sandbox_id: {info.sandbox_id}",
+                "usage": {
+                    f"sandbox_{info.sandbox_id}": {
+                        "cpu": cpu_count,
+                        "mem": mem_total,
+                        "start_time": time.time(),
+                        "end_time": time.time() + DEFAULT_TIMEOUT,
+                    }
+                },
+            }
         except Exception as e:
             if attempt == max_retries:
-                return f"Failed to create sandbox after {max_retries} attempts: {e}, please retry later."
+                return {
+                    "text": f"Failed to create sandbox after {max_retries} attempts: {e}, please retry later.",
+                    "usage": {},
+                }
             await asyncio.sleep(attempt * 2)  # Exponential backoff
         finally:
             # Set timeout before exit to prevent timeout after function exits
@@ -175,7 +201,7 @@ async def create_sandbox() -> str:
 
 
 @mcp.tool()
-async def run_command(sandbox_id: str, command: str) -> str:
+async def run_command(sandbox_id: str, command: str) -> dict:
     """Execute a shell command in the linux sandbox.
     The sandbox is already installed with common system packages for the task.
 
@@ -190,7 +216,10 @@ async def run_command(sandbox_id: str, command: str) -> str:
     try:
         sandbox = Sandbox.connect(sandbox_id, api_key=E2B_API_KEY)
     except Exception:
-        return f"[ERROR]: Failed to connect to sandbox {sandbox_id}, retry later. Make sure the sandbox is created and the id is correct."
+        return {
+            "text": f"[ERROR]: Failed to connect to sandbox {sandbox_id}, retry later. Make sure the sandbox is created and the id is correct.",
+            "usage": {},
+        }
 
     max_retries = 5
     for attempt in range(1, max_retries + 1):
@@ -205,7 +234,12 @@ async def run_command(sandbox_id: str, command: str) -> str:
             if "pip install" in command or "apt-get" in command:
                 result_str += "\n\n[PACKAGE INSTALL STATUS]: The system packages and Python packages required for the task have been installed. No need to install them again unless a missing package error occurs during execution."
 
-            return result_str
+            return {
+                "text": result_str,
+                "usage": {
+                    f"sandbox_{sandbox_id}": {"end_time": time.time() + DEFAULT_TIMEOUT}
+                },
+            }
         except Exception as e:
             if attempt == max_retries:
                 error_msg = f"[ERROR]: Failed to run command after {max_retries} attempts. Exception type: {type(e).__name__}, Details: {e}. \n\n[HINT]: Shell commands can be error-prone. Consider using the `run_python_code` tool instead to accomplish the same task with Python code, which often provides better error handling and more detailed error messages.\n\n[PERMISSION HINT]: You are running as user, not root. If you encounter permission issues, use `sudo` for commands that require administrator privileges (e.g., `sudo apt-get install`, `sudo systemctl`, etc.)."
@@ -214,7 +248,14 @@ async def run_command(sandbox_id: str, command: str) -> str:
                 if "pip install" in command or "apt-get" in command:
                     error_msg += "\n\n[PACKAGE INSTALL STATUS]: The system packages and Python packages required for the task have been installed. No need to install them again unless a missing package error occurs during execution."
 
-                return error_msg
+                return {
+                    "text": error_msg,
+                    "usage": {
+                        f"sandbox_{sandbox_id}": {
+                            "end_time": time.time() + DEFAULT_TIMEOUT
+                        }
+                    },
+                }
             await asyncio.sleep(attempt * 2)  # Exponential backoff
         finally:
             # Set timeout before exit to prevent timeout after function exits
@@ -225,7 +266,7 @@ async def run_command(sandbox_id: str, command: str) -> str:
 
 
 @mcp.tool()
-async def run_python_code(sandbox_id: str, code_block: str) -> str:
+async def run_python_code(sandbox_id: str, code_block: str) -> dict:
     """Run python code in the sandbox and return the execution result.
     The sandbox is already installed with common python packages for the task.
 
@@ -240,7 +281,10 @@ async def run_python_code(sandbox_id: str, code_block: str) -> str:
     try:
         sandbox = Sandbox.connect(sandbox_id=sandbox_id, api_key=E2B_API_KEY)
     except Exception:
-        return f"[ERROR]: Failed to connect to sandbox {sandbox_id}, retry later. Make sure the sandbox is created and the id is correct."
+        return {
+            "text": f"[ERROR]: Failed to connect to sandbox {sandbox_id}, retry later. Make sure the sandbox is created and the id is correct.",
+            "usage": {},
+        }
 
     max_retries = 5
     for attempt in range(1, max_retries + 1):
@@ -250,10 +294,22 @@ async def run_python_code(sandbox_id: str, code_block: str) -> str:
             )  # refresh the timeout for each command execution
 
             execution = sandbox.run_code(code_block)
-            return str(execution)
+            return {
+                "text": str(execution),
+                "usage": {
+                    f"sandbox_{sandbox_id}": {"end_time": time.time() + DEFAULT_TIMEOUT}
+                },
+            }
         except Exception as e:
             if attempt == max_retries:
-                return f"[ERROR]: Failed to run code in sandbox {sandbox_id} after {max_retries} attempts. Exception type: {type(e).__name__}, Details: {e}."
+                return {
+                    "text": f"[ERROR]: Failed to run code in sandbox {sandbox_id} after {max_retries} attempts. Exception type: {type(e).__name__}, Details: {e}.",
+                    "usage": {
+                        f"sandbox_{sandbox_id}": {
+                            "end_time": time.time() + DEFAULT_TIMEOUT
+                        }
+                    },
+                }
             await asyncio.sleep(attempt * 2)  # Exponential backoff
         finally:
             # Set timeout before exit to prevent timeout after function exits
@@ -266,7 +322,7 @@ async def run_python_code(sandbox_id: str, code_block: str) -> str:
 @mcp.tool()
 async def upload_file_from_local_to_sandbox(
     sandbox_id: str, local_file_path: str, sandbox_file_path: str = "/home/user"
-) -> str:
+) -> dict:
     """Upload a local file to the `/home/user` dir of the sandbox.
 
     Args:
@@ -281,7 +337,10 @@ async def upload_file_from_local_to_sandbox(
     try:
         sandbox = Sandbox.connect(sandbox_id, api_key=E2B_API_KEY)
     except Exception:
-        return f"[ERROR]: Failed to connect to sandbox {sandbox_id}, retry later. Make sure the sandbox is created and the id is correct."
+        return {
+            "text": f"[ERROR]: Failed to connect to sandbox {sandbox_id}, retry later. Make sure the sandbox is created and the id is correct.",
+            "usage": {},
+        }
 
     try:
         sandbox.set_timeout(
@@ -297,9 +356,19 @@ async def upload_file_from_local_to_sandbox(
         with open(local_file_path, "rb") as f:
             sandbox.files.write(uploaded_file_path, f)
 
-        return f"File uploaded to {uploaded_file_path}\n\n[INFO]: For directly reading local files without uploading to sandbox, consider using the `read_file` tool which can read various file types (Doc, PPT, PDF, Excel, CSV, ZIP, etc.) directly from local paths or URLs. Note that `read_file` doesn't support files already in the sandbox."
+        return {
+            "text": f"File uploaded to {uploaded_file_path}\n\n[INFO]: For directly reading local files without uploading to sandbox, consider using the `read_file` tool which can read various file types (Doc, PPT, PDF, Excel, CSV, ZIP, etc.) directly from local paths or URLs. Note that `read_file` doesn't support files already in the sandbox.",
+            "usage": {
+                f"sandbox_{sandbox_id}": {"end_time": time.time() + DEFAULT_TIMEOUT}
+            },
+        }
     except Exception as e:
-        return f"[ERROR]: Failed to upload file {local_file_path} to sandbox {sandbox_id}: {e}\n\n[INFO]: This tool is for uploading local files to the sandbox. For security reasons, downloading files from sandbox to local system is not supported. Alternatively, consider using the `read_file` tool which can directly read various file types (Doc, PPT, PDF, Excel, CSV, ZIP, etc.) from local paths or URLs without uploading to sandbox."
+        return {
+            "text": f"[ERROR]: Failed to upload file {local_file_path} to sandbox {sandbox_id}: {e}\n\n[INFO]: This tool is for uploading local files to the sandbox. For security reasons, downloading files from sandbox to local system is not supported. Alternatively, consider using the `read_file` tool which can directly read various file types (Doc, PPT, PDF, Excel, CSV, ZIP, etc.) from local paths or URLs without uploading to sandbox.",
+            "usage": {
+                f"sandbox_{sandbox_id}": {"end_time": time.time() + DEFAULT_TIMEOUT}
+            },
+        }
     finally:
         # Set timeout before exit to prevent timeout after function exits
         try:
@@ -311,7 +380,7 @@ async def upload_file_from_local_to_sandbox(
 @mcp.tool()
 async def download_file_from_internet_to_sandbox(
     sandbox_id: str, url: str, sandbox_file_path: str = "/home/user"
-) -> str:
+) -> dict:
     """Download a file from the internet to the `/home/user` dir of the sandbox.
     You should use this tool to download files from the internet.
 
@@ -327,7 +396,10 @@ async def download_file_from_internet_to_sandbox(
     try:
         sandbox = Sandbox.connect(sandbox_id, api_key=E2B_API_KEY)
     except Exception:
-        return f"[ERROR]: Failed to connect to sandbox {sandbox_id}, retry later. Make sure the sandbox is created and the id is correct."
+        return {
+            "text": f"[ERROR]: Failed to connect to sandbox {sandbox_id}, retry later. Make sure the sandbox is created and the id is correct.",
+            "usage": {},
+        }
 
     try:
         sandbox.set_timeout(
@@ -341,14 +413,33 @@ async def download_file_from_internet_to_sandbox(
         for attempt in range(1, max_retries + 1):
             result = sandbox.commands.run(f"wget {url} -O {downloaded_file_path}")
             if result.exit_code == 0:
-                return f"File downloaded to {downloaded_file_path}\n\n[INFO]: For directly reading files from internet URLs without downloading to sandbox, consider using the `read_file` tool which can read various file types (Doc, PPT, PDF, Excel, CSV, ZIP, etc.) directly from URLs. Note that `read_file` doesn't support files already in the sandbox."
+                return {
+                    "text": f"File downloaded to {downloaded_file_path}\n\n[INFO]: For directly reading files from internet URLs without downloading to sandbox, consider using the `read_file` tool which can read various file types (Doc, PPT, PDF, Excel, CSV, ZIP, etc.) directly from URLs. Note that `read_file` doesn't support files already in the sandbox.",
+                    "usage": {
+                        f"sandbox_{sandbox_id}": {
+                            "end_time": time.time() + DEFAULT_TIMEOUT
+                        }
+                    },
+                }
             elif attempt < max_retries:
                 await asyncio.sleep(4**attempt)
                 continue  # Retry
             else:
-                return f"[ERROR]: Failed to download file from {url} to {downloaded_file_path} after {max_retries} attempts: {result}.\n\n[INFO]: This tool is for downloading files from the internet to the sandbox. To upload local files to the sandbox, use `upload_file_from_local_to_sandbox` instead. Alternatively, consider using the `read_file` tool which can directly read various file types (Doc, PPT, PDF, Excel, CSV, ZIP, etc.) from internet URLs without downloading to sandbox."
+                return {
+                    "text": f"[ERROR]: Failed to download file from {url} to {downloaded_file_path} after {max_retries} attempts: {result}.\n\n[INFO]: This tool is for downloading files from the internet to the sandbox. To upload local files to the sandbox, use `upload_file_from_local_to_sandbox` instead. Alternatively, consider using the `read_file` tool which can directly read various file types (Doc, PPT, PDF, Excel, CSV, ZIP, etc.) from internet URLs without downloading to sandbox.",
+                    "usage": {
+                        f"sandbox_{sandbox_id}": {
+                            "end_time": time.time() + DEFAULT_TIMEOUT
+                        }
+                    },
+                }
     except Exception as e:
-        return f"[ERROR]: Failed to download file from {url}: {e}\n\n[INFO]: This tool is for downloading files from the internet to the sandbox. To upload local files to the sandbox, use `upload_file_from_local_to_sandbox` instead. Alternatively, consider using the `read_file` tool which can directly read various file types (Doc, PPT, PDF, Excel, CSV, ZIP, etc.) from internet URLs without downloading to sandbox."
+        return {
+            "text": f"[ERROR]: Failed to download file from {url}: {e}\n\n[INFO]: This tool is for downloading files from the internet to the sandbox. To upload local files to the sandbox, use `upload_file_from_local_to_sandbox` instead. Alternatively, consider using the `read_file` tool which can directly read various file types (Doc, PPT, PDF, Excel, CSV, ZIP, etc.) from internet URLs without downloading to sandbox.",
+            "usage": {
+                f"sandbox_{sandbox_id}": {"end_time": time.time() + DEFAULT_TIMEOUT}
+            },
+        }
     finally:
         # Set timeout before exit to prevent timeout after function exits
         try:
@@ -360,7 +451,7 @@ async def download_file_from_internet_to_sandbox(
 @mcp.tool()
 async def download_file_from_sandbox_to_local(
     sandbox_id: str, sandbox_file_path: str, local_filename: str = None
-) -> str:
+) -> dict:
     """Download a file from the sandbox to local system. Files in sandbox cannot be processed by tools from other servers - only local files and internet URLs can be processed by them.
 
     Args:
@@ -375,7 +466,10 @@ async def download_file_from_sandbox_to_local(
     try:
         sandbox = Sandbox.connect(sandbox_id, api_key=E2B_API_KEY)
     except Exception:
-        return f"[ERROR]: Failed to connect to sandbox {sandbox_id}, retry later. Make sure the sandbox is created and the id is correct."
+        return {
+            "text": f"[ERROR]: Failed to connect to sandbox {sandbox_id}, retry later. Make sure the sandbox is created and the id is correct.",
+            "usage": {},
+        }
 
     try:
         sandbox.set_timeout(
@@ -384,7 +478,12 @@ async def download_file_from_sandbox_to_local(
 
         # Create tmpfiles directory if it doesn't exist
         if not LOGS_DIR:
-            return "[ERROR]: LOGS_DIR environment variable is not set. Cannot determine where to save the file."
+            return {
+                "text": "[ERROR]: LOGS_DIR environment variable is not set. Cannot determine where to save the file.",
+                "usage": {
+                    f"sandbox_{sandbox_id}": {"end_time": time.time() + DEFAULT_TIMEOUT}
+                },
+            }
 
         tmpfiles_dir = os.path.join(LOGS_DIR, "tmpfiles")
         os.makedirs(tmpfiles_dir, exist_ok=True)
@@ -402,9 +501,19 @@ async def download_file_from_sandbox_to_local(
             content = sandbox.files.read(sandbox_file_path, format="bytes")
             f.write(content)
 
-        return f"File downloaded successfully to: {local_file_path}\n\n[INFO]: The file can now be accessed by other tools (reading, question-answering, etc.) which only support local files and internet URLs, not sandbox files."
+        return {
+            "text": f"File downloaded successfully to: {local_file_path}\n\n[INFO]: The file can now be accessed by other tools (reading, question-answering, etc.) which only support local files and internet URLs, not sandbox files.",
+            "usage": {
+                f"sandbox_{sandbox_id}": {"end_time": time.time() + DEFAULT_TIMEOUT}
+            },
+        }
     except Exception as e:
-        return f"[ERROR]: Failed to download file {sandbox_file_path} from sandbox {sandbox_id}: {e}\n\n[INFO]: This tool is for downloading files from the sandbox to local system. To upload local files to the sandbox, use `upload_file_from_local_to_sandbox` instead."
+        return {
+            "text": f"[ERROR]: Failed to download file {sandbox_file_path} from sandbox {sandbox_id}: {e}\n\n[INFO]: This tool is for downloading files from the sandbox to local system. To upload local files to the sandbox, use `upload_file_from_local_to_sandbox` instead.",
+            "usage": {
+                f"sandbox_{sandbox_id}": {"end_time": time.time() + DEFAULT_TIMEOUT}
+            },
+        }
     finally:
         # Set timeout before exit to prevent timeout after function exits
         try:

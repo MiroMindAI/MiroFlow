@@ -528,6 +528,12 @@ class Orchestrator:
                         sub_agent_name
                     ].execute_tool_call(server_name, tool_name, arguments)
 
+                    self.task_log.log_step(
+                        "tool_usage",
+                        str(tool_result["usage"]),
+                    )
+                    tool_result.pop("usage", None)
+
                     call_end_time = time.time()
                     call_duration_ms = int((call_end_time - call_start_time) * 1000)
 
@@ -898,6 +904,12 @@ Your objective is maximum completeness, transparency, and detailed documentation
                                 arguments=arguments,
                             )
                         )
+
+                        self.task_log.log_step(
+                            "tool_usage",
+                            str(tool_result["usage"]),
+                        )
+                        tool_result.pop("usage", None)
 
                     call_end_time = time.time()
                     call_duration_ms = int((call_end_time - call_start_time) * 1000)

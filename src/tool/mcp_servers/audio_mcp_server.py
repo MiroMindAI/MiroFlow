@@ -129,7 +129,7 @@ def _encode_audio_file(audio_path: str) -> tuple[str, str]:
 
 
 @mcp.tool()
-async def audio_transcription(audio_path_or_url: str) -> str:
+async def audio_transcription(audio_path_or_url: str) -> dict:
     """
     Transcribe audio file to text and return the transcription.
     Args:
@@ -148,10 +148,13 @@ async def audio_transcription(audio_path_or_url: str) -> str:
             if os.path.exists(audio_path_or_url):  # Check if the file exists locally
                 with open(audio_path_or_url, "rb") as audio_file:
                     transcription = client.audio.transcriptions.create(
-                        model="gpt-4o-transcribe", file=audio_file
+                        model=OPENAI_TRANSCRIPTION_MODEL_NAME, file=audio_file
                     )
             elif "home/user" in audio_path_or_url:
-                return "The audio_transcription tool cannot access to sandbox file, please use the local path provided by original instruction"
+                return {
+                    "text": "The audio_transcription tool cannot access to sandbox file, please use the local path provided by original instruction",
+                    "usage": {},
+                }
             else:
                 # download the audio file from the URL
                 response = requests.get(audio_path_or_url)
@@ -188,19 +191,35 @@ async def audio_transcription(audio_path_or_url: str) -> str:
         except requests.RequestException as e:
             retry += 1
             if retry >= max_retries:
-                return f"[ERROR]: Audio transcription failed: Failed to download audio file - {e}.\nNote: Files from sandbox are not available. You should use local path given in the instruction. \nURLs must include the proper scheme (e.g., 'https://') and be publicly accessible. The file should be in a common audio format such as MP3, WAV, or M4A.\nNote: YouTube video URL is not supported."
+                return {
+                    "text": f"[ERROR]: Audio transcription failed: Failed to download audio file - {e}.\nNote: Files from sandbox are not available. You should use local path given in the instruction. \nURLs must include the proper scheme (e.g., 'https://') and be publicly accessible. The file should be in a common audio format such as MP3, WAV, or M4A.\nNote: YouTube video URL is not supported.",
+                    "usage": {},
+                }
             await asyncio.sleep(5 * (2**retry))
         except Exception as e:
             retry += 1
             if retry >= max_retries:
-                return f"[ERROR]: Audio transcription failed: {e}\nNote: Files from sandbox are not available. You should use local path given in the instruction. The file should be in a common audio format such as MP3, WAV, or M4A.\nNote: YouTube video URL is not supported."
+                return {
+                    "text": f"[ERROR]: Audio transcription failed: {e}\nNote: Files from sandbox are not available. You should use local path given in the instruction. The file should be in a common audio format such as MP3, WAV, or M4A.\nNote: YouTube video URL is not supported.",
+                    "usage": {},
+                }
             await asyncio.sleep(5 * (2**retry))
 
-    return transcription.text
+    audio_usage = (
+        getattr(transcription, "usage", None)
+        .get("input_token_details", {})
+        .get("audio_tokens", 0)
+    )
+    return {
+        "text": transcription.text,
+        "usage": {
+            f"audio_transcription_openai_{OPENAI_TRANSCRIPTION_MODEL_NAME}": audio_usage
+        },
+    }
 
 
 @mcp.tool()
-async def audio_question_answering(audio_path_or_url: str, question: str) -> str:
+async def audio_question_answering(audio_path_or_url: str, question: str) -> dict:
     """
     Answer the question based on the given audio information.
 
@@ -221,7 +240,10 @@ async def audio_question_answering(audio_path_or_url: str, question: str) -> str
             encoded_string, file_format = _encode_audio_file(audio_path_or_url)
             duration = _get_audio_duration(audio_path_or_url)
         elif "home/user" in audio_path_or_url:
-            return "The audio_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction"
+            return {
+                "text": "The audio_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction",
+                "usage": {},
+            }
         else:
             # download the audio file from the URL
             response = requests.get(
@@ -234,7 +256,10 @@ async def audio_question_answering(audio_path_or_url: str, question: str) -> str
 
             # Basic content validation - check if response has content
             if not response.content:
-                return "[ERROR]: Audio question answering failed: Downloaded file is empty.\nNote: Files from sandbox are not available. You should use local path given in the instruction. \nURLs must include the proper scheme (e.g., 'https://') and be publicly accessible. The file should be in a common audio format such as MP3.\nNote: YouTube video URL is not supported."
+                return {
+                    "text": "[ERROR]: Audio question answering failed: Downloaded file is empty.\nNote: Files from sandbox are not available. You should use local path given in the instruction. \nURLs must include the proper scheme (e.g., 'https://') and be publicly accessible. The file should be in a common audio format such as MP3.\nNote: YouTube video URL is not supported.",
+                    "usage": {},
+                }
 
             # Check content type if available
             content_type = response.headers.get("content-type", "").lower()
@@ -258,7 +283,10 @@ async def audio_question_answering(audio_path_or_url: str, question: str) -> str
                     os.remove(temp_audio_path)
 
         if encoded_string is None or file_format is None:
-            return "[ERROR]: Audio question answering failed: Failed to encode audio file.\nNote: Files from sandbox are not available. You should use local path given in the instruction. \nURLs must include the proper scheme (e.g., 'https://') and be publicly accessible. The file should be in a common audio format such as MP3.\nNote: YouTube video URL is not supported."
+            return {
+                "text": "[ERROR]: Audio question answering failed: Failed to encode audio file.\nNote: Files from sandbox are not available. You should use local path given in the instruction. \nURLs must include the proper scheme (e.g., 'https://') and be publicly accessible. The file should be in a common audio format such as MP3.\nNote: YouTube video URL is not supported.",
+                "usage": {},
+            }
 
         response = client.chat.completions.create(
             model=OPENAI_AUDIO_MODEL_NAME,
@@ -283,12 +311,30 @@ async def audio_question_answering(audio_path_or_url: str, question: str) -> str
             ],
         )
     except Exception as e:
-        return f"[ERROR]: Audio question answering failed when calling OpenAI API: {e}\nNote: Files from sandbox are not available. You should use local path given in the instruction. The file should be in a common audio format such as MP3, WAV, or M4A.\nNote: YouTube video URL is not supported."
+        return {
+            "text": f"[ERROR]: Audio question answering failed when calling OpenAI API: {e}\nNote: Files from sandbox are not available. You should use local path given in the instruction. The file should be in a common audio format such as MP3, WAV, or M4A.\nNote: YouTube video URL is not supported.",
+            "usage": {},
+        }
 
-    response = response.choices[0].message.content
-    response += f"\n\nAudio duration: {duration} seconds"
+    content = response.choices[0].message.content
+    content += f"\n\nAudio duration: {duration} seconds"
 
-    return response
+    try:
+        audio_qa_usage_audio = response.usage.prompt_tokens_details.audio_tokens
+        audio_qa_usage_input_text = response.usage.prompt_tokens_details.text_tokens
+        audio_qa_usage_output_text = response.usage.completion_tokens
+        return {
+            "text": content,
+            "usage": {
+                f"audio_qa_openai_{OPENAI_AUDIO_MODEL_NAME}": {
+                    "audio": audio_qa_usage_audio,
+                    "input_text": audio_qa_usage_input_text,
+                    "output_text": audio_qa_usage_output_text,
+                }
+            },
+        }
+    except Exception:
+        return {"text": content, "usage": {}}
 
 
 if __name__ == "__main__":
