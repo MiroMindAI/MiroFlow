@@ -19,7 +19,7 @@ main_agent:
     openrouter_base_url: "${oc.env:OPENROUTER_BASE_URL,https://openrouter.ai/api/v1}"
     openrouter_provider: "anthropic"
     disable_cache_control: false
-    keep_tool_result: -1
+    #keep_tool_result: -1
     oai_tool_thinking: false
   
   tool_config:
@@ -57,7 +57,6 @@ sub_agents:
       openrouter_base_url: "${oc.env:OPENROUTER_BASE_URL,https://openrouter.ai/api/v1}"
       openrouter_provider: "anthropic"
       disable_cache_control: false
-      keep_tool_result: -1
       oai_tool_thinking: false
     
     tool_config:
@@ -69,6 +68,7 @@ sub_agents:
 
     max_turns: -1  # Maximum number of turns for main agent execution
     max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
+    keep_tool_result: -1
 
 
 # Can define some top-level or default parameters here

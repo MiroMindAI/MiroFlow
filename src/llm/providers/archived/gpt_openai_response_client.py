@@ -166,13 +166,18 @@ class GPTOpenAIResponseClient(LLMProviderClientBase):
         return tool_list
 
     def process_llm_response(
-        self, llm_response, message_history, agent_type="main"
-    ) -> tuple[str, bool]:
-        """Process OpenAI Response API LLM response"""
+        self, llm_response, agent_type="main"
+    ) -> tuple[str, bool, dict]:
+        """
+        Process OpenAI Response API LLM response
+        
+        Returns:
+            tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
+        """
         if not llm_response:
             error_msg = "LLM did not return a valid response."
             logger.debug(f"Error: {error_msg}")
-            return "", True  # Exit loop
+            return "", True, {}  # Exit loop
 
         # Now working with serializable response format
         assistant_response_text = ""
@@ -217,18 +222,16 @@ class GPTOpenAIResponseClient(LLMProviderClientBase):
         if not assistant_response_text:
             assistant_response_text = "\n".join(tool_call_descriptions)
 
-        message_item = {
+        assistant_message = {
             "role": "assistant",
             "content": assistant_response_text,
         }
         if tool_call_list:
-            message_item["tool_calls"] = tool_call_list
-
-        message_history.append(message_item)
+            assistant_message["tool_calls"] = tool_call_list
 
         logger.debug(f"LLM Response: {assistant_response_text}")
 
-        return assistant_response_text, False
+        return assistant_response_text, False, assistant_message
 
     def extract_tool_calls_info(self, llm_response, assistant_response_text):
         """Extract tool call information from OpenAI Response API LLM response"""

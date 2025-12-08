@@ -10,6 +10,27 @@ from src.logging.logger import bootstrap_logger
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
 
+def get_file_type(file_name: str) -> str:
+    file_extension = file_name.rsplit(".", maxsplit=1)[-1].lower()
+    file_type = None
+    if file_extension in ["jpg", "jpeg", "png", "gif", "webp"]:
+        file_type = "Image"
+    elif file_extension == "txt":
+        file_type = "Text"
+    elif file_extension in ["jsonld", "json"]:
+        file_type = "Json"
+    elif file_extension in ["pptx", "ppt"]:
+        file_type = "PPT"
+    elif file_extension in ["wav"]:
+        file_type = "WAV"
+    elif file_extension in ["mp3", "m4a"]:
+        file_type = "MP3"
+    elif file_extension in ["zip"]:
+        file_type = "Zip"
+    else:
+        file_type = file_extension
+    return file_type
+    
 
 def process_input(task_description, task_file_name):
     """

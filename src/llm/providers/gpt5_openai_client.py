@@ -219,14 +219,19 @@ class GPT5OpenAIClient(LLMProviderClientBase):
         return cleaned_text
 
     def process_llm_response(
-        self, llm_response, message_history, agent_type="main"
-    ) -> tuple[str, bool]:
-        """Process OpenAI LLM response"""
+        self, llm_response, agent_type="main"
+    ) -> tuple[str, bool, dict]:
+        """
+        Process OpenAI LLM response
+        
+        Returns:
+            tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
+        """
 
         if not llm_response or not llm_response.choices:
             error_msg = "LLM did not return a valid response."
             logger.error(f"Should never happen: {error_msg}")
-            return "", True  # Exit loop
+            return "", True, {}  # Exit loop
 
         # Extract LLM response text
         if llm_response.choices[0].finish_reason == "stop":
@@ -235,9 +240,7 @@ class GPT5OpenAIClient(LLMProviderClientBase):
             assistant_response_text = self._clean_user_content_from_response(
                 assistant_response_text
             )
-            message_history.append(
-                {"role": "assistant", "content": assistant_response_text}
-            )
+            assistant_message = {"role": "assistant", "content": assistant_response_text}
         elif llm_response.choices[0].finish_reason == "length":
             assistant_response_text = llm_response.choices[0].message.content or ""
             if assistant_response_text == "":
@@ -246,9 +249,7 @@ class GPT5OpenAIClient(LLMProviderClientBase):
                 assistant_response_text = self._clean_user_content_from_response(
                     assistant_response_text
                 )
-            message_history.append(
-                {"role": "assistant", "content": assistant_response_text}
-            )
+            assistant_message = {"role": "assistant", "content": assistant_response_text}
         else:
             logger.error(
                 f"Unsupported finish reason: {llm_response.choices[0].finish_reason}"
@@ -257,12 +258,10 @@ class GPT5OpenAIClient(LLMProviderClientBase):
                 "Successful response, but unsupported finish reason: "
                 + llm_response.choices[0].finish_reason
             )
-            message_history.append(
-                {"role": "assistant", "content": assistant_response_text}
-            )
+            assistant_message = {"role": "assistant", "content": assistant_response_text}
         logger.debug(f"LLM Response: {assistant_response_text}")
 
-        return assistant_response_text, False
+        return assistant_response_text, False, assistant_message
 
     def extract_tool_calls_info(self, llm_response, assistant_response_text):
         """Extract tool call information from OpenAI LLM response"""

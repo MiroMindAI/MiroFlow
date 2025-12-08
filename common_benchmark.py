@@ -25,10 +25,7 @@ from src.logging.logger import (
     init_logging_for_benchmark_evaluation,
 )
 from config import config_name, config_path
-from src.core.pipeline import (
-    create_pipeline_components,
-    execute_task_pipeline,
-)
+from src.agents.orchestrator import Orchestrator
 
 init_logging_for_benchmark_evaluation(print_task_logs=False)
 
@@ -125,17 +122,8 @@ class BenchmarkEvaluator(ABC):
         self.tasks: List[BenchmarkTask] = []
         self.results: List[BenchmarkResult] = []
 
-        # Initialize pipeline components
-        logs_dir = self.get_log_dir()
-        print("Initializing pipeline components...")
-        (
-            self.main_agent_tool_manager,
-            self.sub_agent_tool_managers,
-            self.output_formatter,
-        ) = create_pipeline_components(cfg, logs_dir=str(logs_dir))
-        print(
-            f"Pipeline components initialized successfully! Using pass@{self.pass_at_k}"
-        )
+        # Orchestrator 只需初始化一次，可复用于所有任务
+        self.orchestrator = Orchestrator(cfg=cfg)
 
     @abstractmethod
     def load_tasks(self) -> List[BenchmarkTask]:
@@ -203,27 +191,24 @@ class BenchmarkEvaluator(ABC):
                     TaskStatus.RUN_FAILED,
                 ):
                     try:
-                        (
-                            response,
-                            final_boxed_answer,
-                            log_file_path,
-                        ) = await execute_task_pipeline(
-                            cfg=self.cfg,
-                            task_id=f"{task.task_id}",
+                        log_path = self.output_dir / f"task_{task.task_id}_attempt_{attempt}.json"
+                        
+                        # 使用 orchestrator.run_task() 执行任务
+                        response, task_log = await self.orchestrator.run_task(
                             task_name=f"{task.task_id}",
-                            task_file_name=task_file_path,
+                            task_id=f"{task.task_id}",
                             task_description=task_description,
-                            main_agent_tool_manager=self.main_agent_tool_manager,
-                            sub_agent_tool_managers=self.sub_agent_tool_managers,
-                            output_formatter=self.output_formatter,
+                            task_file_name=task_file_path,
+                            log_path=log_path,
                             ground_truth=task.ground_truth,
                             metadata=task.metadata,
-                            log_path=self.output_dir
-                            / f"task_{task.task_id}_attempt_{attempt}.json",
                         )
+                        
+                        # 从 task_log 获取 boxed answer
+                        final_boxed_answer = task_log.final_boxed_answer if task_log else None
 
                         attempt_result["model_response"] = response if response else ""
-                        attempt_result["log_file_path"] = log_file_path
+                        attempt_result["log_file_path"] = log_path
                         if final_boxed_answer:
                             attempt_result["model_boxed_answer"] = final_boxed_answer
                             attempt_result["status"] = TaskStatus.RUN_COMPLETED

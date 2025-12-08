@@ -19,7 +19,7 @@ logger = bootstrap_logger(level=LOGGER_LEVEL)
 
 # MCP server configuration generation function
 def create_mcp_server_parameters(
-    cfg: DictConfig, agent_cfg: DictConfig, logs_dir: str | None = None
+    agent_cfg: DictConfig, logs_dir: str | None = None
 ):
     """Define and return MCP server configuration list"""
     configs = []
@@ -28,7 +28,7 @@ def create_mcp_server_parameters(
         for tool in agent_cfg["tool_config"]:
             try:
                 config_path = (
-                    pathlib.Path(__file__).parent.parent.parent
+                    pathlib.Path('.')
                     / "config"
                     / "tool"
                     / f"{tool}.yaml"
@@ -75,22 +75,59 @@ def _load_agent_prompt_class(prompt_class_name: str) -> BaseAgentPrompt:
     return PromptClass()
 
 
-def expose_sub_agents_as_tools(sub_agents_cfg: DictConfig):
+# def expose_sub_agents_as_tools(sub_agents_cfg: DictConfig):
+#     """Expose sub-agents as tools"""
+#     sub_agents_server_params = []
+#     for sub_agent in sub_agents_cfg.keys():
+#         if not sub_agent.startswith("agent-"):
+#             raise ValueError(
+#                 f"Sub-agent name must start with 'agent-': {sub_agent}. Please check the sub-agent name in the agent's config file."
+#             )
+#         try:
+#             sub_agent_prompt_instance = _load_agent_prompt_class(
+#                 sub_agents_cfg[sub_agent].prompt_class
+#             )
+#             sub_agent_tool_definition = sub_agent_prompt_instance.expose_agent_as_tool(
+#                 subagent_name=sub_agent
+#             )
+#             sub_agents_server_params.append(sub_agent_tool_definition)
+#         except Exception as e:
+#             raise ValueError(f"Failed to expose sub-agent {sub_agent} as a tool: {e}")
+#     return sub_agents_server_params
+
+def expose_sub_agents_as_tools(sub_agent_names):
     """Expose sub-agents as tools"""
     sub_agents_server_params = []
-    for sub_agent in sub_agents_cfg.keys():
-        if not sub_agent.startswith("agent-"):
-            raise ValueError(
-                f"Sub-agent name must start with 'agent-': {sub_agent}. Please check the sub-agent name in the agent's config file."
-            )
+    for sub_agent_name in sub_agent_names:
+        # if not sub_agent_name.startswith("agent-"):
+        #     raise ValueError(
+        #         f"Sub-agent name must start with 'agent-': {sub_agent}. Please check the sub-agent name in the agent's config file."
+        #     )
         try:
-            sub_agent_prompt_instance = _load_agent_prompt_class(
-                sub_agents_cfg[sub_agent].prompt_class
-            )
-            sub_agent_tool_definition = sub_agent_prompt_instance.expose_agent_as_tool(
-                subagent_name=sub_agent
+            # sub_agent_prompt_instance = _load_agent_prompt_class(
+            #     sub_agents_cfg[sub_agent].prompt_class
+            # )
+            # sub_agent_tool_definition = sub_agent_prompt_instance.expose_agent_as_tool(
+            #     subagent_name=sub_agent
+            # )
+            sub_agent_tool_definition = dict(
+                name=sub_agent_name,
+                tools=[
+                    dict(
+                        name="execute_subtask",
+                        description="This tool is an agent that performs various subtasks to collect information and execute specific actions. It can access the internet, read files, program, and process multimodal content, but is not specialized in complex reasoning or logical thinking. The tool returns processed summary reports rather than raw information - it analyzes, synthesizes, and presents findings in a structured format. The subtask should be clearly defined, include relevant background, and focus on a single, well-scoped objective. It does not perform vague or speculative subtasks. \nArgs: \n\tsubtask: the subtask to be performed. \nReturns: \n\tthe processed summary report of the subtask. ",
+                        schema={
+                            "type": "object",
+                            "properties": {
+                                "subtask": {"title": "Subtask", "type": "string"}
+                            },
+                            "required": ["subtask"],
+                            "title": "execute_subtaskArguments",
+                        },
+                    )
+                ],
             )
             sub_agents_server_params.append(sub_agent_tool_definition)
         except Exception as e:
-            raise ValueError(f"Failed to expose sub-agent {sub_agent} as a tool: {e}")
+            raise ValueError(f"Failed to expose sub-agent {sub_agent_name} as a tool: {e}")
     return sub_agents_server_params

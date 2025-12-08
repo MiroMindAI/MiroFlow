@@ -53,44 +53,45 @@ class TaskTracer(BaseModel):
     error: str = ""
 
     # record task exection detail. hydrated DURING task_execution.
-    current_main_turn_id: int = 0
-    current_sub_agent_turn_id: int = 0
-    sub_agent_counter: int = 0
-    current_sub_agent_session_id: str | None = None
-    main_agent_message_history: dict[str, Any] = Field(default_factory=dict)
-    sub_agent_message_history_sessions: dict[str, dict[str, Any]] = Field(
-        default_factory=dict
-    )
+    #current_main_turn_id: int = 0
+    #current_sub_agent_turn_id: int = 0
+    #sub_agent_counter: int = 0
+    #current_sub_agent_session_id: str | None = None
+    #main_agent_message_history: dict[str, Any] = Field(default_factory=dict)
+    #sub_agent_message_history_sessions: dict[str, dict[str, Any]] = Field(
+    #    default_factory=dict
+    #)
+    message_history: dict[str, dict[str, Any]] = Field(default_factory=dict)
     step_logs: list[StepRecord] = Field(default_factory=list)
 
-    def start_sub_agent_session(
-        self, sub_agent_name: str, subtask_description: str
-    ) -> str:
-        """Start a new sub-agent session"""
-        self.sub_agent_counter += 1
-        session_id = f"{sub_agent_name}_{self.sub_agent_counter}"
-        self.current_sub_agent_session_id = session_id
+    # def start_sub_agent_session(
+    #     self, sub_agent_name: str, subtask_description: str
+    # ) -> str:
+    #     """Start a new sub-agent session"""
+    #     self.sub_agent_counter += 1
+    #     session_id = f"{sub_agent_name}_{self.sub_agent_counter}"
+    #     self.current_sub_agent_session_id = session_id
 
-        # record sub-agent session start
-        self.log_step(
-            f"sub_{sub_agent_name}_session_start",
-            f"Starting {session_id} for subtask: {subtask_description[:100]}{'...' if len(subtask_description) > 100 else ''}",
-            "info",
-            metadata={"session_id": session_id, "subtask": subtask_description},
-        )
+    #     # record sub-agent session start
+    #     self.log_step(
+    #         f"sub_{sub_agent_name}_session_start",
+    #         f"Starting {session_id} for subtask: {subtask_description[:100]}{'...' if len(subtask_description) > 100 else ''}",
+    #         "info",
+    #         metadata={"session_id": session_id, "subtask": subtask_description},
+    #     )
 
-        return session_id
+    #     return session_id
 
-    def end_sub_agent_session(self, sub_agent_name: str):
-        """End the current sub-agent session"""
-        self.log_step(
-            f"sub_{sub_agent_name}_session_end",
-            f"Ending {self.current_sub_agent_session_id}",
-            "success",
-            metadata={"session_id": self.current_sub_agent_session_id},
-        )
-        self.current_sub_agent_session_id = None
-        return None
+    # def end_sub_agent_session(self, sub_agent_name: str):
+    #     """End the current sub-agent session"""
+    #     self.log_step(
+    #         f"sub_{sub_agent_name}_session_end",
+    #         f"Ending {self.current_sub_agent_session_id}",
+    #         "success",
+    #         metadata={"session_id": self.current_sub_agent_session_id},
+    #     )
+    #     self.current_sub_agent_session_id = None
+    #     return None
 
     def log_step(
         self,

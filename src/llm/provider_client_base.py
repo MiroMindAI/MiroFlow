@@ -19,6 +19,7 @@ from omegaconf import DictConfig
 from src.logging.logger import bootstrap_logger
 from src.logging.task_tracer import TaskTracer
 
+import uuid
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
 
@@ -95,9 +96,21 @@ class LLMProviderClientBase(ABC):
 
     @abstractmethod
     def process_llm_response(
-        self, llm_response, message_history, agent_type="main"
-    ) -> tuple[str, bool]:
-        """Process LLM response - implemented by subclass"""
+        self, llm_response, agent_type="main"
+    ) -> tuple[str, bool, dict]:
+        """
+        Process LLM response - implemented by subclass
+        
+        Returns:
+            tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
+            - response_text: The text content of the response
+            - is_invalid: Whether the response is invalid and should break the loop
+            - assistant_message: The message dict to append to message_history
+        
+        Note:
+            This method no longer modifies message_history in-place.
+            The caller is responsible for appending assistant_message to message_history.
+        """
         pass
 
     @abstractmethod
@@ -175,9 +188,9 @@ class LLMProviderClientBase(ABC):
         message_history: List[Dict],
         tool_definitions: List[Dict],
         keep_tool_result: int = -1,
-        step_id: int = 1,
-        task_log: Optional["TaskTracer"] = None,
-        agent_type: str = "main",
+        # step_id: int = 1,
+        # task_log: Optional["TaskTracer"] = None,
+        # agent_type: str = "main",
     ):
         """
         Call LLM to generate response, supports tool calls - unified implementation
@@ -315,3 +328,20 @@ class LLMProviderClientBase(ABC):
         self, message_history: list[dict[str, Any]], summary_prompt: str
     ):
         raise NotImplementedError("must implement in subclass")
+
+    def _inject_message_ids(self, message_history: list[dict]) -> None:
+        """Inject unique message IDs to user messages to avoid cache hits"""
+        def _generate_message_id() -> str:
+            """Generate random message ID using common LLM format"""
+            # Use 8-character random hex string, similar to OpenAI API format, avoid cross-conversation cache hits
+            return f"msg_{uuid.uuid4().hex[:8]}"
+        for message in message_history:
+            if message.get("role") != "user":
+                continue
+            content = message.get("content")
+            if isinstance(content, list):
+                for item in content:
+                    if item.get("type") == "text" and not item["text"].startswith("[msg_"):
+                        item["text"] = f"[{_generate_message_id()}] {item['text']}"
+            elif isinstance(content, str) and not content.startswith("[msg_"):
+                message["content"] = f"[{_generate_message_id()}] {content}"

@@ -124,21 +124,24 @@ class DeepSeekNewAPIClient(LLMProviderClientBase):
             return self.client.chat.completions.create(**params)
 
     def process_llm_response(
-        self, llm_response, message_history, agent_type="main"
-    ) -> tuple[str, bool]:
-        """Process OpenAI LLM response"""
+        self, llm_response, agent_type="main"
+    ) -> tuple[str, bool, dict]:
+        """
+        Process OpenAI LLM response
+        
+        Returns:
+            tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
+        """
 
         if not llm_response or not llm_response.choices:
             error_msg = "LLM did not return a valid response."
             logger.debug(f"Error: {error_msg}")
-            return "", True  # Exit loop
+            return "", True, {}  # Exit loop
 
         # Extract LLM response text
         if llm_response.choices[0].finish_reason == "stop":
             assistant_response_text = llm_response.choices[0].message.content or ""
-            message_history.append(
-                {"role": "assistant", "content": assistant_response_text}
-            )
+            assistant_message = {"role": "assistant", "content": assistant_response_text}
         elif llm_response.choices[0].finish_reason == "tool_calls":
             # For tool_calls, we need to extract tool call information as text
             tool_calls = llm_response.choices[0].message.tool_calls
@@ -153,37 +156,33 @@ class DeepSeekNewAPIClient(LLMProviderClientBase):
                     )
                 assistant_response_text = "\n".join(tool_call_descriptions)
 
-            message_history.append(
-                {
-                    "role": "assistant",
-                    "content": assistant_response_text,
-                    "tool_calls": [
-                        {
-                            "id": _.id,
-                            "type": "function",
-                            "function": {
-                                "name": _.function.name,
-                                "arguments": _.function.arguments,
-                            },
-                        }
-                        for _ in tool_calls
-                    ],
-                }
-            )
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+                "tool_calls": [
+                    {
+                        "id": _.id,
+                        "type": "function",
+                        "function": {
+                            "name": _.function.name,
+                            "arguments": _.function.arguments,
+                        },
+                    }
+                    for _ in tool_calls
+                ],
+            }
         elif llm_response.choices[0].finish_reason == "length":
             assistant_response_text = llm_response.choices[0].message.content or ""
             if assistant_response_text == "":
                 assistant_response_text = "LLM response is empty. This is likely due to thinking block used up all tokens."
-            message_history.append(
-                {"role": "assistant", "content": assistant_response_text}
-            )
+            assistant_message = {"role": "assistant", "content": assistant_response_text}
         else:
             raise ValueError(
                 f"Unsupported finish reason: {llm_response.choices[0].finish_reason}"
             )
         logger.debug(f"LLM Response: {assistant_response_text}")
 
-        return assistant_response_text, False
+        return assistant_response_text, False, assistant_message
 
     def extract_tool_calls_info(self, llm_response, assistant_response_text):
         """Extract tool call information from OpenAI LLM response"""

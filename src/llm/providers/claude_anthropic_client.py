@@ -111,16 +111,21 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
             raise e
 
     def process_llm_response(
-        self, llm_response, message_history, agent_type="main"
-    ) -> tuple[str, bool]:
-        """Process Anthropic LLM response"""
+        self, llm_response, agent_type="main"
+    ) -> tuple[str, bool, dict]:
+        """
+        Process Anthropic LLM response
+        
+        Returns:
+            tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
+        """
         if not llm_response:
             logger.debug("[ERROR] LLM call failed, skipping this response.")
-            return "", True
+            return "", True, {}
 
         if not hasattr(llm_response, "content") or not llm_response.content:
             logger.debug("[ERROR] LLM response is empty or doesn't contain content.")
-            return "", True
+            return "", True, {}
 
         # Extract response content
         assistant_response_text = ""
@@ -140,13 +145,11 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
                     }
                 )
 
-        message_history.append(
-            {"role": "assistant", "content": assistant_response_content}
-        )
+        assistant_message = {"role": "assistant", "content": assistant_response_content}
 
         logger.debug(f"LLM Response: {assistant_response_text}")
 
-        return assistant_response_text, False
+        return assistant_response_text, False, assistant_message
 
     def extract_tool_calls_info(self, llm_response, assistant_response_text):
         """Extract tool call information from Anthropic LLM response"""

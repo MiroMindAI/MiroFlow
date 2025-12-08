@@ -11,10 +11,7 @@ import hydra
 
 from src.logging.logger import bootstrap_logger
 from config import config_name, config_path, debug_config
-from src.core.pipeline import (
-    create_pipeline_components,
-    execute_task_pipeline,
-)
+from src.agents.orchestrator import Orchestrator
 from omegaconf import DictConfig
 
 
@@ -25,35 +22,26 @@ async def single_task(
     task_description: str = "Write a python code to say 'Hello, World!', use python to execute the code.",
     task_file_name: str = "",
 ) -> None:
-    """Asynchrono us main function."""
+    """Asynchronous main function."""
     debug_config(cfg, logger)
-    logs_dir = Path(cfg.output_dir)
-    main_agent_tool_manager, sub_agent_tool_managers, output_formatter = (
-        create_pipeline_components(cfg, logs_dir=str(logs_dir))
-    )
 
     task_name = task_id
     log_path = pathlib.Path(".") / pathlib.Path(cfg.output_dir) / f"{task_name}.log"
     logger.info(f"logger_path is {log_path.absolute()}")
 
-    # Execute task using the pipeline
-    final_summary, final_boxed_answer, _ = await execute_task_pipeline(
-        cfg=cfg,
+    # 创建 Orchestrator（可复用）
+    orchestrator = Orchestrator(cfg=cfg)
+    
+    # 执行任务
+    result, task_log = await orchestrator.run_task(
         task_name=task_name,
         task_id=task_id,
-        task_file_name=task_file_name,
         task_description=task_description,
-        main_agent_tool_manager=main_agent_tool_manager,
-        sub_agent_tool_managers=sub_agent_tool_managers,
-        output_formatter=output_formatter,
-        # relative to the folder where shell command is launched.
+        task_file_name=task_file_name,
         log_path=log_path.absolute(),
     )
-
-    # Print task result
-    logger.info(
-        f"Final Output for Task: {task_id}, summary = {final_summary}, boxed_answer = {final_boxed_answer}"
-    )
+    
+    logger.info(f"Task {task_id} completed with status: {task_log.status}")
 
 
 def main(
