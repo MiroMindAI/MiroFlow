@@ -199,6 +199,7 @@ class BenchmarkEvaluator(ABC):
                             task_id=f"{task.task_id}",
                             task_description=task_description,
                             task_file_name=task_file_path,
+                            dataset_name=self.benchmark_name,
                             log_path=log_path,
                             ground_truth=task.ground_truth,
                             metadata=task.metadata,

@@ -5,6 +5,7 @@ template:
       - file_input_prompt
       - task_guidance
       - chinese_context_extra_prompt
+      - task_hint
 
     required_context:
       - task_description
@@ -12,6 +13,7 @@ template:
     optional_context:
       - file_input
       - chinese_context
+      - task_hint
 
     task_description: |
       {{ task_description }}
@@ -49,6 +51,13 @@ template:
       - **结果组织**：以中文组织和呈现最终报告，使用恰当的中文术语和表达习惯
       - **过程透明化**：所有步骤描述、状态更新、中间结果等都应使用中文，确保用户理解
       {% endif %}
+
+    task_hint: |
+      {% if task_hint is defined and task_hint %}
+      Before you begin, please review the following preliminary notes highlighting subtle or easily misunderstood points in the question, which might help you avoid common pitfalls during your analysis (for reference only; these may not be exhaustive):
+      {{ task_hint }}
+      {% endif %}
+
 
   system_prompt: 
     components:

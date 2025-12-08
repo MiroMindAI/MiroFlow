@@ -28,9 +28,9 @@ agent_nodes:
     max_turns: -1  # Maximum number of turns for main agent execution
     max_tool_calls_per_turn: 10  # Maximum number of tool calls per turn
     
-    # input_process:
-    #   hint_generation: true
-    #   hint_llm_base_url: "${oc.env:HINT_LLM_BASE_URL,https://api.openai.com/v1}"
+    input_process:
+      hint_generation: true
+      hint_llm_base_url: "${oc.env:HINT_LLM_BASE_URL,https://api.openai.com/v1}"
     output_process:
       final_answer_extraction: true
       final_answer_llm_base_url: "${oc.env:FINAL_ANSWER_LLM_BASE_URL,https://api.openai.com/v1}"

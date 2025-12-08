@@ -46,6 +46,7 @@ class TaskInput:
     #task_log: TaskTracer
     task_description: Optional[str] = None
     task_file_name: Optional[str] = None
+    dataset_name: Optional[str] = None
     
     @cached_property
     def task_file_type(self):
@@ -123,7 +124,7 @@ class AgentNode(Protocol):
     def _prepare_summary_prompt(self, message_history, task_description, task_failed):
         summary_prompt = self.prompt_manager.render_prompt(
             prompt_name='summarize_prompt',
-            context = dict(task_description = task_description, task_failed = task_failed, chinese_context = False)
+            context = dict(task_description = task_description, task_failed = task_failed, chinese_context = self.config.get('chinese_context', False))
         )
         summary_prompt = self.llm_client.handle_max_turns_reached_summary_prompt(
             message_history, summary_prompt
@@ -131,26 +132,54 @@ class AgentNode(Protocol):
         return summary_prompt
 
     # ---------------------------- messages & prompt related functions ----------------------------
+    async def _generate_task_hint(self, input: TaskInput):
+        try:
+            hint_content = await extract_hints(
+                input.task_description,
+                self.cfg.openai_api_key,
+                self.config.get('chinese_context', False),
+                self.add_message_id,
+                self.cfg.input_process.get(
+                    "hint_llm_base_url", "https://api.openai.com/v1"
+                ),
+            )
+            return hint_content
+        except Exception as e:
+            logger.error(f"Hint generation failed after retries: {str(e)}")
+            self.task_log.log_step(
+                step_name="hint_generation",
+                message=f"[ERROR] Hint generation failed: {str(e)}",
+                status="failed",
+            )
+            return ""
+        
     async def _prepare_initial_messages(self, input: TaskInput):
         if input.task_file_name:
             file_input = dict(file_type = input.task_file_type, file_name = input.task_file_name,
             absolute_file_path = os.path.abspath(input.task_file_name))
         else:
             file_input = None
+
+        if self.config.get('input_process',{}).get('hint_generation',False):
+            task_hint = await self._generate_task_hint(input)
+        else:
+            task_hint = None
+
         initial_user_message = self.prompt_manager.render_prompt(
             prompt_name = 'initial_user_text',
-            context = dict(task_description = input.task_description, file_input = file_input)
+            context = dict(task_description = input.task_description, file_input = file_input, task_hint = task_hint)
         )
 
         system_prompt = self.prompt_manager.render_prompt(  
             prompt_name='system_prompt',
             context = dict(formatted_date = datetime.datetime.now().strftime("%Y-%m-%d"), mcp_server_definitions = self.mcp_server_definitions)
         )
+
         return initial_user_message, system_prompt
  
     async def _extract_final_answer(self, final_answer_text, message_history, input):
         try:
-            if "browsecomp-zh" in self.cfg: #TODO
+            if "browsecomp-zh" in input.dataset_name: 
                 extracted_answer = await extract_browsecomp_zh_final_answer(
                     input.task_description,
                     final_answer_text,
@@ -179,7 +208,7 @@ class AgentNode(Protocol):
                     input.task_description,
                     final_answer_text,
                     self.cfg.openai_api_key,
-                    False, #TODO
+                    self.config.get('chinese_context', False),
                     self.cfg.output_process.get(
                         "final_answer_llm_base_url", "https://api.openai.com/v1"
                     ),

@@ -70,6 +70,7 @@ class Orchestrator:
         task_id: str,
         task_description: str,
         task_file_name: str | None,
+        dataset_name: str | None,
         log_path: pathlib.Path,
         ground_truth: str | None = None,
         metadata: dict | None = None,
@@ -99,7 +100,8 @@ class Orchestrator:
             input_ = TaskInput(
                 task_description=task_description, 
                 task_file_name=task_file_name, 
-                task_id=task_id
+                task_id=task_id,
+                dataset_name=dataset_name
             )
             result = await self._call_agent_internal(
                 agent_name='main_agent', 
