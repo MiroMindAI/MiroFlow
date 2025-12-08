@@ -12,7 +12,7 @@ from src.logging.logger import bootstrap_logger
 from typing import Callable, Awaitable
 import traceback
 from contextlib import asynccontextmanager
-
+from pydantic import parse_obj_as
 
 
 from src.logging.task_tracer import TaskTracer
@@ -91,6 +91,7 @@ class AgentNode(Protocol):
         self.add_message_id = True
         self.callable_agent_names = cfg.get("callable_agent_names", [])
         self.agent_caller = agent_caller
+        self.chinese_context = parse_obj_as(bool, self.config.get("chinese_context", "false"))
 
     @property
     def task_log(self) -> TaskTracer | None:
@@ -124,7 +125,7 @@ class AgentNode(Protocol):
     def _prepare_summary_prompt(self, message_history, task_description, task_failed):
         summary_prompt = self.prompt_manager.render_prompt(
             prompt_name='summarize_prompt',
-            context = dict(task_description = task_description, task_failed = task_failed, chinese_context = self.config.get('chinese_context', False))
+            context = dict(task_description = task_description, task_failed = task_failed, chinese_context = self.chinese_context)
         )
         summary_prompt = self.llm_client.handle_max_turns_reached_summary_prompt(
             message_history, summary_prompt
@@ -135,11 +136,11 @@ class AgentNode(Protocol):
     async def _generate_task_hint(self, input: TaskInput):
         try:
             hint_content = await extract_hints(
-                input.task_description,
-                self.cfg.openai_api_key,
-                self.config.get('chinese_context', False),
-                self.add_message_id,
-                self.cfg.input_process.get(
+                question = input.task_description,
+                api_key = self.cfg.openai_api_key,
+                chinese_context = self.chinese_context,
+                add_message_id = self.add_message_id,
+                base_url = self.cfg.input_process.get(
                     "hint_llm_base_url", "https://api.openai.com/v1"
                 ),
             )
@@ -170,6 +171,11 @@ class AgentNode(Protocol):
             context = dict(task_description = input.task_description, file_input = file_input, task_hint = task_hint)
         )
 
+        #print(initial_user_message, '!!!')
+        #print(self.config.get('chinese_context', False))
+        #print(task_hint)
+        #exit()
+
         system_prompt = self.prompt_manager.render_prompt(  
             prompt_name='system_prompt',
             context = dict(formatted_date = datetime.datetime.now().strftime("%Y-%m-%d"), mcp_server_definitions = self.mcp_server_definitions)
@@ -179,7 +185,7 @@ class AgentNode(Protocol):
  
     async def _extract_final_answer(self, final_answer_text, message_history, input):
         try:
-            if "browsecomp-zh" in input.dataset_name: 
+            if input.dataset_name and "browsecomp-zh" in input.dataset_name: 
                 extracted_answer = await extract_browsecomp_zh_final_answer(
                     input.task_description,
                     final_answer_text,
@@ -208,7 +214,7 @@ class AgentNode(Protocol):
                     input.task_description,
                     final_answer_text,
                     self.cfg.openai_api_key,
-                    self.config.get('chinese_context', False),
+                    self.chinese_context,
                     self.cfg.output_process.get(
                         "final_answer_llm_base_url", "https://api.openai.com/v1"
                     ),

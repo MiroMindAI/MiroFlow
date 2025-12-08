@@ -18,7 +18,6 @@ class TaskRunContext:
     task_log: TaskTracer
     called_counter: dict[str, int] = field(default_factory=dict)
 
-# 使用 contextvars 存储当前任务的上下文，支持并行执行
 _current_task_context: contextvars.ContextVar[TaskRunContext | None] = contextvars.ContextVar(
     'current_task_context', default=None
 )
@@ -35,7 +34,6 @@ class Orchestrator:
         self.cfg = cfg
         self.agent_nodes = {}
         
-        # 初始化 AgentNode（不传入 task_log，通过 contextvars 获取）
         for agent_name, agent_cfg in self.cfg.agent_nodes.items():
             self.agent_nodes[agent_name] = AgentNode(
                 name=agent_name, 
@@ -70,8 +68,8 @@ class Orchestrator:
         task_id: str,
         task_description: str,
         task_file_name: str | None,
-        dataset_name: str | None,
         log_path: pathlib.Path,
+        dataset_name: str | None = None,
         ground_truth: str | None = None,
         metadata: dict | None = None,
     ) -> tuple[str | None, TaskTracer]:

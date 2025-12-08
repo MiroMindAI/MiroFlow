@@ -193,7 +193,6 @@ class BenchmarkEvaluator(ABC):
                     try:
                         log_path = self.output_dir / f"task_{task.task_id}_attempt_{attempt}.json"
                         
-                        # 使用 orchestrator.run_task() 执行任务
                         response, task_log = await self.orchestrator.run_task(
                             task_name=f"{task.task_id}",
                             task_id=f"{task.task_id}",
