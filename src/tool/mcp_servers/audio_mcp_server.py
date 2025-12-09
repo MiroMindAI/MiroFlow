@@ -206,7 +206,7 @@ async def audio_transcription(audio_path_or_url: str) -> dict:
             await asyncio.sleep(5 * (2**retry))
 
     audio_usage = (
-        getattr(transcription, "usage", None)
+        getattr(transcription, "usage", {})
         .get("input_token_details", {})
         .get("audio_tokens", 0)
     )

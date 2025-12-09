@@ -159,7 +159,7 @@ async def create_sandbox() -> dict:
             info = sandbox.get_info()
             metrics = None
             for _ in range(10):
-                time.sleep(5)
+                await asyncio.sleep(5)
                 metrics = sandbox.get_metrics()
                 if metrics:
                     break

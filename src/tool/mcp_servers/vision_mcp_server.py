@@ -224,11 +224,11 @@ async def call_openai_vision(image_path_or_url: str, question: str) -> dict:
             )
             text_input_tokens = getattr(usage, "prompt_tokens", 0)
             text_output_tokens = getattr(usage, "completion_tokens", 0)
-        usage = {
-            "cache_read": cache_tokens,
-            "input_text": text_input_tokens,
-            "output_text": text_output_tokens,
-        }
+            usage = {
+                "cache_read": cache_tokens,
+                "input_text": text_input_tokens,
+                "output_text": text_output_tokens,
+            }
         return {"text": response.choices[0].message.content, "usage": usage}
 
     except Exception as e:
@@ -275,10 +275,10 @@ async def call_gemini_vision(image_path_or_url: str, question: str) -> dict:
                 mime_type=mime_type,
             )
     except Exception as e:
-        return (
-            f"[ERROR]: Failed to get image data {image_path_or_url}: {e}.\nNote: The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction or http url. If you are using http url, make sure it is an image file url.",
-            {},
-        )
+        return {
+            "text": f"[ERROR]: Failed to get image data {image_path_or_url}: {e}.\nNote: The visual_question_answering tool cannot access to sandbox file, please use the local path provided by original instruction or http url. If you are using http url, make sure it is an image file url.",
+            "usage": {},
+        }
 
     retry_count = 0
     max_retry = 3  # 3 retries with smart timing to avoid thundering herd

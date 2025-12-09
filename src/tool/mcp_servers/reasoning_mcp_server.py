@@ -84,17 +84,17 @@ async def reasoning(question: str) -> dict:
                         )
                         text_input_tokens = getattr(usage, "prompt_tokens", 0)
                         text_output_tokens = getattr(usage, "completion_tokens", 0)
-                    return {
-                        "text": content,
-                        "usage": {
-                            f"reasoning_openrouter_{OPENAI_MODEL_NAME}": {
-                                "cache_read": cache_tokens,
-                                "input_text": text_input_tokens,
-                                "output_text": text_output_tokens,
-                                "cost": getattr(usage, "cost", 0),
-                            }
-                        },
-                    }
+                        return {
+                            "text": content,
+                            "usage": {
+                                f"reasoning_openrouter_{OPENAI_MODEL_NAME}": {
+                                    "cache_read": cache_tokens,
+                                    "input_text": text_input_tokens,
+                                    "output_text": text_output_tokens,
+                                    "cost": getattr(usage, "cost", 0),
+                                }
+                            },
+                        }
                 else:
                     if attempt >= max_retries:
                         return {
