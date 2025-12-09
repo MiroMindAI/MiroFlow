@@ -378,7 +378,14 @@ class ToolManager(ToolManagerProtocol):
                                 # Safely extract result content without changing original format
                                 if tool_result.structuredContent:
                                     text_content = tool_result.structuredContent["text"]
-                                    usage = tool_result.structuredContent["usage"]
+                                    usage = tool_result.structuredContent.get(
+                                        "usage", {}
+                                    )
+                                    if (
+                                        not usage
+                                        and server_name == "tool-searching-serper"
+                                    ):
+                                        usage = {"SERPER": 1}
                                     logger.info(f"Tool result content: {text_content}")
                                     logger.info(f"Tool result usage: {usage}")
                                     if (
@@ -425,7 +432,14 @@ class ToolManager(ToolManagerProtocol):
                                 # Safely extract result content without changing original format
                                 if tool_result.structuredContent:
                                     text_content = tool_result.structuredContent["text"]
-                                    usage = tool_result.structuredContent["usage"]
+                                    usage = tool_result.structuredContent.get(
+                                        "usage", {}
+                                    )
+                                    if (
+                                        not usage
+                                        and server_name == "tool-searching-serper"
+                                    ):
+                                        usage = {"SERPER": 1}
                                     logger.info(f"Tool result content: {text_content}")
                                     logger.info(f"Tool result usage: {usage}")
                                     if (
