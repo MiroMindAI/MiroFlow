@@ -87,7 +87,6 @@ class AgentNode(Protocol):
             )
         self.output_formatter = OutputFormatter()
         self.prompt_manager = PromptTemplateReader(config_path = cfg.prompt_config_path) 
-        self.cfg = cfg
         self.add_message_id = True
         self.callable_agent_names = cfg.get("callable_agent_names", [])
         self.agent_caller = agent_caller
@@ -137,10 +136,10 @@ class AgentNode(Protocol):
         try:
             hint_content = await extract_hints(
                 question = input.task_description,
-                api_key = self.cfg.openai_api_key,
+                api_key = self.config.openai_api_key,
                 chinese_context = self.chinese_context,
                 add_message_id = self.add_message_id,
-                base_url = self.cfg.input_process.get(
+                base_url = self.config.input_process.get(
                     "hint_llm_base_url", "https://api.openai.com/v1"
                 ),
             )
@@ -189,8 +188,8 @@ class AgentNode(Protocol):
                 extracted_answer = await extract_browsecomp_zh_final_answer(
                     input.task_description,
                     final_answer_text,
-                    self.cfg.openai_api_key,
-                    self.cfg.output_process.get(
+                    self.config.openai_api_key,
+                    self.config.output_process.get(
                         "final_answer_llm_base_url", "https://api.openai.com/v1"
                     ),
                 )
@@ -213,9 +212,9 @@ class AgentNode(Protocol):
                 extracted_answer = await extract_gaia_final_answer(
                     input.task_description,
                     final_answer_text,
-                    self.cfg.openai_api_key,
+                    self.config.openai_api_key,
                     self.chinese_context,
-                    self.cfg.output_process.get(
+                    self.config.output_process.get(
                         "final_answer_llm_base_url", "https://api.openai.com/v1"
                     ),
                 )
@@ -291,7 +290,7 @@ class AgentNode(Protocol):
             system_prompt=system_prompt,
             message_history=message_history,
             tool_definitions=tool_definitions,
-            keep_tool_result=self.cfg.keep_tool_result
+            keep_tool_result=self.config.keep_tool_result
         )
         
         if not response:
@@ -432,7 +431,7 @@ class AgentNode(Protocol):
             if server_name in self.callable_agent_names:
                 result = await self.agent_caller(
                     server_name, 
-                    TaskInput(task_description=input.task_description)
+                    TaskInput(task_description=str(call['arguments'])) 
                 )
                 result = {"server_name": server_name, "tool_name": tool_name, "result": result}
             else:
@@ -460,7 +459,7 @@ class AgentNode(Protocol):
         input: TaskInput,
     ) -> tuple[list[tuple[str, str]], bool]:
         calls = tool_calls[0]
-        max_tool_calls = self.cfg.max_tool_calls_per_turn
+        max_tool_calls = self.config.max_tool_calls_per_turn
         exceeded = len(calls) > max_tool_calls
         
         if exceeded:
@@ -538,14 +537,15 @@ class AgentNode(Protocol):
             agent_call_id = agent_call_id
         )
         
-        if self.cfg.get('output_process',{}).get('final_answer_extraction',False):
+        if self.config.get('output_process',{}).get('final_answer_extraction',False):
             summary = await self._extract_final_answer(
                 summary, message_history, input
             )
-        if self.cfg.get('output_process',{}).get('format_final_summary',False):
+        if self.config.get('output_process',{}).get('format_final_summary',False):
             summary, final_boxed_answer = self.output_formatter.format_final_summary_and_log(
                 summary, self.llm_client
             )
+            self.task_log.final_boxed_answer = final_boxed_answer
 
         return summary
 
