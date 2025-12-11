@@ -190,9 +190,11 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
         if not hasattr(response, "usage"):
             return {
                 "input_tokens": 0,
-                "cached_tokens": 0,
+                "cached_read_tokens": 0,
+                "cached_write_tokens": 0,
                 "output_tokens": 0,
                 "reasoning_tokens": 0,
+                "fee": 0,
             }
 
         usage = response.usage
@@ -205,9 +207,11 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
             "input_tokens": cache_creation_input_tokens
             + cache_read_input_tokens
             + input_tokens,
-            "cached_tokens": cache_read_input_tokens,
+            "cached_read_tokens": cache_read_input_tokens,
+            "cached_write_tokens": cache_creation_input_tokens,
             "output_tokens": output_tokens,
             "reasoning_tokens": 0,
+            "fee": getattr(usage, "cost", 0),
         }
 
         return usage_dict

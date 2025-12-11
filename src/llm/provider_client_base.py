@@ -36,9 +36,11 @@ class LLMProviderClientBase(ABC):
     client: Any = dataclasses.field(init=False)
     # Usage tracking - cumulative for each agent session
     total_input_tokens: int = dataclasses.field(init=False, default=0)
-    total_input_cached_tokens: int = dataclasses.field(init=False, default=0)
+    total_input_cached_read_tokens: int = dataclasses.field(init=False, default=0)
+    total_input_cached_write_tokens: int = dataclasses.field(init=False, default=0)
     total_output_tokens: int = dataclasses.field(init=False, default=0)
     total_output_reasoning_tokens: int = dataclasses.field(init=False, default=0)
+    total_fee: float = dataclasses.field(init=False, default=0)
 
     def __post_init__(self):
         # Explicitly assign from cfg object
@@ -208,11 +210,17 @@ class LLMProviderClientBase(ABC):
                 usage = self._extract_usage_from_response(response)
                 if usage:
                     self.total_input_tokens += usage.get("input_tokens", 0)
-                    self.total_input_cached_tokens += usage.get("cached_tokens", 0)
+                    self.total_input_cached_read_tokens += usage.get(
+                        "cached_read_tokens", 0
+                    )
+                    self.total_input_cached_write_tokens += usage.get(
+                        "cached_write_tokens", 0
+                    )
                     self.total_output_tokens += usage.get("output_tokens", 0)
                     self.total_output_reasoning_tokens += usage.get(
                         "reasoning_tokens", 0
                     )
+                    self.total_fee += usage.get("fee", 0)
             except Exception as e:
                 logger.warning(f"Failed to accumulate usage: {e}")
 
@@ -341,9 +349,11 @@ class LLMProviderClientBase(ABC):
         if not hasattr(response, "usage"):
             return {
                 "input_tokens": 0,
-                "cached_tokens": 0,
+                "cached_read_tokens": 0,
+                "cached_write_tokens": 0,
                 "output_tokens": 0,
                 "reasoning_tokens": 0,
+                "fee": 0,
             }
 
         usage = response.usage
@@ -358,9 +368,11 @@ class LLMProviderClientBase(ABC):
 
         usage_dict = {
             "input_tokens": getattr(usage, "prompt_tokens", 0),
-            "cached_tokens": prompt_tokens_details.get("cached_tokens", 0),
+            "cached_read_tokens": prompt_tokens_details.get("cached_tokens", 0),
+            "cached_write_tokens": 0,
             "output_tokens": getattr(usage, "completion_tokens", 0),
             "reasoning_tokens": completion_tokens_details.get("reasoning_tokens", 0),
+            "fee": getattr(usage, "cost", 0),
         }
 
         return usage_dict
@@ -369,20 +381,27 @@ class LLMProviderClientBase(ABC):
         """Get cumulative usage for current agent session as formatted string"""
         # Format: [Provider | Model] Total Input: X, Cache Input: Y, Output: Z, ...
         provider_model = f"[{self.provider_class} | {self.model_name}]"
-        input_uncached = self.total_input_tokens - self.total_input_cached_tokens
+        input_uncached = (
+            self.total_input_tokens
+            - self.total_input_cached_read_tokens
+            - self.total_input_cached_write_tokens
+        )
         output_response = self.total_output_tokens - self.total_output_reasoning_tokens
         total_tokens = self.total_input_tokens + self.total_output_tokens
 
         return (
             f"Usage log: {provider_model}, "
-            f"Total Input: {self.total_input_tokens} (Cached: {self.total_input_cached_tokens}, Uncached: {input_uncached}), "
+            f"Total Input: {self.total_input_tokens} (Cached Read: {self.total_input_cached_read_tokens}, Cached Write: {self.total_input_cached_write_tokens}, Uncached: {input_uncached}), "
             f"Total Output: {self.total_output_tokens} (Reasoning: {self.total_output_reasoning_tokens}, Response: {output_response}), "
-            f"Total Tokens: {total_tokens}"
+            f"Total Tokens: {total_tokens}, "
+            f"Total Fee: {self.total_fee}"
         )
 
     def reset_usage_stats(self):
         """Reset usage stats for new agent session"""
         self.total_input_tokens = 0
-        self.total_input_cached_tokens = 0
+        self.total_input_cached_read_tokens = 0
+        self.total_input_cached_write_tokens = 0
         self.total_output_tokens = 0
         self.total_output_reasoning_tokens = 0
+        self.total_fee = 0

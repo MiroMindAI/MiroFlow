@@ -1,0 +1,69 @@
+{
+    "tool": {
+        "JINA": "500 / 11000000000",
+        "SERPER": "3750 / 12500000",
+        "E2B": {
+            "cpu": "0.000014",
+            "mem": "0.0000045 / 1048576"
+        },
+        "openai": {
+            "gpt-4o-transcribe": "2.50 / 1000000",
+            "gpt-4o-mini-transcribe": "1.25 / 1000000",
+            "gpt-4o-audio-preview": {
+                "OpenAI_audio_qa_audio_usage": "40 / 1000000",
+                "OpenAI_audio_qa_input_text_usage": "2.5 / 1000000",
+                "OpenAI_audio_qa_output_text_usage": "10 / 1000000"
+            }
+        },
+        "openrouter": {
+        },
+        "anthropic": {
+            "claude-3-7-sonnet-20250219": {
+                "input": "3 / 1000000",
+                "output": "15 / 1000000",
+                "cache_read": "0.3 / 1000000",
+                "cache_write": "3.75 / 1000000"
+            }
+        },
+        "gemini": {
+            "gemini-3-pro-preview": {
+                "input": "2 / 1000000 if token < 200000 else 4 / 1000000",
+                "output": "12 / 1000000 if token < 200000 else 18 / 1000000"
+            }
+        }
+    },
+    "llm": {
+        "openai": {
+            "gpt-5": {
+                "cached_read_input": "0.125 / 1000000",
+                "cached_write_input": "0",
+                "uncached_input": "1.25 / 1000000",
+                "total_output": "10 / 1000000"
+            }
+        },
+        "anthropic": {
+            "claude-3-7-sonnet-20250219": {
+                "cached_read_input": "0.3 / 1000000",
+                "cached_write_input": "3.75 / 1000000",
+                "uncached_input": "3 / 1000000",
+                "total_output": "15 / 1000000"
+            }
+        },
+        "mirothinker": {
+            "MODEL_NAME": {
+                "cached_read_input": "0.125 / 1000000",
+                "cached_write_input": "0",
+                "uncached_input": "1.25 / 1000000",
+                "total_output": "10 / 1000000"
+            },
+            "DUMMY_MODEL_NAME": {
+                "cached_read_input": "0.125 / 1000000",
+                "cached_write_input": "0",
+                "uncached_input": "1.25 / 1000000",
+                "total_output": "10 / 1000000"
+            }
+        },
+        "openrouter": {
+        }
+    }
+}
