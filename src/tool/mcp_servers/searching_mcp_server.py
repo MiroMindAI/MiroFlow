@@ -15,6 +15,7 @@ import wikipedia
 import asyncio
 from .utils.smart_request import smart_request, request_to_json
 from src.logging.logger import setup_mcp_logging
+import urllib.parse
 
 
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
@@ -76,6 +77,12 @@ def filter_google_search_result(result_content: str) -> str:
                 for item in data["peopleAlsoAsk"]:
                     if "snippet" in item:
                         del item["snippet"]
+
+        # translate utf-8 to chinese
+        if "organic" in data:
+            for item in data["organic"]:
+                if "link" in item:
+                    item["link"] = urllib.parse.unquote(item["link"])
 
         # Return filtered JSON
         return json.dumps(data, ensure_ascii=False, indent=2)
@@ -220,7 +227,7 @@ async def wiki_get_page_content(entity: str, first_sentences: int = 10) -> str:
             # TODO: Context Engineering Needed
             result_parts.append(f"Content: {page.content}")
 
-        result_parts.append(f"URL: {page.url}")
+        result_parts.append(f"URL: {urllib.parse.unquote(page.url)}")
 
         return "\n\n".join(result_parts)
 
@@ -420,7 +427,7 @@ async def search_wiki_revision(
             revisions_details.append(
                 f"{i}. Revision ID: {revision_id}\n"
                 f"   Timestamp: {formatted_time}\n"
-                f"   URL: {rev_url}"
+                f"   URL: {urllib.parse.unquote(rev_url)}"
             )
 
         if revisions_details:
@@ -469,6 +476,11 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
         original_url = url
         url = f"https://{url}"
         protocol_hint = f"[NOTE]: Automatically added 'https://' to URL '{original_url}' -> '{url}'\n\n"
+    url_chinese = urllib.parse.unquote(url)
+    if url_chinese != url:
+        protocol_hint += f"[NOTE]: Automatically translated URL '{url}' -> '{url_chinese}'\n\n"
+        url = url_chinese
+        
 
     hint_message = ""
     if ".wikipedia.org" in url:
@@ -591,7 +603,7 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
                         f"Archive Found: Archived version located\n\n"
                         f"Original URL: {url}\n"
                         f"Requested Date: {year:04d}-{month:02d}-{day:02d}\n"
-                        f"Archived URL: {archived_url}\n"
+                        f"Archived URL: {urllib.parse.unquote(archived_url)}\n"
                         f"Archived Timestamp: {formatted_time}\n"
                     )
                     + "\n\nHint: You can also use the `scrape_website` tool to get the webpage content of a URL."
@@ -648,7 +660,7 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
                 + (
                     f"Archive Found: Most recent archived version\n\n"
                     f"Original URL: {url}\n"
-                    f"Archived URL: {archived_url}\n"
+                    f"Archived URL: {urllib.parse.unquote(archived_url)}\n"
                     f"Archived Timestamp: {formatted_time}\n"
                 )
                 + "\n\nHint: You can also use the `scrape_website` tool to get the webpage content of a URL."

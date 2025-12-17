@@ -11,7 +11,7 @@ data:
   whitelist: []  # Optional: List of specific task_ids to run
 
 execution:
-  max_tasks: null      # null = no limit, or specify a number
+  max_tasks: 5      # null = no limit, or specify a number
   max_concurrent: 5    # Number of parallel tasks
   pass_at_k: 1         # Number of attempts per task
 
