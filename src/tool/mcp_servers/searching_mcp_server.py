@@ -478,9 +478,10 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
         protocol_hint = f"[NOTE]: Automatically added 'https://' to URL '{original_url}' -> '{url}'\n\n"
     url_chinese = urllib.parse.unquote(url)
     if url_chinese != url:
-        protocol_hint += f"[NOTE]: Automatically translated URL '{url}' -> '{url_chinese}'\n\n"
+        protocol_hint += (
+            f"[NOTE]: Automatically translated URL '{url}' -> '{url_chinese}'\n\n"
+        )
         url = url_chinese
-        
 
     hint_message = ""
     if ".wikipedia.org" in url:
