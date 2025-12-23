@@ -291,6 +291,58 @@ class GPT5OpenAIClient(LLMProviderClientBase):
         # For Anthropic, parse tool calls from response text
         return parse_llm_response_for_tool_calls(assistant_response_text)
 
+    def get_user_msg_from_tool_call(self, tool_call_info, tool_calls_exceeded=False):
+        tool_call_info = [item for item in tool_call_info if item[1]["type"] == "text"]
+
+        # Separate valid tool calls and bad tool calls
+        valid_tool_calls = [
+            (tool_id, content)
+            for tool_id, content in tool_call_info
+            if tool_id != "FAILED"
+        ]
+        bad_tool_calls = [
+            (tool_id, content)
+            for tool_id, content in tool_call_info
+            if tool_id == "FAILED"
+        ]
+
+        total_calls = len(valid_tool_calls) + len(bad_tool_calls)
+
+        # Build output text
+        output_parts = []
+
+        if total_calls > 1:
+            # Handling for multiple tool calls
+            # Add tool result description
+            if tool_calls_exceeded:
+                output_parts.append(
+                    f"You made too many tool calls. I can only afford to process {len(valid_tool_calls)} valid tool calls in this turn."
+                )
+            else:
+                output_parts.append(
+                    f"I have processed {len(valid_tool_calls)} valid tool calls in this turn."
+                )
+
+            # Output each valid tool call result according to format
+            for i, (tool_id, content) in enumerate(valid_tool_calls, 1):
+                output_parts.append(f"Valid tool call {i} result:\n{content['text']}")
+
+            # Output bad tool calls results
+            for i, (tool_id, content) in enumerate(bad_tool_calls, 1):
+                output_parts.append(f"Failed tool call {i} result:\n{content['text']}")
+        else:
+            # For single tool call, output result directly
+            for tool_id, content in valid_tool_calls:
+                output_parts.append(content["text"])
+            for tool_id, content in bad_tool_calls:
+                output_parts.append(content["text"])
+
+        merged_text = "\n\n".join(output_parts)
+        return {
+            "role": "user",
+            "content": [{"type": "text", "text": merged_text}]
+        }
+
     def update_message_history(
         self, message_history, tool_call_info, tool_calls_exceeded=False
     ):
