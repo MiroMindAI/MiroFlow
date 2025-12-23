@@ -84,7 +84,7 @@ class IterativeAgentWithTool(BaseAgentModule):
                 sub_agent_results = await self.run_sub_agents_as_mcp_tools(sub_agent_calls)
                 all_call_results = self.tool_manager.format_tool_results(tool_results + sub_agent_results)
             
-            user_msg = self.llm_client.get_user_msg_from_tool_cal(all_call_results, tool_calls_exceeded) #TODO modify each client; return a single message
+            user_msg = self.llm_client.get_user_msg_from_tool_call(all_call_results, tool_calls_exceeded) #TODO modify each client; return a single message
             message_history.append(user_msg)
             tracer.save_agent_states(self.name, states = {'message_history': message_history})
         

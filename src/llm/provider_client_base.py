@@ -38,15 +38,9 @@ class LLMOutput(ABC):
 class LLMProviderClientBase(ABC):
     # post_init
     #client: Any = dataclasses.field(init=False)
-    API_KEY_ENV_VAR: str = None
-    BASE_URL_ENV_VAR: str = None
 
     def __init__(self, cfg: DictConfig):
         self.cfg = cfg
-        self.api_key = os.environ.get(self.API_KEY_ENV_VAR,"")
-        self.base_url = os.environ.get(self.BASE_URL_ENV_VAR,"")
-        if not self.api_key or not self.base_url:
-            raise ValueError(f"API key or base URL not found in environment variables for {self.API_KEY_ENV_VAR} or {self.BASE_URL_ENV_VAR}")
 
         # Explicitly assign from cfg object
         self.provider_class: str = self.cfg.provider_class #TODO remove llm

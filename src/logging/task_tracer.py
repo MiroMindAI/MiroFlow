@@ -69,12 +69,10 @@ class AgentStateEntry(BaseModel):
 
 class TaskLogFile(BaseModel):
     task_meta: TaskMeta = Field(default_factory=TaskMeta)
-    current_span: Span = Field(default_factory=Span)
+    current_span: Optional[Span] = None
 
-    # 最新状态：node_id -> AgentStateEntry
     agent_states: Dict[str, AgentStateEntry] = Field(default_factory=dict)
 
-    # 时间线：span + 手写 log（混在一起）
     step_logs: list[Dict[str, Any]] = Field(default_factory=list)
 
 
@@ -135,7 +133,7 @@ class TaskTracer(BaseModel):
         self.flush()
 
     def clear_current_span(self) -> None:
-        self.data.current_span = Span()
+        self.data.current_span = None
         self.flush()
 
     # ---------- agent states (latest-only) ----------

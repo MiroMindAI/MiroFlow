@@ -99,14 +99,11 @@ def span(
                 tracer.set_current_span(
                     {
                         "span_id": span_id,
-                        "name": span_name,
+                        "path": span_path,
                         "node_id": node_id,
                         "step_id": step_id,
-                        "since": tracer.data.heartbeat.updated_at,  # updated_at will be overwritten immediately
                     }
                 )
-                # More accurate since:
-                tracer.data.heartbeat.current_span["since"] = tracer.data.heartbeat.updated_at
 
                 tracer.append_step_event(
                     {
@@ -114,7 +111,6 @@ def span(
                          #"run_id": run_id,
                         "span_id": span_id,
                         "parent_span_id": parent_span_id,
-                        "name": span_name,
                         "path": span_path,
                         #"node_id": node_id,
                         #"step_id": step_id,

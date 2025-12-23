@@ -16,6 +16,7 @@ from src.utils.tool_utils import format_tool_result
 from omegaconf import OmegaConf
 import os
 import sys
+from src.logging.decorators import span
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
@@ -268,6 +269,7 @@ class ToolManager():
 
         return all_servers_for_prompt
 
+    @span() 
     @with_timeout(900)
     async def execute_tool_call(self, server_name, tool_name, arguments) -> Any:
         """

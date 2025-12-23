@@ -8,6 +8,7 @@ main_agent:
   type: IterativeAgentWithTool                           
   llm: 
     _base_: config/llm/base_openai.yaml
+    provider_class: GPT5OpenAIClient
     model_name: gpt-5
     max_tokens: 128000
   prompt: config/prompts/prompt_main_agent.yaml
