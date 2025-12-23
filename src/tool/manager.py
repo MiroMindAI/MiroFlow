@@ -12,13 +12,15 @@ from mcp.client.stdio import stdio_client
 
 from src.logging.logger import bootstrap_logger
 from .mcp_servers.browser_session import PlaywrightSession
-
+from src.utils.tool_utils import format_tool_result
+from omegaconf import OmegaConf
 import os
+import sys
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
 
-R = TypeVar("R")
+R = TypeVar("R") #TODO
 
 
 def update_server_params_with_context_var(
@@ -32,7 +34,6 @@ def update_server_params_with_context_var(
     if TASK_CONTEXT_VAR.get() is not None:
         server_params.env["TASK_ID"] = TASK_CONTEXT_VAR.get()
     return server_params
-
 
 def with_timeout(timeout_s: float = 300.0):
     """
@@ -54,16 +55,32 @@ def with_timeout(timeout_s: float = 300.0):
     return decorator
 
 
-class ToolManagerProtocol(Protocol):
-    """this enables other kinds of tool manager."""
+def get_mcp_server_configs_from_tool_cfg_paths(cfg_paths: list[str]) -> list[dict]:
 
-    async def get_all_tool_definitions(self) -> Any: ...
-    async def execute_tool_call(
-        self, *, server_name: str, tool_name: str, arguments: dict[str, Any]
-    ) -> Any: ...
+    """Define and return MCP server configuration list"""
+    configs = []
 
+    for config_path in cfg_paths:
+        try:
+            tool_cfg = OmegaConf.load(config_path)
+            configs.append(
+                {
+                    "name": tool_cfg.get("name"),
+                    "params": StdioServerParameters(
+                        command=sys.executable
+                        if tool_cfg["tool_command"] == "python"
+                        else tool_cfg["tool_command"],
+                        args=tool_cfg.get("args", []),
+                        env=tool_cfg.get("env", {}),
+                    ),
+                }
+            )
+        except Exception as e:
+            raise RuntimeError(f"Error creating MCP server parameters for tool {config_path}: {e}")
 
-class ToolManager(ToolManagerProtocol):
+    return configs
+
+class ToolManager():
     def __init__(self, server_configs, tool_blacklist=None):
         """
         Initialize ToolManager.
@@ -168,7 +185,7 @@ class ToolManager(ToolManagerProtocol):
 
         return servers_with_tool
 
-    async def get_all_tool_definitions(self):
+    async def get_all_tool_definitions(self) -> list[dict]:
         """
         Connect to all configured servers and get their tool definitions.
         Returns a list suitable for passing to Prompt generators.
@@ -515,3 +532,39 @@ class ToolManager(ToolManagerProtocol):
                     "tool_name": tool_name,
                     "error": f"Tool call failed: {error_message}",
                 }
+
+    async def execute_tool_calls_batch(self, tool_calls: tuple, max_tool_calls: int = 10) -> tuple[list[tuple[str, dict]], bool]:
+        """
+        Execute a batch of tool calls.
+        :param tool_calls: Tuple of tool calls
+        :param max_tool_calls: Maximum number of tool calls to execute
+        :return: Tuple of tool call results and whether the tool calls exceeded the limit
+        """
+        if len(tool_calls) > max_tool_calls:
+            tool_calls = tool_calls[:max_tool_calls]
+            exceeded = True
+        else:
+            exceeded = False
+
+        results = []
+        for tool_call in tool_calls:
+            call_id = tool_call["id"]
+            server_name = tool_call["server_name"]
+            tool_name = tool_call["tool_name"]
+            arguments = tool_call["arguments"]
+            result = await self.execute_tool_call(
+                server_name=server_name,
+                tool_name=tool_name,
+                arguments=arguments
+            )
+            #TODO error process
+            results.append((call_id, result))
+
+        return results, exceeded
+
+    def format_tool_results(self, results):
+        ret = []
+        for call_id, result in results:
+            ret.append((call_id, format_tool_result(result)))
+        return ret
+

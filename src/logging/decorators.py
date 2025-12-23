@@ -1,0 +1,172 @@
+# SPDX-FileCopyrightText: 2025 MiromindAI
+#
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
+
+import contextvars
+import inspect
+from functools import wraps
+from typing import Any, Callable, Dict, Optional
+
+from .span import Span, new_id
+from src.logging.task_tracer import TaskTracer, get_tracer
+
+# ---- contextvars ----
+TASK_ID: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("TASK_ID", default=None)
+RUN_ID: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("RUN_ID", default=None)
+CURRENT_SPAN_ID: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("CURRENT_SPAN_ID", default=None)
+CURRENT_SPAN_PATH: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
+    "CURRENT_SPAN_PATH", default=None
+)
+
+
+def _default_span_name(func: Callable[..., Any], args: tuple[Any, ...]) -> str:
+    if args and hasattr(args[0], "__class__"):
+        module_name = getattr(args[0], "name", "")
+        return f"{args[0].__class__.__name__}({module_name}).{func.__name__}"
+    return f"{func.__module__}.{func.__name__}"
+
+
+def span(
+    name: Optional[str] = None,
+    *,
+    name_fn: Optional[Callable[[Callable[..., Any], tuple[Any, ...], Dict[str, Any]], str]] = None,
+    # 可选：让调用方显式传 node_id/step_id（用于 heartbeat 和 step_logs）
+    node_id_fn: Optional[Callable[[Callable[..., Any], tuple[Any, ...], Dict[str, Any]], Optional[str]]] = None,
+    step_id_fn: Optional[Callable[[Callable[..., Any], tuple[Any, ...], Dict[str, Any]], Optional[int]]] = None,
+):
+    """
+    Async decorator that:
+      - creates Span with parent_span_id from CURRENT_SPAN_ID
+      - appends span_start/span_end into tracer.data.step_logs
+      - updates tracer.data.heartbeat.current_span = {...} on start, clears on end
+      - maintains CURRENT_SPAN_ID to form a call tree
+    """
+    def decorator(func: Callable[..., Any]):
+        if not inspect.iscoroutinefunction(func):
+            raise TypeError("@span can only decorate async functions")
+
+        @wraps(func)
+        async def wrapper(*args: Any, **kwargs: Any):
+            tracer = get_tracer()
+
+            # span name
+            if name_fn is not None:
+                span_name = name_fn(func, args, kwargs)
+            elif name is not None:
+                span_name = name
+            else:
+                span_name = _default_span_name(func, args)
+
+            # trace/run ids stable in a task
+            task_id = TASK_ID.get() or new_id("tr_")
+            run_id = RUN_ID.get() or new_id("run_")
+            parent_span_id = CURRENT_SPAN_ID.get()
+            span_id = new_id("sp_")
+
+            # set trace/run if absent
+            trace_token = None
+            run_token = None
+            if TASK_ID.get() is None:
+                trace_token = TASK_ID.set(task_id)
+            if RUN_ID.get() is None:
+                run_token = RUN_ID.set(run_id)
+
+            #path
+            parent_path = CURRENT_SPAN_PATH.get()
+            if parent_path:
+                span_path = f"{parent_path}->{span_name}"
+            else:
+                span_path = span_name
+
+            path_token = CURRENT_SPAN_PATH.set(span_path)
+
+
+            # compute node_id/step_id (optional)
+            node_id = node_id_fn(func, args, kwargs) if node_id_fn else None
+            step_id = step_id_fn(func, args, kwargs) if step_id_fn else None
+
+            sp = Span(
+                run_id=run_id,
+                span_id=span_id,
+                parent_span_id=parent_span_id,
+                name=span_name,
+            )
+
+            # update heartbeat current_span (latest-only)
+            if tracer is not None:
+                tracer.set_current_span(
+                    {
+                        "span_id": span_id,
+                        "name": span_name,
+                        "node_id": node_id,
+                        "step_id": step_id,
+                        "since": tracer.data.heartbeat.updated_at,  # updated_at will be overwritten immediately
+                    }
+                )
+                # More accurate since:
+                tracer.data.heartbeat.current_span["since"] = tracer.data.heartbeat.updated_at
+
+                tracer.append_step_event(
+                    {
+                        "type": "span_start",
+                         #"run_id": run_id,
+                        "span_id": span_id,
+                        "parent_span_id": parent_span_id,
+                        "name": span_name,
+                        "path": span_path,
+                        #"node_id": node_id,
+                        #"step_id": step_id,
+                        "start_ts": sp.start_ts,
+                    }
+                )
+
+            span_token = CURRENT_SPAN_ID.set(span_id)
+
+            try:
+                result = await func(*args, **kwargs)
+                sp.status = "ok"
+                return result
+            except Exception as e:
+                sp.status = "error"
+                sp.error = {"type": type(e).__name__, "message": str(e)}
+                raise
+            finally:
+                sp.end()
+                if tracer is not None:
+                    event = {
+                        "type": "span_end",
+                        #"run_id": run_id,
+                        "span_id": span_id,
+                        "parent_span_id": parent_span_id,
+                        "path": span_path,
+                        #"node_id": node_id,
+                        #"step_id": step_id,
+                        #"start_ts": sp.start_ts,
+                        "end_ts": sp.end_ts,
+                        "duration_ms": sp.duration_ms,
+                        #"status": sp.status,
+                        #"error": sp.error,
+                    }
+                    if sp.error:
+                        event["error"] = sp.error
+                    tracer.append_step_event(event)
+                    tracer.clear_current_span()
+
+                CURRENT_SPAN_ID.reset(span_token)
+                if run_token is not None:
+                    RUN_ID.reset(run_token)
+                if trace_token is not None:
+                    TASK_ID.reset(trace_token)
+                if path_token is not None:
+                    CURRENT_SPAN_PATH.reset(path_token)
+
+        return wrapper
+
+    return decorator
+
+
+# compatibility name
+def span_decorator(*args, **kwargs):
+    return span(*args, **kwargs)

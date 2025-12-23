@@ -9,7 +9,7 @@ from mcp import StdioServerParameters
 from omegaconf import DictConfig, OmegaConf
 
 from src.logging.logger import bootstrap_logger
-from config.agent_prompts.base_agent_prompt import BaseAgentPrompt
+
 
 import os
 
@@ -17,48 +17,9 @@ LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
 
 
-# MCP server configuration generation function
-def create_mcp_server_parameters(
-    agent_cfg: DictConfig, logs_dir: str | None = None
-):
-    """Define and return MCP server configuration list"""
-    configs = []
-
-    if agent_cfg.get("tool_config", None) is not None:
-        for tool in agent_cfg["tool_config"]:
-            try:
-                config_path = (
-                    pathlib.Path('.')
-                    / "config"
-                    / "tool"
-                    / f"{tool}.yaml"
-                )
-                tool_cfg = OmegaConf.load(config_path)
-                configs.append(
-                    {
-                        "name": tool_cfg.get("name", tool),
-                        "params": StdioServerParameters(
-                            command=sys.executable
-                            if tool_cfg["tool_command"] == "python"
-                            else tool_cfg["tool_command"],
-                            args=tool_cfg.get("args", []),
-                            env=tool_cfg.get("env", {}),
-                        ),
-                    }
-                )
-            except Exception as e:
-                logger.error(
-                    f"[ERROR] Error creating MCP server parameters for tool {tool}: {e}"
-                )
-                continue
-
-    blacklist = set()
-    for black_list_item in agent_cfg.get("tool_blacklist", []):
-        blacklist.add((black_list_item[0], black_list_item[1]))
-    return configs, blacklist
 
 
-def _load_agent_prompt_class(prompt_class_name: str) -> BaseAgentPrompt:
+def _load_agent_prompt_class(prompt_class_name: str):
     # Dynamically import the class from the config.agent_prompts module
     if not isinstance(prompt_class_name, str) or not prompt_class_name.isidentifier():
         raise ValueError(f"Invalid prompt class name: {prompt_class_name}")
@@ -104,12 +65,6 @@ def expose_sub_agents_as_tools(sub_agent_names):
         #         f"Sub-agent name must start with 'agent-': {sub_agent}. Please check the sub-agent name in the agent's config file."
         #     )
         try:
-            # sub_agent_prompt_instance = _load_agent_prompt_class(
-            #     sub_agents_cfg[sub_agent].prompt_class
-            # )
-            # sub_agent_tool_definition = sub_agent_prompt_instance.expose_agent_as_tool(
-            #     subagent_name=sub_agent
-            # )
             sub_agent_tool_definition = dict(
                 name=sub_agent_name,
                 tools=[
@@ -131,3 +86,28 @@ def expose_sub_agents_as_tools(sub_agent_names):
         except Exception as e:
             raise ValueError(f"Failed to expose sub-agent {sub_agent_name} as a tool: {e}")
     return sub_agents_server_params
+
+def format_tool_result(tool_call_execution_result):
+        """
+        Format tool execution results to be fed back to LLM as user messages.
+        Only includes necessary information (results or errors).
+        """
+        server_name = tool_call_execution_result["server_name"]
+        tool_name = tool_call_execution_result["tool_name"]
+
+        if "error" in tool_call_execution_result:
+            # Provide concise error information to LLM
+            content = f"Tool call to {tool_name} on {server_name} failed. Error: {tool_call_execution_result['error']}"
+        elif "result" in tool_call_execution_result:
+            # Provide tool's original output results
+            content = tool_call_execution_result["result"]
+            # Can consider truncating overly long results
+            max_len = 100_000  # 100k chars = 25k tokens
+            if len(content) > max_len:
+                content = content[:max_len] + "\n... [Result truncated]"
+        else:
+            content = f"Tool call to {tool_name} on {server_name} completed, but produced no specific output or result."
+
+        # Return format suitable as user message content
+        # return [{"type": "text", "text": content}]
+        return {"type": "text", "text": content}

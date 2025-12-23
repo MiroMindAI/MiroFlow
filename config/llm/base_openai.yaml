@@ -1,0 +1,23 @@
+# config/llm/base.yaml
+provider_class: "GPTOpenAIClient"
+model_name: null
+api_key: ${oc.env:OPENAI_API_KEY,???}
+base_url: ${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}
+
+temperature: 1.0
+top_p: 1.0
+min_p: 0.0
+top_k: -1
+
+max_tokens: 32000
+max_context_length: -1
+async_client: true
+
+reasoning_effort: null
+repetition_penalty: 1.0
+
+disable_cache_control: true
+keep_tool_result: -1
+
+use_tool_calls: false
+oai_tool_thinking: false

@@ -107,7 +107,7 @@ class QwenSGLangClient(LLMProviderClientBase):
             raise e
 
     def process_llm_response(
-        self, llm_response, agent_type="main"
+        self, llm_response
     ) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response

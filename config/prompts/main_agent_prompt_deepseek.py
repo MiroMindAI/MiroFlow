@@ -1,9 +1,8 @@
-from config.agent_prompts.base_agent_prompt import BaseAgentPrompt
 import datetime
 from typing import Any
 
 
-class MainAgentPromptBoxedDeepSeek(BaseAgentPrompt):
+class MainAgentPromptBoxedDeepSeek():
     """
     Adapted from MainAgentPromptBoxedAnswer. Since the tool-use is DeepSeek format, we remove the <use_mcp_tool> tags and its corresponding format instructions.
     """

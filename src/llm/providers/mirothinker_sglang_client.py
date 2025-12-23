@@ -31,20 +31,22 @@ class ContextLimitError(Exception):
     pass
 
 
-@dataclasses.dataclass
 class MiroThinkerSGLangClient(LLMProviderClientBase):
+    def __post_init__(self):
+        super().__post_init__()
+
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client for MiroThinker via SGLang"""
         if self.async_client:
             return AsyncOpenAI(
-                api_key=self.cfg.llm.oai_mirothinker_api_key,
-                base_url=self.cfg.llm.oai_mirothinker_base_url,
+                api_key=self.cfg.api_key,
+                base_url=self.cfg.base_url,
                 timeout=1800,
             )
         else:
             return OpenAI(
-                api_key=self.cfg.llm.oai_mirothinker_api_key,
-                base_url=self.cfg.llm.oai_mirothinker_base_url,
+                api_key=self.cfg.api_key,
+                base_url=self.cfg.base_url,
                 timeout=1800,
             )
 
@@ -189,7 +191,7 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
         return cleaned_text
 
     def process_llm_response(
-        self, llm_response, agent_type="main"
+        self, llm_response
     ) -> tuple[str, bool, dict]:
         """
         Process MiroThinker LLM response

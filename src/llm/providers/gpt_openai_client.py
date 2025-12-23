@@ -25,20 +25,23 @@ OPENAI_REASONING_MODEL_SET = set(
 logger = bootstrap_logger(level=LOGGER_LEVEL)
 
 
-@dataclasses.dataclass
 class GPTOpenAIClient(LLMProviderClientBase):
+    def __init__(self, cfg: DictConfig):
+        super().__init__(cfg)
+        self.oai_tool_thinking = self.cfg.oai_tool_thinking
+
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client"""
         if self.async_client:
             return AsyncOpenAI(
-                api_key=self.cfg.llm.openai_api_key,
-                base_url=self.cfg.llm.openai_base_url,
+                api_key=self.cfg.api_key,
+                base_url=self.cfg.base_url,
                 timeout=1800,
             )
         else:
             return OpenAI(
-                api_key=self.cfg.llm.openai_api_key,
-                base_url=self.cfg.llm.openai_base_url,
+                api_key=self.api_key,
+                base_url=self.base_url,
                 timeout=1800,
             )
 
@@ -90,7 +93,10 @@ class GPTOpenAIClient(LLMProviderClientBase):
             messages, keep_tool_result
         )
 
-        tool_list = await self.convert_tool_definition_to_tool_call(tools_definitions)
+        if tools_definitions:
+            tool_list = await self.convert_tool_definition_to_tool_call(tools_definitions)
+        else:
+            tool_list = None
 
         try:
             # Set temperature and reasoning_effort for reasoning models
@@ -176,7 +182,7 @@ class GPTOpenAIClient(LLMProviderClientBase):
         return response
 
     def process_llm_response(
-        self, llm_response, agent_type="main"
+        self, llm_response
     ) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response

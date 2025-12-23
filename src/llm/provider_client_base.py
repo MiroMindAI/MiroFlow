@@ -14,68 +14,71 @@ from typing import (
     Optional,
 )
 
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 
+import pathlib
+import importlib
 from src.logging.logger import bootstrap_logger
 from src.logging.task_tracer import TaskTracer
-
+from src.logging.decorators import span
+import hydra
+from config import config_path
 import uuid
+from pathlib import Path    
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
 
-
 @dataclasses.dataclass
+class LLMOutput(ABC):
+    response_text: str
+    is_invalid: bool
+    assistant_message: dict
+    raw_response: Any
+
 class LLMProviderClientBase(ABC):
-    # Required arguments (no default value)
-    task_id: str
-    cfg: DictConfig
-
-    # Optional arguments (with default value)
-    task_log: Optional["TaskTracer"] = None
-
     # post_init
-    client: Any = dataclasses.field(init=False)
+    #client: Any = dataclasses.field(init=False)
+    API_KEY_ENV_VAR: str = None
+    BASE_URL_ENV_VAR: str = None
 
-    def __post_init__(self):
+    def __init__(self, cfg: DictConfig):
+        self.cfg = cfg
+        self.api_key = os.environ.get(self.API_KEY_ENV_VAR,"")
+        self.base_url = os.environ.get(self.BASE_URL_ENV_VAR,"")
+        if not self.api_key or not self.base_url:
+            raise ValueError(f"API key or base URL not found in environment variables for {self.API_KEY_ENV_VAR} or {self.BASE_URL_ENV_VAR}")
+
         # Explicitly assign from cfg object
-        self.provider_class: str = self.cfg.llm.provider_class
-        self.model_name: str = self.cfg.llm.model_name
-        self.temperature: float = self.cfg.llm.temperature
-        self.top_p: float = self.cfg.llm.top_p
-        self.min_p: float = self.cfg.llm.min_p
-        self.top_k: int = self.cfg.llm.top_k
-        self.reasoning_effort: str = self.cfg.llm.get("reasoning_effort", "medium")
-        self.repetition_penalty: float = self.cfg.llm.get("repetition_penalty", 1.0)
-        self.max_tokens: int = self.cfg.llm.max_tokens
-        self.max_context_length: int = self.cfg.llm.get("max_context_length", -1)
-        self.oai_tool_thinking: bool = self.cfg.llm.oai_tool_thinking
-        self.async_client: bool = self.cfg.llm.async_client
+        self.provider_class: str = self.cfg.provider_class #TODO remove llm
+        self.model_name: str = self.cfg.model_name
+        self.temperature: float = self.cfg.temperature
+        self.top_p: float = self.cfg.top_p
+        self.min_p: float = self.cfg.min_p
+        self.top_k: int = self.cfg.top_k
+        self.reasoning_effort: str = self.cfg.reasoning_effort
+        self.repetition_penalty: float = self.cfg.repetition_penalty
+        self.max_tokens: int = self.cfg.max_tokens
+        self.max_context_length: int = self.cfg.max_context_length
+        self.async_client: bool = self.cfg.async_client
 
-        self.use_tool_calls: Optional[bool] = self.cfg.llm.get("use_tool_calls")
-        self.openrouter_provider: Optional[str] = self.cfg.llm.get(
-            "openrouter_provider"
-        )
+        self.use_tool_calls: Optional[bool] = self.cfg.use_tool_calls
+        self.disable_cache_control: bool = self.cfg.disable_cache_control
+        # self.openrouter_provider: Optional[str] = self.cfg.get(
+        #     "openrouter_provider"
+        # )
         # Safely handle string to bool conversion
-        disable_cache_control_val = self.cfg.llm.get("disable_cache_control", False)
-        if isinstance(disable_cache_control_val, str):
-            self.disable_cache_control: bool = (
-                disable_cache_control_val.lower().strip() == "true"
-            )
-        else:
-            self.disable_cache_control: bool = bool(disable_cache_control_val)
-
-        logger.info(
-            f"openrouter_provider config value: {self.openrouter_provider} (type: {type(self.openrouter_provider)})"
-        )
-
-        logger.info(
-            f"disable_cache_control config value: {disable_cache_control_val} (type: {type(disable_cache_control_val)}) -> parsed as: {self.disable_cache_control}"
-        )
+        # disable_cache_control_val = self.cfg.get("disable_cache_control", False)
+        # if isinstance(disable_cache_control_val, str):
+        #     self.disable_cache_control: bool = (
+        #         disable_cache_control_val.lower().strip() == "true"
+        #     )
+        # else:
+        #     self.disable_cache_control: bool = bool(disable_cache_control_val)
 
         self.client = self._create_client(self.cfg)
 
         logger.info(
-            f"LLMClient (class={self.__class__.__name__},provider={self.provider_class},model_name={self.model_name}) initialized"
+            f"LLMClient (class={self.__class__.__name__},provider={self.provider_class},model_name={self.model_name}) (cfg={self.cfg}) initialized"
         )
 
     @abstractmethod
@@ -96,7 +99,7 @@ class LLMProviderClientBase(ABC):
 
     @abstractmethod
     def process_llm_response(
-        self, llm_response, agent_type="main"
+        self, llm_response
     ) -> tuple[str, bool, dict]:
         """
         Process LLM response - implemented by subclass
@@ -182,11 +185,13 @@ class LLMProviderClientBase(ABC):
 
         return messages_copy
 
+    @span()
     async def create_message(
         self,
-        system_prompt: str,
-        message_history: List[Dict],
-        tool_definitions: List[Dict],
+        message_text: str = None,
+        system_prompt: str = None,
+        message_history: List[Dict] = None,
+        tool_definitions: List[Dict] = None,
         keep_tool_result: int = -1,
         # step_id: int = 1,
         # task_log: Optional["TaskTracer"] = None,
@@ -195,8 +200,14 @@ class LLMProviderClientBase(ABC):
         """
         Call LLM to generate response, supports tool calls - unified implementation
         """
-        # Filter message history
-        filtered_history = self._filter_message_history(
+        assert message_text is not None or message_history is not None, "Either message_text or message_history must be provided"
+        assert message_text is None or message_history is None, "Only one of message_text or message_history can be provided"
+
+        if message_history is None:
+            message_history = []
+        if message_text is not None:
+            message_history.append({"role":"user", "content": [{"type": "text", "text": message_text}]}) #TODO
+        message_history = self._filter_message_history(
             message_history, keep_tool_result
         )
 
@@ -204,12 +215,13 @@ class LLMProviderClientBase(ABC):
 
         # Unified LLM call handling
         response = await self._create_message(
-            system_prompt,
-            filtered_history,
-            tool_definitions,
+            system_prompt=system_prompt,
+            messages=message_history,
+            tools_definitions=tool_definitions,
             keep_tool_result=keep_tool_result,
         )
-        return response
+        response_text, is_invalid, assistant_message = self.process_llm_response(response)
+        return LLMOutput(response_text=response_text, is_invalid=is_invalid, assistant_message=assistant_message, raw_response=response)
 
     @staticmethod
     async def convert_tool_definition_to_tool_call(tools_definitions):
@@ -345,3 +357,59 @@ class LLMProviderClientBase(ABC):
                         item["text"] = f"[{_generate_message_id()}] {item['text']}"
             elif isinstance(content, str) and not content.startswith("[msg_"):
                 message["content"] = f"[{_generate_message_id()}] {content}"
+
+    def __repr__(self):
+        return f"LLMProviderClientBase(provider_class={self.provider_class}, model_name={self.model_name})"
+
+def build_llm_client(
+    llm_config: Optional[DictConfig | dict | str],
+    **kwargs,
+):
+    """
+    create LLMClientProvider from hydra configuration.
+    Can accept either:
+    - cfg: Traditional config with cfg.llm structure
+    - llm_config: Direct LLM configuration
+    """
+    assert llm_config is not None, "llm_config is required"
+        # Direct LLM config provided
+    if isinstance(llm_config, dict):
+        llm_config = OmegaConf.create(llm_config)
+
+    if "_base_" in llm_config:
+        base_config = OmegaConf.load(llm_config["_base_"])
+        llm_config = OmegaConf.merge(base_config, llm_config)
+    
+    #llm_config = OmegaConf.merge(llm_config, kwargs)
+    #print(type(llm_config))
+    
+    provider_class = llm_config.provider_class
+    # Create compatible config structure
+    config = OmegaConf.create(llm_config)
+    config = OmegaConf.merge(config, kwargs)
+
+    assert isinstance(config, DictConfig), "expect a dict config"
+
+    # Dynamically import the provider class from the .providers module
+
+    # Validate provider_class is a string and a valid identifier
+    if not isinstance(provider_class, str) or not provider_class.isidentifier():
+        raise ValueError(f"Invalid provider_class: {provider_class}")
+
+    try:
+        # Import the module dynamically
+        providers_module = importlib.import_module("src.llm.providers")
+        # Get the class from the module
+        ProviderClass = getattr(providers_module, provider_class)
+    except (ModuleNotFoundError, AttributeError) as e:
+        raise ImportError(
+            f"Could not import class '{provider_class}' from 'src.llm.providers': {e}"
+        )
+
+    # Instantiate the client using the imported class
+    try:
+        client_instance = ProviderClass(cfg=config)
+    except Exception as e:
+        raise RuntimeError(f"Failed to instantiate {provider_class}: {e}, llm config: {config} \n")
+
+    return client_instance

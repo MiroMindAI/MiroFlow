@@ -30,12 +30,12 @@ class GPTOpenAIResponseClient(LLMProviderClientBase):
         if self.async_client:
             return AsyncOpenAI(
                 api_key=os.environ.get("OPENAI_API_KEY"),
-                base_url=self.cfg.llm.openai_base_url,
+                base_url=self.cfg.openai_base_url,
             )
         else:
             return OpenAI(
                 api_key=os.environ.get("OPENAI_API_KEY"),
-                base_url=self.cfg.llm.openai_base_url,
+                base_url=self.cfg.openai_base_url,
             )
 
     @retry(wait=wait_fixed(10), stop=stop_after_attempt(5))
@@ -166,7 +166,7 @@ class GPTOpenAIResponseClient(LLMProviderClientBase):
         return tool_list
 
     def process_llm_response(
-        self, llm_response, agent_type="main"
+        self, llm_response
     ) -> tuple[str, bool, dict]:
         """
         Process OpenAI Response API LLM response

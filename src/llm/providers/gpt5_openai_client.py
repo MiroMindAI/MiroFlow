@@ -26,25 +26,21 @@ from src.logging.logger import bootstrap_logger
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
 
-
 class ContextLimitError(Exception):
     pass
-
-
-@dataclasses.dataclass
 class GPT5OpenAIClient(LLMProviderClientBase):
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client"""
         if self.async_client:
             return AsyncOpenAI(
-                api_key=self.cfg.llm.openai_api_key,
-                base_url=self.cfg.llm.openai_base_url,
+                api_key=self.cfg.api_key,
+                base_url=self.cfg.base_url,
                 timeout=1800,
             )
         else:
             return OpenAI(
-                api_key=self.cfg.llm.openai_api_key,
-                base_url=self.cfg.llm.openai_base_url,
+                api_key=self.cfg.api_key,
+                base_url=self.cfg.base_url,
                 timeout=1800,
             )
 
@@ -71,7 +67,7 @@ class GPT5OpenAIClient(LLMProviderClientBase):
         if system_prompt:
             target_role = "system"
 
-            # Check if there are already system or developer messages
+            # Check if there are already system or  messages
             if messages and messages[0]["role"] in ["system", "developer"]:
                 # Replace existing message with correct role
                 messages[0] = {
@@ -91,7 +87,6 @@ class GPT5OpenAIClient(LLMProviderClientBase):
         messages_copy = self._remove_tool_result_from_messages(
             messages, keep_tool_result
         )
-
         # Apply cache control
         if self.disable_cache_control:
             processed_messages = messages_copy
@@ -103,27 +98,29 @@ class GPT5OpenAIClient(LLMProviderClientBase):
             temperature = self.temperature
 
             # build extra_body if self.openrouter_provider
-            provider_config = (self.openrouter_provider or "").strip().lower()
-            logger.info(f"provider_config: {provider_config}")
-            if provider_config == "google":
-                extra_body = {
-                    "provider": {
-                        "only": [
-                            "google-vertex/us",
-                            "google-vertex/europe",
-                            "google-vertex/global",
-                        ]
-                    }
-                }
-            elif provider_config == "anthropic":
-                extra_body = {"provider": {"only": ["anthropic"]}}
-                # extra_body["provider"]["ignore"] = ["google-vertex/us", "google-vertex/europe", "google-vertex/global"]
-            elif provider_config == "amazon":
-                extra_body = {"provider": {"only": ["amazon-bedrock"]}}
-            elif provider_config != "":
-                extra_body = {"provider": {"only": [provider_config]}}
-            else:
-                extra_body = {}
+            # provider_config = (self.openrouter_provider or "").strip().lower()
+            # logger.info(f"provider_config: {provider_config}")
+            # if provider_config == "google":
+            #     extra_body = {
+            #         "provider": {
+            #             "only": [
+            #                 "google-vertex/us",
+            #                 "google-vertex/europe",
+            #                 "google-vertex/global",
+            #             ]
+            #         }
+            #     }
+            # elif provider_config == "anthropic":
+            #     extra_body = {"provider": {"only": ["anthropic"]}}
+            #     # extra_body["provider"]["ignore"] = ["google-vertex/us", "google-vertex/europe", "google-vertex/global"]
+            # elif provider_config == "amazon":
+            #     extra_body = {"provider": {"only": ["amazon-bedrock"]}}
+            # elif provider_config != "":
+            #     extra_body = {"provider": {"only": [provider_config]}}
+            # else:
+            #     extra_body = {}
+
+            extra_body = {}
 
             # Add top_k and min_p through extra_body for OpenRouter
             if self.top_k != -1:
@@ -148,7 +145,7 @@ class GPT5OpenAIClient(LLMProviderClientBase):
             if self.top_p != 1.0:
                 params["top_p"] = self.top_p
 
-            response = await self._create_completion(params, self.async_client)
+            response = await self._create_completion_with_service_tier_fallback(params, self.async_client)
 
             if (
                 response is None
@@ -203,12 +200,36 @@ class GPT5OpenAIClient(LLMProviderClientBase):
             )
             raise e
 
-    async def _create_completion(self, params: Dict[str, Any], is_async: bool):
+    async def _create_completion_with_service_tier_fallback(self, params: Dict[str, Any], is_async: bool):
         """Helper to create a completion, handling async and sync calls."""
-        if is_async:
-            return await self.client.chat.completions.create(**params)
-        else:
-            return self.client.chat.completions.create(**params)
+        # if is_async:
+        #     return await self.client.chat.completions.create(**params)
+        # else:
+        #     return self.client.chat.completions.create(**params)
+        flex_params = dict(params)
+        #flex_params["service_tier"] = "flex"
+
+        try:
+            logger.debug("LLM call using service_tier='flex'")
+            if is_async:
+                return await self.client.chat.completions.create(**flex_params)
+            else:
+                return self.client.chat.completions.create(**flex_params)
+        except Exception as e:
+            # 这里是“flex 模式失败”的回退逻辑
+            logger.warning(
+                "LLM call with service_tier='flex' failed, falling back to default tier",
+                exc_info=True,
+            )
+
+            # 用正常模式再试一次（删掉 service_tier，让它走默认/auto）
+            normal_params = dict(params)
+            normal_params.pop("service_tier", None)
+
+            if is_async:
+                return await self.client.chat.completions.create(**normal_params)
+            else:
+                return self.client.chat.completions.create(**normal_params)
 
     def _clean_user_content_from_response(self, text: str) -> str:
         """Remove content between \\n\\nUser: and <use_mcp_tool> in assistant response (if no <use_mcp_tool>, remove to end)"""
@@ -219,7 +240,7 @@ class GPT5OpenAIClient(LLMProviderClientBase):
         return cleaned_text
 
     def process_llm_response(
-        self, llm_response, agent_type="main"
+        self, llm_response
     ) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response

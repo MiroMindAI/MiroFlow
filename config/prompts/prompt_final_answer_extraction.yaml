@@ -1,0 +1,49 @@
+template:
+  gaia_final_answer_type_prompt:
+    components:
+      - default
+
+    required_context: task_description
+
+    default: |
+      {{ task_description }}
+
+      Question:
+      Determine the expected data type of the answer. For questions asking to "identify" something, focus on the final answer type, not the identification process. Format requirements in the question often hint at the expected data type. If the question asks you to write a specific word, return string. Choose only one of the four types below:
+      - number — a pure number (may include decimals or signs), e.g., price, distance, length
+      - date   — a specific calendar date (e.g., 2025-08-05 or August 5, 2025)
+      - time   — a specific time of day or formated time cost (e.g., 14:30 or 1:30.12)
+      - string — any other textual answer
+
+      Output:
+      Return exactly one of the [number, date, time, string], nothing else.
+    
+
+  gaia_final_answer_extraction_prompt:
+    components:
+      - format
+      - confidence
+
+    required_context:
+      - task_description
+      - summary
+
+    default: |
+    
+      # Output Format
+
+      Return your analysis in this exact format:
+
+      **Step-by-step Analysis:**
+      [Your detailed reasoning process]
+
+      **Final Answer:** \\boxed{...}
+
+      **Confidence:** [0-100 integer]
+
+      **Supporting Evidence:** [Brief summary of evidence that supports this answer]
+
+      **Potential Weaknesses:** [Any limitations, uncertainties, or factors that might make this answer incorrect - be objective and thorough]
+      """
+
+  

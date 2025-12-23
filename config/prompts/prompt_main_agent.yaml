@@ -58,7 +58,6 @@ template:
       {{ task_hint }}
       {% endif %}
 
-
   system_prompt: 
     components:
       - basic_system_prompt
@@ -210,4 +209,46 @@ template:
       - **思考过程**：回顾和总结思考过程时也应使用中文表达
       - **信息组织**：保持中文信息的原始格式和表达方式
       - **过程描述**：对工作历史、步骤描述、结果分析等各种输出都应使用中文
+      {% endif %}
+
+  hint_generation_prompt:
+    components:
+      - basic_hint_generation_prompt
+
+    required_context:
+      - task_description
+
+    optional_context:
+      - chinese_context
+
+    basic_hint_generation_prompt: |
+      Carefully analyze the given task description (question) without attempting to solve it directly. Your role is to identify potential challenges and areas that require special attention during the solving process, and provide practical guidance for someone who will solve this task by actively gathering and analyzing information from the web.
+
+      Identify and concisely list key points in the question that could potentially impact subsequent information collection or the accuracy and completeness of the problem solution, especially those likely to cause mistakes, carelessness, or confusion during problem-solving.
+
+      The question author does not intend to set traps or intentionally create confusion. Interpret the question in the most common, reasonable, and straightforward manner, without speculating about hidden meanings or unlikely scenarios. However, be aware that mistakes, imprecise wording, or inconsistencies may exist due to carelessness or limited subject expertise, rather than intentional ambiguity.
+
+      Additionally, when considering potential answers or interpretations, note that question authors typically favor more common and familiar expressions over overly technical, formal, or obscure terminology. They generally prefer straightforward and common-sense interpretations rather than being excessively cautious or academically rigorous in their wording choices.
+
+      Also, consider additional flagging issues such as:
+      - Potential mistakes or oversights introduced unintentionally by the question author due to his misunderstanding, carelessness, or lack of attention to detail.
+      - Terms or instructions that might have multiple valid interpretations due to ambiguity, imprecision, outdated terminology, or subtle wording nuances.
+      - Numeric precision, rounding requirements, formatting, or units that might be unclear, erroneous, or inconsistent with standard practices or provided examples.
+      - Contradictions or inconsistencies between explicit textual instructions and examples or contextual clues provided within the question itself.
+
+      Do NOT attempt to guess or infer correct answers, as complete factual information is not yet available. Your responsibility is purely analytical, proactively flagging points that deserve special attention or clarification during subsequent information collection and task solving. Avoid overanalyzing or listing trivial details that would not materially affect the task outcome.
+
+      Here is the question:
+        {{ task_description }}
+
+      {% if chinese_context is defined and chinese_context %}
+      ## 中文分析指导
+      如果问题涉及中文语境，请特别注意：
+      - **语言理解**：识别可能存在的中文表达歧义、方言差异或特定语境下的含义
+      - **文化背景**：考虑可能需要中文文化背景知识才能正确理解的术语或概念
+      - **信息获取**：标注需要使用中文搜索关键词才能获得准确信息的方面
+      - **格式要求**：识别中文特有的格式要求、表达习惯或答案形式 
+      - **翻译风险**：标记直接翻译可能导致误解或信息丢失的关键术语
+      - **时效性**：注意中文信息源的时效性和地域性特征
+      - **分析输出**：使用中文进行分析和提示，确保语言一致性 
       {% endif %}

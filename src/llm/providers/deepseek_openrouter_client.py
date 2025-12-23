@@ -30,8 +30,6 @@ logger = bootstrap_logger(level=LOGGER_LEVEL)
 class ContextLimitError(Exception):
     pass
 
-
-@dataclasses.dataclass
 class DeepSeekOpenRouterClient(LLMProviderClientBase):
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client"""
@@ -225,7 +223,7 @@ class DeepSeekOpenRouterClient(LLMProviderClientBase):
         return cleaned_text
 
     def process_llm_response(
-        self, llm_response, agent_type="main"
+        self, llm_response
     ) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response

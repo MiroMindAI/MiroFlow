@@ -137,30 +137,6 @@ class OutputFormatter:
 
         return matches[-1] if matches else ""
 
-    def format_tool_result_for_user(self, tool_call_execution_result):
-        """
-        Format tool execution results to be fed back to LLM as user messages.
-        Only includes necessary information (results or errors).
-        """
-        server_name = tool_call_execution_result["server_name"]
-        tool_name = tool_call_execution_result["tool_name"]
-
-        if "error" in tool_call_execution_result:
-            # Provide concise error information to LLM
-            content = f"Tool call to {tool_name} on {server_name} failed. Error: {tool_call_execution_result['error']}"
-        elif "result" in tool_call_execution_result:
-            # Provide tool's original output results
-            content = tool_call_execution_result["result"]
-            # Can consider truncating overly long results
-            max_len = 100_000  # 100k chars = 25k tokens
-            if len(content) > max_len:
-                content = content[:max_len] + "\n... [Result truncated]"
-        else:
-            content = f"Tool call to {tool_name} on {server_name} completed, but produced no specific output or result."
-
-        # Return format suitable as user message content
-        # return [{"type": "text", "text": content}]
-        return {"type": "text", "text": content}
 
     def format_final_summary_and_log(self, final_answer_text, client=None):
         """Format final summary information, including answer and token statistics"""

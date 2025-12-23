@@ -21,26 +21,22 @@ from src.logging.logger import bootstrap_logger
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
 
-
-@dataclasses.dataclass
 class ClaudeAnthropicClient(LLMProviderClientBase):
     def __post_init__(self):
         super().__post_init__()
 
     def _create_client(self, config: DictConfig):
         """Create Anthropic client"""
-        api_key = self.cfg.llm.anthropic_api_key
-
         if self.async_client:
             return AsyncAnthropic(
-                api_key=api_key,
-                base_url=self.cfg.llm.anthropic_base_url,
+                api_key=self.cfg.api_key,
+                base_url=self.cfg.base_url,
                 timeout=600.0,  # 10 minutes timeout for long requests
             )
         else:
             return Anthropic(
-                api_key=api_key,
-                base_url=self.cfg.llm.anthropic_base_url,
+                api_key=self.cfg.api_key,
+                base_url=self.cfg.base_url,
                 timeout=600.0,  # 10 minutes timeout for long requests
             )
 
@@ -111,7 +107,7 @@ class ClaudeAnthropicClient(LLMProviderClientBase):
             raise e
 
     def process_llm_response(
-        self, llm_response, agent_type="main"
+        self, llm_response
     ) -> tuple[str, bool, dict]:
         """
         Process Anthropic LLM response

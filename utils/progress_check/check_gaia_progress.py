@@ -59,10 +59,10 @@ def analyze_gaia_results(log_folder: str) -> Dict[str, int]:
             with open(json_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
-            status = data.get("status", "").lower()
-            judge_result = data.get("judge_result", "").upper()
+            #status = data.get("status", "").lower()
+            judge_result = data.get("task_meta", {}).get("judge_result", "").upper()
 
-            if status == "completed":
+            if judge_result != '':
                 results["completed_status"] += 1
 
                 if judge_result == "CORRECT":

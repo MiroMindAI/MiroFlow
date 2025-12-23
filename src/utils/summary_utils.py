@@ -7,6 +7,7 @@ from openai import AsyncOpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
 import uuid
 
+from src.llm.provider_client_base import LLMProviderClientBase
 
 def _generate_message_id() -> str:
     """Generate random message ID using common LLM format"""
@@ -23,13 +24,13 @@ def _generate_message_id() -> str:
 )
 async def extract_hints(
     question: str,
-    api_key: str,
+    #api_key: str,
     chinese_context: bool,
     add_message_id: bool,
-    base_url: str = "https://api.openai.com/v1",
+    llm_client: LLMProviderClientBase,
+    #base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract task hints"""
-    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
     instruction = """Carefully analyze the given task description (question) without attempting to solve it directly. Your role is to identify potential challenges and areas that require special attention during the solving process, and provide practical guidance for someone who will solve this task by actively gathering and analyzing information from the web.
 
@@ -98,9 +99,10 @@ Here is the question:
     ),
 )
 async def get_gaia_answer_type(
-    task_description: str, api_key: str, base_url: str = "https://api.openai.com/v1"
+    task_description: str, 
+    llm_client: LLMProviderClientBase
 ) -> str:
-    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
+    #client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
     instruction = f"""Input:
 `{task_description}`
@@ -118,11 +120,10 @@ Return exactly one of the [number, date, time, string], nothing else.
     print(f"Answer type instruction: {instruction}")
 
     message_id = _generate_message_id()
-    response = await client.chat.completions.create(
-        model="gpt-4.1",
-        messages=[{"role": "user", "content": f"[{message_id}] {instruction}"}],
+    response = await llm_client.create_message(
+        message_text=f"[{message_id}] {instruction}"
     )
-    answer_type = response.choices[0].message.content
+    answer_type = response.response_text
     # Check if result is empty, raise exception to trigger retry if empty
     if not answer_type or not answer_type.strip():
         raise ValueError("answer type returned empty result")
@@ -142,14 +143,15 @@ Return exactly one of the [number, date, time, string], nothing else.
 async def extract_gaia_final_answer(
     task_description_detail: str,
     summary: str,
-    api_key: str,
+    #api_key: str,
     chinese_context: bool,
-    base_url: str = "https://api.openai.com/v1",
+    llm_client: LLMProviderClientBase,
+    #base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract final answer from summary"""
-    answer_type = await get_gaia_answer_type(task_description_detail, api_key, base_url)
+    answer_type = await get_gaia_answer_type(task_description_detail, llm_client)
 
-    client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
+    #client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
     # Add Chinese-specific instructions and output format if enabled
     chinese_supplement = ""
@@ -461,11 +463,11 @@ The boxed content must be **one** of:
     print(full_prompt)
 
     message_id = _generate_message_id()
-    response = await client.chat.completions.create(
-        model="o3",
-        messages=[{"role": "user", "content": f"[{message_id}] {full_prompt}"}],
+    response = await llm_client.create_message(
+        #model="o3",
+        message_text=f"[{message_id}] {full_prompt}"
     )
-    result = response.choices[0].message.content
+    result = response.response_text
 
     # Check if result is empty, raise exception to trigger retry if empty
     if not result or not result.strip():
@@ -490,10 +492,11 @@ The boxed content must be **one** of:
         f"Retry attempt {retry_state.attempt_number} for extract_browsecomp_zh_final_answer"
     ),
 )
-async def extract_browsecomp_zh_final_answer(
+async def extract_browsecomp_zh_final_answer( #TODO Gaia实现了，bc还没改
     task_description_detail: str,
     summary: str,
     api_key: str,
+    chinese_context: bool,
     base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract final answer from summary"""

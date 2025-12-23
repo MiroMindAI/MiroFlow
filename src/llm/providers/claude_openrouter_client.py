@@ -18,10 +18,9 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
 )
-
 from src.llm.provider_client_base import LLMProviderClientBase
-
 from src.logging.logger import bootstrap_logger
+import os
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 logger = bootstrap_logger(level=LOGGER_LEVEL)
@@ -31,20 +30,19 @@ class ContextLimitError(Exception):
     pass
 
 
-@dataclasses.dataclass
 class ClaudeOpenRouterClient(LLMProviderClientBase):
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client"""
         if self.async_client:
             return AsyncOpenAI(
-                api_key=self.cfg.llm.openrouter_api_key,
-                base_url=self.cfg.llm.openrouter_base_url,
+                api_key=self.cfg.api_key,
+                base_url=self.cfg.base_url,
                 timeout=1800,
             )
         else:
             return OpenAI(
-                api_key=self.cfg.llm.openrouter_api_key,
-                base_url=self.cfg.llm.openrouter_base_url,
+                api_key=self.cfg.api_key,
+                base_url=self.cfg.base_url,
                 timeout=1800,
             )
 
@@ -221,7 +219,7 @@ class ClaudeOpenRouterClient(LLMProviderClientBase):
         return cleaned_text
 
     def process_llm_response(
-        self, llm_response, agent_type="main"
+        self, llm_response
     ) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response

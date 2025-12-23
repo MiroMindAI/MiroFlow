@@ -25,7 +25,7 @@ from src.logging.logger import (
     init_logging_for_benchmark_evaluation,
 )
 from config import config_name, config_path
-from src.agents.orchestrator import Orchestrator
+#from src.agents.orchestrator import Orchestrator
 
 init_logging_for_benchmark_evaluation(print_task_logs=False)
 
@@ -97,7 +97,8 @@ class BenchmarkResult:
                 attempt["log_file_path"] = str(attempt["log_file_path"])
         return result
 
-
+from src.agents.registry import build_agent_from_config
+from src.logging.task_tracer import TaskTracer, set_current_tracer, reset_current_tracer
 class BenchmarkEvaluator(ABC):
     """Abstract base class for benchmark evaluators"""
 
@@ -123,7 +124,7 @@ class BenchmarkEvaluator(ABC):
         self.results: List[BenchmarkResult] = []
 
         # Orchestrator 只需初始化一次，可复用于所有任务
-        self.orchestrator = Orchestrator(cfg=cfg)
+        self.orchestrator = build_agent_from_config(cfg=cfg)
 
     @abstractmethod
     def load_tasks(self) -> List[BenchmarkTask]:
@@ -193,21 +194,28 @@ class BenchmarkEvaluator(ABC):
                     try:
                         log_path = self.output_dir / f"task_{task.task_id}_attempt_{attempt}.json"
                         
-                        response, task_log = await self.orchestrator.run_task(
-                            task_name=f"{task.task_id}",
-                            task_id=f"{task.task_id}",
-                            task_description=task_description,
-                            task_file_name=task_file_path,
-                            dataset_name=self.benchmark_name,
-                            log_path=log_path,
-                            ground_truth=task.ground_truth,
-                            metadata=task.metadata,
+                        tracer = TaskTracer(log_path=log_path)
+                        token = set_current_tracer(tracer)
+                        response = await self.orchestrator.run(
+                            dict(
+                                #task_name=f"{task.task_id}",
+                                #task_id=f"{task.task_id}",
+                                task_description=task_description,
+                                task_file_name=task_file_path
+                                #dataset_name=self.benchmark_name,
+                                #log_path=log_path,
+                                #ground_truth=task.ground_truth,
+                                #metadata=task.metadata,
+                            )
                         )
                         
-                        # 从 task_log 获取 boxed answer
-                        final_boxed_answer = task_log.final_boxed_answer if task_log else None
-
-                        attempt_result["model_response"] = response if response else ""
+                        final_boxed_answer = response.get('final_boxed_answer','')
+                        tracer.update_task_meta(patch = {
+                            'final_boxed_answer': final_boxed_answer
+                        })
+                        
+    
+                        #attempt_result["model_response"] = response if response else ""
                         attempt_result["log_file_path"] = log_path
                         if final_boxed_answer:
                             attempt_result["model_boxed_answer"] = final_boxed_answer
@@ -220,6 +228,10 @@ class BenchmarkEvaluator(ABC):
                         attempt_result["status"] = TaskStatus.RUN_FAILED
                         attempt_result["error_message"] = str(e)
                         print(f"    Error in attempt {attempt}: {e}")
+
+                    finally:
+                        reset_current_tracer(token)
+                        tracer.finish(status="completed")
 
                 # Perform LLM verification if we have an answer and haven't verified yet
                 if (
@@ -337,15 +349,17 @@ class BenchmarkEvaluator(ABC):
 
         with open(latest_log) as f:
             log_data = json.loads(f.read())
-            if log_data.get("final_boxed_answer"):
+            final_boxed_answer = log_data.get("task_meta", {}).get("final_boxed_answer", "")
+            if final_boxed_answer:
                 attempt_result["status"] = TaskStatus.RUN_COMPLETED
-                attempt_result["model_boxed_answer"] = log_data["final_boxed_answer"]
+                attempt_result["model_boxed_answer"] = final_boxed_answer
                 attempt_result["model_response"] = log_data.get("output", "")
                 # Check if we already have LLM judge result in log
-                if log_data.get("judge_result"):
+                judge_result = log_data.get("task_meta", {}).get("judge_result", "")
+                if judge_result:
                     attempt_result["status"] = TaskStatus.RESULT_JUDGED
-                    attempt_result["judge_result"] = log_data["judge_result"]
-                    attempt_result["is_correct"] = log_data["judge_result"] == "CORRECT"
+                    attempt_result["judge_result"] = judge_result
+                    attempt_result["is_correct"] = judge_result == "CORRECT"
                 print(
                     f"    Loaded existing result: {attempt_result['model_boxed_answer']}"
                 )
@@ -480,8 +494,10 @@ class BenchmarkEvaluator(ABC):
             with open(log_file, "r", encoding="utf-8") as f:
                 log_data = json.load(f)
 
-            # Update with evaluation result
-            log_data["judge_result"] = evaluation_result
+            # Update with evaluation result in task_meta
+            if "task_meta" not in log_data:
+                log_data["task_meta"] = {}
+            log_data["task_meta"]["judge_result"] = evaluation_result
 
             # Write to a temporary file and then atomically replace
             temp_log_file = log_file.with_suffix(f"{log_file.suffix}.tmp")
@@ -693,8 +709,12 @@ def main(*args, config_file_name: str = ""):
         config_dir=os.path.abspath(config_path()), version_base=None
     ):
         cfg = hydra.compose(config_name=chosen_config_name, overrides=list(args))
+        #exit()
+        #cfg = OmegaConf.load(f"config/{chosen_config_name}.yaml")
+        #exit()
         cfg = setup_hydra_output_dir(cfg, list(args))
 
         _ = bootstrap_logger(level=LOGGER_LEVEL)
         # Tracing functionality removed - miroflow-contrib deleted
+        
         asyncio.run(entrypoint(cfg))

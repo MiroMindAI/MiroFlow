@@ -124,7 +124,7 @@ class DeepSeekNewAPIClient(LLMProviderClientBase):
             return self.client.chat.completions.create(**params)
 
     def process_llm_response(
-        self, llm_response, agent_type="main"
+        self, llm_response
     ) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response
