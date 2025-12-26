@@ -137,33 +137,18 @@ Expected Format: \boxed{A}, \boxed{B}, or \boxed{C}
 
 ### Step 1: Run Multiple Evaluations
 
-Use the multiple runs script to execute several independent evaluations:
+Set `num_runs` in relevant config to the desired number of runs to run multiple evaluations and automatically enable parallel thinking for enhanced performance.
 
-```bash title="Run Multiple Evaluations"
-./scripts/run_evaluate_multiple_runs_futurex.sh
-```
+It will:
 
-This script will:
-
-- Run 3 independent evaluations by default (configurable with `NUM_RUNS`)
+- Run multiple independent evaluations by default (configurable with `num_runs`)
 - Execute all tasks in parallel for efficiency
 - Generate separate result files for each run in `run_1/`, `run_2/`, etc.
-- Create a consolidated `futurex_submission.jsonl` file with voting results
 
 ### Step 2: Customize Multiple Runs
 
-You can customize the evaluation parameters:
+You can customize the evaluation parameters in relevant config, including `num_runs`, `max_tasks`, `max_concurrent`, etc.
 
-```bash title="Custom Multiple Runs"
-# Run 5 evaluations with limited tasks for testing
-NUM_RUNS=5 MAX_TASKS=10 ./scripts/run_evaluate_multiple_runs_futurex.sh
-
-# Use different agent configuration
-AGENT_SET=agent_gaia-validation ./scripts/run_evaluate_multiple_runs_futurex.sh
-
-# Adjust concurrency for resource management
-MAX_CONCURRENT=3 ./scripts/run_evaluate_multiple_runs_futurex.sh
-```
 
 ### Step 3: Voting and Aggregation
 
