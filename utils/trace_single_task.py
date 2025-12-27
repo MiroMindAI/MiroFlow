@@ -11,7 +11,6 @@ import hydra
 
 from src.logging.logger import bootstrap_logger
 from config import config_name, config_path, debug_config
-from src.agents.orchestrator import Orchestrator
 from omegaconf import DictConfig
 
 
