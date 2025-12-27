@@ -2,7 +2,7 @@ from src.agents.registry import build_agent_from_config
 import asyncio
 import dotenv
 from omegaconf import OmegaConf
-cfg = OmegaConf.load("config/agent_gaia-validation-gpt5.yaml")
+cfg = OmegaConf.load("config/agent_gaia-validation-gpt5-single-agent.yaml")
 cfg = OmegaConf.to_container(cfg, resolve=True)
 import logging
 from src.logging.logger import bootstrap_logger

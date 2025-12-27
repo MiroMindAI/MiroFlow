@@ -713,6 +713,7 @@ def main(*args, config_file_name: str = ""):
         #cfg = OmegaConf.load(f"config/{chosen_config_name}.yaml")
         #exit()
         cfg = setup_hydra_output_dir(cfg, list(args))
+        cfg = OmegaConf.create(OmegaConf.to_container(cfg, resolve=True))
 
         _ = bootstrap_logger(level=LOGGER_LEVEL)
         # Tracing functionality removed - miroflow-contrib deleted
