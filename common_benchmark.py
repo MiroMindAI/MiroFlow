@@ -131,12 +131,6 @@ class BenchmarkEvaluator(ABC):
         """Load benchmark tasks from data files"""
         raise NotImplementedError("Subclasses must implement this method")
 
-    @abstractmethod
-    def prepare_task_description(
-        self, task: BenchmarkTask
-    ) -> Tuple[str, Optional[str]]:
-        """Prepare task description and file path for the agent"""
-        raise NotImplementedError("Subclasses must implement this method")
 
     def get_log_dir(self) -> Path:
         """Get the log directory for the current benchmark and model."""
@@ -178,9 +172,6 @@ class BenchmarkEvaluator(ABC):
         print(f"  Current task log directory: {self.output_dir}/task_logs")
 
         try:
-            # Prepare task
-            task_description, task_file_path = self.prepare_task_description(task)
-
             # Run up to k attempts (with early stopping when correct answer found)
             for attempt in range(1, self.pass_at_k + 1):
                 print(f"  Attempt {attempt}/{self.pass_at_k} for task {task.task_id}")
@@ -198,14 +189,9 @@ class BenchmarkEvaluator(ABC):
                         token = set_current_tracer(tracer)
                         response = await self.orchestrator.run(
                             dict(
-                                #task_name=f"{task.task_id}",
-                                #task_id=f"{task.task_id}",
-                                task_description=task_description,
-                                task_file_name=task_file_path
-                                #dataset_name=self.benchmark_name,
-                                #log_path=log_path,
-                                #ground_truth=task.ground_truth,
-                                #metadata=task.metadata,
+                                task_description=task.task_question,
+                                task_file_name=task.file_path,
+                                task_meta=task.metadata
                             )
                         )
                         
@@ -570,22 +556,7 @@ class JSONLDatasetEvaluator(BenchmarkEvaluator):
         self.tasks = tasks
         print(f"Loaded {len(tasks)} tasks")
         return tasks
-
-    def prepare_task_description(
-        self, task: BenchmarkTask
-    ) -> Tuple[str, Optional[str]]:
-        if task.file_path is None:
-            return task.task_question, None
-
-        path = Path(task.file_path)
-        # check if task.file_path is a relative path
-        if path.is_absolute():
-            return task.task_question, str(path)
-
-        # Build complete file path: data directory + relative path
-        full_file_path = Path(self.data_dir) / path
-        return task.task_question, str(full_file_path)
-
+    
 
 async def entrypoint(cfg: DictConfig) -> float:
     """
@@ -595,6 +566,14 @@ async def entrypoint(cfg: DictConfig) -> float:
 
     def parse_func(x: str) -> BenchmarkTask:
         data = json.loads(x)
+        file_path = data.get("file_path")
+        if file_path is not None:
+            path = Path(file_path)
+            if path.is_absolute():
+                file_path = str(path)
+            else:
+                file_path = str(Path(cfg.benchmark.data.data_dir) / path)
+        
         return BenchmarkTask(
             task_id=data["task_id"],
             task_question=data["task_question"],
