@@ -129,6 +129,33 @@ class BenchmarkResult:
 
         return result
 
+    def update_with_attempt(
+        self,
+        attempt_result: AttemptStats,
+    ) -> None:
+        """
+        Update BenchmarkResult with attempt result.
+        
+        This method:
+        1. Appends the attempt_result to attempts list
+        2. Updates main result fields with the first attempt or when we get a successful completion
+        
+        Args:
+            attempt_result: AttemptStats dictionary with attempt results
+        """
+        self.attempts.append(attempt_result)
+        
+        # Get current attempt number based on attempts list length
+        attempt_num = len(self.attempts)
+        
+        # Update main result with the first successful attempt or best attempt so far
+        if attempt_num == 1 or (not self.model_boxed_answer and attempt_result["status"] == TaskStatus.RUN_COMPLETED):
+            self.model_response = attempt_result["model_response"]
+            self.model_boxed_answer = attempt_result["model_boxed_answer"]
+            self.log_file_path = attempt_result["log_file_path"]
+            self.status = attempt_result["status"]
+            self.error_message = attempt_result["error_message"]
+
 
 # ============================================================================
 # Benchmark Evaluators
@@ -377,6 +404,67 @@ class BenchmarkEvaluator:
         print(f"\nPass@{self.pass_at_k} Final Results:")
         print(f"Tasks passed: {correct_count}/{total_count}")
         print(f"Pass@{self.pass_at_k} Accuracy: {accuracy:.2%}")
+
+    async def verify_attempt_result(
+        self,
+        task: BenchmarkTask,
+        attempt: int,
+        attempt_result: "AttemptStats",
+    ) -> "AttemptStats":
+        """
+        Verify a single attempt result using LLM judge.
+        
+        This method assumes the attempt has RUN_COMPLETED status.
+        Caller should check the status before calling this method.
+        
+        Args:
+            task: BenchmarkTask object
+            attempt: Attempt number (1-indexed)
+            attempt_result: AttemptStats dictionary to verify
+            
+        Returns:
+            Updated AttemptStats dictionary with verification results
+        """
+        from src.utils.task_utils import update_log_file_with_evaluation
+        
+        # Perform LLM verification if we have an answer and haven't verified yet
+        if attempt_result.get("judge_result") is None:
+            print(f"    Verifying answer for attempt {attempt}...")
+            try:
+                evaluation_result = await verify_answer_for_datasets(
+                    openai_client=self.evaluation_llm,
+                    benchmark_name=self.benchmark_name,
+                    question=task.task_question,
+                    target=task.ground_truth,
+                    predicted_answer=attempt_result["model_boxed_answer"],
+                    metadata=task.metadata,
+                )
+                attempt_result["judge_result"] = evaluation_result
+                attempt_result["is_correct"] = evaluation_result == "CORRECT"
+                
+                # Update the log file with verification result
+                if attempt_result.get("log_file_path"):
+                    await update_log_file_with_evaluation(
+                        attempt_result["log_file_path"], evaluation_result
+                    )
+                
+                if attempt_result["is_correct"]:
+                    print(f"    ✅ Attempt {attempt}: CORRECT!")
+                else:
+                    print(f"    ❌ Attempt {attempt}: INCORRECT ({evaluation_result})")
+                    
+            except Exception as e:
+                print(f"    Error verifying attempt {attempt}: {e}")
+                attempt_result["judge_result"] = "ERROR"
+                attempt_result["is_correct"] = False
+        else:
+            # Already verified
+            if attempt_result["is_correct"]:
+                print(f"    ✅ Attempt {attempt}: CORRECT (cached)")
+            else:
+                print(f"    ❌ Attempt {attempt}: INCORRECT (cached: {attempt_result['judge_result']})")
+        
+        return attempt_result
 
 
 # ============================================================================

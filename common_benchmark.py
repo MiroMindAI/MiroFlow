@@ -22,8 +22,6 @@ from src.utils.eval_utils import (
 from src.utils.task_utils import (
     run_single_task_attempt,
     scan_latest_attempt,
-    verify_attempt_result,
-    update_result_with_attempt,
     TaskStatus,
 )
 from src.logging.logger import (
@@ -84,8 +82,8 @@ async def run_single_task(
 
             # Perform LLM verification if we have an answer and haven't verified yet
             if attempt_result["status"] == TaskStatus.RUN_COMPLETED:
-                attempt_result = await verify_attempt_result(
-                    evaluator, task, attempt, attempt_result
+                attempt_result = await evaluator.verify_attempt_result(
+                    task, attempt, attempt_result
                 )
             else:
                 print(f"    ⚠️  Attempt {attempt}: No valid answer to verify")
@@ -95,7 +93,7 @@ async def run_single_task(
                 found_correct_answer = True
 
             # Update result with this attempt
-            update_result_with_attempt(result, attempt_result, attempt)
+            result.update_with_attempt(attempt_result)
 
             # Early stopping: if we found a correct answer, we can stop
             if found_correct_answer:
