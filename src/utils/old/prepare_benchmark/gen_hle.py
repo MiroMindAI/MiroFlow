@@ -9,7 +9,7 @@ from typing import Generator, MutableMapping
 import filetype
 from datasets import load_dataset
 
-from utils.prepare_benchmark.common import Task
+from .common import Task
 
 
 def save_image(image, data_dir: str, task_id: str) -> str:

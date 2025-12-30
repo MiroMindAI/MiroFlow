@@ -7,7 +7,7 @@ import json
 import os
 import sys
 
-from utils.eval_utils import verify_answer_for_datasets
+from .eval_utils import verify_answer_for_datasets
 
 
 async def main(input_dir: str, benchmark_name: str):

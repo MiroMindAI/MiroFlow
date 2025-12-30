@@ -8,19 +8,19 @@ import pathlib
 import dotenv
 import fire
 
-from utils.prepare_benchmark.gen_browsecomp import (
+from .gen_browsecomp import (
     gen_browsecomp_test,
     gen_browsecomp_zh_test,
 )
-from utils.prepare_benchmark.gen_frames import gen_frames_test
-from utils.prepare_benchmark.gen_gaia import gen_gaia_validation
-from utils.prepare_benchmark.gen_gaia_text_only import gen_gaia_text_only
-from utils.prepare_benchmark.gen_hle import gen_hle_test
-from utils.prepare_benchmark.gen_hle_text_only import gen_hle_text_only
-from utils.prepare_benchmark.gen_webwalkerqa import gen_webwalkerqa
-from utils.prepare_benchmark.gen_xbench_ds import gen_xbench_ds
-from utils.prepare_benchmark.gen_futurex import gen_futurex
-from utils.prepare_benchmark.gen_finsearchcomp import gen_finsearchcomp
+from .gen_frames import gen_frames_test
+from .gen_gaia import gen_gaia_validation
+from .gen_gaia_text_only import gen_gaia_text_only
+from .gen_hle import gen_hle_test
+from .gen_hle_text_only import gen_hle_text_only
+from .gen_webwalkerqa import gen_webwalkerqa
+from .gen_xbench_ds import gen_xbench_ds
+from .gen_futurex import gen_futurex
+from .gen_finsearchcomp import gen_finsearchcomp
 
 
 @dataclasses.dataclass

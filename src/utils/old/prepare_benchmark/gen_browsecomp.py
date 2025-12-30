@@ -14,7 +14,7 @@ from typing import Generator, MutableMapping
 
 from datasets import load_dataset
 
-from utils.prepare_benchmark.common import Task
+from .common import Task
 
 
 def derive_key(password: str, length: int) -> bytes:

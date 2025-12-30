@@ -2,15 +2,15 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import utils.calculate_average_score
-import utils.calculate_score_from_log
+# import src.utils.calculate_average_score
+# import src.utils.calculate_score_from_log
 import common_benchmark
-import dotenv
-import utils.eval_answer_from_log
+# import dotenv
+# import src.utils.eval_answer_from_log
 import fire
 import hydra
-import utils.trace_single_task
-import utils.prepare_benchmark.main
+# import src.utils.trace_single_task
+# import src.utils.prepare_benchmark.main
 from src.logging.logger import bootstrap_logger
 from config import config_name, config_path, debug_config
 from rich.traceback import install
@@ -33,11 +33,11 @@ if __name__ == "__main__":
     fire.Fire(
         {
             "print-config": print_config,
-            "trace": utils.trace_single_task.main,
+            # "trace": src.utils.trace_single_task.main,
             "common-benchmark": common_benchmark.main,
-            "eval-answer": utils.eval_answer_from_log.main,
-            "avg-score": utils.calculate_average_score.main,
-            "score-from-log": utils.calculate_score_from_log.main,
-            "prepare-benchmark": utils.prepare_benchmark.main,
+            # "eval-answer": src.utils.eval_answer_from_log.main,
+            # "avg-score": src.utils.calculate_average_score.main,
+            # "score-from-log": src.utils.calculate_score_from_log.main,
+            # "prepare-benchmark": src.utils.prepare_benchmark.main,
         }
     )

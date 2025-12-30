@@ -12,7 +12,7 @@ from typing import List, Optional
 from omegaconf import DictConfig
 from src.logging.decorators import span
 from typing import Any
-from src.utils.prompt_manager import PromptTemplateReader
+from src.utils.prompt_utils import PromptTemplateReader
 from types import MappingProxyType
 from immutables import Map
 from omegaconf import OmegaConf 
