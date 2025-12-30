@@ -2,7 +2,7 @@ from omegaconf import DictConfig
 
 from src.agents.base_module import BaseAgentModule
 from src.agents.registry import register_module
-from src.utils.prompt_manager import PromptTemplateReader
+from src.utils.prompt_utils import PromptTemplateReader
 import os
 from src.utils.io_utils import get_file_type
 import datetime

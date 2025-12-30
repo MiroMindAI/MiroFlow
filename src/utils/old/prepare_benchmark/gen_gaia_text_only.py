@@ -2,23 +2,26 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+https://raw.githubusercontent.com/RUC-NLPIR/WebThinker/refs/heads/main/data/GAIA/dev.json
+"""
 
 import json
 from typing import Generator, MutableMapping
 
 import requests
 
-from utils.prepare_benchmark.common import Task
+from .common import Task
 
 
-def gen_hle_text_only(hf_token: str) -> Generator[Task, None, None]:
+def gen_gaia_text_only() -> Generator[Task, None, None]:
     response = requests.get(
-        "https://raw.githubusercontent.com/RUC-NLPIR/WebThinker/refs/heads/main/data/HLE/test.json"
+        "https://raw.githubusercontent.com/RUC-NLPIR/WebThinker/refs/heads/main/data/GAIA/dev.json"
     )
     dataset = json.loads(response.content)
     for row in dataset:
         metadata: MutableMapping = row
-        task_id = str(metadata.pop("id", ""))
+        task_id = metadata.pop("task_id", "")
         question = metadata.pop("Question", "")
         answer = metadata.pop("answer", "")
         task = Task(

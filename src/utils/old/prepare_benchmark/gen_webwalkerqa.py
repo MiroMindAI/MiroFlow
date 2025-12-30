@@ -6,7 +6,7 @@ from typing import Generator, MutableMapping
 
 from datasets import load_dataset
 
-from utils.prepare_benchmark.common import Task
+from .common import Task
 
 
 def gen_webwalkerqa(hf_token: str) -> Generator[Task, None, None]:
