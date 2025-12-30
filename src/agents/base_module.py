@@ -40,10 +40,10 @@ class BaseAgentModule(ABC):
 
     @classmethod
     def get_instance_name(cls, cfg):
-        #if cfg is not None and 'name' in cfg:
-        #return cfg['name']
-        #else:
-        return f"{cls.__name__}_call_{cls.get_instance_count()}"
+        if cfg is not None and 'name' in cfg:
+            return cfg['name']
+        else:
+            return f"{cls.__name__}_call_{cls.get_instance_count()}"
 
     def create_sub_module(self, sub_agent_cfg: DictConfig | dict, name: str = None):
         from src.agents.registry import build_agent

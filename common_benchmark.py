@@ -189,6 +189,14 @@ async def entrypoint(cfg: DictConfig) -> float:
     # 读 benchmark 的 task
     def parse_func(x: str) -> BenchmarkTask:
         data = json.loads(x)
+        file_path = data.get("file_path")
+        if file_path is not None:
+            path = Path(file_path)
+            if path.is_absolute():
+                file_path = str(path)
+            else:
+                file_path = str(Path(cfg.benchmark.data.data_dir) / path)
+        
         return BenchmarkTask(
             task_id=data["task_id"],
             task_question=data["task_question"],
@@ -307,6 +315,7 @@ def main(*args, config_file_name: str = ""):
         #cfg = OmegaConf.load(f"config/{chosen_config_name}.yaml")
         #exit()
         cfg = setup_hydra_output_dir(cfg, list(args))
+        cfg = OmegaConf.create(OmegaConf.to_container(cfg, resolve=True))
 
         _ = bootstrap_logger(level=LOGGER_LEVEL)
         # Tracing functionality removed - miroflow-contrib deleted

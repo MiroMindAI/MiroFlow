@@ -36,7 +36,7 @@ class IterativeAgentWithTool(BaseAgentModule):
     # ---------------------------- entrypoint ----------------------------
     async def run_internal(self, ctx: AgentContextDict) -> AgentContextDict:
         tracer = get_tracer()
-        tracer.save_agent_states(self.name, states = {})
+        tracer.save_agent_states(self.name, states = {'input_ctx': ctx})
 
         if 'message_history' not in ctx or ctx.get('message_history', None) is None:
             input_processor_output = await self.input_processor.run(AgentContextDict(
@@ -70,7 +70,7 @@ class IterativeAgentWithTool(BaseAgentModule):
                 task_failed = True
                 break
             message_history.append(llm_output.assistant_message)
-            tracer.save_agent_states(self.name, states = {'message_history': message_history})
+            tracer.save_agent_states(self.name, states = {'input_ctx': ctx, 'message_history': message_history})
 
             #------------------------Tool calls-----------------------
             tool_and_sub_agent_calls = self.llm_client.extract_tool_calls_info(llm_output.raw_response, llm_output.response_text)[0]
@@ -86,7 +86,7 @@ class IterativeAgentWithTool(BaseAgentModule):
             
             user_msg = self.llm_client.get_user_msg_from_tool_call(all_call_results, tool_calls_exceeded) #TODO modify each client; return a single message
             message_history.append(user_msg)
-            tracer.save_agent_states(self.name, states = {'message_history': message_history})
+            tracer.save_agent_states(self.name, states = {'input_ctx': ctx, 'message_history': message_history})
         
         
         output_processor_result = await self.output_processor.run(AgentContextDict(
