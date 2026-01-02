@@ -19,7 +19,7 @@ import time
 
 import requests
 from fastmcp import FastMCP
-from src.logging.logger import setup_mcp_logging
+from src.logging.logger import setup_mcp_logger
 
 logger = logging.getLogger("miroflow")
 
@@ -28,7 +28,7 @@ REASONING_BASE_URL = os.environ.get("REASONING_BASE_URL")
 REASONING_MODEL_NAME = os.environ.get("REASONING_MODEL_NAME")
 
 # Initialize FastMCP server
-setup_mcp_logging(tool_name=os.path.basename(__file__))
+setup_mcp_logger(tool_name=os.path.basename(__file__))
 mcp = FastMCP("reasoning-mcp-server-os")
 
 # Retry configuration

@@ -4,11 +4,11 @@
 
 import os
 
-from src.logging.logger import bootstrap_logger
+from src.logging.logger import setup_logger
 
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = bootstrap_logger(level=LOGGER_LEVEL)
+logger = setup_logger(level=LOGGER_LEVEL)
 
 def get_file_type(file_name: str) -> str:
     file_extension = file_name.rsplit(".", maxsplit=1)[-1].lower()

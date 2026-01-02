@@ -10,12 +10,12 @@ from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 
-from src.logging.logger import bootstrap_logger
+from src.logging.logger import setup_logger
 
 import os
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = bootstrap_logger(level=LOGGER_LEVEL)
+logger = setup_logger(level=LOGGER_LEVEL)
 
 
 class PlaywrightSession:

@@ -7,11 +7,11 @@ from datetime import datetime
 from omegaconf import DictConfig
 
 from src.agents.agent_node import AgentNode, TaskInput, AgentCaller
-from src.logging.logger import bootstrap_logger
+from src.logging.logger import setup_logger
 from src.logging.task_tracer import TaskTracer
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = bootstrap_logger(level=LOGGER_LEVEL)
+logger = setup_logger(level=LOGGER_LEVEL)
 
 @dataclass
 class TaskRunContext:

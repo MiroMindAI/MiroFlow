@@ -6,10 +6,10 @@ import threading
 from enum import Enum
 import os
 from src.agents.base_module import BaseAgentModule  # 你 BaseAgentModule 放哪就改哪
-from src.logging.logger import bootstrap_logger
+from src.logging.logger import setup_logger
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = bootstrap_logger(level=LOGGER_LEVEL)
+logger = setup_logger(level=LOGGER_LEVEL)
 
 # class Scope(str, Enum):
 #     SINGLETON = "singleton"

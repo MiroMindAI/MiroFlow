@@ -9,7 +9,7 @@ from pathlib import Path
 import dotenv
 import hydra
 
-from src.logging.logger import bootstrap_logger
+from src.logging.logger import setup_logger
 from config import config_name, config_path, debug_config
 from omegaconf import DictConfig
 
@@ -58,7 +58,7 @@ def main(
     dotenv.load_dotenv()
     with hydra.initialize_config_dir(config_dir=config_path(), version_base=None):
         cfg = hydra.compose(config_name=chosen_config_name, overrides=list(args))
-        logger = bootstrap_logger(level="DEBUG", to_console=True)
+        logger = setup_logger(level="DEBUG", to_console=True)
 
         # Test if logger is working
         logger.info("Logger initialized successfully")

@@ -8,13 +8,13 @@ import importlib
 from mcp import StdioServerParameters
 from omegaconf import DictConfig, OmegaConf
 
-from src.logging.logger import bootstrap_logger
+from src.logging.logger import setup_logger
 
 
 import os
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = bootstrap_logger(level=LOGGER_LEVEL)
+logger = setup_logger(level=LOGGER_LEVEL)
 
 
 

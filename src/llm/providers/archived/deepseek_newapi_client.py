@@ -20,10 +20,10 @@ from openai import AsyncOpenAI, OpenAI
 
 from src.llm.provider_client_base import LLMProviderClientBase
 
-from src.logging.logger import bootstrap_logger
+from src.logging.logger import setup_logger
 
 LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = bootstrap_logger(level=LOGGER_LEVEL)
+logger = setup_logger(level=LOGGER_LEVEL)
 
 
 @dataclasses.dataclass

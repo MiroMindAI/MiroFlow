@@ -12,7 +12,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 from src.llm.provider_client_base import LLMProviderClientBase
 
-from src.logging.logger import bootstrap_logger
+from src.logging.logger import setup_logger
 
 import os
 
@@ -22,7 +22,7 @@ OPENAI_REASONING_MODEL_SET = set(
     ["o1", "o3", "o3-mini", "o4-mini", "gpt-5", "gpt-5-2025-08-07"]
 )
 
-logger = bootstrap_logger(level=LOGGER_LEVEL)
+logger = setup_logger(level=LOGGER_LEVEL)
 
 
 class GPTOpenAIClient(LLMProviderClientBase):

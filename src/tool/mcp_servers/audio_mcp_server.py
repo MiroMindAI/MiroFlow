@@ -14,7 +14,7 @@ import wave
 import contextlib
 from mutagen import File as MutagenFile
 import asyncio
-from src.logging.logger import setup_mcp_logging
+from src.logging.logger import setup_mcp_logger
 
 
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
@@ -27,7 +27,7 @@ OPENAI_AUDIO_MODEL_NAME = os.environ.get(
 )
 
 # Initialize FastMCP server
-setup_mcp_logging(tool_name=os.path.basename(__file__))
+setup_mcp_logger(tool_name=os.path.basename(__file__))
 mcp = FastMCP("audio-mcp-server")
 
 

@@ -18,14 +18,14 @@ import os
 import aiohttp
 import requests
 from fastmcp import FastMCP
-from src.logging.logger import setup_mcp_logging
+from src.logging.logger import setup_mcp_logger
 
 VISION_API_KEY = os.environ.get("VISION_API_KEY")
 VISION_BASE_URL = os.environ.get("VISION_BASE_URL")
 VISION_MODEL_NAME = os.environ.get("VISION_MODEL_NAME")
 
 # Initialize FastMCP server
-setup_mcp_logging(tool_name=os.path.basename(__file__))
+setup_mcp_logger(tool_name=os.path.basename(__file__))
 mcp = FastMCP("vision-mcp-server-os")
 
 

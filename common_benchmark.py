@@ -25,7 +25,7 @@ from src.utils.task_utils import (
     TaskStatus,
 )
 from src.logging.logger import (
-    bootstrap_logger,
+    setup_logger,
     init_logging_for_benchmark_evaluation,
     task_logging_context,
 )
@@ -317,7 +317,7 @@ def main(*args, config_file_name: str = ""):
         cfg = setup_hydra_output_dir(cfg, list(args))
         cfg = OmegaConf.create(OmegaConf.to_container(cfg, resolve=True))
 
-        _ = bootstrap_logger(level=LOGGER_LEVEL)
+        _ = setup_logger(level=LOGGER_LEVEL)
         # Tracing functionality removed - miroflow-contrib deleted
         
         asyncio.run(entrypoint(cfg))
