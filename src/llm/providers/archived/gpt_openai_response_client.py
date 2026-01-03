@@ -13,14 +13,12 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 from src.llm.provider_client_base import LLMProviderClientBase
 
-from src.logging.logger import setup_logger
+from src.logging.logger import get_logger
 
-
-LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 # OPENAI reasoning models only support temperature=1
 OPENAI_REASONING_MODEL_SET = set(["o1", "o3", "o3-mini", "o4-mini"])
 
-logger = setup_logger(level=LOGGER_LEVEL)
+logger = get_logger()
 
 
 @dataclasses.dataclass

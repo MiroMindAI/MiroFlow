@@ -10,7 +10,7 @@ from mcp import ClientSession, StdioServerParameters  # (already imported in con
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 
-from src.logging.logger import setup_logger
+from src.logging.logger import get_logger
 from .mcp_servers.browser_session import PlaywrightSession
 from src.utils.tool_utils import format_tool_result
 from omegaconf import OmegaConf
@@ -18,8 +18,7 @@ import os
 import sys
 from src.logging.decorators import span
 
-LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = setup_logger(level=LOGGER_LEVEL)
+logger = get_logger()
 
 R = TypeVar("R") #TODO
 

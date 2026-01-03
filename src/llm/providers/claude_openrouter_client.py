@@ -19,11 +19,9 @@ from tenacity import (
     wait_exponential,
 )
 from src.llm.provider_client_base import LLMProviderClientBase
-from src.logging.logger import setup_logger
-import os
+from src.logging.logger import get_logger
 
-LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = setup_logger(level=LOGGER_LEVEL)
+logger = get_logger()
 
 
 class ContextLimitError(Exception):

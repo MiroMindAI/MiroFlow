@@ -18,15 +18,15 @@ from omegaconf import DictConfig, OmegaConf
 
 import pathlib
 import importlib
-from src.logging.logger import setup_logger
+from src.logging.logger import get_logger
 from src.logging.task_tracer import TaskTracer
 from src.logging.decorators import span
 import hydra
 from config import config_path
 import uuid
 from pathlib import Path    
-LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = setup_logger(level=LOGGER_LEVEL)
+
+logger = get_logger()
 
 @dataclasses.dataclass
 class LLMOutput(ABC):

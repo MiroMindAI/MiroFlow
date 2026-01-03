@@ -11,12 +11,9 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 from src.llm.provider_client_base import LLMProviderClientBase
 
-from src.logging.logger import setup_logger
+from src.logging.logger import get_logger
 
-import os
-
-LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = setup_logger(level=LOGGER_LEVEL)
+logger = get_logger()
 
 
 @dataclasses.dataclass

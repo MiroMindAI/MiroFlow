@@ -31,7 +31,7 @@ TASK_CONTEXT_VAR: ContextVar[str | None] = ContextVar("CURRENT_TASK_ID", default
 # Network Utilities
 # ============================================================================
 
-def find_available_port(start_port: int = 6000, max_attempts: int = 10) -> int:
+def _find_available_port(start_port: int = 6000, max_attempts: int = 10) -> int:
     """Find an available port starting from start_port."""
     for port in range(start_port, start_port + max_attempts):
         try:
@@ -54,61 +54,45 @@ def _extract_port_from_address(addr: str) -> int:
 
 
 # ============================================================================
-# ZMQ Manager
-# ============================================================================
-
-class ZMQManager:
-    """Manages ZMQ address and socket operations."""
-    
-    def __init__(self, default_address: str = "tcp://127.0.0.1:6000"):
-        """Initialize ZMQ manager."""
-        self._address = default_address
-    
-    @property
-    def address(self) -> str:
-        """Get the current ZMQ address."""
-        return self._address
-    
-    @address.setter
-    def address(self, value: str) -> None:
-        """Set the ZMQ address."""
-        self._address = value
-    
-    def bind_socket(self, sock, bind_addr: str) -> str:
-        """Bind ZMQ socket to an available port and return the actual address."""
-        port = _extract_port_from_address(bind_addr)
-        
-        try:
-            available_port = find_available_port(port)
-            actual_addr = f"tcp://127.0.0.1:{available_port}"
-            sock.bind(actual_addr)
-            self._address = actual_addr
-            return actual_addr
-        except RuntimeError:
-            # Fallback to random port
-            port = sock.bind_to_random_port("tcp://127.0.0.1")
-            actual_addr = f"tcp://127.0.0.1:{port}"
-            self._address = actual_addr
-            return actual_addr
-
-
-# ============================================================================
-# ZMQ Log Handler
+# ZMQ Log Handler & Listener
 # ============================================================================
 
 class ZMQLogHandler(logging.Handler):
     """Custom logging handler that sends logs via ZMQ PUSH socket."""
     
-    def __init__(self, zmq_manager: Optional[ZMQManager] = None, addr: Optional[str] = None, tool_name: str = "unknown_tool"):
-        """Initialize ZMQ log handler."""
+    def __init__(self, addr: Optional[str] = None, tool_name: str = "unknown_tool"):
+        """Initialize ZMQ log handler.
+        
+        Args:
+            addr: ZMQ address to connect to. If None, tries to get from 
+                  TASK_ZMQ_ADDRESS environment variable or global default.
+            tool_name: Name of the tool sending logs
+        """
         super().__init__()
-        self._zmq_manager = zmq_manager or _global_zmq_manager
         ctx = zmq.Context()
         self.sock = ctx.socket(zmq.PUSH)
         
-        # Use the manager's address if no specific address is provided
+        # Use provided address or get from environment or use default
         if addr is None:
-            addr = self._zmq_manager.address
+            addr = os.environ.get("TASK_ZMQ_ADDRESS")
+        if addr is None:
+            # Fallback to global zmq address, otherwise use default
+            try:
+                # Access module-level variables
+                import sys
+                current_module = sys.modules[__name__]
+                zmq_address = getattr(current_module, '_zmq_address', None)
+                zmq_listener = getattr(current_module, '_zmq_listener', None)
+                
+                # If listener is bound, use its bound address, otherwise use stored address
+                if zmq_listener and zmq_listener.bound_address:
+                    addr = zmq_listener.bound_address
+                elif zmq_address:
+                    addr = zmq_address
+                else:
+                    addr = 'tcp://127.0.0.1:6000'
+            except (NameError, AttributeError, KeyError):
+                addr = 'tcp://127.0.0.1:6000'
         
         # Try to connect to the address
         try:
@@ -136,17 +120,36 @@ class ZMQLogHandler(logging.Handler):
             self.handleError(record)
 
 
-# ============================================================================
-# ZMQ Listener
-# ============================================================================
 
-class ZMQListener:
-    """Manages ZMQ log listener."""
+class ZMQLogListener:
+    """Manages ZMQ log listener that receives logs from tools via PULL socket."""
     
-    def __init__(self, zmq_manager: Optional[ZMQManager] = None):
-        """Initialize ZMQ listener."""
-        self._zmq_manager = zmq_manager or _global_zmq_manager
+    def __init__(self):
+        """Initialize ZMQ log listener."""
         self._running = False
+        self._bound_address: Optional[str] = None
+    
+    def _bind_socket(self, sock, bind_addr: str) -> str:
+        """Bind ZMQ socket to an available port and return the actual address."""
+        port = _extract_port_from_address(bind_addr)
+        
+        try:
+            available_port = _find_available_port(port)
+            actual_addr = f"tcp://127.0.0.1:{available_port}"
+            sock.bind(actual_addr)
+            self._bound_address = actual_addr
+            return actual_addr
+        except RuntimeError:
+            # Fallback to random port
+            port = sock.bind_to_random_port("tcp://127.0.0.1")
+            actual_addr = f"tcp://127.0.0.1:{port}"
+            self._bound_address = actual_addr
+            return actual_addr
+    
+    @property
+    def bound_address(self) -> Optional[str]:
+        """Get the bound ZMQ address."""
+        return self._bound_address
     
     async def listen(self, bind_addr: str = "tcp://127.0.0.1:6000"):
         """Start async ZMQ log listener that receives and processes log messages."""
@@ -154,8 +157,8 @@ class ZMQListener:
         sock = ctx.socket(zmq.PULL)
         
         # Bind to available port
-        actual_addr = self._zmq_manager.bind_socket(sock, bind_addr)
-        logging.getLogger(__name__).info(f"ZMQ listener bound to: {actual_addr}")
+        actual_addr = self._bind_socket(sock, bind_addr)
+        logging.getLogger(__name__).info(f"ZMQ log listener bound to: {actual_addr}")
         
         root_logger = logging.getLogger()
         self._running = True
@@ -217,7 +220,8 @@ class TaskLoggingManager:
     
     def __init__(self):
         """Initialize task logging manager."""
-        self._task_handlers: dict[str, logging.Handler] = {}
+        pass
+        # self._task_handlers: dict[str, logging.Handler] = {}
     
     def setup_log_record_factory(self):
         """Setup custom log record factory that includes task context."""
@@ -239,7 +243,7 @@ class TaskLoggingManager:
         file_handler.setFormatter(formatter)
         file_handler.addFilter(TaskFilter(task_id))
         logging.getLogger().addHandler(file_handler)
-        self._task_handlers[task_id] = file_handler
+        # self._task_handlers[task_id] = file_handler
         return file_handler
     
     @contextmanager
@@ -253,83 +257,56 @@ class TaskLoggingManager:
             TASK_CONTEXT_VAR.reset(token)
             logging.getLogger().removeHandler(handler)
             handler.close()
-            if task_id in self._task_handlers:
-                del self._task_handlers[task_id]
+            # if task_id in self._task_handlers:
+            #     del self._task_handlers[task_id]
 
 
 # ============================================================================
-# Logger Manager
+# Global State
 # ============================================================================
 
-class LoggerManager:
-    """Main manager for all logging functionality."""
-    
-    _instance: Optional['LoggerManager'] = None
-    
-    def __new__(cls):
-        """Singleton pattern implementation."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-    
-    def __init__(self):
-        """Initialize logger manager."""
-        if hasattr(self, '_initialized'):
-            return
-        self._initialized = True
-        self._zmq_manager = ZMQManager()
-        self._task_manager = TaskLoggingManager()
-        self._zmq_listener: Optional[ZMQListener] = None
-    
-    @property
-    def zmq_address(self) -> str:
-        """Get ZMQ address."""
-        return self._zmq_manager.address
-    
-    @zmq_address.setter
-    def zmq_address(self, value: str) -> None:
-        """Set ZMQ address."""
-        self._zmq_manager.address = value
-    
-    def remove_all_console_handlers(self):
-        """Remove all console handlers (StreamHandler/RichHandler) from all loggers."""
-        for name, logger in logging.Logger.manager.loggerDict.items():
-            if isinstance(logger, logging.Logger):
-                handlers_to_remove = []
-                for h in logger.handlers:
-                    if isinstance(h, (logging.StreamHandler, RichHandler)):
-                        handlers_to_remove.append(h)
-                for h in handlers_to_remove:
-                    logger.removeHandler(h)
-                    h.close()
-        
-        root_logger = logging.getLogger()
-        handlers_to_remove = []
-        for h in root_logger.handlers:
-            if isinstance(h, logging.StreamHandler):
-                handlers_to_remove.append(h)
-        for h in handlers_to_remove:
-            root_logger.removeHandler(h)
-            h.close()
-    
-    def initialize_for_benchmark(self, print_task_logs: bool = False):
-        """Initialize logging for benchmark evaluation."""
-        # Start ZMQ listener for monitoring tool logs
-        self._zmq_listener = ZMQListener(self._zmq_manager)
-        self._zmq_listener.start_in_thread(daemon=True)
-        logging.basicConfig(handlers=[])
-        self._task_manager.setup_log_record_factory()
-        if not print_task_logs:
-            self.remove_all_console_handlers()
+_zmq_address: str = "tcp://127.0.0.1:6000"
+_global_task_manager = TaskLoggingManager()
 
 
 # ============================================================================
-# Global Instance
+# Standalone Functions
 # ============================================================================
 
-_global_logger_manager = LoggerManager()
-_global_zmq_manager = _global_logger_manager._zmq_manager
-_global_task_manager = _global_logger_manager._task_manager
+def remove_all_console_handlers():
+    """Remove all console handlers (StreamHandler/RichHandler) from all loggers."""
+    for name, logger in logging.Logger.manager.loggerDict.items():
+        if isinstance(logger, logging.Logger):
+            handlers_to_remove = []
+            for h in logger.handlers:
+                if isinstance(h, (logging.StreamHandler, RichHandler)):
+                    handlers_to_remove.append(h)
+            for h in handlers_to_remove:
+                logger.removeHandler(h)
+                h.close()
+    
+    root_logger = logging.getLogger()
+    handlers_to_remove = []
+    for h in root_logger.handlers:
+        if isinstance(h, logging.StreamHandler):
+            handlers_to_remove.append(h)
+    for h in handlers_to_remove:
+        root_logger.removeHandler(h)
+        h.close()
+
+
+def initialize_for_benchmark(print_task_logs: bool = False):
+    """Initialize logging for benchmark evaluation."""
+    global _zmq_listener, _zmq_address
+    
+    # Start ZMQ listener for monitoring tool logs
+    _zmq_listener = ZMQLogListener()
+    _zmq_listener.start_in_thread(bind_addr=_zmq_address, daemon=True)
+    # Note: bound_address will be set asynchronously when listener starts
+    logging.basicConfig(handlers=[])
+    _global_task_manager.setup_log_record_factory()
+    if not print_task_logs:
+        remove_all_console_handlers()
 
 
 # ============================================================================
@@ -371,6 +348,18 @@ def setup_logger(
     logger.propagate = True
     
     return logger
+
+
+def get_logger() -> logging.Logger:
+    """Get the miroflow logger instance without configuring it.
+    
+    This function should be used by modules that don't need to configure logging.
+    Only main entry points should call setup_logger() to initialize logging configuration.
+    
+    Returns:
+        The miroflow logger instance
+    """
+    return logging.getLogger("miroflow")
 
 
 def setup_mcp_logger(
@@ -420,4 +409,4 @@ def task_logging_context(task_id: str, log_dir: Path):
 
 def init_logging_for_benchmark_evaluation(print_task_logs: bool = False):
     """Initialize logging for benchmark evaluation. (Backward compatibility)"""
-    _global_logger_manager.initialize_for_benchmark(print_task_logs)
+    initialize_for_benchmark(print_task_logs)

@@ -7,12 +7,9 @@ import re
 
 import json5
 
-from src.logging.logger import setup_logger
+from src.logging.logger import get_logger
 
-import os
-
-LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = setup_logger(level=LOGGER_LEVEL)
+logger = get_logger()
 
 
 def _smart_json_truncate(json_str):
