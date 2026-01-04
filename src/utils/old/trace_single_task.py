@@ -9,7 +9,7 @@ from pathlib import Path
 import dotenv
 import hydra
 
-from src.logging.logger import setup_logger
+from src.logging.logger import setup_logger, get_logger
 from config import config_name, config_path, debug_config
 from omegaconf import DictConfig
 

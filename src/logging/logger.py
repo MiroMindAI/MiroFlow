@@ -9,7 +9,6 @@ import socket
 import threading
 from contextlib import contextmanager
 from contextvars import ContextVar
-from functools import lru_cache
 from pathlib import Path
 from typing import Literal, Optional
 
@@ -25,13 +24,15 @@ from rich.logging import RichHandler
 # ============================================================================
 
 TASK_CONTEXT_VAR: ContextVar[str | None] = ContextVar("CURRENT_TASK_ID", default=None)
+DEFAULT_ZMQ_ADDRESS: str = "tcp://127.0.0.1:6000"
+DEFAULT_ZMQ_PORT: int = 6000
 
 
 # ============================================================================
 # Network Utilities
 # ============================================================================
 
-def _find_available_port(start_port: int = 6000, max_attempts: int = 10) -> int:
+def _find_available_port(start_port: int = DEFAULT_ZMQ_PORT, max_attempts: int = 10) -> int:
     """Find an available port starting from start_port."""
     for port in range(start_port, start_port + max_attempts):
         try:
@@ -50,7 +51,7 @@ def _extract_port_from_address(addr: str) -> int:
     try:
         return int(addr.split(":")[-1])
     except (ValueError, IndexError):
-        return 6000
+        return DEFAULT_ZMQ_PORT
 
 
 # ============================================================================
@@ -90,9 +91,9 @@ class ZMQLogHandler(logging.Handler):
                 elif zmq_address:
                     addr = zmq_address
                 else:
-                    addr = 'tcp://127.0.0.1:6000'
+                    addr = DEFAULT_ZMQ_ADDRESS
             except (NameError, AttributeError, KeyError):
-                addr = 'tcp://127.0.0.1:6000'
+                addr = DEFAULT_ZMQ_ADDRESS
         
         # Try to connect to the address
         try:
@@ -118,7 +119,6 @@ class ZMQLogHandler(logging.Handler):
             self.sock.send_string(f"{self.task_id}||{self.tool_name}||{msg}")
         except Exception:
             self.handleError(record)
-
 
 
 class ZMQLogListener:
@@ -151,7 +151,7 @@ class ZMQLogListener:
         """Get the bound ZMQ address."""
         return self._bound_address
     
-    async def listen(self, bind_addr: str = "tcp://127.0.0.1:6000"):
+    async def listen(self, bind_addr: str = DEFAULT_ZMQ_ADDRESS):
         """Start async ZMQ log listener that receives and processes log messages."""
         ctx = zmq.asyncio.Context()
         sock = ctx.socket(zmq.PULL)
@@ -182,7 +182,7 @@ class ZMQLogListener:
             else:
                 root_logger.info(raw)
     
-    def start_in_thread(self, bind_addr: str = "tcp://127.0.0.1:6000", daemon: bool = True):
+    def start_in_thread(self, bind_addr: str = DEFAULT_ZMQ_ADDRESS, daemon: bool = True):
         """Start ZMQ listener in a separate thread."""
         def run_listener():
             loop = asyncio.new_event_loop()
@@ -215,7 +215,7 @@ class TaskFilter(logging.Filter):
         return getattr(record, "task_id", None) == self.task_id
 
 
-class TaskLoggingManager:
+class TaskLogManager:
     """Manages task-specific logging."""
     
     def __init__(self):
@@ -262,11 +262,15 @@ class TaskLoggingManager:
 
 
 # ============================================================================
-# Global State
+# Module-Level State
 # ============================================================================
 
-_zmq_address: str = "tcp://127.0.0.1:6000"
-_global_task_manager = TaskLoggingManager()
+# ZMQ logging state
+_zmq_address: str = DEFAULT_ZMQ_ADDRESS
+_zmq_listener: Optional[ZMQLogListener] = None
+
+# Task logging state
+_global_task_manager: TaskLogManager = TaskLogManager()
 
 
 # ============================================================================
@@ -295,30 +299,27 @@ def remove_all_console_handlers():
         h.close()
 
 
-def initialize_for_benchmark(print_task_logs: bool = False):
-    """Initialize logging for benchmark evaluation."""
-    global _zmq_listener, _zmq_address
-    
-    # Start ZMQ listener for monitoring tool logs
-    _zmq_listener = ZMQLogListener()
-    _zmq_listener.start_in_thread(bind_addr=_zmq_address, daemon=True)
-    # Note: bound_address will be set asynchronously when listener starts
-    logging.basicConfig(handlers=[])
-    _global_task_manager.setup_log_record_factory()
-    if not print_task_logs:
-        remove_all_console_handlers()
-
-
 # ============================================================================
 # Utility Functions
 # ============================================================================
 
-@lru_cache
 def setup_logger(
     level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] | int = "INFO",
     to_console: bool = True,
+    print_task_logs: bool = False,
 ) -> logging.Logger:
-    """Configure and return a logger instance."""
+    """Configure and return a logger instance.
+    
+    Args:
+        level: Logging level
+        to_console: Whether to add console handler
+        print_task_logs: If True, keep console handlers for task logs.
+            Otherwise, removes all console handlers.
+    
+    Returns:
+        The configured logger instance
+    """
+    global _zmq_listener, _zmq_address
     logger = logging.getLogger("miroflow")
     
     # Remove existing handlers
@@ -346,6 +347,15 @@ def setup_logger(
     
     logger.setLevel(level)
     logger.propagate = True
+
+    # Start ZMQ listener for monitoring tool logs
+    _zmq_listener = ZMQLogListener()
+    _zmq_listener.start_in_thread(bind_addr=_zmq_address, daemon=True)
+    # Note: bound_address will be set asynchronously when listener starts
+    logging.basicConfig(handlers=[])
+    _global_task_manager.setup_log_record_factory()
+    if not print_task_logs:
+        remove_all_console_handlers()
     
     return logger
 
@@ -405,8 +415,3 @@ def task_logging_context(task_id: str, log_dir: Path):
     """Context manager for task-specific logging. (Backward compatibility)"""
     with _global_task_manager.task_logging_context(task_id, log_dir):
         yield
-
-
-def init_logging_for_benchmark_evaluation(print_task_logs: bool = False):
-    """Initialize logging for benchmark evaluation. (Backward compatibility)"""
-    initialize_for_benchmark(print_task_logs)
