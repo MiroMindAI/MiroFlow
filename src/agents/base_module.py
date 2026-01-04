@@ -14,7 +14,6 @@ from src.logging.decorators import span
 from typing import Any
 from src.utils.prompt_utils import PromptTemplateReader
 from types import MappingProxyType
-from immutables import Map
 from omegaconf import OmegaConf 
 from src.tool.manager import get_mcp_server_configs_from_tool_cfg_paths
 from hydra import compose, initialize
