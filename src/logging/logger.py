@@ -218,12 +218,7 @@ class TaskFilter(logging.Filter):
 class TaskLogManager:
     """Manages task-specific logging."""
     
-    def __init__(self):
-        """Initialize task logging manager."""
-        pass
-        # self._task_handlers: dict[str, logging.Handler] = {}
-    
-    def setup_log_record_factory(self):
+    def set_log_record_factory(self):
         """Setup custom log record factory that includes task context."""
         old_factory = logging.getLogRecordFactory()
         
@@ -243,7 +238,6 @@ class TaskLogManager:
         file_handler.setFormatter(formatter)
         file_handler.addFilter(TaskFilter(task_id))
         logging.getLogger().addHandler(file_handler)
-        # self._task_handlers[task_id] = file_handler
         return file_handler
     
     @contextmanager
@@ -257,8 +251,6 @@ class TaskLogManager:
             TASK_CONTEXT_VAR.reset(token)
             logging.getLogger().removeHandler(handler)
             handler.close()
-            # if task_id in self._task_handlers:
-            #     del self._task_handlers[task_id]
 
 
 # ============================================================================
@@ -348,7 +340,7 @@ def setup_logger(
     _zmq_listener.start_in_thread(bind_addr=_zmq_address, daemon=True)
     # Note: bound_address will be set asynchronously when listener starts
     logging.basicConfig(handlers=[])
-    _global_task_manager.setup_log_record_factory()
+    _global_task_manager.set_log_record_factory()
     if not print_task_logs:
         _remove_console_handlers()
     
