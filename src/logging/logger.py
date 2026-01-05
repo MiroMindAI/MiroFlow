@@ -199,7 +199,7 @@ class ZMQLogListener:
 
 
 # ============================================================================
-# Task Logging
+# Task Logging Classes
 # ============================================================================
 
 class TaskFilter(logging.Filter):
@@ -274,33 +274,7 @@ _global_task_manager: TaskLogManager = TaskLogManager()
 
 
 # ============================================================================
-# Standalone Functions
-# ============================================================================
-
-def remove_all_console_handlers():
-    """Remove all console handlers (StreamHandler/RichHandler) from all loggers."""
-    for name, logger in logging.Logger.manager.loggerDict.items():
-        if isinstance(logger, logging.Logger):
-            handlers_to_remove = []
-            for h in logger.handlers:
-                if isinstance(h, (logging.StreamHandler, RichHandler)):
-                    handlers_to_remove.append(h)
-            for h in handlers_to_remove:
-                logger.removeHandler(h)
-                h.close()
-    
-    root_logger = logging.getLogger()
-    handlers_to_remove = []
-    for h in root_logger.handlers:
-        if isinstance(h, logging.StreamHandler):
-            handlers_to_remove.append(h)
-    for h in handlers_to_remove:
-        root_logger.removeHandler(h)
-        h.close()
-
-
-# ============================================================================
-# Utility Functions
+# Public API Functions
 # ============================================================================
 
 def setup_logger(
@@ -319,6 +293,27 @@ def setup_logger(
     Returns:
         The configured logger instance
     """
+    def _remove_console_handlers():
+        """Remove all console handlers (StreamHandler/RichHandler) from all loggers."""
+        for name, logger in logging.Logger.manager.loggerDict.items():
+            if isinstance(logger, logging.Logger):
+                handlers_to_remove = []
+                for h in logger.handlers:
+                    if isinstance(h, (logging.StreamHandler, RichHandler)):
+                        handlers_to_remove.append(h)
+                for h in handlers_to_remove:
+                    logger.removeHandler(h)
+                    h.close()
+        
+        root_logger = logging.getLogger()
+        handlers_to_remove = []
+        for h in root_logger.handlers:
+            if isinstance(h, logging.StreamHandler):
+                handlers_to_remove.append(h)
+        for h in handlers_to_remove:
+            root_logger.removeHandler(h)
+            h.close()
+    
     global _zmq_listener, _zmq_address
     logger = logging.getLogger("miroflow")
     
@@ -355,21 +350,24 @@ def setup_logger(
     logging.basicConfig(handlers=[])
     _global_task_manager.setup_log_record_factory()
     if not print_task_logs:
-        remove_all_console_handlers()
+        _remove_console_handlers()
     
     return logger
 
 
-def get_logger() -> logging.Logger:
+def get_logger(logger_name: str = "miroflow") -> logging.Logger:
     """Get the miroflow logger instance without configuring it.
     
     This function should be used by modules that don't need to configure logging.
     Only main entry points should call setup_logger() to initialize logging configuration.
     
+    Args:
+        name: Logger name, defaults to "miroflow"
+    
     Returns:
-        The miroflow logger instance
+        The logger instance
     """
-    return logging.getLogger("miroflow")
+    return logging.getLogger(logger_name)
 
 
 def setup_mcp_logger(
@@ -403,11 +401,6 @@ def setup_mcp_logger(
     
     root.setLevel(level)
     root.propagate = True
-
-
-# ============================================================================
-# Backward Compatibility Functions
-# ============================================================================
 
 
 @contextmanager
