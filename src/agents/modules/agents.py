@@ -8,7 +8,6 @@ import json
 from dataclasses import dataclass
 import uuid
 from omegaconf import DictConfig
-from src.logging.logger import bootstrap_logger
 from typing import Callable, Awaitable
 
 from src.logging.task_tracer import get_tracer

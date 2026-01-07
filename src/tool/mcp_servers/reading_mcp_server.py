@@ -15,9 +15,9 @@ import asyncio
 from .utils.smart_request import smart_request
 
 # Initialize FastMCP server
-from src.logging.logger import setup_mcp_logging
+from src.logging.logger import setup_mcp_logger
 
-setup_mcp_logging(tool_name=os.path.basename(__file__))
+setup_mcp_logger(tool_name=os.path.basename(__file__))
 mcp = FastMCP("reading-mcp-server")
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
 JINA_API_KEY = os.environ.get("JINA_API_KEY", "")

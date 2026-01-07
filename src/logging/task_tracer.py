@@ -17,10 +17,9 @@ from .span import Span
 
 from pydantic import BaseModel, Field, PrivateAttr
 
-from .logger import bootstrap_logger
+from .logger import get_logger
 
-LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-logger = bootstrap_logger(level=LOGGER_LEVEL)
+logger = get_logger()
 
 
 def utc_iso(ts: Optional[float] = None) -> str:

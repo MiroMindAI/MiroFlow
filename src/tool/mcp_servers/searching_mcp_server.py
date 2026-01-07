@@ -14,7 +14,7 @@ from mcp import ClientSession, StdioServerParameters  # (already imported in con
 import wikipedia
 import asyncio
 from .utils.smart_request import smart_request, request_to_json
-from src.logging.logger import setup_mcp_logging
+from src.logging.logger import setup_mcp_logger
 
 
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
@@ -38,7 +38,7 @@ REMOVE_ANSWER_BOX = os.environ.get("REMOVE_ANSWER_BOX", "").lower() in (
 )
 
 # Initialize FastMCP server
-setup_mcp_logging(tool_name=os.path.basename(__file__))
+setup_mcp_logger(tool_name=os.path.basename(__file__))
 mcp = FastMCP("searching-mcp-server")
 
 

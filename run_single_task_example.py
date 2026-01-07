@@ -6,10 +6,10 @@ cfg = OmegaConf.load("config/agent_gaia-validation-gpt5-single-agent.yaml")
 cfg = OmegaConf.to_container(cfg, resolve=True)
 import logging
 import os
-from src.logging.logger import bootstrap_logger
+from src.logging.logger import setup_logger
 from src.logging.task_tracer import TaskTracer, set_current_tracer, reset_current_tracer
 from pathlib import Path
-logger = bootstrap_logger(level="WARNING")
+logger = setup_logger(level="WARNING")
 
 example_ctx_1 = {'task_description':"Is Spain oa country of Europe?"}
 example_ctx_2 = {

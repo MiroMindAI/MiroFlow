@@ -11,7 +11,7 @@ import fire
 import hydra
 # import src.utils.trace_single_task
 # import src.utils.prepare_benchmark.main
-from src.logging.logger import bootstrap_logger
+from src.logging.logger import setup_logger
 from config import config_name, config_path, debug_config
 from rich.traceback import install
 import os
@@ -22,7 +22,7 @@ LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
 def print_config(*args):
     dotenv.load_dotenv()
     print("LOGGER_LEVEL=", LOGGER_LEVEL)
-    logger = bootstrap_logger(level=LOGGER_LEVEL)
+    logger = setup_logger(level=LOGGER_LEVEL)
     with hydra.initialize_config_dir(config_dir=config_path(), version_base=None):
         cfg = hydra.compose(config_name=config_name(), overrides=list(args))
         debug_config(cfg, logger)
