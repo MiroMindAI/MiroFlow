@@ -10,11 +10,9 @@ from functools import wraps
 from typing import Any, Callable, Dict, Optional
 
 from .span import Span, new_id
-from src.logging.task_tracer import TaskTracer, get_tracer
+from src.logging.task_tracer import TaskTracer, get_tracer, get_current_task_context_var
 
 # ---- contextvars ----
-TASK_ID: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("TASK_ID", default=None)
-RUN_ID: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("RUN_ID", default=None)
 CURRENT_SPAN_ID: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("CURRENT_SPAN_ID", default=None)
 CURRENT_SPAN_PATH: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
     "CURRENT_SPAN_PATH", default=None
@@ -60,20 +58,15 @@ def span(
                 span_name = _default_span_name(func, args)
 
             # trace/run ids stable in a task
-            task_id = TASK_ID.get() or new_id("tr_")
-            run_id = RUN_ID.get() or new_id("run_")
+            task_context_var = get_current_task_context_var()
+            
+            if task_context_var is None:
+                return await func(*args, **kwargs)
+            
             parent_span_id = CURRENT_SPAN_ID.get()
             span_id = new_id("sp_")
 
-            # set trace/run if absent
-            trace_token = None
-            run_token = None
-            if TASK_ID.get() is None:
-                trace_token = TASK_ID.set(task_id)
-            if RUN_ID.get() is None:
-                run_token = RUN_ID.set(run_id)
-
-            #path
+            #path  
             parent_path = CURRENT_SPAN_PATH.get()
             if parent_path:
                 span_path = f"{parent_path}->{span_name}"
@@ -88,7 +81,8 @@ def span(
             step_id = step_id_fn(func, args, kwargs) if step_id_fn else None
 
             sp = Span(
-                run_id=run_id,
+                task_id=task_context_var.task_id,
+                run_id=task_context_var.run_id,
                 span_id=span_id,
                 parent_span_id=parent_span_id,
                 name=span_name,
@@ -151,10 +145,6 @@ def span(
                     tracer.clear_current_span()
 
                 CURRENT_SPAN_ID.reset(span_token)
-                if run_token is not None:
-                    RUN_ID.reset(run_token)
-                if trace_token is not None:
-                    TASK_ID.reset(trace_token)
                 if path_token is not None:
                     CURRENT_SPAN_PATH.reset(path_token)
 

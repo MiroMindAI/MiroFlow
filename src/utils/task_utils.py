@@ -8,7 +8,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any, Dict, Optional, TypedDict
 
-from src.logging.task_tracer import TaskTracer, set_current_tracer, reset_current_tracer
+from src.logging.task_tracer import TaskTracer, set_current_task_context_var, reset_current_task_context_var, TaskContextVar, get_tracer
 
 
 # ============================================================================
@@ -95,8 +95,15 @@ async def run_single_task_attempt(
         Updated AttemptStats dictionary
     """
     log_path = evaluator_output_dir / f"task_{task_id}_attempt_{attempt}.json"
-    tracer = TaskTracer(log_path=log_path)
-    token = set_current_tracer(tracer)
+    task_context_var = TaskContextVar(task_id=task_id, run_id=attempt)
+    token = set_current_task_context_var(task_context_var)
+    tracer = get_tracer()
+    tracer.update_task_meta(patch={
+        "task_id": task_id,
+        "run_id": attempt,
+        "task_description": task_description,
+        "task_file_name": task_file_path
+    })
     
     try:
         response = await agent.run(
@@ -116,7 +123,7 @@ async def run_single_task_attempt(
         print(f"    Error in attempt {attempt}: {e}")
 
     finally:
-        reset_current_tracer(token)
+        reset_current_task_context_var(token)
         tracer.finish(status="completed")
     
     return attempt_result

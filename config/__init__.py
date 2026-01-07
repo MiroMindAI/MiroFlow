@@ -17,7 +17,3 @@ def config_path() -> str:
 def config_name() -> str:
     return "config"
 
-
-def debug_config(cfg: omegaconf.DictConfig, logger: logging.Logger):
-    full_config = omegaconf.OmegaConf.to_container(cfg, resolve=True)
-    logger.info(yaml.dump(data=full_config))

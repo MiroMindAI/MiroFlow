@@ -10,7 +10,7 @@ from mcp import ClientSession, StdioServerParameters  # (already imported in con
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 
-from src.logging.logger import get_logger
+from src.logging.task_tracer import get_tracer
 from .mcp_servers.browser_session import PlaywrightSession
 from src.utils.tool_utils import format_tool_result
 from omegaconf import OmegaConf
@@ -18,7 +18,7 @@ import os
 import sys
 from src.logging.decorators import span
 
-logger = get_logger()
+logger = get_tracer()
 
 R = TypeVar("R") #TODO
 
@@ -29,10 +29,10 @@ def update_server_params_with_context_var(
     """
     Update the server params with the context var.
     """
-    from src.logging.logger import TASK_CONTEXT_VAR
-
-    if TASK_CONTEXT_VAR.get() is not None:
-        server_params.env["TASK_ID"] = TASK_CONTEXT_VAR.get()
+    from src.logging.task_tracer import get_current_task_context_var
+    task_context_var = get_current_task_context_var()
+    if task_context_var is not None:
+        server_params.env["TASK_ID"] = task_context_var.task_id
     return server_params
 
 def with_timeout(timeout_s: float = 300.0):

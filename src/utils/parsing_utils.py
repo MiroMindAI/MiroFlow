@@ -7,9 +7,9 @@ import re
 
 import json5
 
-from src.logging.logger import get_logger
+from src.logging.task_tracer import get_tracer
 
-logger = get_logger()
+logger = get_tracer()
 
 
 def _smart_json_truncate(json_str):

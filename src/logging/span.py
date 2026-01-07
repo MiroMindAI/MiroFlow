@@ -20,7 +20,7 @@ class Span:
     span_id: str
     name: str
     parent_span_id: Optional[str]
-    trace_id: Optional[str] = None
+    task_id: Optional[str] = None
     run_id: Optional[str] = None
 
     start_ts: float = field(default_factory=time.time)

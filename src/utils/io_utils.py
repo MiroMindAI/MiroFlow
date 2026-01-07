@@ -4,9 +4,9 @@
 
 import os
 
-from src.logging.logger import get_logger
+from src.logging.task_tracer import get_tracer
 
-logger = get_logger()
+logger = get_tracer()
 
 def get_file_type(file_name: str) -> str:
     file_extension = file_name.rsplit(".", maxsplit=1)[-1].lower()

@@ -18,7 +18,7 @@ from omegaconf import DictConfig, OmegaConf
 
 import pathlib
 import importlib
-from src.logging.logger import get_logger
+from src.logging.task_tracer import get_tracer
 from src.logging.task_tracer import TaskTracer
 from src.logging.decorators import span
 import hydra
@@ -26,7 +26,7 @@ from config import config_path
 import uuid
 from pathlib import Path    
 
-logger = get_logger()
+logger = get_tracer()
 
 @dataclasses.dataclass
 class LLMOutput(ABC):

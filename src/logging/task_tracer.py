@@ -14,12 +14,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Literal, Optional
 from .span import Span
-
+from dataclasses import dataclass
 from pydantic import BaseModel, Field, PrivateAttr
-
-from .logger import get_logger
-
-logger = get_logger()
 
 
 def utc_iso(ts: Optional[float] = None) -> str:
@@ -41,6 +37,10 @@ def _ensure_jsonable(x: Any) -> Any:
         except Exception:
             return "<unserializable>"
 
+@dataclass(frozen=True)
+class TaskContextVar():
+    task_id: str
+    run_id: str
 
 class TaskMeta(BaseModel):
     task_id: str = Field(default_factory=lambda: f"task_{uuid.uuid4().hex[:12]}")
@@ -74,7 +74,6 @@ class TaskLogFile(BaseModel):
 
     step_logs: list[Dict[str, Any]] = Field(default_factory=list)
 
-
 class TaskTracer(BaseModel):
     """
     Single-file JSON task log with 4 sections:
@@ -86,7 +85,7 @@ class TaskTracer(BaseModel):
     Every update does an atomic flush to the same JSON file.
     """
 
-    log_path: Path
+    log_path: Optional[Path] = Field(default_factory=lambda: Path("./logs"))
     data: TaskLogFile = Field(default_factory=TaskLogFile)
 
     _lock: threading.Lock = PrivateAttr(default_factory=threading.Lock)
@@ -94,6 +93,9 @@ class TaskTracer(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+    def set_log_path(self, log_path: Path | str) -> None:
+        self.log_path = Path(log_path)
 
     # ---------- lifecycle ----------
     def start(self) -> None:
@@ -177,16 +179,22 @@ class TaskTracer(BaseModel):
     ) -> None:
         self.append_step_event(
             {
-                "type": "log",
-                "level": level,
-                "msg": msg,
-                "span_id": span_id,
-                "node_id": node_id,
-                "step_id": step_id,
-                "where": where,
-                "data": data or {},
+                "type": f"log_{level.lower()}",
+                "msg": msg
             }
         )
+
+    def debug(self, msg: str, *, span_id: Optional[str] = None, node_id: Optional[str] = None, step_id: Optional[int] = None, data: Optional[Dict[str, Any]] = None, where: Optional[Dict[str, Any]] = None) -> None:
+        self.log(msg, level="DEBUG", span_id=span_id, node_id=node_id, step_id=step_id, data=data, where=where)
+
+    def info(self, msg: str, *, span_id: Optional[str] = None, node_id: Optional[str] = None, step_id: Optional[int] = None, data: Optional[Dict[str, Any]] = None, where: Optional[Dict[str, Any]] = None) -> None:
+        self.log(msg, level="INFO", span_id=span_id, node_id=node_id, step_id=step_id, data=data, where=where)
+
+    def warning(self, msg: str, *, span_id: Optional[str] = None, node_id: Optional[str] = None, step_id: Optional[int] = None, data: Optional[Dict[str, Any]] = None, where: Optional[Dict[str, Any]] = None) -> None:
+        self.log(msg, level="WARNING", span_id=span_id, node_id=node_id, step_id=step_id, data=data, where=where)
+
+    def error(self, msg: str, *, span_id: Optional[str] = None, node_id: Optional[str] = None, step_id: Optional[int] = None, data: Optional[Dict[str, Any]] = None, where: Optional[Dict[str, Any]] = None) -> None:
+        self.log(msg, level="ERROR", span_id=span_id, node_id=node_id, step_id=step_id, data=data, where=where)
 
     # ---------- IO: single-file atomic flush ----------
     def flush(self) -> None:
@@ -198,16 +206,21 @@ class TaskTracer(BaseModel):
             with self._lock:
                 self._flush_locked()
         except Exception as e:
-            logger.error(e, stack_info=True, exc_info=True)
+            print(e)
 
     def _flush_locked(self) -> None:
+        task_context_var = get_current_task_context_var()
+        if task_context_var is None:
+            log_path = Path(self.log_path) / f"log_root.json"
+        else:
+            log_path = Path(self.log_path) / f"task_{task_context_var.task_id}_attempt_{task_context_var.run_id}.json"
         # Ensure directory
         try:
-            self.log_path.parent.mkdir(parents=True, exist_ok=True)
+            log_path.parent.mkdir(parents=True, exist_ok=True)
         except Exception:
             pass
 
-        tmp_path = self.log_path.with_suffix(self.log_path.suffix + ".tmp")
+        tmp_path = log_path.with_suffix(log_path.suffix + ".tmp")
         payload = self.data.model_dump(mode="json")
 
         # atomic replace
@@ -215,19 +228,44 @@ class TaskTracer(BaseModel):
             json.dump(payload, f, ensure_ascii=False, indent=2)
             f.flush()
             os.fsync(f.fileno())
-        os.replace(tmp_path, self.log_path)
+        os.replace(tmp_path, log_path)
 
 import contextvars
 
-CURRENT_TASK_TRACER: contextvars.ContextVar[Optional[TaskTracer]] = contextvars.ContextVar(
-    "CURRENT_TASK_TRACER", default=None
+CURRENT_TASK_CONTEXT_VAR: contextvars.ContextVar[Optional[TaskContextVar]] = contextvars.ContextVar(
+    "CURRENT_TASK_CONTEXT_VAR", default=None
 )
 
-def set_current_tracer(tracer: TaskTracer):
-    return CURRENT_TASK_TRACER.set(tracer)
+def set_current_task_context_var(task_context_var: TaskContextVar):
+    return CURRENT_TASK_CONTEXT_VAR.set(task_context_var)
 
-def reset_current_tracer(token):
-    CURRENT_TASK_TRACER.reset(token)
+def reset_current_task_context_var(token):
+    CURRENT_TASK_CONTEXT_VAR.reset(token)
 
-def get_tracer() -> Optional[TaskTracer]:
-    return CURRENT_TASK_TRACER.get()
+def get_current_task_context_var() -> TaskContextVar:
+    return CURRENT_TASK_CONTEXT_VAR.get()
+# CURRENT_TASK_TRACER: contextvars.ContextVar[Optional[TaskTracer]] = contextvars.ContextVar(
+#     "CURRENT_TASK_TRACER", default=None
+# ) 
+
+# def set_current_tracer(tracer: TaskTracer):
+#     return CURRENT_TASK_TRACER.set(tracer)
+
+# def reset_current_tracer(token):
+#     CURRENT_TASK_TRACER.reset(token)
+
+_SINGLETON_LOCK = threading.Lock()
+_SINGLETON: Optional[TaskTracer] = None
+
+def init_tracer(*, log_path: Optional[str | Path] = None) -> TaskTracer:
+    global _SINGLETON
+    with _SINGLETON_LOCK:
+        if _SINGLETON is None:
+            _SINGLETON = TaskTracer(log_path=Path(log_path) if log_path is not None else None)
+    return _SINGLETON
+
+def get_tracer() -> TaskTracer:
+    global _SINGLETON
+    if _SINGLETON is None:
+        raise RuntimeError("Tracing not initialized. Call init_tracer(log_path=...) first.")
+    return _SINGLETON

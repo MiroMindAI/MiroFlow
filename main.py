@@ -4,28 +4,28 @@
 
 # import src.utils.calculate_average_score
 # import src.utils.calculate_score_from_log
+from src.logging.task_tracer import init_tracer
+init_tracer()
 import common_benchmark
 # import dotenv
 # import src.utils.eval_answer_from_log
 import fire
 import hydra
+import yaml
 # import src.utils.trace_single_task
 # import src.utils.prepare_benchmark.main
-from src.logging.logger import setup_logger
-from config import config_name, config_path, debug_config
+from config import config_name, config_path
 from rich.traceback import install
 import os
-
-LOGGER_LEVEL = os.getenv("LOGGER_LEVEL", "INFO")
-
+import dotenv
+from omegaconf import OmegaConf
 
 def print_config(*args):
     dotenv.load_dotenv()
-    print("LOGGER_LEVEL=", LOGGER_LEVEL)
-    logger = setup_logger(level=LOGGER_LEVEL)
     with hydra.initialize_config_dir(config_dir=config_path(), version_base=None):
-        cfg = hydra.compose(config_name=config_name(), overrides=list(args))
-        debug_config(cfg, logger)
+        cfg = hydra.compose(config_name=args[0])
+        full_config = OmegaConf.to_container(cfg, resolve=True)
+        print(yaml.dump(data=full_config))
 
 
 if __name__ == "__main__":

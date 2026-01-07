@@ -8,9 +8,9 @@ import importlib
 from mcp import StdioServerParameters
 from omegaconf import DictConfig, OmegaConf
 
-from src.logging.logger import get_logger
+from src.logging.task_tracer import get_tracer
 
-logger = get_logger()
+logger = get_tracer()
 
 
 

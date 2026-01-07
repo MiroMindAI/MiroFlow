@@ -9,9 +9,7 @@ from e2b_code_interpreter import Sandbox
 from fastmcp import FastMCP
 
 # Initialize FastMCP server
-from src.logging.logger import setup_mcp_logger
 
-setup_mcp_logger(tool_name=os.path.basename(__file__))
 mcp = FastMCP("e2b-python-interpreter")
 
 # API keys

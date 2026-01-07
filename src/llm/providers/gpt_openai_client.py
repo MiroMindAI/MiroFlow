@@ -12,14 +12,14 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 
 from src.llm.provider_client_base import LLMProviderClientBase
 
-from src.logging.logger import get_logger
+from src.logging.task_tracer import get_tracer
 
 # OPENAI reasoning models only support temperature=1
 OPENAI_REASONING_MODEL_SET = set(
     ["o1", "o3", "o3-mini", "o4-mini", "gpt-5", "gpt-5-2025-08-07"]
 )
 
-logger = get_logger()
+logger = get_tracer()
 
 
 class GPTOpenAIClient(LLMProviderClientBase):

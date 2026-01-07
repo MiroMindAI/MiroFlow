@@ -24,9 +24,9 @@ from openai import AsyncOpenAI, OpenAI
 
 from src.llm.provider_client_base import LLMProviderClientBase
 
-from src.logging.logger import get_logger
+from src.logging.task_tracer import get_tracer
 
-logger = get_logger()
+logger = get_tracer()
 
 
 @dataclasses.dataclass

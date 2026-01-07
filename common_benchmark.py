@@ -24,16 +24,10 @@ from src.utils.task_utils import (
     scan_latest_attempt,
     TaskStatus,
 )
-from src.logging.logger import (
-    setup_logger,
-    init_logging_for_benchmark_evaluation,
-    task_logging_context,
-)
 from src.agents.registry import build_agent_from_config
 from src.agents.base_module import BaseAgentModule
 from config import config_name, config_path
-
-init_logging_for_benchmark_evaluation(print_task_logs=False)
+from src.logging.task_tracer import get_tracer
 
 
 async def run_single_task(
@@ -139,12 +133,11 @@ async def run_parallel_inference(
 
     async def run_with_semaphore(task):
         async with semaphore:
-            with task_logging_context(task.task_id, evaluator.output_dir):
-                result = await run_single_task(
-                    cfg=evaluator.cfg, 
-                    evaluator=evaluator, 
-                    task=task, 
-                    agent=agent)
+            result = await run_single_task(
+                cfg=evaluator.cfg, 
+                evaluator=evaluator, 
+                task=task, 
+                agent=agent)
             return result
 
     # Shuffle tasks to avoid order bias and improve balancing
@@ -186,6 +179,9 @@ async def entrypoint(cfg: DictConfig) -> float:
     """
     print("Benchmark configuration:\n", OmegaConf.to_yaml(cfg, resolve=True))
 
+    tracer = get_tracer()
+    tracer.set_log_path(cfg.output_dir)
+
     # 读 benchmark 的 task
     def parse_func(x: str) -> BenchmarkTask:
         data = json.loads(x)
@@ -226,15 +222,15 @@ async def entrypoint(cfg: DictConfig) -> float:
     if len(tasks) == 0:
         print("No tasks loaded. Exiting.")
         return 0.0
-
+    
     # 实例化 agent
-    agent = build_agent_from_config(cfg=cfg)
-
+    agent = build_agent_from_config(cfg=cfg)  
     # 测试 benchmark 里的 task
     print(
         f"\nStarting parallel inference with {cfg.benchmark.execution.max_concurrent} concurrent tasks..."
     )
     print(f"Using pass@{evaluator.pass_at_k} evaluation...")
+    
     results = await run_parallel_inference(
         evaluator,
         tasks,
@@ -317,7 +313,6 @@ def main(*args, config_file_name: str = ""):
         cfg = setup_hydra_output_dir(cfg, list(args))
         cfg = OmegaConf.create(OmegaConf.to_container(cfg, resolve=True))
 
-        _ = setup_logger(level=LOGGER_LEVEL)
         # Tracing functionality removed - miroflow-contrib deleted
         
         asyncio.run(entrypoint(cfg))
