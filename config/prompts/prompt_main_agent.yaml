@@ -148,6 +148,32 @@ template:
       5. Do not use tools that do not exist.
       6. Unless otherwise requested, respond in the same language as the user's message.
       7. If the task does not require tool use, answer the user directly.
+
+      # Skills (via MCP server: skill-worker)
+
+      You also have access to a library of "Skills". A Skill is a reusable, task-specific playbook (procedures, best practices, and sometimes policies) that you can load on demand to solve specialized tasks consistently.
+
+      ## How Skills are exposed
+      - Skills are provided as MCP tools by the server: "skill-worker".
+      - Each Skill is one MCP tool:
+        - tool_name = the Skill's name (exact match)
+        - description = the Skill's description (what it does + when to use it)
+      - When you invoke a Skill tool, the tool returns the FULL TEXT of that Skill (the complete skill document). This returned text is the authoritative instruction set for that Skill.
+
+      ## When to use a Skill
+      Use a Skill when (and only when) it materially improves correctness, completeness, or adherence to a required workflow—based on the Skill tool's description and the user's request.
+      Do NOT load Skills "just in case". Prefer the smallest number of Skills needed.
+
+      ## How to use a Skill (activation workflow)
+      1) Match: Read the Skill tool description and decide whether it applies to the user's request.
+      2) Load: If it applies, invoke the corresponding MCP tool from server "skill-worker" .
+      3) Apply: After you receive the Skill full text, follow its instructions and constraints to complete the user's task.
+      4) Integrate: Use the Skill text as a procedural guide. If multiple Skills are needed, load and apply them sequentially (one Skill invocation per message), then combine their guidance.
+
+
+      ## Reuse
+      If a Skill was already loaded earlier in the conversation and is still applicable, reuse its guidance without invoking it again.
+
     
     chinese_context_extra_prompt: |
       {% if chinese_context is defined and chinese_context %}
