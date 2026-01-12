@@ -2,267 +2,259 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import json
-import os
-from enum import StrEnum
+"""Task execution utilities for benchmark evaluation.
+
+This module provides functions for running single and multiple benchmark tasks,
+including support for pass@k evaluation with early stopping.
+"""
+
+import asyncio
+import random
 from pathlib import Path
-from typing import Any, Dict, Optional, TypedDict
+from typing import List
 
-from src.logging.task_tracer import TaskTracer, set_current_task_context_var, reset_current_task_context_var, TaskContextVar, get_tracer
+from omegaconf import DictConfig
 
-
-# ============================================================================
-# Types and Data Classes
-# ============================================================================
-
-class TaskStatus(StrEnum):
-    PENDING = "pending"
-    RUN_FAILED = "run_failed"
-    RUN_COMPLETED = "run_completed"
-    RESULT_JUDGED = "result_judged"
-
-
-class AttemptStats(TypedDict):
-    attempt_number: int
-    model_response: str
-    model_boxed_answer: str
-    status: TaskStatus
-    log_file_path: Optional[Path]
-    judge_result: Optional[str]
-    is_correct: bool
-    error_message: Optional[str]
+from src.agents.base_module import BaseAgentModule
+from src.logging.task_tracer import (
+    TaskContextVar,
+    get_tracer,
+    reset_current_task_context_var,
+    set_current_task_context_var,
+)
+from src.utils.eval_utils import (
+    AttemptStats,
+    BenchmarkEvaluator,
+    BenchmarkResult,
+    BenchmarkTask,
+    TaskStatus,
+)
 
 
-def update_attempt_stats(
-    attempt_result: AttemptStats,
-    response: Dict[str, Any],
-    log_path: Path,
-    tracer: Any,  # TaskTracer type, but avoiding circular import
-) -> AttemptStats:
-    """
-    Update AttemptStats with response data.
-    
-    Args:
-        attempt_result: AttemptStats dictionary to update
-        response: Response dictionary from agent.run()
-        log_path: Path to the log file
-        tracer: TaskTracer instance
-        
-    Returns:
-        Updated AttemptStats dictionary
-    """
-    final_boxed_answer = response.get('final_boxed_answer', '')
-    tracer.update_task_meta(patch={
-        'final_boxed_answer': final_boxed_answer
-    })
-    
-    attempt_result["log_file_path"] = log_path
-    if final_boxed_answer:
-        attempt_result["model_boxed_answer"] = final_boxed_answer
-        attempt_result["status"] = TaskStatus.RUN_COMPLETED
-    else:
-        attempt_result["model_boxed_answer"] = final_boxed_answer
-        attempt_result["status"] = TaskStatus.RUN_FAILED
-    
-    return attempt_result
-
-
-async def run_single_task_attempt(
-    attempt_result: AttemptStats,
-    evaluator_output_dir: Path,
+async def run_single_attempt(
+    agent: BaseAgentModule,
+    output_dir: Path,
     task_id: str,
-    attempt: int,
+    attempt_id: int,
     task_description: str,
     task_file_path: str,
-    agent: Any,  # BaseAgentModule type, but avoiding circular import
 ) -> AttemptStats:
-    """
-    Execute a single task attempt.
-    
+    """Execute a single task attempt.
+
     This function wraps the logic for running a single attempt of a task,
-    including tracer setup, agent execution, stats update, and cleanup.
-    
+    including scanning for existing results, tracer setup, agent execution,
+    stats update, and cleanup. If an existing result is found and not failed,
+    it will be returned without re-running.
+
     Args:
-        attempt_result: AttemptStats dictionary to update
-        evaluator_output_dir: Output directory for logs
-        task_id: Task identifier
-        attempt: Attempt number (1-indexed)
-        task_description: Task description string
-        task_file_path: Path to task file (if any)
-        agent: Agent instance for running tasks
-        
+        agent: Agent instance for running tasks.
+        output_dir: Output directory for logs.
+        task_id: Task identifier string.
+        attempt_id: Attempt number (1-indexed).
+        task_description: Task description string.
+        task_file_path: Path to task file (if any).
+
     Returns:
-        Updated AttemptStats dictionary
+        Updated AttemptStats dictionary.
     """
-    log_path = evaluator_output_dir / f"task_{task_id}_attempt_{attempt}.json"
-    task_context_var = TaskContextVar(task_id=task_id, run_id=attempt)
+    # Scan for existing attempt result
+    attempt_result = AttemptStats(
+        task_id=task_id,
+        attempt_id=attempt_id,
+        output_dir=output_dir,
+    )
+
+    # Skip execution if result already exists and is not pending/failed
+    if attempt_result["status"] not in (TaskStatus.PENDING, TaskStatus.RUN_FAILED):
+        return attempt_result
+
+    # Run the attempt
+    log_path = output_dir / f"task_{task_id}_attempt_{attempt_id}.json"
+    task_context_var = TaskContextVar(task_id=task_id, run_id=attempt_id)
     token = set_current_task_context_var(task_context_var)
     tracer = get_tracer()
-    tracer.update_task_meta(patch={
-        "task_id": task_id,
-        "run_id": attempt,
-        "task_description": task_description,
-        "task_file_name": task_file_path
-    })
-    
+    tracer.update_task_meta(
+        patch={
+            "task_id": task_id,
+            "run_id": attempt_id,
+            "task_description": task_description,
+            "task_file_name": task_file_path,
+        }
+    )
+
     try:
         response = await agent.run(
-            dict(
-                task_description=task_description,
-                task_file_name=task_file_path
-            )
+            {
+                "task_description": task_description,
+                "task_file_name": task_file_path,
+            }
         )
-        
-        attempt_result = update_attempt_stats(
-            attempt_result, response, log_path, tracer
-        )
+
+        attempt_result.update_from_response(response, log_path)
+        tracer.update_task_meta(patch={
+            'final_boxed_answer': attempt_result.model_boxed_answer
+        })
 
     except Exception as e:
         attempt_result["status"] = TaskStatus.RUN_FAILED
         attempt_result["error_message"] = str(e)
-        print(f"    Error in attempt {attempt}: {e}")
+        print(f"    Error in attempt {attempt_id}: {e}")
 
     finally:
         reset_current_task_context_var(token)
         tracer.finish(status="completed")
-    
+
     return attempt_result
 
 
 # ============================================================================
-# Attempt Management Functions
+# Task Execution Functions
 # ============================================================================
 
-def scan_latest_attempt(
-    evaluator: Any,  # BenchmarkEvaluator type, but avoiding circular import
-    task: Any,  # BenchmarkTask type, but avoiding circular import
-    attempt: int
-) -> AttemptStats:
-    """check filesystem for latest attempt"""
-    attempt_result: AttemptStats = {
-        "attempt_number": attempt,
-        "model_response": "",
-        "model_boxed_answer": "",
-        "status": TaskStatus.PENDING,
-        "log_file_path": None,
-        "judge_result": None,
-        "is_correct": False,
-        "error_message": None,
-    }
-    trace_filename_pattern = f"task_{task.task_id}_attempt_{attempt}.json"
-    matched_logs = evaluator.output_dir.glob(trace_filename_pattern)
-    sorted_logs = sorted(matched_logs, reverse=True)
-    if len(sorted_logs) == 0:
-        return attempt_result
-    latest_log = sorted_logs[-1]
-    attempt_result["status"] = TaskStatus.RUN_FAILED
-    attempt_result["log_file_path"] = latest_log
-    print(f"    Found existing log for attempt {attempt}: {latest_log.name}")
+async def run_single_task(
+    agent: BaseAgentModule,
+    cfg: DictConfig,
+    evaluator: BenchmarkEvaluator,
+    task: BenchmarkTask,
+) -> BenchmarkResult:
+    """Run inference for a single benchmark task with pass@k support.
 
-    with open(latest_log) as f:
-        log_data = json.loads(f.read())
-        final_boxed_answer = log_data.get("task_meta", {}).get("final_boxed_answer", "")
-        if final_boxed_answer:
-            attempt_result["status"] = TaskStatus.RUN_COMPLETED
-            attempt_result["model_boxed_answer"] = final_boxed_answer
-            attempt_result["model_response"] = log_data.get("output", "")
-            # Check if we already have LLM judge result in log
-            judge_result = log_data.get("task_meta", {}).get("judge_result", "")
-            if judge_result:
-                attempt_result["status"] = TaskStatus.RESULT_JUDGED
-                attempt_result["judge_result"] = judge_result
-                attempt_result["is_correct"] = judge_result == "CORRECT"
-            print(
-                f"    Loaded existing result: {attempt_result['model_boxed_answer']}"
-            )
-    return attempt_result
+    Executes up to k attempts for a task, with early stopping when a correct
+    answer is found. Each attempt is verified using the evaluator's LLM judge.
 
-
-async def update_log_file_with_evaluation(
-    log_file_path: Path, evaluation_result: str
-):
-    """Helper method to update log file with evaluation result"""
-    try:
-        log_file = Path(log_file_path)
-        # Read existing data
-        with open(log_file, "r", encoding="utf-8") as f:
-            log_data = json.load(f)
-
-        # Update with evaluation result in task_meta
-        if "task_meta" not in log_data:
-            log_data["task_meta"] = {}
-        log_data["task_meta"]["judge_result"] = evaluation_result
-
-        # Write to a temporary file and then atomically replace
-        temp_log_file = log_file.with_suffix(f"{log_file.suffix}.tmp")
-        with open(temp_log_file, "w", encoding="utf-8") as f:
-            json.dump(log_data, f, indent=2, ensure_ascii=False)
-
-        os.replace(temp_log_file, log_file)
-        print(f"    Updated log file {log_file.name} with evaluation result.")
-    except Exception as e:
-        print(f"    Error updating log file {log_file_path}: {e}")
-
-
-async def run_single_attempt(
-    evaluator: Any,  # BenchmarkEvaluator type, but avoiding circular import
-    task: Any,  # BenchmarkTask type, but avoiding circular import
-    attempt: int,
-    task_description: str,
-    task_file_path: Optional[str],
-    agent: Any,  # BaseAgentModule type, but avoiding circular import
-) -> AttemptStats:
-    """
-    Run a single attempt for a task.
-    
     Args:
-        evaluator: BenchmarkEvaluator instance
-        task: BenchmarkTask object
-        attempt: Attempt number (1-indexed)
-        task_description: Prepared task description
-        task_file_path: Optional file path for the task
-        agent: Agent instance for running tasks
-        
+        agent: Agent instance for running tasks.
+        cfg: DictConfig object containing configuration.
+        evaluator: BenchmarkEvaluator instance for task preparation and verification.
+        task: BenchmarkTask object to execute.
+
     Returns:
-        AttemptStats dictionary with attempt results
+        BenchmarkResult object containing all attempt results and final status.
     """
-    # Check for existing attempt result
-    attempt_result = scan_latest_attempt(evaluator, task, attempt)
-    
-    # Run inference if no existing result or previous attempt failed
-    if attempt_result["status"] in (TaskStatus.PENDING, TaskStatus.RUN_FAILED):
-        log_path = evaluator.output_dir / f"task_{task.task_id}_attempt_{attempt}.json"
-        tracer = TaskTracer(log_path=log_path)
-        token = set_current_tracer(tracer)
-        
-        try:
-            response = await agent.run(
-                dict(
-                    task_description=task_description,
-                    task_file_name=task_file_path
-                )
+    output_dir = Path(cfg.output_dir)
+
+    print(f"Processing task {task.task_id} with pass@{evaluator.pass_at_k}")
+
+    result = BenchmarkResult(cfg=cfg.benchmark, task=task)
+
+    found_correct_answer = False
+
+    try:
+        task_description, task_file_path = evaluator.prepare_task_description(task)
+
+        # Run up to k attempts with early stopping when correct answer is found
+        for attempt_id in range(1, evaluator.pass_at_k + 1):
+            print(f"  Attempt {attempt_id}/{evaluator.pass_at_k} for task {task.task_id}")
+
+            attempt_result = await run_single_attempt(
+                agent=agent,
+                output_dir=output_dir,
+                task_id=task.task_id,
+                attempt_id=attempt_id,
+                task_description=task_description,
+                task_file_path=task_file_path,
             )
+
+            # Perform LLM verification (handles status check internally)
+            attempt_result = await evaluator.verify_attempt_result(
+                task, attempt_id, attempt_result
+            )
+
+            # Update result with this attempt
+            result.update_with_attempt(attempt_result)
+
+            found_correct_answer = attempt_result.get("is_correct", False)
             
-            final_boxed_answer = response.get('final_boxed_answer', '')
-            tracer.update_task_meta(patch={
-                'final_boxed_answer': final_boxed_answer
-            })
-            
-            attempt_result["log_file_path"] = log_path
-            if final_boxed_answer:
-                attempt_result["model_boxed_answer"] = final_boxed_answer
-                attempt_result["status"] = TaskStatus.RUN_COMPLETED
-            else:
-                attempt_result["model_boxed_answer"] = final_boxed_answer
-                attempt_result["status"] = TaskStatus.RUN_FAILED
-                
-        except Exception as e:
-            attempt_result["status"] = TaskStatus.RUN_FAILED
-            attempt_result["error_message"] = str(e)
-            print(f"    Error in attempt {attempt}: {e}")
-            
-        finally:
-            reset_current_tracer(token)
-            tracer.finish(status="completed")
-    
-    return attempt_result
+            # Early stopping when correct answer is found
+            if found_correct_answer:
+                print(f"    🎯 Found correct answer! Stopping early after {attempt_id} attempts.")
+                break
+
+    except Exception as e:
+        result.error_message = str(e)
+        result.status = "failed"
+        print(f"Error processing task {task.task_id}: {e}")
+
+    finally:
+        result.pass_at_k_success = found_correct_answer
+
+        # Set main result judge result based on pass@k outcome
+        if found_correct_answer:
+            result.judge_result = "PASS_AT_K_SUCCESS"
+        else:
+            result.judge_result = "PASS_AT_K_FAILED"
+
+        print(f"Task {task.task_id} completed with {len(result.attempts)} attempts")
+        print(f"    Pass@{evaluator.pass_at_k} result: {'✅ SUCCESS' if found_correct_answer else '❌ FAILED'}")
+
+    return result
+
+
+async def run_tasks(
+    agent: BaseAgentModule,
+    cfg: DictConfig,
+    evaluator: BenchmarkEvaluator,
+    tasks: List[BenchmarkTask],
+    max_concurrent: int = 3,
+) -> List[BenchmarkResult]:
+    """Run inference on multiple tasks in parallel.
+
+    Executes multiple benchmark tasks concurrently with a semaphore to limit
+    the number of concurrent executions. Tasks are shuffled to avoid order bias
+    and improve load balancing.
+
+    Args:
+        agent: Agent instance for running tasks.
+        cfg: DictConfig object containing configuration.
+        evaluator: BenchmarkEvaluator instance for task preparation and verification.
+        tasks: List of BenchmarkTask objects to execute.
+        max_concurrent: Maximum number of concurrent task executions. Defaults to 3.
+
+    Returns:
+        List of BenchmarkResult objects, one for each task. Tasks that raise
+        exceptions are converted to failed BenchmarkResult objects.
+    """
+    print(f"Running inference on {len(tasks)} tasks with max_concurrent={max_concurrent}")
+
+    semaphore = asyncio.Semaphore(max_concurrent)
+
+    async def run_with_semaphore(task: BenchmarkTask) -> BenchmarkResult:
+        """Run a single task with semaphore control."""
+        async with semaphore:
+            return await run_single_task(
+                agent=agent,
+                cfg=cfg,
+                evaluator=evaluator,
+                task=task,
+            )
+
+    # Shuffle tasks to avoid order bias and improve load balancing
+    shuffled_tasks = tasks.copy()
+    random.shuffle(shuffled_tasks)
+
+    # Run tasks in parallel
+    results = await asyncio.gather(
+        *[run_with_semaphore(task) for task in shuffled_tasks],
+        return_exceptions=True,
+    )
+
+    # Convert exceptions to failed BenchmarkResult objects
+    processed_results = []
+    for i, result in enumerate(results):
+        if isinstance(result, Exception):
+            print(f"Exception in task {shuffled_tasks[i].task_id}: {result}")
+            error_task = BenchmarkTask(
+                task_id=shuffled_tasks[i].task_id,
+                task_question=shuffled_tasks[i].task_question,
+                ground_truth=shuffled_tasks[i].ground_truth,
+                file_path=shuffled_tasks[i].file_path,
+                metadata=shuffled_tasks[i].metadata.copy(),
+            )
+            error_result = BenchmarkResult(cfg=cfg.benchmark, task=error_task)
+            error_result.status = "failed"
+            error_result.error_message = str(result)
+            processed_results.append(error_result)
+        else:
+            processed_results.append(result)
+
+    return processed_results
