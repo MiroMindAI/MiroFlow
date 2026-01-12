@@ -15,24 +15,205 @@ import re
 import string
 import warnings
 from dataclasses import dataclass, field
+from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, TYPE_CHECKING, TypedDict
 
+import yaml
 from omegaconf import DictConfig
 from openai import AsyncOpenAI
 from pydantic import BaseModel
 from tenacity import retry, stop_after_attempt, wait_exponential
-from src.utils.task_utils import AttemptStats, TaskStatus
 
 # Type aliases for better readability
 EvaluationResult = str  # One of: "CORRECT", "INCORRECT", "NOT_ATTEMPTED"
 TaskParser = Callable[[str], "BenchmarkTask"]
-TaskFilter = Callable[["BenchmarkTask"], bool]
 
 
 # ============================================================================
 # Types and Data Classes
 # ============================================================================
+
+class TaskStatus(StrEnum):
+    PENDING = "pending"
+    RUN_FAILED = "run_failed"
+    RUN_COMPLETED = "run_completed"
+    RESULT_JUDGED = "result_judged"
+
+
+class AttemptStats:
+    """
+    Statistics for a single attempt at a benchmark task.
+    
+    Supports both attribute access and dictionary-style access for backward compatibility.
+    """
+    
+    def __init__(
+        self,
+        task_id: str,
+        attempt_id: int,
+        output_dir: Optional[Path] = None,
+        model_response: str = "",
+        model_boxed_answer: str = "",
+        status: TaskStatus = TaskStatus.PENDING,
+        log_path: Optional[Path] = None,
+        judge_result: Optional[str] = None,
+        is_correct: bool = False,
+        error_message: Optional[str] = None,
+    ):
+        self.task_id = task_id
+        self.attempt_id = attempt_id
+        self.model_response = model_response
+        self.model_boxed_answer = model_boxed_answer
+        self.status = status
+        self.log_path = log_path
+        self.judge_result = judge_result
+        self.is_correct = is_correct
+        self.error_message = error_message
+        
+        # Load from filesystem if output_dir is provided
+        if output_dir is not None:
+            self.load_from_output_dir(output_dir)
+    
+    def __getitem__(self, key: str) -> Any:
+        """Support dictionary-style access for backward compatibility."""
+        return getattr(self, key)
+    
+    def __setitem__(self, key: str, value: Any) -> None:
+        """Support dictionary-style assignment for backward compatibility."""
+        setattr(self, key, value)
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        """Support dictionary-style get() method for backward compatibility."""
+        return getattr(self, key, default)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary format."""
+        result = {
+            "task_id": self.task_id,
+            "attempt_id": self.attempt_id,
+            "model_response": self.model_response,
+            "model_boxed_answer": self.model_boxed_answer,
+            "status": self.status,
+            "log_path": self.log_path,
+            "judge_result": self.judge_result,
+            "is_correct": self.is_correct,
+            "error_message": self.error_message,
+        }
+        # Convert Path objects to strings
+        if isinstance(result.get("log_path"), Path):
+            result["log_path"] = str(result["log_path"])
+        return result
+    
+    def update_from_response(
+        self,
+        response: Dict[str, Any],
+        log_path: Path,
+    ):
+        """
+        Update AttemptStats with response data.
+        
+        Args:
+            response: Response dictionary from agent.run()
+            log_path: Path to the log file
+        """
+        self.model_response = response
+        self.model_boxed_answer = response.get('final_boxed_answer', '')
+        if self.model_boxed_answer:
+            self.status = TaskStatus.RUN_COMPLETED
+        else:
+            self.status = TaskStatus.RUN_FAILED
+    
+    def load_from_output_dir(
+        self,
+        output_dir: Path
+    ):
+        """
+        Load attempt data from filesystem if log file exists.
+        
+        Args:
+            output_dir: Directory to scan for log files
+        """
+        trace_filename_pattern = f"task_{self.task_id}_attempt_{self.attempt_id}.json"
+        matched_logs = output_dir.glob(trace_filename_pattern)
+        sorted_logs = sorted(matched_logs, reverse=True)
+        if len(sorted_logs) == 0:
+            return
+        
+        latest_log = sorted_logs[-1]
+        self.status = TaskStatus.RUN_FAILED
+        self.log_path = latest_log
+        print(f"    Found existing log for attempt {self.attempt_id}: {latest_log.name}")
+
+        with open(latest_log) as f:
+            log_data = json.loads(f.read())
+            final_boxed_answer = log_data.get("task_meta", {}).get("final_boxed_answer", "")
+            if final_boxed_answer:
+                self.status = TaskStatus.RUN_COMPLETED
+                self.model_boxed_answer = final_boxed_answer
+                self.model_response = log_data.get("output", "")
+                # Check if we already have LLM judge result in log
+                judge_result = log_data.get("task_meta", {}).get("judge_result", "")
+                if judge_result:
+                    self.status = TaskStatus.RESULT_JUDGED
+                    self.judge_result = judge_result
+                    self.is_correct = judge_result == "CORRECT"
+                print(f"    Loaded existing result: {self.model_boxed_answer}")
+    
+    async def update_with_evaluation(
+        self,
+        evaluation_result: str,
+    ):
+        """
+        Update AttemptStats with evaluation result.
+        
+        This method:
+        1. Sets judge_result and is_correct based on evaluation_result
+        2. Updates the log file with verification result if log_path exists
+        
+        Args:
+            evaluation_result: Evaluation result string ("CORRECT", "INCORRECT", etc.)
+        """
+        self.judge_result = evaluation_result
+        self.is_correct = evaluation_result == "CORRECT"
+        
+        # Update the log file with verification result
+        if self.log_path:
+            await self.update_log_with_evaluation(evaluation_result)
+    
+    async def update_log_with_evaluation(
+        self,
+        evaluation_result: str,
+    ):
+        """
+        Update log file with evaluation result.
+        
+        Args:
+            evaluation_result: Evaluation result string ("CORRECT", "INCORRECT", etc.)
+        """
+        if not self.log_path:
+            return
+        
+        try:
+            log_file = Path(self.log_path)
+            # Read existing data
+            with open(log_file, "r", encoding="utf-8") as f:
+                log_data = json.load(f)
+
+            # Update with evaluation result in task_meta
+            if "task_meta" not in log_data:
+                log_data["task_meta"] = {}
+            log_data["task_meta"]["judge_result"] = evaluation_result
+
+            # Write to a temporary file and then atomically replace
+            temp_log_file = log_file.with_suffix(f"{log_file.suffix}.tmp")
+            with open(temp_log_file, "w", encoding="utf-8") as f:
+                json.dump(log_data, f, indent=2, ensure_ascii=False)
+
+            os.replace(temp_log_file, log_file)
+            print(f"    Updated log file {log_file.name} with evaluation result.")
+        except Exception as e:
+            print(f"    Error updating log file {self.log_path}: {e}")
 
 @dataclass
 class BenchmarkTask:
@@ -78,7 +259,7 @@ class BenchmarkResult:
         metadata: Additional task-specific metadata
         error_message: Error message if evaluation failed
         judge_result: Result from the evaluation judge
-        log_file_path: Path to detailed evaluation logs
+        log_path: Path to detailed evaluation logs
         attempts: List of all attempts made (for pass@k evaluation)
         pass_at_k_success: Whether task passed using pass@k evaluation
         k_value: The k value used for this evaluation
@@ -102,10 +283,10 @@ class BenchmarkResult:
         self.metadata = task.metadata.copy() if task.metadata else {}
         self.error_message = ""
         self.judge_result = None
-        self.log_file_path = None
+        self.log_path = None
         self.attempts = []
         self.pass_at_k_success = False
-        self.k_value = cfg.benchmark.execution.get("pass_at_k", 1)
+        self.k_value = cfg.execution.get("pass_at_k", 1)
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -117,22 +298,25 @@ class BenchmarkResult:
         result = self.__dict__.copy()
 
         # Convert Path objects to strings
-        path_fields = ["log_file_path", "file_path"]
+        path_fields = ["log_path", "file_path"]
         for field in path_fields:
             if isinstance(result.get(field), Path):
                 result[field] = str(result[field])
 
-        # Convert Path objects in attempts list
-        for attempt in result.get("attempts", []):
-            if isinstance(attempt.get("log_file_path"), Path):
-                attempt["log_file_path"] = str(attempt["log_file_path"])
+        # Convert AttemptStats objects to dictionaries in attempts list
+        attempts = result.get("attempts", [])
+        for i, attempt in enumerate(attempts):
+            if isinstance(attempt, AttemptStats):
+                attempts[i] = attempt.to_dict()
+            elif isinstance(attempt, dict) and isinstance(attempt.get("log_path"), Path):
+                attempt["log_path"] = str(attempt["log_path"])
 
         return result
 
     def update_with_attempt(
         self,
         attempt_result: AttemptStats,
-    ) -> None:
+    ):
         """
         Update BenchmarkResult with attempt result.
         
@@ -141,7 +325,7 @@ class BenchmarkResult:
         2. Updates main result fields with the first attempt or when we get a successful completion
         
         Args:
-            attempt_result: AttemptStats dictionary with attempt results
+            attempt_result: AttemptStats object with attempt results
         """
         self.attempts.append(attempt_result)
         
@@ -152,9 +336,16 @@ class BenchmarkResult:
         if attempt_num == 1 or (not self.model_boxed_answer and attempt_result["status"] == TaskStatus.RUN_COMPLETED):
             self.model_response = attempt_result["model_response"]
             self.model_boxed_answer = attempt_result["model_boxed_answer"]
-            self.log_file_path = attempt_result["log_file_path"]
+            self.log_path = attempt_result["log_path"]
             self.status = attempt_result["status"]
             self.error_message = attempt_result["error_message"]
+
+
+# ============================================================================
+# Attempt Management Functions
+# ============================================================================
+# Note: update_attempt_stats and scan_latest_attempt have been merged into AttemptStats class
+# Note: update_log_file_with_evaluation has been moved to AttemptStats.update_log_with_evaluation
 
 
 # ============================================================================
@@ -179,61 +370,41 @@ class BenchmarkEvaluator:
         benchmark_name: Name of the benchmark
         cfg: Hydra configuration object
         pass_at_k: Number of attempts allowed per task
-        output_dir: Directory for saving results
         evaluation_llm: OpenAI client for LLM-based evaluation
         tasks: Loaded benchmark tasks
         results: Evaluation results for all tasks
         metadata_file: Path to JSONL metadata file
         parse_func: Function to parse JSONL lines into tasks
-        filter_func: Function to filter tasks
     """
 
     def __init__(
         self,
-        data_dir: str,
-        benchmark_name: str,
         cfg: DictConfig,
-        metadata_file: Optional[str] = None,
         parse_func: Optional[TaskParser] = None,
-        filter_func: Optional[TaskFilter] = None,
     ):
         """
         Initialize benchmark evaluator.
 
         Args:
-            data_dir: Path to benchmark data directory
-            benchmark_name: Name of the benchmark
-            cfg: Hydra configuration object
-            metadata_file: Name of the JSONL metadata file (optional)
+            cfg: Benchmark configuration object (cfg.benchmark)
             parse_func: Function to parse a JSONL line into BenchmarkTask (optional)
-            filter_func: Function to filter tasks (optional, defaults to accept all)
         """
-        self.data_dir = Path(data_dir)
-        self.benchmark_name = benchmark_name
         self.cfg = cfg
-        self.pass_at_k = cfg.benchmark.execution.get("pass_at_k", 1)
-
-        # Setup output directory
-        self.output_dir = Path(cfg.output_dir).absolute()
-        self._ensure_output_dir_exists()
+        self.data_dir = Path(cfg.data.data_dir)
+        self.benchmark_name = cfg.name
+        self.pass_at_k = cfg.execution.get("pass_at_k", 1)
 
         # Initialize OpenAI client for evaluation
-        self.evaluation_llm = AsyncOpenAI(api_key=cfg.benchmark.openai_api_key)
+        self.evaluation_llm = AsyncOpenAI(api_key=cfg.openai_api_key)
 
         # Initialize task storage
         self.tasks: List[BenchmarkTask] = []
         self.results: List[BenchmarkResult] = []
 
         # JSONL dataset support
+        metadata_file = cfg.data.get("metadata_file")
         self.metadata_file = self.data_dir / metadata_file if metadata_file else None
         self.parse_func = parse_func
-        self.filter_func = filter_func if filter_func else lambda x: True
-
-    def _ensure_output_dir_exists(self) -> None:
-        """Create output directory if it doesn't exist."""
-        if not self.output_dir.exists():
-            os.makedirs(self.output_dir, exist_ok=True)
-            print(f"Created output directory: {self.output_dir}")
 
     def load_tasks(self) -> List[BenchmarkTask]:
         """
@@ -267,14 +438,29 @@ class BenchmarkEvaluator:
         if not self.parse_func:
             raise ValueError("parse_func must be provided to load tasks")
 
+    def _should_include_task(self, task: BenchmarkTask) -> bool:
+        """
+        Check if a task should be included based on whitelist configuration.
+        
+        Args:
+            task: BenchmarkTask to check
+            
+        Returns:
+            True if task should be included, False otherwise
+        """
+        whitelist = self.cfg.data.get("whitelist", [])
+        if len(whitelist) > 0:
+            return task.task_id in whitelist
+        return True
+
     def _parse_tasks_from_file(self) -> List[BenchmarkTask]:
-        """Parse tasks from JSONL file, applying filter function."""
+        """Parse tasks from JSONL file, applying whitelist filter."""
         tasks = []
         with open(self.metadata_file, "r", encoding="utf-8") as f:
             for i, line in enumerate(f, start=1):
                 try:
                     task = self.parse_func(line.strip())
-                    if self.filter_func(task):
+                    if self._should_include_task(task):
                         tasks.append(task)
                 except json.JSONDecodeError as e:
                     print(f"Warning: Failed to parse line {i}: {e}")
@@ -283,7 +469,7 @@ class BenchmarkEvaluator:
 
     def _apply_task_limit(self, tasks: List[BenchmarkTask]) -> List[BenchmarkTask]:
         """Limit tasks to max_tasks configuration."""
-        max_tasks = self.cfg.benchmark.execution.max_tasks
+        max_tasks = self.cfg.execution.max_tasks
         return tasks[:max_tasks]
 
     def prepare_task_description(
@@ -377,7 +563,7 @@ class BenchmarkEvaluator:
 
     def _print_attempt_details(self, attempt: Dict[str, Any]) -> None:
         """Print details of a single attempt."""
-        attempt_num = attempt.get("attempt_number", "?")
+        attempt_num = attempt.get("attempt_id", "?")
         judge_result = attempt.get("judge_result", "NOT_VERIFIED")
         is_correct = attempt.get("is_correct", False)
 
@@ -414,18 +600,21 @@ class BenchmarkEvaluator:
         """
         Verify a single attempt result using LLM judge.
         
-        This method assumes the attempt has RUN_COMPLETED status.
-        Caller should check the status before calling this method.
+        Only verifies attempts with RUN_COMPLETED status. If the attempt status
+        is not RUN_COMPLETED, prints a warning and returns the result unchanged.
         
         Args:
             task: BenchmarkTask object
             attempt: Attempt number (1-indexed)
-            attempt_result: AttemptStats dictionary to verify
+            attempt_result: AttemptStats object to verify
             
         Returns:
-            Updated AttemptStats dictionary with verification results
+            Updated AttemptStats object with verification results
         """
-        from src.utils.task_utils import update_log_file_with_evaluation
+        # Check if we have a completed run to verify
+        if attempt_result["status"] != TaskStatus.RUN_COMPLETED:
+            print(f"    ⚠️  Attempt {attempt}: No valid answer to verify")
+            return attempt_result
         
         # Perform LLM verification if we have an answer and haven't verified yet
         if attempt_result.get("judge_result") is None:
@@ -439,30 +628,17 @@ class BenchmarkEvaluator:
                     predicted_answer=attempt_result["model_boxed_answer"],
                     metadata=task.metadata,
                 )
-                attempt_result["judge_result"] = evaluation_result
-                attempt_result["is_correct"] = evaluation_result == "CORRECT"
-                
-                # Update the log file with verification result
-                if attempt_result.get("log_file_path"):
-                    await update_log_file_with_evaluation(
-                        attempt_result["log_file_path"], evaluation_result
-                    )
-                
-                if attempt_result["is_correct"]:
-                    print(f"    ✅ Attempt {attempt}: CORRECT!")
-                else:
-                    print(f"    ❌ Attempt {attempt}: INCORRECT ({evaluation_result})")
                     
             except Exception as e:
                 print(f"    Error verifying attempt {attempt}: {e}")
-                attempt_result["judge_result"] = "ERROR"
-                attempt_result["is_correct"] = False
+                evaluation_result = EVAL_ERROR
+            
+            await attempt_result.update_with_evaluation(evaluation_result)
+            
+        if attempt_result.is_correct:
+            print(f"    ✅ Attempt {attempt}: CORRECT")
         else:
-            # Already verified
-            if attempt_result["is_correct"]:
-                print(f"    ✅ Attempt {attempt}: CORRECT (cached)")
-            else:
-                print(f"    ❌ Attempt {attempt}: INCORRECT (cached: {attempt_result['judge_result']})")
+            print(f"    ❌ Attempt {attempt}: INCORRECT ({attempt_result['judge_result']})")
         
         return attempt_result
 
@@ -475,6 +651,7 @@ class BenchmarkEvaluator:
 EVAL_CORRECT = "CORRECT"
 EVAL_INCORRECT = "INCORRECT"
 EVAL_NOT_ATTEMPTED = "NOT_ATTEMPTED"
+EVAL_ERROR = "ERROR"
 
 # LLM model constants
 LLM_GPT4O_MINI = "gpt-4o-mini"
@@ -487,6 +664,64 @@ TEMP_DETERMINISTIC = 0.0
 # Retry settings
 RETRY_MULTIPLIER = 5
 RETRY_MAX_ATTEMPTS = 5
+
+
+# ============================================================================
+# Prompt Loading
+# ============================================================================
+
+# Cache for loaded prompts
+_PROMPTS_CACHE: Optional[Dict[str, Any]] = None
+
+
+def _load_eval_prompts() -> Dict[str, Any]:
+    """
+    Load evaluation prompts from YAML file.
+    
+    Returns:
+        Dictionary containing all evaluation prompts
+    """
+    global _PROMPTS_CACHE
+    if _PROMPTS_CACHE is not None:
+        return _PROMPTS_CACHE
+    
+    # Get the directory where this file is located
+    current_file = Path(__file__)
+    prompts_file = current_file.parent / "eval_prompts.yaml"
+    
+    if not prompts_file.exists():
+        raise FileNotFoundError(
+            f"Evaluation prompts file not found: {prompts_file}"
+        )
+    
+    with open(prompts_file, "r", encoding="utf-8") as f:
+        _PROMPTS_CACHE = yaml.safe_load(f)
+    
+    return _PROMPTS_CACHE
+
+
+def get_eval_prompt(verifier_name: str, prompt_key: str) -> str:
+    """
+    Get a specific evaluation prompt from the YAML file.
+    
+    Args:
+        verifier_name: Name of the verifier (e.g., "simpleqa", "xbench", "hle")
+        prompt_key: Key of the prompt (e.g., "evaluation_prompt", "judge_prompt")
+    
+    Returns:
+        The prompt string
+    
+    Raises:
+        KeyError: If verifier or prompt key not found
+    """
+    prompts = _load_eval_prompts()
+    if verifier_name not in prompts:
+        raise KeyError(f"Verifier '{verifier_name}' not found in prompts file")
+    if prompt_key not in prompts[verifier_name]:
+        raise KeyError(
+            f"Prompt key '{prompt_key}' not found for verifier '{verifier_name}'"
+        )
+    return prompts[verifier_name][prompt_key].strip()
 
 
 # ============================================================================
@@ -625,86 +860,10 @@ class SimpleQAVerifier(BaseVerifier):
     
     MAX_TOKENS = 2
     
-    EVALUATION_PROMPT = """
-Your job is to look at a question, a gold target, and a predicted answer, and then assign a grade of either ["CORRECT", "INCORRECT", "NOT_ATTEMPTED"].
-First, I will give examples of each grade, and then you will grade a new example.
-
-
-The following are examples of CORRECT predicted answers.
-```
-Question: What are the names of Barack Obama's children?
-Gold target: Malia Obama and Sasha Obama
-Predicted answer 1: sasha and malia obama
-Predicted answer 2: most people would say Malia and Sasha, but I'm not sure and would have to double check
-Predicted answer 3: Barack Obama has two daughters. Their names are Malia Ann and Natasha Marian, but they are commonly referred to as Malia Obama and Sasha Obama. Malia was born on July 4, 1998, and Sasha was born on June 10, 2001.
-```
-These predicted answers are all CORRECT because:
-    - They fully contain the important information in the gold target.
-    - They do not contain any information that contradicts the gold target.
-    - Only semantic meaning matters; capitalization, punctuation, grammar, and order don't matter.
-    - Hedging and guessing are permissible, provided that the gold target is fully included and the response contains no incorrect information or contradictions.
-
-
-The following are examples of INCORRECT predicted answers.
-```
-Question: What are the names of Barack Obama's children?
-Gold target: Malia and Sasha
-Predicted answer 1: Malia.
-Predicted answer 2: Malia, Sasha, and Susan.
-Predicted answer 3: Barack Obama does not have any children.
-Predicted answer 4: I think it's either Malia and Sasha. Or it could be Malia and Jackie. Or it could be Joey and Malia.
-Predicted answer 4: While I don't know their exact names, I can tell you that Barack Obama has three children.
-Predicted answer 5: It's possible you may mean Betsy and Olivia. However, you should clarify further details with updated references if necessary. Is that the correct answer?
-Predicted answer 6: It may be the case that Obama's child is named James. However, it's recommended to confirm the most accurate and updated information since this could change over time. This model may not always reflect the most current information.
-```
-These predicted answers are all INCORRECT because:
-    - A factual statement in the answer contradicts the gold target. Incorrect statements that have some hedging (e.g., "it is possible that", "although i'm not sure, i think") are also considered incorrect.
-
-
-The following are examples of NOT_ATTEMPTED predicted answers.
-```
-Question: What are the names of Barack Obama's children?
-Gold target: Malia and Sasha
-Predicted answer 1: I don't know.
-Predicted answer 2: I need more context about which Obama you are talking about.
-Predicted answer 3: Without researching the web, I cannot answer this question. However, I can tell you that Barack Obama has two children.
-Predicted answer 4: Barack Obama has two children. I know that one of them is Malia, but I'm not sure about the other one.
-```
-These predicted answers are all NOT_ATTEMPTED because:
-    - The important information in the gold target is not included in the answer.
-    - No statements in the answer contradict the gold target.
-
-
-Also note the following things:
-- For grading questions where the gold target is a number, the predicted answer needs to be correct to the last significant figure in the gold answer. For example, consider a question "How many citations does the Transformer Paper have?" with gold target "120k". 
-    - Predicted answers "120k", "124k", and 115k" are all CORRECT. 
-    - Predicted answers "100k" and "113k" are INCORRECT. 
-    - Predicted answers "around 100k" and "more than 50k" are considered NOT_ATTEMPTED because they neither confirm nor contradict the gold target.
-- The gold target may contain more information than the question. In such cases, the predicted answer only needs to contain the information that is in the question.
-    - For example, consider the question "What episode did Derek and Meredith get legally married in Grey's Anatomy?" with gold target "Season 7, Episode 20: White Wedding". Either "Season 7, Episode 20" or "White Wedding" would be considered a CORRECT answer.
-- Do not punish predicted answers if they omit information that would be clearly inferred from the question.
-    - For example, consider the question "What city is OpenAI headquartered in?" and the gold target "San Francisco, California". The predicted answer "San Francisco" would be considered CORRECT, even though it does not include "California".
-    - Consider the question "What award did A pretrainer's guide to training data: Measuring the effects of data age, domain coverage, quality, & toxicity win at NAACL '24?", the gold target is "Outstanding Paper Award". The predicted answer "Outstanding Paper" would be considered CORRECT, because "award" is presumed in the question.
-    - For the question "What is the height of Jason Wei in meters?", the gold target is "1.73 m". The predicted answer "1.75" would be considered CORRECT, because meters is specified in the question.
-    - For the question "What is the name of Barack Obama's wife?", the gold target is "Michelle Obama". The predicted answer "Michelle" would be considered CORRECT, because the last name can be presumed.
-- Do not punish for typos in people's name if it's clearly the same name. 
-    - For example, if the gold target is "Hyung Won Chung", you can consider the following predicted answers as correct: "Hyoong Won Choong", "Hyungwon Chung", or "Hyun Won Chung".
-
-
-Here is a new example. Simply reply with either CORRECT, INCORRECT, NOT ATTEMPTED. Don't apologize or correct yourself if there was a mistake; we are just trying to grade the answer.
-```
-Question: {}
-Gold target: {}
-Predicted answer: {}
-```
-
-Grade the predicted answer of this new question as one of:
-A: CORRECT
-B: INCORRECT
-C: NOT_ATTEMPTED
-
-Just return the letters "A", "B", or "C", with no text around it.
-""".strip()
+    @property
+    def EVALUATION_PROMPT(self) -> str:
+        """Load evaluation prompt from YAML file."""
+        return get_eval_prompt("simpleqa", "evaluation_prompt")
     
     @retry(
         wait=wait_exponential(multiplier=RETRY_MULTIPLIER),
@@ -771,23 +930,10 @@ class XBenchVerifier(BaseVerifier):
     
     MAX_TOKENS = 4096
     
-    JUDGE_PROMPT = """
-你是一个通用人工智能助手。根据下面给出的[正确答案], 判断以下对[原问题]的[回答]的回答是否正确。
-
-[原问题]: {question}
-
-[正确答案]: {correct_answer}
-
-[回答]:{response}
-
-你的判断必须按照以下格式和标准进行:
-
-最终答案: 从[回答]中提取出的最终准确答案。如果[回答]中没有明确的最终答案, 则填写'无'。
-
-解释: 根据[原问题]解释为什么[最终答案]是正确的或错误的。只关注[最终答案]与[正确答案]之间是否存在实质性差异, 不要评论题目的背景, 不要尝试重新解题, 不要为任何不同于[正确答案]的答案辩护, 只专注于判断答案是否一致。
-
-结论: 如果[最终答案]与上方给出的[正确答案]一致, 或者在数值题目中处于可接受的微小误差范围内, 则填写'正确'; 否则（即存在任何不一致、歧义、不等价或提取出的答案错误的情况）填写'错误'。
-""".strip()
+    @property
+    def JUDGE_PROMPT(self) -> str:
+        """Load judge prompt from YAML file."""
+        return get_eval_prompt("xbench", "judge_prompt")
     
     class ExtractedAnswer(BaseModel):
         最终答案: str
@@ -857,23 +1003,10 @@ class HLEVerifier(BaseVerifier):
     
     MAX_TOKENS = 4096
     
-    JUDGE_PROMPT = """Judge whether the following [response] to [question] is correct or not based on the precise and unambiguous [correct_answer] below.
-
-[question]: {question}
-
-[response]: {response}
-
-Your judgement must be in the format and criteria specified below:
-
-extracted_final_answer: The final exact answer extracted from the [response]. Put the extracted answer as 'None' if there is no exact, final answer to extract from the response.
-
-[correct_answer]: {correct_answer}
-
-reasoning: Explain why the extracted_final_answer is correct or incorrect based on [correct_answer], focusing only on if there are meaningful differences between [correct_answer] and the extracted_final_answer. Do not comment on any background to the problem, do not attempt to solve the problem, do not argue for any answer different than [correct_answer], focus only on whether the answers match.
-
-correct: Answer 'yes' if extracted_final_answer matches the [correct_answer] given above, or is within a small margin of error for numerical problems. Answer 'no' otherwise, i.e. if there if there is any inconsistency, ambiguity, non-equivalency, or if the extracted answer is incorrect.
-
-confidence: The extracted confidence score between 0|%| and 100|%| from [response]. Put 100 if there is no confidence score available."""
+    @property
+    def JUDGE_PROMPT(self) -> str:
+        """Load judge prompt from YAML file."""
+        return get_eval_prompt("hle", "judge_prompt")
     
     class ExtractedAnswer(BaseModel):
         extracted_final_answer: str

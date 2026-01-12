@@ -28,45 +28,55 @@ from src.utils.eval_utils import (
     BenchmarkResult,
     BenchmarkTask,
     TaskStatus,
-    scan_latest_attempt,
-    update_attempt_stats,
 )
 
 
 async def run_single_attempt(
     agent: BaseAgentModule,
-    attempt_result: AttemptStats,
     output_dir: Path,
     task_id: str,
-    attempt: int,
+    attempt_id: int,
     task_description: str,
     task_file_path: str,
 ) -> AttemptStats:
     """Execute a single task attempt.
 
     This function wraps the logic for running a single attempt of a task,
-    including tracer setup, agent execution, stats update, and cleanup.
+    including scanning for existing results, tracer setup, agent execution,
+    stats update, and cleanup. If an existing result is found and not failed,
+    it will be returned without re-running.
 
     Args:
         agent: Agent instance for running tasks.
-        attempt_result: AttemptStats dictionary to update.
         output_dir: Output directory for logs.
-        task_id: Task identifier.
-        attempt: Attempt number (1-indexed).
+        task_id: Task identifier string.
+        attempt_id: Attempt number (1-indexed).
         task_description: Task description string.
         task_file_path: Path to task file (if any).
 
     Returns:
         Updated AttemptStats dictionary.
     """
-    log_path = output_dir / f"task_{task_id}_attempt_{attempt}.json"
-    task_context_var = TaskContextVar(task_id=task_id, run_id=attempt)
+    # Scan for existing attempt result
+    attempt_result = AttemptStats(
+        task_id=task_id,
+        attempt_id=attempt_id,
+        output_dir=output_dir,
+    )
+
+    # Skip execution if result already exists and is not pending/failed
+    if attempt_result["status"] not in (TaskStatus.PENDING, TaskStatus.RUN_FAILED):
+        return attempt_result
+
+    # Run the attempt
+    log_path = output_dir / f"task_{task_id}_attempt_{attempt_id}.json"
+    task_context_var = TaskContextVar(task_id=task_id, run_id=attempt_id)
     token = set_current_task_context_var(task_context_var)
     tracer = get_tracer()
     tracer.update_task_meta(
         patch={
             "task_id": task_id,
-            "run_id": attempt,
+            "run_id": attempt_id,
             "task_description": task_description,
             "task_file_name": task_file_path,
         }
@@ -76,18 +86,19 @@ async def run_single_attempt(
         response = await agent.run(
             {
                 "task_description": task_description,
-                "task_file_name": task_file_path
+                "task_file_name": task_file_path,
             }
         )
 
-        attempt_result = update_attempt_stats(
-            attempt_result, response, log_path, tracer
-        )
+        attempt_result.update_from_response(response, log_path)
+        tracer.update_task_meta(patch={
+            'final_boxed_answer': attempt_result.model_boxed_answer
+        })
 
     except Exception as e:
         attempt_result["status"] = TaskStatus.RUN_FAILED
         attempt_result["error_message"] = str(e)
-        print(f"    Error in attempt {attempt}: {e}")
+        print(f"    Error in attempt {attempt_id}: {e}")
 
     finally:
         reset_current_task_context_var(token)
@@ -132,41 +143,31 @@ async def run_single_task(
         task_description, task_file_path = evaluator.prepare_task_description(task)
 
         # Run up to k attempts with early stopping when correct answer is found
-        for attempt in range(1, evaluator.pass_at_k + 1):
-            print(f"  Attempt {attempt}/{evaluator.pass_at_k} for task {task.task_id}")
+        for attempt_id in range(1, evaluator.pass_at_k + 1):
+            print(f"  Attempt {attempt_id}/{evaluator.pass_at_k} for task {task.task_id}")
 
-            attempt_result = scan_latest_attempt(output_dir, task, attempt)
+            attempt_result = await run_single_attempt(
+                agent=agent,
+                output_dir=output_dir,
+                task_id=task.task_id,
+                attempt_id=attempt_id,
+                task_description=task_description,
+                task_file_path=task_file_path,
+            )
 
-            # Run inference if no existing result or previous attempt failed
-            if attempt_result["status"] in (TaskStatus.PENDING, TaskStatus.RUN_FAILED):
-                attempt_result = await run_single_attempt(
-                    agent=agent,
-                    attempt_result=attempt_result,
-                    output_dir=output_dir,
-                    task_id=task.task_id,
-                    attempt=attempt,
-                    task_description=task_description,
-                    task_file_path=task_file_path,
-                )
-
-            # Perform LLM verification if we have a completed run
-            if attempt_result["status"] == TaskStatus.RUN_COMPLETED:
-                attempt_result = await evaluator.verify_attempt_result(
-                    task, attempt, attempt_result
-                )
-            else:
-                print(f"    ⚠️  Attempt {attempt}: No valid answer to verify")
-
-            # Check if this attempt is correct
-            if attempt_result.get("is_correct", False):
-                found_correct_answer = True
+            # Perform LLM verification (handles status check internally)
+            attempt_result = await evaluator.verify_attempt_result(
+                task, attempt_id, attempt_result
+            )
 
             # Update result with this attempt
             result.update_with_attempt(attempt_result)
 
+            found_correct_answer = attempt_result.get("is_correct", False)
+            
             # Early stopping when correct answer is found
             if found_correct_answer:
-                print(f"    🎯 Found correct answer! Stopping early after {attempt} attempts.")
+                print(f"    🎯 Found correct answer! Stopping early after {attempt_id} attempts.")
                 break
 
     except Exception as e:
