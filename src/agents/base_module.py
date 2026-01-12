@@ -19,7 +19,7 @@ from src.tool.manager import get_mcp_server_configs_from_tool_cfg_paths
 from hydra import compose, initialize
 from omegaconf import ListConfig
 from src.utils.tool_utils import expose_sub_agents_as_tools
-
+from src.skill.manager import SkillManager
 
 
 class AgentContextDict(dict):
@@ -84,6 +84,9 @@ class BaseAgentModule(ABC):
         
         self.sub_agents = self.cfg.get('sub_agents')
 
+        if hasattr(self.cfg, "skills"):
+            self.skill_manager = SkillManager(skill_dirs = self.cfg["skills"])
+
             
     @abstractmethod
     async def run_internal(self, ctx: AgentContextDict) -> AgentContextDict:
@@ -119,11 +122,12 @@ class BaseAgentModule(ABC):
                     for tool in server["tools"]:
                         mcp_server_definitions += f"### Tool name: {tool['name']}\n"
                         mcp_server_definitions += f"Description: {tool['description']}\n"
+                        mcp_server_definitions += f"Schema: {tool['schema']}\n"
         return mcp_server_definitions
             #actions
     
     async def init_tool_definitions(self):
-        if hasattr(self.cfg, "tools") or hasattr(self.cfg, "sub_agents"):
+        if hasattr(self.cfg, "tools") or hasattr(self.cfg, "sub_agents") or hasattr(self.cfg, "skills"):
             if hasattr(self.cfg, "tools"):
                 tool_definitions = await self.tool_manager.get_all_tool_definitions()
                 tool_mcp_server_definitions = self.get_mcp_server_definitions_from_tool_definitions(tool_definitions)
@@ -135,8 +139,13 @@ class BaseAgentModule(ABC):
                 sub_agent_mcp_server_definitions = self.get_mcp_server_definitions_from_tool_definitions(subagent_as_tool_definitions)
             else:
                 subagent_as_tool_definitions, sub_agent_mcp_server_definitions = [], ""
-            self.tool_definitions = tool_definitions + subagent_as_tool_definitions
-            self.mcp_server_definitions = tool_mcp_server_definitions + sub_agent_mcp_server_definitions
+            if hasattr(self.cfg, "skills"):
+                skills_as_tool_definitions = self.skill_manager.get_all_skills_definitions()
+                skills_mcp_server_definitions = self.get_mcp_server_definitions_from_tool_definitions(skills_as_tool_definitions)
+            else:
+                skills_as_tool_definitions, skills_mcp_server_definitions = [], ""
+            self.tool_definitions = tool_definitions + subagent_as_tool_definitions + skills_as_tool_definitions
+            self.mcp_server_definitions = tool_mcp_server_definitions + sub_agent_mcp_server_definitions + skills_mcp_server_definitions
         else:
             self.tool_definitions = []
             self.mcp_server_definitions = []

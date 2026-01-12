@@ -76,12 +76,14 @@ class IterativeAgentWithTool(BaseAgentModule):
             if len(tool_and_sub_agent_calls) == 0:
                 break
             else:
-                tool_calls = [call for call in tool_and_sub_agent_calls if 'agent-worker' not in call['server_name']]
+                tool_calls = [call for call in tool_and_sub_agent_calls if ('agent-worker' not in call['server_name'] and 'skills-worker' not in call['server_name'])]
                 sub_agent_calls = [call for call in tool_and_sub_agent_calls if 'agent-worker' in call['server_name']]
+                skill_calls = [call for call in tool_and_sub_agent_calls if 'skills-worker' in call['server_name']]
 
                 tool_results, tool_calls_exceeded = await self.tool_manager.execute_tool_calls_batch(tool_calls)
+                skill_results, skill_calls_exceeded = await self.skill_manager.execute_skill_calls_batch(skill_calls)
                 sub_agent_results = await self.run_sub_agents_as_mcp_tools(sub_agent_calls)
-                all_call_results = self.tool_manager.format_tool_results(tool_results + sub_agent_results)
+                all_call_results = self.tool_manager.format_tool_results(tool_results + sub_agent_results + skill_results)
             
             user_msg = self.llm_client.get_user_msg_from_tool_call(all_call_results, tool_calls_exceeded) #TODO modify each client; return a single message
             message_history.append(user_msg)
