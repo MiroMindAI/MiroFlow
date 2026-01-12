@@ -38,42 +38,27 @@ async def run_single_attempt(
     attempt_id: int,
     task_description: str,
     task_file_path: str,
+    # 新增参数：控制是否在内部管理生命周期，默认为 False 以便被 run_single_task 调用
+    manage_lifecycle: bool = False, 
 ) -> AttemptStats:
-    """Execute a single task attempt.
-
-    This function wraps the logic for running a single attempt of a task,
-    including scanning for existing results, tracer setup, agent execution,
-    stats update, and cleanup. If an existing result is found and not failed,
-    it will be returned without re-running.
-
-    Args:
-        agent: Agent instance for running tasks.
-        output_dir: Output directory for logs.
-        task_id: Task identifier string.
-        attempt_id: Attempt number (1-indexed).
-        task_description: Task description string.
-        task_file_path: Path to task file (if any).
-
-    Returns:
-        Updated AttemptStats dictionary.
-    """
-    # Scan for existing attempt result
+    
     attempt_result = AttemptStats(
         task_id=task_id,
         attempt_id=attempt_id,
         output_dir=output_dir,
     )
-
-    # Skip execution if result already exists and is not pending/failed
     if attempt_result["status"] not in (TaskStatus.PENDING, TaskStatus.RUN_FAILED):
         return attempt_result
 
-    # Run the attempt
     log_path = output_dir / f"task_{task_id}_attempt_{attempt_id}.json"
-    task_context_var = TaskContextVar(task_id=task_id, run_id=attempt_id)
-    token = set_current_task_context_var(task_context_var)
-    tracer = get_tracer()
-    tracer.update_task_meta(
+    
+    token = None
+    if manage_lifecycle:
+        task_context_var = TaskContextVar(task_id=task_id, run_id=attempt_id)
+        token = set_current_task_context_var(task_context_var)
+        get_tracer().start()
+
+    get_tracer().update_task_meta(
         patch={
             "task_id": task_id,
             "run_id": attempt_id,
@@ -83,23 +68,27 @@ async def run_single_attempt(
     )
 
     try:
+        print(task_description)
         response = await agent.run(
             {
                 "task_description": task_description,
                 "task_file_name": task_file_path,
             }
         )
-
         attempt_result.update_from_response(response, log_path)
 
     except Exception as e:
         attempt_result["status"] = TaskStatus.RUN_FAILED
         attempt_result["error_message"] = str(e)
         print(f"    Error in attempt {attempt_id}: {e}")
+        if manage_lifecycle:
+            get_tracer().finish(status="failed", error=str(e))
 
     finally:
-        reset_current_task_context_var(token)
-        tracer.finish(status="completed")
+        if manage_lifecycle:
+            get_tracer().finish(status="completed") 
+            if token:
+                reset_current_task_context_var(token)
 
     return attempt_result
 
@@ -114,68 +103,62 @@ async def run_single_task(
     evaluator: BenchmarkEvaluator,
     task: BenchmarkTask,
 ) -> BenchmarkResult:
-    """Run inference for a single benchmark task with pass@k support.
-
-    Executes up to k attempts for a task, with early stopping when a correct
-    answer is found. Each attempt is verified using the evaluator's LLM judge.
-
-    Args:
-        agent: Agent instance for running tasks.
-        cfg: DictConfig object containing configuration.
-        evaluator: BenchmarkEvaluator instance for task preparation and verification.
-        task: BenchmarkTask object to execute.
-
-    Returns:
-        BenchmarkResult object containing all attempt results and final status.
-    """
+    
     output_dir = Path(cfg.output_dir)
-
     print(f"Processing task {task.task_id} with pass@{evaluator.pass_at_k}")
-
     result = BenchmarkResult(cfg=cfg.benchmark, task=task)
-
     found_correct_answer = False
 
     try:
         task_description, task_file_path = evaluator.prepare_task_description(task)
 
-        # Run up to k attempts with early stopping when correct answer is found
         for attempt_id in range(1, evaluator.pass_at_k + 1):
             print(f"  Attempt {attempt_id}/{evaluator.pass_at_k} for task {task.task_id}")
 
-            attempt_result = await run_single_attempt(
-                agent=agent,
-                output_dir=output_dir,
-                task_id=task.task_id,
-                attempt_id=attempt_id,
-                task_description=task_description,
-                task_file_path=task_file_path,
-            )
-
-            # Perform LLM verification (handles status check internally)
-            attempt_result = await evaluator.verify_attempt_result(
-                task, attempt_id, attempt_result
-            )
-
-            # Update result with this attempt
-            result.update_with_attempt(attempt_result)
+            task_ctx = TaskContextVar(task_id=task.task_id, run_id=attempt_id)
+            token = set_current_task_context_var(task_ctx)
             
-            token = set_current_task_context_var(TaskContextVar(task_id=task.task_id, run_id=attempt_id))
-            tracer.update_task_meta(patch={
-                'model_response': attempt_result.model_response,
-                'final_boxed_answer': attempt_result.model_boxed_answer,
-                'status': attempt_result.status,
-                'error': attempt_result.error_message,
-                'judge_result': attempt_result.judge_result,
-                'ground_truth': task.ground_truth
-            })
-            reset_current_task_context_var(token)
+            tracer.start() 
 
-            found_correct_answer = attempt_result.get("is_correct", False)
+            try:
+                attempt_result = await run_single_attempt(
+                    agent=agent,
+                    output_dir=output_dir,
+                    task_id=task.task_id,
+                    attempt_id=attempt_id,
+                    task_description=task_description,
+                    task_file_path=task_file_path,
+                    manage_lifecycle=False, # <--- 关键：禁止内部 Finish
+                )
+
+                attempt_result = await evaluator.verify_attempt_result(
+                    task, attempt_id, attempt_result
+                )
+
+                tracer.update_task_meta(patch={
+                    'model_response': attempt_result.model_response,
+                    'final_boxed_answer': attempt_result.model_boxed_answer,
+                    'status': attempt_result.status,
+                    'error': attempt_result.error_message,
+                    'judge_result': attempt_result.judge_result,
+                    'ground_truth': task.ground_truth
+                })
+                
+                result.update_with_attempt(attempt_result)
+                found_correct_answer = attempt_result.get("is_correct", False)
+
+            except Exception as e:
+                print(f"Error in loop attempt {attempt_id}: {e}")
+                tracer.error(f"Attempt failed: {e}")
+                tracer.finish(status="failed", error=str(e))
+            else:
+                tracer.finish(status="completed")
+            finally:
+                reset_current_task_context_var(token)
             
-            # Early stopping when correct answer is found
+
             if found_correct_answer:
-                print(f"    🎯 Found correct answer! Stopping early after {attempt_id} attempts.")
+                print(f"    🎯 Found correct answer! Stopping early.")
                 break
 
     except Exception as e:
@@ -185,18 +168,14 @@ async def run_single_task(
 
     finally:
         result.pass_at_k_success = found_correct_answer
-
-        # Set main result judge result based on pass@k outcome
         if found_correct_answer:
             result.judge_result = "PASS_AT_K_SUCCESS"
         else:
             result.judge_result = "PASS_AT_K_FAILED"
 
-        print(f"Task {task.task_id} completed with {len(result.attempts)} attempts")
-        print(f"    Pass@{evaluator.pass_at_k} result: {'✅ SUCCESS' if found_correct_answer else '❌ FAILED'}")
-
+        print(f"Task {task.task_id} completed.")
+        
     return result
-
 
 async def run_tasks(
     agent: BaseAgentModule,
