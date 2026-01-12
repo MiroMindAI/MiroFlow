@@ -4,8 +4,6 @@
 
 # import src.utils.calculate_average_score
 # import src.utils.calculate_score_from_log
-from src.logging.task_tracer import init_tracer
-init_tracer()
 import common_benchmark
 # import dotenv
 # import src.utils.eval_answer_from_log

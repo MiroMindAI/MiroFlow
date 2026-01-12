@@ -29,7 +29,7 @@ from src.utils.eval_utils import (
     BenchmarkTask,
     TaskStatus,
 )
-
+tracer = get_tracer()
 
 async def run_single_attempt(
     agent: BaseAgentModule,
@@ -91,9 +91,6 @@ async def run_single_attempt(
         )
 
         attempt_result.update_from_response(response, log_path)
-        tracer.update_task_meta(patch={
-            'final_boxed_answer': attempt_result.model_boxed_answer
-        })
 
     except Exception as e:
         attempt_result["status"] = TaskStatus.RUN_FAILED
@@ -162,6 +159,17 @@ async def run_single_task(
 
             # Update result with this attempt
             result.update_with_attempt(attempt_result)
+            
+            token = set_current_task_context_var(TaskContextVar(task_id=task.task_id, run_id=attempt_id))
+            tracer.update_task_meta(patch={
+                'model_response': attempt_result.model_response,
+                'final_boxed_answer': attempt_result.model_boxed_answer,
+                'status': attempt_result.status,
+                'error': attempt_result.error_message,
+                'judge_result': attempt_result.judge_result,
+                'ground_truth': task.ground_truth
+            })
+            reset_current_task_context_var(token)
 
             found_correct_answer = attempt_result.get("is_correct", False)
             
