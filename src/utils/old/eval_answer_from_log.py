@@ -7,7 +7,7 @@ import json
 import os
 import sys
 
-from .eval_utils import verify_answer_for_datasets
+from .eval_utils import verify_answer_for_benchmark
 
 
 async def main(input_dir: str, benchmark_name: str):
@@ -40,7 +40,7 @@ async def main(input_dir: str, benchmark_name: str):
             #     print(f"Log {log_file} already has judge result: {data['judge_result']}")
             #     continue
             # Call LLM judge
-            result = await verify_answer_for_datasets(
+            result = await verify_answer_for_benchmark(
                 openai_client=None,  # type: ignore
                 benchmark_name=benchmark_name,
                 question=question,

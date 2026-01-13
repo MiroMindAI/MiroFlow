@@ -16,7 +16,7 @@ from pydantic import BaseModel
 from tenacity import stop_after_attempt, wait_exponential
 from tenacity.asyncio import AsyncRetrying
 
-from eval_utils import verify_answer_for_datasets
+from eval_utils import verify_answer_for_benchmark
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -298,7 +298,7 @@ async def process_single_task(
     response = await select_best_solution(prompt, n_runs, semaphore=semaphore)
     selected_solution = response["final_answer"]
     reasoning = response["reasoning"]
-    result = await verify_answer_for_datasets(
+    result = await verify_answer_for_benchmark(
         None, BENCHMARK_NAME, "", data[0]["ground_truth"], selected_solution, {}
     )
 

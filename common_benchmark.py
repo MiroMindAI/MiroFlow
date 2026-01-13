@@ -17,10 +17,9 @@ from omegaconf import DictConfig, OmegaConf
 from config import load_config
 
 from src.utils.eval_utils import (
-    BenchmarkTask,
-    BenchmarkResult,
-    BenchmarkEvaluator,
-    TaskStatus,
+    Task,
+    TaskResult,
+    Evaluator,
 )
 from src.utils.task_utils import run_tasks
 from src.agents.registry import build_agent_from_config
@@ -39,10 +38,10 @@ async def run_benchmark(cfg: DictConfig) -> float:
     tracer.set_log_path(cfg.output_dir)
 
     # 读 benchmark 的 task
-    def parse_func(x: str) -> BenchmarkTask:
+    def parse_func(x: str) -> Task:
         data = json.loads(x)
         
-        return BenchmarkTask(
+        return Task(
             task_id=data["task_id"],
             task_question=data["task_question"],
             ground_truth=data["ground_truth"],
@@ -50,7 +49,7 @@ async def run_benchmark(cfg: DictConfig) -> float:
             metadata=data.get("metadata", {}),
         )
 
-    evaluator = BenchmarkEvaluator(
+    evaluator = Evaluator(
         cfg=cfg.benchmark,
         parse_func=parse_func,
     )
