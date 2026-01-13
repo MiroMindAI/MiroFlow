@@ -17,10 +17,9 @@ from omegaconf import DictConfig, OmegaConf
 from config import load_config
 
 from src.utils.eval_utils import (
-    BenchmarkTask,
-    BenchmarkResult,
-    BenchmarkEvaluator,
-    TaskStatus,
+    Task,
+    TaskResult,
+    Evaluator,
 )
 from src.utils.task_utils import run_tasks
 from src.agents.registry import build_agent_from_config
@@ -39,10 +38,10 @@ async def run_benchmark(cfg: DictConfig) -> float:
     tracer.set_log_path(cfg.output_dir)
 
     # 读 benchmark 的 task
-    def parse_func(x: str) -> BenchmarkTask:
+    def parse_func(x: str) -> Task:
         data = json.loads(x)
         
-        return BenchmarkTask(
+        return Task(
             task_id=data["task_id"],
             task_question=data["task_question"],
             ground_truth=data["ground_truth"],
@@ -50,7 +49,7 @@ async def run_benchmark(cfg: DictConfig) -> float:
             metadata=data.get("metadata", {}),
         )
 
-    evaluator = BenchmarkEvaluator(
+    evaluator = Evaluator(
         cfg=cfg.benchmark,
         parse_func=parse_func,
     )
@@ -75,18 +74,17 @@ async def run_benchmark(cfg: DictConfig) -> float:
         agent=agent,
         max_concurrent=cfg.benchmark.execution.max_concurrent,
     )
-    evaluator.results = results
 
     # 计算测试结果正确性
     print("Evaluating accuracy...")
-    accuracy = await evaluator.evaluate_accuracy()
+    accuracy = await evaluator.evaluate_accuracy(results)
     print(f"\nOverall pass@{evaluator.pass_at_k} accuracy: {accuracy:.2%}")
 
     # 输出测试精度
     output_filename = "benchmark_results.jsonl"
     log_dir = Path(cfg.output_dir)
     results_path = log_dir / output_filename
-    evaluator.save_results(results_path)
+    evaluator.save_results(results, results_path)
     print(f"\nEvaluation completed! Results saved to {results_path}")
     
     # save accuracy to a file

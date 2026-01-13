@@ -16,7 +16,7 @@ from pydantic import BaseModel
 from tenacity import stop_after_attempt, wait_exponential
 from tenacity.asyncio import AsyncRetrying
 
-from eval_utils import verify_answer_for_datasets
+from eval_utils import verify_answer_for_benchmark
 from dotenv import load_dotenv
 from argparse import ArgumentParser
 
@@ -396,7 +396,7 @@ async def process_single_task(
         api_key=OPENAI_API_KEY,
     )
 
-    result = await verify_answer_for_datasets(
+    result = await verify_answer_for_benchmark(
         client, benchmark_name, "", data[0]["ground_truth"], selected_solution, {}
     )
 

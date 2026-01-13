@@ -73,7 +73,7 @@ def get_current_task_context_var() -> TaskContextVar:
 class TaskMeta(BaseModel):
     task_id: str = Field(default_factory=lambda: f"task_{uuid.uuid4().hex[:12]}")
     run_id: str = Field(default_factory=lambda: f"run_{uuid.uuid4().hex[:12]}")
-    task_name: str = ""
+    task_description: str = ""
     task_file_name: Optional[str] = None
 
     status: Literal["pending", "running", "completed", "interrupted", "failed"] = "pending"
@@ -202,6 +202,7 @@ class TaskTracer:
         
         self.flush()
 
+    # todo: 这里的interrupted有被使用吗？
     def finish(
         self,
         status: Literal["completed", "interrupted", "failed"] = "completed",

@@ -2,7 +2,7 @@
 # This file centralizes all judge prompts and evaluation prompts used by verifiers
 
 simpleqa:
-  evaluation_prompt: |
+  judge_prompt: |
     Your job is to look at a question, a gold target, and a predicted answer, and then assign a grade of either ["CORRECT", "INCORRECT", "NOT_ATTEMPTED"].
     First, I will give examples of each grade, and then you will grade a new example.
 
