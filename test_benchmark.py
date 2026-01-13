@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+import argparse
 import asyncio
 import json
 import os
@@ -11,11 +12,10 @@ from pathlib import Path
 from typing import List
 
 import dotenv
-import hydra
 from omegaconf import DictConfig, OmegaConf
+from rich.traceback import install
 
-from config import load_config
-
+from config import load_config, config_name, config_path
 from src.utils.eval_utils import (
     Task,
     TaskResult,
@@ -24,11 +24,10 @@ from src.utils.eval_utils import (
 from src.utils.task_utils import run_tasks
 from src.agents.registry import build_agent_from_config
 from src.agents.base_module import BaseAgentModule
-from config import config_name, config_path
-from src.logging.task_tracer import get_tracer
+from src.logging.task_tracer import get_tracer, set_tracer
 
 
-async def run_benchmark(cfg: DictConfig) -> float:
+async def test_benchmark(cfg: DictConfig) -> float:
     """
     Main entry point for running benchmarks with Hydra.
     """
@@ -69,9 +68,9 @@ async def run_benchmark(cfg: DictConfig) -> float:
     
     results = await run_tasks(
         cfg=cfg,
-        evaluator=evaluator,
-        tasks=tasks,
         agent=agent,
+        tasks=tasks,
+        evaluator=evaluator,
         max_concurrent=cfg.benchmark.execution.max_concurrent,
     )
 
@@ -98,13 +97,31 @@ async def run_benchmark(cfg: DictConfig) -> float:
     return accuracy
 
 
-
-def main(*args, config_file_name: str = ""):
+if __name__ == "__main__":
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Run benchmark evaluation")
+    parser.add_argument(
+        "--config-path",
+        type=str,
+        default="",
+        help="Configuration file path or name"
+    )
+    parser.add_argument(
+        "overrides",
+        nargs="*",
+        help="Additional configuration overrides"
+    )
+    args = parser.parse_args()
+    
     # Load environment variables
     dotenv.load_dotenv()
 
     # Load configuration
-    cfg = load_config(config_file_name, *args)
+    cfg = load_config(args.config_path, *args.overrides)
+
+    # Set tracer for logging
+    set_tracer(cfg.output_dir)
 
     # Run benchmark 
-    asyncio.run(run_benchmark(cfg))
+    asyncio.run(test_benchmark(cfg))
+

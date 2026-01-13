@@ -53,6 +53,7 @@ async def run_single_attempt(
         }
     )
     
+    tracer.start()
     try:
         response = await agent.run({
             "task_description": task.task_question,
@@ -60,21 +61,17 @@ async def run_single_attempt(
         })
         
         attempt_result.update_from_response(response, log_path)
-        tracer.update_task_meta(
-            patch={
-                "model_response": attempt_result.model_response,
-                "final_boxed_answer": attempt_result.model_boxed_answer
-            }
-        )
-        
+        tracer.update_task_meta(patch={"final_boxed_answer": attempt_result.model_boxed_answer})
+        # Finish with completed status if no exception
+        tracer.finish(status="completed")
     except Exception as e:
         attempt_result.status = STATUS_FAILED
         attempt_result.error_message = str(e)
         print(f"    Error in attempt {attempt_id}: {e}")
-        
+        tracer.finish(status="failed", error=str(e))    
     finally:
+        # Reset context after all tracer operations are done
         reset_current_task_context_var(token)
-        tracer.finish(status="completed")
     
     # Perform verification if evaluator is provided
     if evaluator is not None:

@@ -93,6 +93,7 @@ class AttemptResult:
         self.model_response = response
         self.model_boxed_answer = response.get('final_boxed_answer', '')
         self.status = STATUS_COMPLETED if self.model_boxed_answer else STATUS_FAILED
+        self.log_path = log_path
     
     async def update_with_evaluation(self, evaluation_result: str):
         """Update with evaluation result and log file."""
@@ -194,7 +195,6 @@ class Evaluator:
         self.pass_at_k = cfg.execution.get("pass_at_k", 1)
         self.evaluation_llm = AsyncOpenAI(api_key=cfg.openai_api_key)
         self.tasks: List[Task] = []
-        self.results: List[TaskResult] = []
         
         metadata_file = cfg.data.get("metadata_file")
         self.metadata_file = self.data_dir / metadata_file if metadata_file else None
@@ -243,27 +243,27 @@ class Evaluator:
         """Apply max_tasks limit."""
         return tasks[:self.cfg.execution.max_tasks]
 
-    def save_results(self, output_path: Path) -> Path:
+    def save_results(self, results: List["TaskResult"], output_path: Path) -> Path:
         """Save evaluation results to JSONL file."""
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, "w", encoding="utf-8") as f:
-            for result in self.results:
+            for result in results:
                 f.write(json.dumps(result.to_dict(), ensure_ascii=False) + "\n")
         print(f"Results saved to {output_path}")
         return output_path
 
-    async def evaluate_accuracy(self) -> float:
+    async def evaluate_accuracy(self, results: List["TaskResult"]) -> float:
         """Evaluate pass@k accuracy across all results."""
-        if not self.results:
+        if not results:
             print("No results to evaluate")
             return 0.0
 
-        print(f"Calculating pass@{self.pass_at_k} accuracy for {len(self.results)} results...")
+        print(f"Calculating pass@{self.pass_at_k} accuracy for {len(results)} results...")
 
-        correct_count = sum(1 for result in self.results if result.pass_at_k_success)
-        total_count = len(self.results)
+        correct_count = sum(1 for result in results if result.pass_at_k_success)
+        total_count = len(results)
 
-        for result in self.results:
+        for result in results:
             self._print_task_result(result)
 
         accuracy = correct_count / total_count if total_count > 0 else 0.0
@@ -273,7 +273,7 @@ class Evaluator:
     def _print_task_result(self, result: TaskResult) -> None:
         """Print detailed results for a task."""
         status = "✅ SUCCESS" if result.pass_at_k_success else "❌ FAILED"
-        print(f"\nTask {result.task_id}:")
+        print(f"\nTask {result.task.task_id}:")
         print(f"  Attempts: {len(result.attempts)}")
         print(f"  Pass@{self.pass_at_k}: {status}")
 
@@ -281,7 +281,7 @@ class Evaluator:
             self._print_attempt_details(attempt)
 
         print("  " + "=" * 50)
-        print(f"  Reference: {result.ground_truth}")
+        print(f"  Reference: {result.task.ground_truth}")
         print("  " + "=" * 50)
 
     def _print_attempt_details(self, attempt: AttemptResult) -> None:
