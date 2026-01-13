@@ -22,7 +22,7 @@ from src.logging.task_tracer import get_tracer
 from src.logging.task_tracer import TaskTracer
 from src.logging.decorators import span
 import hydra
-from config import config_path
+# from config import config_path
 import uuid
 from pathlib import Path    
 

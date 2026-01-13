@@ -1,5 +1,4 @@
 # SPDX-FileCopyrightText: 2025 MiromindAI
-#
 # SPDX-License-Identifier: Apache-2.0
 
 from __future__ import annotations
@@ -10,13 +9,17 @@ import os
 import threading
 import time
 import uuid
+import contextvars
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Literal, Optional
-from .span import Span
 from dataclasses import dataclass
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import BaseModel, Field
+from .span import Span 
 
+# -------------------------------------------------------------------------
+# Utilities
+# -------------------------------------------------------------------------
 
 def utc_iso(ts: Optional[float] = None) -> str:
     if ts is None:
@@ -24,11 +27,9 @@ def utc_iso(ts: Optional[float] = None) -> str:
     dt = datetime.fromtimestamp(ts, tz=timezone.utc)
     return dt.isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
-
 def _ensure_jsonable(x: Any) -> Any:
     """Best-effort JSON conversion. Never raise."""
     try:
-        # Fast path
         json.dumps(x, ensure_ascii=False)
         return x
     except Exception:
@@ -37,10 +38,37 @@ def _ensure_jsonable(x: Any) -> Any:
         except Exception:
             return "<unserializable>"
 
+# -------------------------------------------------------------------------
+# Context Management
+# -------------------------------------------------------------------------
+
 @dataclass(frozen=True)
-class TaskContextVar():
+class TaskContextVar:
     task_id: str
     run_id: str
+    
+    def __repr__(self) -> str:
+        return f"task_{self.task_id}_attempt_{self.run_id}"
+
+# 使用默认对象代替 None，避免后续大量的 None check
+ROOT_CONTEXT = TaskContextVar(task_id="root", run_id="0")
+
+CURRENT_TASK_CONTEXT_VAR: contextvars.ContextVar[TaskContextVar] = contextvars.ContextVar(
+    "CURRENT_TASK_CONTEXT_VAR", default=ROOT_CONTEXT
+)
+
+def set_current_task_context_var(task_context_var: TaskContextVar):
+    return CURRENT_TASK_CONTEXT_VAR.set(task_context_var)
+
+def reset_current_task_context_var(token):
+    CURRENT_TASK_CONTEXT_VAR.reset(token)
+
+def get_current_task_context_var() -> TaskContextVar:
+    return CURRENT_TASK_CONTEXT_VAR.get()
+
+# -------------------------------------------------------------------------
+# Data Models (Pydantic)
+# -------------------------------------------------------------------------
 
 class TaskMeta(BaseModel):
     task_id: str = Field(default_factory=lambda: f"task_{uuid.uuid4().hex[:12]}")
@@ -55,115 +83,205 @@ class TaskMeta(BaseModel):
     final_boxed_answer: str = ""
     judge_result: str = ""
     error: Optional[str] = None
+    ground_truth: Optional[str] = None
 
     updated_at: str = Field(default_factory=utc_iso)
-
 
 class AgentStateEntry(BaseModel):
-    #step_id: Optional[int] = None
     updated_at: str = Field(default_factory=utc_iso)
-    # 全量状态（你强调可恢复性）
     state: Dict[str, Any] = Field(default_factory=dict)
 
-
 class TaskLogFile(BaseModel):
+    """Represents the structure of the JSON log file."""
     task_meta: TaskMeta = Field(default_factory=TaskMeta)
     current_span: Optional[Span] = None
-
     agent_states: Dict[str, AgentStateEntry] = Field(default_factory=dict)
-
     step_logs: list[Dict[str, Any]] = Field(default_factory=list)
 
-class TaskTracer(BaseModel):
+# -------------------------------------------------------------------------
+# Tracer Implementation
+# -------------------------------------------------------------------------
+
+class TaskTracer:
     """
-    Single-file JSON task log with 4 sections:
-      - agent_states (latest-only map)
-      - step_logs (append list; span+log mixed)
-      - meta (latest)
-      - heartbeat.current_span (latest-only)
-
-    Every update does an atomic flush to the same JSON file.
+    Thread-safe, singleton-friendly tracer that manages logs per TaskContext.
     """
-
-    log_path: Optional[Path] = Field(default_factory=lambda: Path("./logs"))
-    data: TaskLogFile = Field(default_factory=TaskLogFile)
-
-    _lock: threading.Lock = PrivateAttr(default_factory=threading.Lock)
-    _seq: int = PrivateAttr(default=0)  # stable ordering within step_logs
-
-    class Config:
-        arbitrary_types_allowed = True
+    
+    def __init__(self, log_path: str | Path = "./logs"):
+        self.log_path = Path(log_path)
+        if not self.log_path.exists():
+            self.log_path.mkdir(parents=True, exist_ok=True)
+            
+        self._active_tasks: Dict[str, TaskLogFile] = {}
+        
+        # 序列号追踪：Key -> int
+        self._seq_map: Dict[str, int] = {}
+        
+        # 锁：保护 _active_tasks 和 _seq_map 的并发修改
+        self._data_lock = threading.Lock()
+        
+        # 锁：保护文件写入，防止多线程写同一个文件导致错乱
+        # (虽然这里使用了 key 隔离文件，但为了防止原子重命名冲突，保留一个 IO 锁是个好习惯，或者针对每个文件锁)
+        # 这里为了简单高效，假设不同 task 写不同文件，IO 不互斥。
+        pass
 
     def set_log_path(self, log_path: Path | str) -> None:
         self.log_path = Path(log_path)
+        if not self.log_path.exists():
+            self.log_path.mkdir(parents=True, exist_ok=True)
 
-    # ---------- lifecycle ----------
+    # ---------- Internal Helpers ----------
+
+    def _get_context_key(self) -> str:
+        """从 ContextVars 获取当前任务的唯一标识字符串"""
+        ctx = get_current_task_context_var()
+        return str(ctx)
+
+    def _get_or_create_log(self, key: str) -> TaskLogFile:
+        """调用方必须持有 self._data_lock"""
+        if key not in self._active_tasks:
+            self._active_tasks[key] = TaskLogFile()
+            self._seq_map[key] = 0
+            # 同步 meta 中的 ID 信息 (可选)
+            # self._active_tasks[key].task_meta.task_id = ...
+        return self._active_tasks[key]
+
+    def _flush_to_disk(self, key: str, log_obj: TaskLogFile):
+        """将对象序列化并写入磁盘。执行原子写入 (Write-Replace)。"""
+        if not key: 
+            return
+            
+        try:
+            payload = log_obj.model_dump_json(indent=2)
+        except Exception as e:
+            print(f"Error serializing log for {key}: {e}")
+            return
+
+        file_path = self.log_path / f"{key}.json"
+        temp_path = self.log_path / f"{key}.tmp"
+
+        # 2. 写入临时文件然后重命名，保证原子性
+        try:
+            with open(temp_path, "w", encoding="utf-8") as f:
+                f.write(payload)
+            os.replace(temp_path, file_path)
+        except Exception as e:
+            print(f"Error writing log file {file_path}: {e}")
+
+    def flush(self):
+        """
+        手动刷新当前任务的日志到磁盘。
+        """
+        key = self._get_context_key()
+        log_copy = None
+        
+        with self._data_lock:
+            if key in self._active_tasks:
+                # 浅拷贝模型对象用于序列化，尽量减少锁持有时间
+                # 注意：如果模型很深，这里可能需要 model_copy(deep=True)
+                # 但为了性能，通常直接序列化即可，因为单线程内通常不会竞争修改
+                log_obj = self._active_tasks[key]
+                # 在锁内不能做 IO，但可以做数据的快照。
+                # 简单起见，我们在锁内拿到引用，在锁外 dump (虽然有极小概率读取到修改中的数据，但在 logger 场景可接受)
+                pass 
+            else:
+                return
+
+        # 执行 IO
+        self._flush_to_disk(key, log_obj)
+
+    # ---------- Lifecycle ----------
+
     def start(self) -> None:
-        self.data.task_meta.status = "running"
-        self.data.task_meta.start_time = utc_iso()
-        self._touch_meta()
+        key = self._get_context_key()
+        with self._data_lock:
+            log_file = self._get_or_create_log(key)
+            log_file.task_meta.status = "running"
+            log_file.task_meta.start_time = utc_iso()
+            log_file.task_meta.updated_at = utc_iso()
+        
         self.flush()
 
+    # todo: 这里的interrupted有被使用吗？
     def finish(
         self,
         status: Literal["completed", "interrupted", "failed"] = "completed",
         *,
         error: Optional[str] = None,
     ) -> None:
-        self.data.task_meta.status = status
-        self.data.task_meta.end_time = utc_iso()
-        if error is not None:
-            self.data.task_meta.error = error
-        self._touch_meta()
-        self.flush()
+        key = self._get_context_key()
+        
+        # 1. 更新最终状态
+        with self._data_lock:
+            if key not in self._active_tasks:
+                return # 甚至没开始过
+            
+            log_file = self._active_tasks[key]
+            log_file.task_meta.status = status
+            log_file.task_meta.end_time = utc_iso()
+            log_file.task_meta.updated_at = utc_iso()
+            if error is not None:
+                log_file.task_meta.error = error
 
-    # ---------- meta ----------
+        # 2. 最后一次强制 Flush
+        if key in self._active_tasks:
+            self._flush_to_disk(key, self._active_tasks[key])
+
+        # 3. [关键修复] 清理内存，防止内存泄漏
+        with self._data_lock:
+            if key in self._active_tasks:
+                del self._active_tasks[key]
+            if key in self._seq_map:
+                del self._seq_map[key]
+
+    # ---------- Meta & State ----------
+
     def update_task_meta(self, patch: Dict[str, Any]) -> None:
-        for k, v in patch.items():
-            if hasattr(self.data.task_meta, k):
-                setattr(self.data.task_meta, k, _ensure_jsonable(v))
-        self._touch_meta()
+        key = self._get_context_key()
+        with self._data_lock:
+            log_file = self._get_or_create_log(key)
+            for k, v in patch.items():
+                if hasattr(log_file.task_meta, k):
+                    setattr(log_file.task_meta, k, _ensure_jsonable(v))
+            log_file.task_meta.updated_at = utc_iso()
         self.flush()
 
-    def _touch_meta(self) -> None:
-        self.data.task_meta.updated_at = utc_iso()
+    def save_agent_states(self, node_name: str, states: Dict[str, Any]) -> None:
+        key = self._get_context_key()
+        with self._data_lock:
+            log_file = self._get_or_create_log(key)
+            log_file.agent_states[node_name] = AgentStateEntry(
+                updated_at=utc_iso(),
+                state=_ensure_jsonable(states),
+            )
+        self.flush()
 
-    # ---------- heartbeat ----------
     def set_current_span(self, current_span: Span) -> None:
-        self.data.current_span = copy.deepcopy(current_span)
+        key = self._get_context_key()
+        with self._data_lock:
+            log_file = self._get_or_create_log(key)
+            log_file.current_span = current_span # 假设 Span 是 Pydantic model 或 jsonable
         self.flush()
 
-    def clear_current_span(self) -> None:
-        self.data.current_span = None
-        self.flush()
-
-    # ---------- agent states (latest-only) ----------
-    def save_agent_states(
-        self,
-        node_name: str,
-        states: Dict[str, Any],
-    ) -> None:
-        self.data.agent_states[node_name] = AgentStateEntry(
-            #step_id=step_id,
-            updated_at=utc_iso(),
-            state=_ensure_jsonable(states),
-        )
-        self.flush()
-
-    # ---------- step logs (time line) ----------
-    def _next_seq(self) -> int:
-        self._seq += 1
-        return self._seq
+    # ---------- Logging ----------
 
     def append_step_event(self, event: Dict[str, Any]) -> None:
-        """
-        Append an event into step_logs (span_start/span_end/log/etc).
-        Always adds ts + seq.
-        """
+        key = self._get_context_key()
         ev = dict(event)
         ev.setdefault("ts", utc_iso())
-        ev.setdefault("seq", self._next_seq())
-        self.data.step_logs.append(_ensure_jsonable(ev))
+        
+        with self._data_lock:
+            log_file = self._get_or_create_log(key)
+            
+            # 生成递增序号
+            self._seq_map[key] += 1
+            ev["seq"] = self._seq_map[key]
+            
+            log_file.step_logs.append(_ensure_jsonable(ev))
+        
+        # 每次 log 都 flush 在高频场景下性能较差
+        # 如果追求极致性能，可以设定阈值或只在 finish 时 flush
+        # 这里为了数据安全性保持 flush
         self.flush()
 
     def log(
@@ -177,95 +295,52 @@ class TaskTracer(BaseModel):
         data: Optional[Dict[str, Any]] = None,
         where: Optional[Dict[str, Any]] = None,
     ) -> None:
-        self.append_step_event(
-            {
-                "type": f"log_{level.lower()}",
-                "msg": msg
-            }
-        )
+        payload = {
+            "type": f"log_{level.lower()}",
+            "msg": msg
+        }
+        # 仅添加非空字段，保持日志整洁
+        if span_id: payload["span_id"] = span_id
+        if node_id: payload["node_id"] = node_id
+        if step_id: payload["step_id"] = step_id
+        if data: payload["data"] = data
+        if where: payload["where"] = where
 
-    def debug(self, msg: str, *, span_id: Optional[str] = None, node_id: Optional[str] = None, step_id: Optional[int] = None, data: Optional[Dict[str, Any]] = None, where: Optional[Dict[str, Any]] = None) -> None:
-        self.log(msg, level="DEBUG", span_id=span_id, node_id=node_id, step_id=step_id, data=data, where=where)
+        self.append_step_event(payload)
 
-    def info(self, msg: str, *, span_id: Optional[str] = None, node_id: Optional[str] = None, step_id: Optional[int] = None, data: Optional[Dict[str, Any]] = None, where: Optional[Dict[str, Any]] = None) -> None:
-        self.log(msg, level="INFO", span_id=span_id, node_id=node_id, step_id=step_id, data=data, where=where)
+    def debug(self, msg: str, **kwargs) -> None:
+        self.log(msg, level="DEBUG", **kwargs)
 
-    def warning(self, msg: str, *, span_id: Optional[str] = None, node_id: Optional[str] = None, step_id: Optional[int] = None, data: Optional[Dict[str, Any]] = None, where: Optional[Dict[str, Any]] = None) -> None:
-        self.log(msg, level="WARNING", span_id=span_id, node_id=node_id, step_id=step_id, data=data, where=where)
+    def info(self, msg: str, **kwargs) -> None:
+        self.log(msg, level="INFO", **kwargs)
 
-    def error(self, msg: str, *, span_id: Optional[str] = None, node_id: Optional[str] = None, step_id: Optional[int] = None, data: Optional[Dict[str, Any]] = None, where: Optional[Dict[str, Any]] = None) -> None:
-        self.log(msg, level="ERROR", span_id=span_id, node_id=node_id, step_id=step_id, data=data, where=where)
+    def warning(self, msg: str, **kwargs) -> None:
+        self.log(msg, level="WARNING", **kwargs)
 
-    # ---------- IO: single-file atomic flush ----------
-    def flush(self) -> None:
-        """
-        Persist whole JSON file atomically.
-        Never raise.
-        """
-        try:
-            with self._lock:
-                self._flush_locked()
-        except Exception as e:
-            print(e)
+    def error(self, msg: str, **kwargs) -> None:
+        self.log(msg, level="ERROR", **kwargs)
 
-    def _flush_locked(self) -> None:
-        task_context_var = get_current_task_context_var()
-        if task_context_var is None:
-            log_path = Path(self.log_path) / f"log_root.json"
-        else:
-            log_path = Path(self.log_path) / f"task_{task_context_var.task_id}_attempt_{task_context_var.run_id}.json"
-        # Ensure directory
-        try:
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-        except Exception:
-            pass
 
-        tmp_path = log_path.with_suffix(log_path.suffix + ".tmp")
-        payload = self.data.model_dump(mode="json")
-
-        # atomic replace
-        with open(tmp_path, "w", encoding="utf-8") as f:
-            json.dump(payload, f, ensure_ascii=False, indent=2)
-            f.flush()
-            os.fsync(f.fileno())
-        os.replace(tmp_path, log_path)
-
-import contextvars
-
-CURRENT_TASK_CONTEXT_VAR: contextvars.ContextVar[Optional[TaskContextVar]] = contextvars.ContextVar(
-    "CURRENT_TASK_CONTEXT_VAR", default=None
-)
-
-def set_current_task_context_var(task_context_var: TaskContextVar):
-    return CURRENT_TASK_CONTEXT_VAR.set(task_context_var)
-
-def reset_current_task_context_var(token):
-    CURRENT_TASK_CONTEXT_VAR.reset(token)
-
-def get_current_task_context_var() -> TaskContextVar:
-    return CURRENT_TASK_CONTEXT_VAR.get()
-# CURRENT_TASK_TRACER: contextvars.ContextVar[Optional[TaskTracer]] = contextvars.ContextVar(
-#     "CURRENT_TASK_TRACER", default=None
-# ) 
-
-# def set_current_tracer(tracer: TaskTracer):
-#     return CURRENT_TASK_TRACER.set(tracer)
-
-# def reset_current_tracer(token):
-#     CURRENT_TASK_TRACER.reset(token)
+# -------------------------------------------------------------------------
+# Singleton Management
+# -------------------------------------------------------------------------
 
 _SINGLETON_LOCK = threading.Lock()
 _SINGLETON: Optional[TaskTracer] = None
 
-def init_tracer(*, log_path: Optional[str | Path] = None) -> TaskTracer:
+def set_tracer(log_path: Path):
     global _SINGLETON
     with _SINGLETON_LOCK:
         if _SINGLETON is None:
-            _SINGLETON = TaskTracer(log_path=Path(log_path) if log_path is not None else None)
-    return _SINGLETON
+            _SINGLETON = TaskTracer(log_path)
+        else:
+            _SINGLETON.set_log_path(log_path)
 
 def get_tracer() -> TaskTracer:
     global _SINGLETON
     if _SINGLETON is None:
-        raise RuntimeError("Tracing not initialized. Call init_tracer(log_path=...) first.")
+        with _SINGLETON_LOCK:
+            # Double-check locking
+            if _SINGLETON is None:
+                _SINGLETON = TaskTracer()
     return _SINGLETON

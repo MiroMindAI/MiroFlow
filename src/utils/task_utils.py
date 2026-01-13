@@ -86,11 +86,12 @@ async def run_single_task(
     cfg: DictConfig,
     agent: BaseAgentModule,
     task: Task,
+    attempt_num: int = 1,
     evaluator: Optional[Evaluator] = None,
 ) -> TaskResult:
     """Run a single task with optional pass@k evaluation."""
     
-    pass_at_k = evaluator.pass_at_k if evaluator else 1
+    pass_at_k = evaluator.pass_at_k if evaluator else attempt_num
     print(f"Processing task {task.task_id} with pass@{pass_at_k}")
     
     result = TaskResult(task=task)

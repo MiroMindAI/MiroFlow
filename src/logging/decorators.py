@@ -142,7 +142,7 @@ def span(
                     if sp.error:
                         event["error"] = sp.error
                     tracer.append_step_event(event)
-                    tracer.clear_current_span()
+                    tracer.set_current_span(None)
 
                 CURRENT_SPAN_ID.reset(span_token)
                 if path_token is not None:

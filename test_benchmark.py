@@ -15,7 +15,8 @@ import dotenv
 from omegaconf import DictConfig, OmegaConf
 from rich.traceback import install
 
-from config import load_config, config_name, config_path
+# from config import load_config, config_name, config_path
+from config import load_config
 from src.utils.eval_utils import (
     Task,
     TaskResult,
@@ -80,17 +81,13 @@ async def test_benchmark(cfg: DictConfig) -> float:
     print(f"\nOverall pass@{evaluator.pass_at_k} accuracy: {accuracy:.2%}")
 
     # 输出测试精度
-    output_filename = "benchmark_results.jsonl"
     log_dir = Path(cfg.output_dir)
-    results_path = log_dir / output_filename
+    results_path = log_dir / "benchmark_results.jsonl"
     evaluator.save_results(results, results_path)
     print(f"\nEvaluation completed! Results saved to {results_path}")
     
     # save accuracy to a file
-    accuracy_file = (
-        results_path.parent
-        / f"{results_path.stem}_pass_at_{evaluator.pass_at_k}_accuracy.txt"
-    )
+    accuracy_file = log_dir / f"{results_path.stem}_pass_at_{evaluator.pass_at_k}_accuracy.txt"
     with open(accuracy_file, "w") as f:
         f.write(f"{accuracy:.2%}")
 
@@ -125,3 +122,5 @@ if __name__ == "__main__":
     # Run benchmark 
     asyncio.run(test_benchmark(cfg))
 
+# example:
+# python test_benchmark.py --config-path config/agent_gaia-validation-gpt5-single-agent.yaml --overrides "benchmark.name=gaia-validation-gpt5-single-agent"
