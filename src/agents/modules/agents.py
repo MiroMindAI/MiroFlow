@@ -81,7 +81,13 @@ class IterativeAgentWithTool(BaseAgentModule):
                 skill_calls = [call for call in tool_and_sub_agent_calls if 'skills-worker' in call['server_name']]
 
                 tool_results, tool_calls_exceeded = await self.tool_manager.execute_tool_calls_batch(tool_calls)
-                skill_results, skill_calls_exceeded = await self.skill_manager.execute_skill_calls_batch(skill_calls)
+                
+                # Only execute skill calls if skill_manager exists
+                if hasattr(self, 'skill_manager'):
+                    skill_results, skill_calls_exceeded = await self.skill_manager.execute_skill_calls_batch(skill_calls)
+                else:
+                    skill_results, skill_calls_exceeded = [], False
+                
                 sub_agent_results = await self.run_sub_agents_as_mcp_tools(sub_agent_calls)
                 all_call_results = self.tool_manager.format_tool_results(tool_results + sub_agent_results + skill_results)
             

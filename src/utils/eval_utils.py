@@ -8,6 +8,7 @@ import json
 import os
 import re
 import string
+import subprocess
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -216,10 +217,50 @@ class Evaluator:
         """Validate required components for loading tasks."""
         if not self.metadata_file:
             raise ValueError("metadata_file must be provided")
+        
+        # Auto-download gaia-val if needed
+        if "gaia" in self.benchmark_name.lower() and not self.metadata_file.exists():
+            self._download_gaia_val()
+        
         if not self.metadata_file.exists():
             raise FileNotFoundError(f"Metadata file not found: {self.metadata_file}")
         if not self.parse_func:
             raise ValueError("parse_func must be provided")
+
+    def _download_gaia_val(self) -> None:
+        """Download and extract gaia-val dataset if it doesn't exist."""        
+        gaia_val_dir = self.data_dir
+
+        if (gaia_val_dir / "standardized_data.jsonl").exists():
+            return
+        
+        print("Downloading gaia-val from HuggingFace...")
+        zip_file = self.data_dir.parent / "gaia-val.zip"
+        
+        try:
+            # Download
+            subprocess.run(
+                ["wget", "--no-check-certificate", "-O", str(zip_file),
+                 "https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/gaia-val.zip"],
+                check=True, capture_output=True, text=True
+            )
+            
+            # Extract to parent directory (zip contains gaia-val/ folder)
+            # This ensures final structure is data/gaia-val/, not data/gaia-val/gaia-val/
+            subprocess.run(
+                ["unzip", "-P", "pf4*", "-d", str(self.data_dir.parent), str(zip_file)],
+                check=True, capture_output=True, text=True
+            )
+            
+            print(f"Successfully extracted gaia-val to {gaia_val_dir}")
+            
+        except Exception as e:
+            print(f"Failed to download gaia-val: {e}")
+            raise
+        finally:
+            # Cleanup
+            if zip_file.exists():
+                zip_file.unlink()
 
     def _should_include_task(self, task: Task) -> bool:
         """Check if task should be included based on whitelist."""
@@ -241,7 +282,11 @@ class Evaluator:
 
     def _apply_task_limit(self, tasks: List[Task]) -> List[Task]:
         """Apply max_tasks limit."""
-        return tasks[:self.cfg.execution.max_tasks]
+        max_tasks = self.cfg.execution.max_tasks
+        # If max_tasks is None, -1, or any negative number, return all tasks
+        if max_tasks is None or max_tasks < 0:
+            return tasks
+        return tasks[:max_tasks]
 
     def save_results(self, results: List["TaskResult"], output_path: Path) -> Path:
         """Save evaluation results to JSONL file."""
