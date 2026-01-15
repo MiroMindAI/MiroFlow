@@ -20,7 +20,7 @@ import dotenv
 
 # Local imports (after tracer initialization)
 from config import load_config
-from src.agents.registry import build_agent_from_config
+from src.agents import build_agent_from_config
 from src.utils.eval_utils import Task
 from src.utils.task_utils import run_single_task
 

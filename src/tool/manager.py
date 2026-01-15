@@ -2,25 +2,28 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+Tool 管理器模块 - 负责管理和执行 MCP 工具调用
+
+注意：Tool 不走注册机制，而是通过 MCP 协议动态发现
+"""
+
 import asyncio
 import functools
 from typing import Any, Awaitable, Callable, Protocol, TypeVar
 
-from mcp import ClientSession, StdioServerParameters  # (already imported in config.py)
+from mcp import ClientSession, StdioServerParameters
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client
 
 from src.logging.task_tracer import get_tracer
 from .mcp_servers.browser_session import PlaywrightSession
 from src.utils.tool_utils import format_tool_result
-from omegaconf import OmegaConf
-import os
-import sys
 from src.logging.decorators import span
 
 logger = get_tracer()
 
-R = TypeVar("R") #TODO
+R = TypeVar("R")
 
 
 def update_server_params_with_context_var(
@@ -34,6 +37,7 @@ def update_server_params_with_context_var(
     if task_context_var is not None:
         server_params.env["TASK_ID"] = task_context_var.task_id
     return server_params
+
 
 def with_timeout(timeout_s: float = 300.0):
     """
@@ -53,32 +57,6 @@ def with_timeout(timeout_s: float = 300.0):
         return wrapper
 
     return decorator
-
-
-def get_mcp_server_configs_from_tool_cfg_paths(cfg_paths: list[str]) -> list[dict]:
-
-    """Define and return MCP server configuration list"""
-    configs = []
-
-    for config_path in cfg_paths:
-        try:
-            tool_cfg = OmegaConf.load(config_path)
-            configs.append(
-                {
-                    "name": tool_cfg.get("name"),
-                    "params": StdioServerParameters(
-                        command=sys.executable
-                        if tool_cfg["tool_command"] == "python"
-                        else tool_cfg["tool_command"],
-                        args=tool_cfg.get("args", []),
-                        env=tool_cfg.get("env", {}),
-                    ),
-                }
-            )
-        except Exception as e:
-            raise RuntimeError(f"Error creating MCP server parameters for tool {config_path}: {e}")
-
-    return configs
 
 class ToolManager():
     def __init__(self, server_configs, tool_blacklist=None):

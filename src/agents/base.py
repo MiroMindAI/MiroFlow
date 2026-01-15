@@ -1,32 +1,38 @@
+# SPDX-FileCopyrightText: 2025 MiromindAI
+#
+# SPDX-License-Identifier: Apache-2.0
+
+"""
+Agent 基类模块
+"""
+
 from pdb import run
 import json
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf, ListConfig
 
 from abc import ABC, abstractmethod
 
 from pydantic import NonNegativeInt
 
 from src.tool.manager import ToolManager
-from src.llm.provider_client_base import build_llm_client
-from typing import List, Optional
-from omegaconf import DictConfig
+from src.llm import build_llm_client
+from typing import List, Optional, Any
 from src.logging.decorators import span
-from typing import Any
 from src.utils.prompt_utils import PromptTemplateReader
 from types import MappingProxyType
-from omegaconf import OmegaConf 
-from src.tool.manager import get_mcp_server_configs_from_tool_cfg_paths
-from hydra import compose, initialize
-from omegaconf import ListConfig
+from src.tool.factory import get_mcp_server_configs_from_tool_cfg_paths
 from src.utils.tool_utils import expose_sub_agents_as_tools
 from src.skill.manager import SkillManager
 
 
 class AgentContextDict(dict):
+    """Agent 上下文字典"""
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
     
-class BaseAgentModule(ABC):
+
+class BaseAgent(ABC):
+    """Agent 基类"""
     USE_PROPAGATE_MODULE_CONFIGS = ("llm", "tools", "prompt")
     _instance_counters = {}
 
@@ -45,7 +51,7 @@ class BaseAgentModule(ABC):
             return f"{cls.__name__}_call_{cls.get_instance_count()}"
 
     def create_sub_module(self, sub_agent_cfg: DictConfig | dict, name: str = None):
-        from src.agents.registry import build_agent
+        from src.agents.factory import build_agent
 
         sub_agent_cfg = OmegaConf.create(sub_agent_cfg)
 
@@ -58,10 +64,7 @@ class BaseAgentModule(ABC):
         merged_cfg = OmegaConf.merge(sub_agent_cfg, propagated)
         return build_agent(merged_cfg)
 
-    #@property
     def __init__(self, cfg: Optional[DictConfig | dict] = None, parent = None):
-        #assert isinstance(self.PROPAGATE_MODULE_CONFIGS, tuple), "PROPAGATE_MODULE_CONFIGS must be a tuple"
-        
         self._parent = parent
         self.name = self.get_instance_name(cfg)
         self.__class__._instance_counters[self.__class__.__name__] = self.get_instance_count() + 1
@@ -102,7 +105,7 @@ class BaseAgentModule(ABC):
         ret = await self.run(ctx)
         if return_ctx_key in ret:
             return {
-                'server_name': 'AgentWorker', #TODO
+                'server_name': 'AgentWorker',
                 'tool_name': 'execute_subtask',
                 'result': ret[return_ctx_key]
             }
@@ -124,7 +127,6 @@ class BaseAgentModule(ABC):
                         mcp_server_definitions += f"Description: {tool['description']}\n"
                         mcp_server_definitions += f"Schema: {tool['schema']}\n"
         return mcp_server_definitions
-            #actions
     
     async def init_tool_definitions(self):
         if hasattr(self.cfg, "tools") or hasattr(self.cfg, "sub_agents") or hasattr(self.cfg, "skills"):
@@ -151,14 +153,14 @@ class BaseAgentModule(ABC):
             self.mcp_server_definitions = []
 
     async def run_sub_agents_as_mcp_tools(self, sub_agent_calls: list[dict]) -> list[tuple[str, dict]]:
-        #check if sub-agents are valid
+        # check if sub-agents are valid
         for call in sub_agent_calls:
             if call['server_name'] not in self.sub_agents:
                 raise ValueError(f"Sub-agent {call['server_name']} not found in sub-agents")
         sub_agent_results = []
         for agent_call in sub_agent_calls:
-            #dynamic initialization of sub-agent
-            sub_agent = self.create_sub_module(self.sub_agents[agent_call['server_name']], name = 'sub_agent') #TODO 区分不同subagent
+            # dynamic initialization of sub-agent
+            sub_agent = self.create_sub_module(self.sub_agents[agent_call['server_name']], name = 'sub_agent')
             sub_agent_result = await sub_agent.run_as_mcp_tool(AgentContextDict(
                 task_description = agent_call['arguments']
             ), return_ctx_key = 'summary')
@@ -169,13 +171,11 @@ class BaseAgentModule(ABC):
     @classmethod
     def build(cls, cfg: DictConfig | dict):
         instance = cls(cfg)
-        #await instance.initialize()
         return instance
 
     def __repr__(self):
         container = OmegaConf.to_container(self.cfg, resolve=True)
         cfg_str = json.dumps(container, indent=2)
         return f"{self.__class__.__name__}(cfg={cfg_str})"
-
 
 

@@ -1,31 +1,27 @@
-from email import message
+# SPDX-FileCopyrightText: 2025 MiromindAI
+#
+# SPDX-License-Identifier: Apache-2.0
+
+"""
+最终答案提取器 - 从摘要中提取最终答案
+"""
+
 from omegaconf import DictConfig
 
-from src.agents.base_module import BaseAgentModule
-from src.agents.registry import register_module
-from src.utils.prompt_utils import PromptTemplateReader
-import os
-from src.utils.io_utils import get_file_type
-from src.agents.base_module import AgentContextDict
-
+from src.io_processor.base import BaseIOProcessor
+from src.agents.base import AgentContextDict
+from src.registry import register, ComponentType
 from src.utils.summary_utils import (
     extract_gaia_final_answer,
     extract_browsecomp_zh_final_answer
 )
 
-@register_module("SummaryGenerator")
-class SummaryGenerator(BaseAgentModule):
-    USE_PROPAGATE_MODULE_CONFIGS = ("llm", "prompt")
-    async def run_internal(self, ctx: AgentContextDict):
-        prompt = self.prompt_manager.render_prompt('summarize_prompt', context = dict(task_description = ctx.get("task_description"), task_failed = ctx.get("task_failed", False), chinese_context = self.cfg.get("chinese_context", False)))
-        message_history = ctx.get("message_history", [])
-        llm_response = await self.llm_client.create_message(message_history=message_history+[{"role": "user", "content": [{"type": "text", "text": prompt}]}]) #TODO
 
-        return AgentContextDict(summary = llm_response.response_text)
-
-@register_module("FinalAnswerExtractor")    
-class FinalAnswerExtractor(BaseAgentModule):
+@register(ComponentType.IO_PROCESSOR, "FinalAnswerExtractor")    
+class FinalAnswerExtractor(BaseIOProcessor):
+    """最终答案提取器"""
     USE_PROPAGATE_MODULE_CONFIGS = ("llm", "prompt")
+    
     @staticmethod
     def _extract_boxed_content(text: str) -> str:
         """
@@ -64,9 +60,7 @@ class FinalAnswerExtractor(BaseAgentModule):
 
             # If we found a balanced match (brace_count == 0)
             if brace_count == 0:
-                content = text[
-                    content_start : content_end - 1
-                ]  # -1 to exclude the closing brace
+                content = text[content_start : content_end - 1]  # -1 to exclude the closing brace
                 matches.append(content)
                 # Continue searching from after this complete match
                 i = content_end
@@ -101,27 +95,22 @@ class FinalAnswerExtractor(BaseAgentModule):
 
         return "\n".join(summary_lines), boxed_result
 
-    async def run_internal(self, ctx: AgentContextDict):
-        #async def _extract_final_answer(final_answer_text, message_history, input):
-        #TODO: task_meta
-        if "browsecomp-zh" in ctx.get("task_meta",{}).get("dataset_name",''):
+    async def run_internal(self, ctx: AgentContextDict) -> AgentContextDict:
+        if "browsecomp-zh" in ctx.get("task_meta", {}).get("dataset_name", ''):
             extract_final_answer_function = extract_browsecomp_zh_final_answer
         else:
             extract_final_answer_function = extract_gaia_final_answer
         
         extracted_answer = await extract_final_answer_function(
-            task_description_detail = ctx.get("task_description", ''),
-            summary = ctx.get("summary", None),
-            #openai_key = self.llm_client.openai_api_key, #TODO
-            #base_url = self.llm_client.openai_base_url,
-            chinese_context = self.cfg.get("chinese_context", False),
-            llm_client = self.llm_client
-        ) #TODO -> prompt
+            task_description_detail=ctx.get("task_description", ''),
+            summary=ctx.get("summary", None),
+            chinese_context=self.cfg.get("chinese_context", False),
+            llm_client=self.llm_client
+        )
 
         _, boxed_result = FinalAnswerExtractor._format_final_summary_and_log(extracted_answer)
 
         return AgentContextDict(
-            llm_extracted_final_answer = extracted_answer,
-            final_boxed_answer = boxed_result    
-        )  
-
+            llm_extracted_final_answer=extracted_answer,
+            final_boxed_answer=boxed_result    
+        )

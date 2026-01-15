@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2025 MiromindAI
+#
+# SPDX-License-Identifier: Apache-2.0
+
+"""
+输入提示生成器 - 生成任务提示
+"""
+
+from omegaconf import DictConfig
+
+from src.io_processor.base import BaseIOProcessor
+from src.agents.base import AgentContextDict
+from src.registry import register, ComponentType
+from src.utils.prompt_utils import PromptTemplateReader
+
+
+@register(ComponentType.IO_PROCESSOR, "InputHintGenerator")
+class InputHintGenerator(BaseIOProcessor):
+    """输入提示生成器"""
+    USE_PROPAGATE_MODULE_CONFIGS = ("llm", "prompt")
+    
+    async def run_internal(self, ctx: AgentContextDict) -> AgentContextDict:
+        prompt = self.prompt_manager.render_prompt(
+            'hint_generation_prompt', 
+            context=dict(
+                task_description=ctx.get("task_description"), 
+                chinese_context=self.cfg.get("chinese_context", False)
+            )
+        )
+        task_hint = await self.llm_client.create_message(prompt)
+        return {
+            'task_hint': task_hint.response_text
+        }

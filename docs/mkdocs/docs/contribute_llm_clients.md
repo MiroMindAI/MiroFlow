@@ -4,7 +4,7 @@ Add support for new LLM providers to MiroFlow by creating a provider class that 
 
 ## Client Structure
 
-Each LLM client inherits from `LLMProviderClientBase` and implements 4 required methods:
+Each LLM client inherits from `LLMClientBase` and implements 4 required methods:
 
 - `_create_client()` - Initialize API client
 - `_create_message()` - Make API calls  
@@ -21,10 +21,10 @@ Create `src/llm/providers/your_provider_client.py`:
 
 ```python title="Provider Implementation"
 import dataclasses
-from src.llm.provider_client_base import LLMProviderClientBase
+from src.llm.base import LLMClientBase
 
 @dataclasses.dataclass
-class YourProviderClient(LLMProviderClientBase):
+class YourProviderClient(LLMClientBase):
     def _create_client(self, config):
         # Initialize your API client
         pass

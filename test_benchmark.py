@@ -23,8 +23,7 @@ from src.utils.eval_utils import (
     Evaluator,
 )
 from src.utils.task_utils import run_tasks
-from src.agents.registry import build_agent_from_config
-from src.agents.base_module import BaseAgentModule
+from src.agents import build_agent_from_config, BaseAgent
 from src.logging.task_tracer import get_tracer, set_tracer
 
 

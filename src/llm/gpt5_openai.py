@@ -19,7 +19,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from src.llm.provider_client_base import LLMProviderClientBase
+from src.llm.base import LLMClientBase
 
 from src.logging.task_tracer import get_tracer
 
@@ -27,7 +27,7 @@ logger = get_tracer()
 
 class ContextLimitError(Exception):
     pass
-class GPT5OpenAIClient(LLMProviderClientBase):
+class GPT5OpenAIClient(LLMClientBase):
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client"""
         if self.async_client:

@@ -11,7 +11,7 @@ from omegaconf import DictConfig
 from openai import AsyncOpenAI, OpenAI
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from src.llm.provider_client_base import LLMProviderClientBase
+from src.llm.base import LLMClientBase
 
 from src.logging.task_tracer import get_tracer
 

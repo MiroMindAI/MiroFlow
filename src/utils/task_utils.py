@@ -10,7 +10,7 @@ from typing import List, Optional
 
 from omegaconf import DictConfig
 
-from src.agents.base_module import BaseAgentModule
+from src.agents import BaseAgent
 from src.logging.task_tracer import (
     TaskContextVar,
     get_tracer,
@@ -30,7 +30,7 @@ tracer = get_tracer()
 
 async def run_single_attempt(
     cfg: DictConfig,
-    agent: BaseAgentModule,
+    agent: BaseAgent,
     task: Task,
     attempt_id: int,
     evaluator: Optional[Evaluator] = None,
@@ -84,7 +84,7 @@ async def run_single_attempt(
 
 async def run_single_task(
     cfg: DictConfig,
-    agent: BaseAgentModule,
+    agent: BaseAgent,
     task: Task,
     attempt_num: int = 1,
     evaluator: Optional[Evaluator] = None,
@@ -144,7 +144,7 @@ async def run_single_task(
 
 async def run_tasks(
     cfg: DictConfig,
-    agent: BaseAgentModule,
+    agent: BaseAgent,
     tasks: List[Task],
     evaluator: Optional[Evaluator] = None,
     max_concurrent: int = 3,

@@ -10,7 +10,7 @@ from omegaconf import DictConfig
 from openai import AsyncOpenAI, OpenAI
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from src.llm.provider_client_base import LLMProviderClientBase
+from src.llm.base import LLMClientBase
 
 from src.logging.task_tracer import get_tracer
 
@@ -22,7 +22,7 @@ OPENAI_REASONING_MODEL_SET = set(
 logger = get_tracer()
 
 
-class GPTOpenAIClient(LLMProviderClientBase):
+class GPTOpenAIClient(LLMClientBase):
     def __init__(self, cfg: DictConfig):
         super().__init__(cfg)
         self.oai_tool_thinking = self.cfg.oai_tool_thinking

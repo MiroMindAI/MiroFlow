@@ -1,12 +1,28 @@
-from src.agents.registry import register_module, build_agent
-from src.agents.base_module import BaseAgentModule
+# SPDX-FileCopyrightText: 2025 MiromindAI
+#
+# SPDX-License-Identifier: Apache-2.0
+
+"""
+顺序执行 Agent - 按顺序执行多个子模块
+"""
+
+from src.registry import register, ComponentType
+from src.agents.base import BaseAgent, AgentContextDict
 from omegaconf import DictConfig, ListConfig, OmegaConf
 from typing import List
 
-@register_module("SequentialAgentModule")
-class SequentialAgentModule(BaseAgentModule):
-    def __init__(self, cfg: DictConfig | ListConfig = {'type': 'SequentialAgentModule'}, modules: List[BaseAgentModule] = None):
+
+@register(ComponentType.AGENT, "SequentialAgentModule")
+class SequentialAgent(BaseAgent):
+    """顺序执行的 Agent 模块"""
+    
+    def __init__(
+        self, 
+        cfg: DictConfig | ListConfig = {'type': 'SequentialAgentModule'}, 
+        modules: List[BaseAgent] = None
+    ):
         super().__init__(cfg)
+        
         # Support both DictConfig (with 'modules' key) and ListConfig (direct list)
         if modules is not None:
             cfgs = [m.cfg for m in modules]
@@ -25,12 +41,14 @@ class SequentialAgentModule(BaseAgentModule):
                     'modules': cfg
                 })
             self.cfg = cfg
+            
+            from src.agents.factory import build_agent
             self.modules = [build_agent(cfg) for cfg in self.cfg.modules]
 
-    async def run_internal(self, ctx = {}, *args, **kwargs):
+    async def run_internal(self, ctx: AgentContextDict = {}, *args, **kwargs) -> AgentContextDict:
         for m in self.modules:
             patch_ctx = await m.run(ctx, *args, **kwargs)
-            ctx.update(patch_ctx) #TODO: ctx updating strategy
+            ctx.update(patch_ctx)
         return ctx
 
     def __repr__(self):
@@ -38,3 +56,7 @@ class SequentialAgentModule(BaseAgentModule):
         for m in self.modules:
             _repr_ += f"\n{m}"
         return _repr_
+
+
+# 保持向后兼容的别名
+SequentialAgentModule = SequentialAgent

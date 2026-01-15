@@ -18,9 +18,7 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
 )
-
-from src.llm.provider_client_base import LLMProviderClientBase
-
+from src.llm.base import LLMClientBase
 from src.logging.task_tracer import get_tracer
 
 logger = get_tracer()
@@ -29,19 +27,20 @@ logger = get_tracer()
 class ContextLimitError(Exception):
     pass
 
-class DeepSeekOpenRouterClient(LLMProviderClientBase):
+
+class ClaudeOpenRouterClient(LLMClientBase):
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client"""
         if self.async_client:
             return AsyncOpenAI(
-                api_key=self.cfg.llm.openrouter_api_key,
-                base_url=self.cfg.llm.openrouter_base_url,
+                api_key=self.cfg.api_key,
+                base_url=self.cfg.base_url,
                 timeout=1800,
             )
         else:
             return OpenAI(
-                api_key=self.cfg.llm.openrouter_api_key,
-                base_url=self.cfg.llm.openrouter_base_url,
+                api_key=self.cfg.api_key,
+                base_url=self.cfg.base_url,
                 timeout=1800,
             )
 
@@ -95,9 +94,6 @@ class DeepSeekOpenRouterClient(LLMProviderClientBase):
         else:
             processed_messages = self._apply_cache_control(messages_copy)
 
-        # For deepseek, we need to explicitly specify the tool list and add it to the messages
-        tool_list = await self.convert_tool_definition_to_tool_call(tools_definitions)
-
         params = None
         try:
             temperature = self.temperature
@@ -138,7 +134,6 @@ class DeepSeekOpenRouterClient(LLMProviderClientBase):
                 "temperature": temperature,
                 "max_tokens": self.max_tokens,
                 "messages": processed_messages,
-                "tools": tool_list,
                 "stream": False,
                 "extra_body": extra_body,
             }
@@ -243,7 +238,6 @@ class DeepSeekOpenRouterClient(LLMProviderClientBase):
             assistant_response_text = self._clean_user_content_from_response(
                 assistant_response_text
             )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
         elif llm_response.choices[0].finish_reason == "length":
             assistant_response_text = llm_response.choices[0].message.content or ""
             if assistant_response_text == "":
@@ -252,36 +246,6 @@ class DeepSeekOpenRouterClient(LLMProviderClientBase):
                 assistant_response_text = self._clean_user_content_from_response(
                     assistant_response_text
                 )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
-        elif llm_response.choices[0].finish_reason == "tool_calls":
-            # For tool_calls, we need to extract tool call information as text
-            tool_calls = llm_response.choices[0].message.tool_calls
-            assistant_response_text = llm_response.choices[0].message.content or ""
-
-            # If there's no text content, we generate a text describing the tool call
-            if not assistant_response_text:
-                tool_call_descriptions = []
-                for tool_call in tool_calls:
-                    tool_call_descriptions.append(
-                        f"Using tool {tool_call.function.name} with arguments: {tool_call.function.arguments}"
-                    )
-                assistant_response_text = "\n".join(tool_call_descriptions)
-
-            assistant_message = {
-                "role": "assistant",
-                "content": assistant_response_text,
-                "tool_calls": [
-                    {
-                        "id": _.id,
-                        "type": "function",
-                        "function": {
-                            "name": _.function.name,
-                            "arguments": _.function.arguments,
-                        },
-                    }
-                    for _ in tool_calls
-                ],
-            }
         else:
             logger.error(
                 f"Unsupported finish reason: {llm_response.choices[0].finish_reason}"
@@ -290,8 +254,11 @@ class DeepSeekOpenRouterClient(LLMProviderClientBase):
                 "Successful response, but unsupported finish reason: "
                 + llm_response.choices[0].finish_reason
             )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+        
         logger.debug(f"LLM Response: {assistant_response_text}")
+        
+        # Build assistant message (caller will append to message_history)
+        assistant_message = {"role": "assistant", "content": assistant_response_text}
 
         return assistant_response_text, False, assistant_message
 
@@ -299,13 +266,8 @@ class DeepSeekOpenRouterClient(LLMProviderClientBase):
         """Extract tool call information from OpenAI LLM response"""
         from src.utils.parsing_utils import parse_llm_response_for_tool_calls
 
-        # For OpenAI, directly get tool calls from response object
-        if llm_response.choices[0].finish_reason == "tool_calls":
-            return parse_llm_response_for_tool_calls(
-                llm_response.choices[0].message.tool_calls
-            )
-        else:
-            return [], []
+        # For Anthropic, parse tool calls from response text
+        return parse_llm_response_for_tool_calls(assistant_response_text)
 
     def update_message_history(
         self, message_history, tool_call_info, tool_calls_exceeded=False

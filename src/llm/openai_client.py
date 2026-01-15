@@ -19,7 +19,7 @@ from tenacity import (
     wait_fixed,
 )
 
-from src.llm.provider_client_base import LLMProviderClientBase
+from src.llm.base import LLMClientBase
 from src.logging.task_tracer import get_tracer
 
 logger = get_tracer()
@@ -35,7 +35,7 @@ class ContextLimitError(Exception):
     pass
 
 
-class UnifiedOpenAIClient(LLMProviderClientBase):
+class UnifiedOpenAIClient(LLMClientBase):
     """
     Unified client merging:
       - code1: OpenAI native tool_calls protocol (+ optional oai_tool_thinking)

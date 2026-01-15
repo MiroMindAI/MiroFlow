@@ -19,7 +19,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from src.llm.provider_client_base import LLMProviderClientBase
+from src.llm.base import LLMClientBase
 
 from src.logging.task_tracer import get_tracer
 
@@ -29,23 +29,19 @@ logger = get_tracer()
 class ContextLimitError(Exception):
     pass
 
-
-class MiroThinkerSGLangClient(LLMProviderClientBase):
-    def __post_init__(self):
-        super().__post_init__()
-
+class DeepSeekOpenRouterClient(LLMClientBase):
     def _create_client(self, config: DictConfig):
-        """Create configured OpenAI client for MiroThinker via SGLang"""
+        """Create configured OpenAI client"""
         if self.async_client:
             return AsyncOpenAI(
-                api_key=self.cfg.api_key,
-                base_url=self.cfg.base_url,
+                api_key=self.cfg.llm.openrouter_api_key,
+                base_url=self.cfg.llm.openrouter_base_url,
                 timeout=1800,
             )
         else:
             return OpenAI(
-                api_key=self.cfg.api_key,
-                base_url=self.cfg.base_url,
+                api_key=self.cfg.llm.openrouter_api_key,
+                base_url=self.cfg.llm.openrouter_base_url,
                 timeout=1800,
             )
 
@@ -62,15 +58,13 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
         keep_tool_result: int = -1,
     ):
         """
-        Send message to MiroThinker API.
+        Send message to OpenAI API.
         :param system_prompt: System prompt string.
         :param messages: Message history list.
-        :return: API response object or None (if error).
+        :return: OpenAI API response object or None (if error).
         """
-        logger.debug(
-            f" Calling MiroThinker LLM ({'async' if self.async_client else 'sync'})"
-        )
-        # put the system prompt in the first message
+        logger.debug(f" Calling LLM ({'async' if self.async_client else 'sync'})")
+        # put the system prompt in the first message since OpenAI API does not support system prompt in
         if system_prompt:
             target_role = "system"
 
@@ -95,25 +89,63 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
             messages, keep_tool_result
         )
 
+        # Apply cache control
+        if self.disable_cache_control:
+            processed_messages = messages_copy
+        else:
+            processed_messages = self._apply_cache_control(messages_copy)
+
+        # For deepseek, we need to explicitly specify the tool list and add it to the messages
+        tool_list = await self.convert_tool_definition_to_tool_call(tools_definitions)
+
         params = None
         try:
             temperature = self.temperature
+
+            # build extra_body if self.openrouter_provider
+            provider_config = (self.openrouter_provider or "").strip().lower()
+            logger.info(f"provider_config: {provider_config}")
+            if provider_config == "google":
+                extra_body = {
+                    "provider": {
+                        "only": [
+                            "google-vertex/us",
+                            "google-vertex/europe",
+                            "google-vertex/global",
+                        ]
+                    }
+                }
+            elif provider_config == "anthropic":
+                extra_body = {"provider": {"only": ["anthropic"]}}
+                # extra_body["provider"]["ignore"] = ["google-vertex/us", "google-vertex/europe", "google-vertex/global"]
+            elif provider_config == "amazon":
+                extra_body = {"provider": {"only": ["amazon-bedrock"]}}
+            elif provider_config != "":
+                extra_body = {"provider": {"only": [provider_config]}}
+            else:
+                extra_body = {}
+
+            # Add top_k and min_p through extra_body for OpenRouter
+            if self.top_k != -1:
+                extra_body["top_k"] = self.top_k
+            if self.min_p != 0.0:
+                extra_body["min_p"] = self.min_p
+            if self.repetition_penalty != 1.0:
+                extra_body["repetition_penalty"] = self.repetition_penalty
 
             params = {
                 "model": self.model_name,
                 "temperature": temperature,
                 "max_tokens": self.max_tokens,
-                "messages": messages_copy,
+                "messages": processed_messages,
+                "tools": tool_list,
                 "stream": False,
+                "extra_body": extra_body,
             }
 
             # Add optional parameters only if they have non-default values
             if self.top_p != 1.0:
                 params["top_p"] = self.top_p
-            if self.min_p != 0.0:
-                params["min_p"] = self.min_p
-            if self.top_k != -1:
-                params["top_k"] = self.top_k
 
             response = await self._create_completion(params, self.async_client)
 
@@ -165,11 +197,11 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
                 or "BadRequestError" in error_str
                 and "context length" in error_str
             ):
-                logger.debug(f"MiroThinker LLM Context limit exceeded: {error_str}")
+                logger.debug(f"OpenRouter LLM Context limit exceeded: {error_str}")
                 raise ContextLimitError(f"Context limit exceeded: {error_str}")
 
             logger.error(
-                f"MiroThinker LLM call failed: {str(e)}, input = {json.dumps(params)}",
+                f"OpenRouter LLM call failed: {str(e)}, input = {json.dumps(params)}",
                 exc_info=True,
             )
             raise e
@@ -193,7 +225,7 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
         self, llm_response
     ) -> tuple[str, bool, dict]:
         """
-        Process MiroThinker LLM response
+        Process OpenAI LLM response
         
         Returns:
             tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
@@ -221,6 +253,35 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
                     assistant_response_text
                 )
             assistant_message = {"role": "assistant", "content": assistant_response_text}
+        elif llm_response.choices[0].finish_reason == "tool_calls":
+            # For tool_calls, we need to extract tool call information as text
+            tool_calls = llm_response.choices[0].message.tool_calls
+            assistant_response_text = llm_response.choices[0].message.content or ""
+
+            # If there's no text content, we generate a text describing the tool call
+            if not assistant_response_text:
+                tool_call_descriptions = []
+                for tool_call in tool_calls:
+                    tool_call_descriptions.append(
+                        f"Using tool {tool_call.function.name} with arguments: {tool_call.function.arguments}"
+                    )
+                assistant_response_text = "\n".join(tool_call_descriptions)
+
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+                "tool_calls": [
+                    {
+                        "id": _.id,
+                        "type": "function",
+                        "function": {
+                            "name": _.function.name,
+                            "arguments": _.function.arguments,
+                        },
+                    }
+                    for _ in tool_calls
+                ],
+            }
         else:
             logger.error(
                 f"Unsupported finish reason: {llm_response.choices[0].finish_reason}"
@@ -235,11 +296,16 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
         return assistant_response_text, False, assistant_message
 
     def extract_tool_calls_info(self, llm_response, assistant_response_text):
-        """Extract tool call information from MiroThinker LLM response"""
+        """Extract tool call information from OpenAI LLM response"""
         from src.utils.parsing_utils import parse_llm_response_for_tool_calls
 
-        # Parse tool calls from response text
-        return parse_llm_response_for_tool_calls(assistant_response_text)
+        # For OpenAI, directly get tool calls from response object
+        if llm_response.choices[0].finish_reason == "tool_calls":
+            return parse_llm_response_for_tool_calls(
+                llm_response.choices[0].message.tool_calls
+            )
+        else:
+            return [], []
 
     def update_message_history(
         self, message_history, tool_call_info, tool_calls_exceeded=False
@@ -303,7 +369,7 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
         return message_history
 
     def parse_llm_response(self, llm_response) -> str:
-        """Parse MiroThinker LLM response to get text content"""
+        """Parse OpenAI LLM response to get text content"""
         if not llm_response or not llm_response.choices:
             raise ValueError("LLM did not return a valid response.")
         return llm_response.choices[0].message.content
@@ -335,3 +401,48 @@ class MiroThinkerSGLangClient(LLMProviderClientBase):
             )
         else:
             return summary_prompt
+
+    def _apply_cache_control(self, messages):
+        """Apply cache control to the last user message and system message (if applicable)"""
+        cached_messages = []
+        user_turns_processed = 0
+        for turn in reversed(messages):
+            if (turn["role"] == "user" and user_turns_processed < 1) or (
+                turn["role"] == "system"
+            ):
+                # Add ephemeral cache control to the text part of the last user message
+                new_content = []
+                processed_text = False
+                # Check if content is a list
+                if isinstance(turn.get("content"), list):
+                    # see example here
+                    # https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+                    for item in turn["content"]:
+                        if (
+                            item.get("type") == "text"
+                            and len(item.get("text")) > 0
+                            and not processed_text
+                        ):
+                            # Copy and add cache control
+                            text_item = item.copy()
+                            text_item["cache_control"] = {"type": "ephemeral"}
+                            new_content.append(text_item)
+                            processed_text = True
+                        else:
+                            # Other types of content (like image) copy directly
+                            new_content.append(item.copy())
+                    cached_messages.append(
+                        {"role": turn["role"], "content": new_content}
+                    )
+                else:
+                    # If content is not a list (e.g., plain text), add as is without cache control
+                    # Or adjust logic as needed
+                    logger.debug(
+                        "Warning: User message content is not in expected list format, cache control not applied."
+                    )
+                    cached_messages.append(turn)
+                user_turns_processed += 1
+            else:
+                # Other messages add directly
+                cached_messages.append(turn)
+        return list(reversed(cached_messages))

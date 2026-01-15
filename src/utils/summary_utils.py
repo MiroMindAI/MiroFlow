@@ -7,7 +7,7 @@ from openai import AsyncOpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
 import uuid
 
-from src.llm.provider_client_base import LLMProviderClientBase
+from src.llm import LLMClientBase
 
 def _generate_message_id() -> str:
     """Generate random message ID using common LLM format"""
@@ -27,7 +27,7 @@ async def extract_hints(
     #api_key: str,
     chinese_context: bool,
     add_message_id: bool,
-    llm_client: LLMProviderClientBase,
+    llm_client: LLMClientBase,
     #base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract task hints"""
@@ -100,7 +100,7 @@ Here is the question:
 )
 async def get_gaia_answer_type(
     task_description: str, 
-    llm_client: LLMProviderClientBase
+    llm_client: LLMClientBase
 ) -> str:
     #client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
@@ -145,7 +145,7 @@ async def extract_gaia_final_answer(
     summary: str,
     #api_key: str,
     chinese_context: bool,
-    llm_client: LLMProviderClientBase,
+    llm_client: LLMClientBase,
     #base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract final answer from summary"""

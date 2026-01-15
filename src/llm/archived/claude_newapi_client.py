@@ -4,7 +4,11 @@
 
 # -*- coding: utf-8 -*-
 """
-copied from anthropic_newapi_client.py
+author: lei.lei@shanda.com
+time: 2025/07/10 11:46
+description: anthropic client via New API server.
+NewAPI is like litellm/openrouter, all LLM uses openAI endpoint.
+see NewAPI documentation here:
 """
 
 import asyncio
@@ -18,7 +22,7 @@ from typing import Any, Dict, List
 from omegaconf import DictConfig
 from openai import AsyncOpenAI, OpenAI
 
-from src.llm.provider_client_base import LLMProviderClientBase
+from src.llm.base import LLMClientBase
 
 from src.logging.task_tracer import get_tracer
 
@@ -26,9 +30,8 @@ logger = get_tracer()
 
 
 @dataclasses.dataclass
-class DeepSeekNewAPIClient(LLMProviderClientBase):
+class ClaudeNewAPIClient(LLMProviderClientBase):
     def _create_client(self, config: DictConfig):
-        """Create configured OpenAI client"""
         if self.async_client:
             return AsyncOpenAI(
                 api_key=config.env.newapi_api_key,

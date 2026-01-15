@@ -1,0 +1,36 @@
+# SPDX-FileCopyrightText: 2025 MiromindAI
+#
+# SPDX-License-Identifier: Apache-2.0
+
+"""
+摘要生成器 - 从对话历史生成摘要
+"""
+
+from omegaconf import DictConfig
+
+from src.io_processor.base import BaseIOProcessor
+from src.agents.base import AgentContextDict
+from src.registry import register, ComponentType
+from src.utils.prompt_utils import PromptTemplateReader
+
+
+@register(ComponentType.IO_PROCESSOR, "SummaryGenerator")
+class SummaryGenerator(BaseIOProcessor):
+    """摘要生成器"""
+    USE_PROPAGATE_MODULE_CONFIGS = ("llm", "prompt")
+    
+    async def run_internal(self, ctx: AgentContextDict) -> AgentContextDict:
+        prompt = self.prompt_manager.render_prompt(
+            'summarize_prompt', 
+            context=dict(
+                task_description=ctx.get("task_description"), 
+                task_failed=ctx.get("task_failed", False), 
+                chinese_context=self.cfg.get("chinese_context", False)
+            )
+        )
+        message_history = ctx.get("message_history", [])
+        llm_response = await self.llm_client.create_message(
+            message_history=message_history + [{"role": "user", "content": [{"type": "text", "text": prompt}]}]
+        )
+
+        return AgentContextDict(summary=llm_response.response_text)

@@ -2,6 +2,10 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+"""
+LLM 客户端基类
+"""
+
 import asyncio
 import dataclasses
 import json
@@ -21,29 +25,29 @@ import importlib
 from src.logging.task_tracer import get_tracer
 from src.logging.task_tracer import TaskTracer
 from src.logging.decorators import span
-import hydra
-# from config import config_path
 import uuid
 from pathlib import Path    
 
 logger = get_tracer()
 
+
 @dataclasses.dataclass
 class LLMOutput(ABC):
+    """LLM 输出数据类"""
     response_text: str
     is_invalid: bool
     assistant_message: dict
     raw_response: Any
 
-class LLMProviderClientBase(ABC):
-    # post_init
-    #client: Any = dataclasses.field(init=False)
+
+class LLMClientBase(ABC):
+    """LLM 客户端基类"""
 
     def __init__(self, cfg: DictConfig):
         self.cfg = cfg
 
         # Explicitly assign from cfg object
-        self.provider_class: str = self.cfg.provider_class #TODO remove llm
+        self.provider_class: str = self.cfg.provider_class
         self.model_name: str = self.cfg.model_name
         self.temperature: float = self.cfg.temperature
         self.top_p: float = self.cfg.top_p
@@ -57,17 +61,6 @@ class LLMProviderClientBase(ABC):
 
         self.use_tool_calls: Optional[bool] = self.cfg.use_tool_calls
         self.disable_cache_control: bool = self.cfg.disable_cache_control
-        # self.openrouter_provider: Optional[str] = self.cfg.get(
-        #     "openrouter_provider"
-        # )
-        # Safely handle string to bool conversion
-        # disable_cache_control_val = self.cfg.get("disable_cache_control", False)
-        # if isinstance(disable_cache_control_val, str):
-        #     self.disable_cache_control: bool = (
-        #         disable_cache_control_val.lower().strip() == "true"
-        #     )
-        # else:
-        #     self.disable_cache_control: bool = bool(disable_cache_control_val)
 
         self.client = self._create_client(self.cfg)
 
@@ -128,9 +121,7 @@ class LLMProviderClientBase(ABC):
                 if msg.get("role") == "user" or msg.get("role") == "tool"
             ]
 
-            if (
-                len(user_indices) > 1
-            ):  # Only proceed if there are more than one user message
+            if len(user_indices) > 1:  # Only proceed if there are more than one user message
                 first_user_idx = user_indices[0]  # Always keep the first user message
 
                 # Calculate how many messages to keep from the end
@@ -187,9 +178,6 @@ class LLMProviderClientBase(ABC):
         message_history: List[Dict] = None,
         tool_definitions: List[Dict] = None,
         keep_tool_result: int = -1,
-        # step_id: int = 1,
-        # task_log: Optional["TaskTracer"] = None,
-        # agent_type: str = "main",
     ):
         """
         Call LLM to generate response, supports tool calls - unified implementation
@@ -200,7 +188,7 @@ class LLMProviderClientBase(ABC):
         if message_history is None:
             message_history = []
         if message_text is not None:
-            message_history.append({"role":"user", "content": [{"type": "text", "text": message_text}]}) #TODO
+            message_history.append({"role": "user", "content": [{"type": "text", "text": message_text}]})
         message_history = self._filter_message_history(
             message_history, keep_tool_result
         )
@@ -353,57 +341,8 @@ class LLMProviderClientBase(ABC):
                 message["content"] = f"[{_generate_message_id()}] {content}"
 
     def __repr__(self):
-        return f"LLMProviderClientBase(provider_class={self.provider_class}, model_name={self.model_name})"
+        return f"LLMClientBase(provider_class={self.provider_class}, model_name={self.model_name})"
 
-def build_llm_client(
-    llm_config: Optional[DictConfig | dict | str],
-    **kwargs,
-):
-    """
-    create LLMClientProvider from hydra configuration.
-    Can accept either:
-    - cfg: Traditional config with cfg.llm structure
-    - llm_config: Direct LLM configuration
-    """
-    assert llm_config is not None, "llm_config is required"
-        # Direct LLM config provided
-    if isinstance(llm_config, dict):
-        llm_config = OmegaConf.create(llm_config)
 
-    if "_base_" in llm_config:
-        base_config = OmegaConf.load(llm_config["_base_"])
-        llm_config = OmegaConf.merge(base_config, llm_config)
-    
-    #llm_config = OmegaConf.merge(llm_config, kwargs)
-    #print(type(llm_config))
-    
-    provider_class = llm_config.provider_class
-    # Create compatible config structure
-    config = OmegaConf.create(llm_config)
-    config = OmegaConf.merge(config, kwargs)
-
-    assert isinstance(config, DictConfig), "expect a dict config"
-
-    # Dynamically import the provider class from the .providers module
-
-    # Validate provider_class is a string and a valid identifier
-    if not isinstance(provider_class, str) or not provider_class.isidentifier():
-        raise ValueError(f"Invalid provider_class: {provider_class}")
-
-    try:
-        # Import the module dynamically
-        providers_module = importlib.import_module("src.llm.providers")
-        # Get the class from the module
-        ProviderClass = getattr(providers_module, provider_class)
-    except (ModuleNotFoundError, AttributeError) as e:
-        raise ImportError(
-            f"Could not import class '{provider_class}' from 'src.llm.providers': {e}"
-        )
-
-    # Instantiate the client using the imported class
-    try:
-        client_instance = ProviderClass(cfg=config)
-    except Exception as e:
-        raise RuntimeError(f"Failed to instantiate {provider_class}: {e}, llm config: {config} \n")
-
-    return client_instance
+# 保持向后兼容的别名
+LLMProviderClientBase = LLMClientBase
