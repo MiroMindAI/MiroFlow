@@ -15,7 +15,7 @@ from src.llm.base import LLMClientBase
 
 
 def build_llm_client(
-    llm_config: Optional[DictConfig | dict | str],
+    cfg: Optional[DictConfig | dict | str],
     **kwargs,
 ) -> LLMClientBase:
     """
@@ -24,19 +24,22 @@ def build_llm_client(
     - cfg: Traditional config with cfg.llm structure
     - llm_config: Direct LLM configuration
     """
-    assert llm_config is not None, "llm_config is required"
+    # assert cfg is not None, "cfg is required"
+    
+    if cfg is None:
+        return None
     
     # Direct LLM config provided
-    if isinstance(llm_config, dict):
-        llm_config = OmegaConf.create(llm_config)
+    if isinstance(cfg, dict):
+        cfg = OmegaConf.create(cfg)
 
-    if "_base_" in llm_config:
-        base_config = OmegaConf.load(llm_config["_base_"])
-        llm_config = OmegaConf.merge(base_config, llm_config)
+    if "_base_" in cfg:
+        base_config = OmegaConf.load(cfg["_base_"])
+        cfg = OmegaConf.merge(base_config, cfg)
     
-    provider_class = llm_config.provider_class
+    provider_class = cfg.provider_class
     # Create compatible config structure
-    config = OmegaConf.create(llm_config)
+    config = OmegaConf.create(cfg)
     config = OmegaConf.merge(config, kwargs)
 
     assert isinstance(config, DictConfig), "expect a dict config"

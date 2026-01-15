@@ -20,6 +20,8 @@ from src.logging.task_tracer import get_tracer
 from .mcp_servers.browser_session import PlaywrightSession
 from src.utils.tool_utils import format_tool_result
 from src.logging.decorators import span
+from .factory import get_mcp_server_configs_from_tool_cfg_paths
+from typing import Optional, List
 
 logger = get_tracer()
 
@@ -59,11 +61,19 @@ def with_timeout(timeout_s: float = 300.0):
     return decorator
 
 class ToolManager():
-    def __init__(self, server_configs, tool_blacklist=None):
+    def __init__(self, cfg: Optional[List[str]] = None, server_configs=None, tool_blacklist=None):
         """
         Initialize ToolManager.
-        :param server_configs: List returned by create_server_parameters()
+        :param cfg: List of tool configuration file paths. If provided, will be used to generate server_configs.
+        :param server_configs: List returned by create_server_parameters(). Used only if cfg is not provided (for backward compatibility).
+        :param tool_blacklist: Optional set of (server_name, tool_name) tuples to blacklist.
         """
+        # If cfg is provided, use it to generate server_configs
+        if cfg is not None:
+            server_configs = get_mcp_server_configs_from_tool_cfg_paths(cfg)
+        elif server_configs is None:
+            server_configs = []
+        
         self.server_configs = server_configs
         self.server_dict = {
             config["name"]: config["params"] for config in server_configs

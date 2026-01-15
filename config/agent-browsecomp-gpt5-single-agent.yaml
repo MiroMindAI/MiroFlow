@@ -28,9 +28,6 @@ main_agent:
   
 input-hint-generator:
   type: InputHintGenerator
-  llm:
-    _base_: config/llm/base_openai.yaml
-    model_name: o3
 input-message-generator:
   type: InputMessageGenerator
 output-summary:

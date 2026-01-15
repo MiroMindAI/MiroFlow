@@ -11,9 +11,9 @@ import datetime
 from omegaconf import DictConfig
 
 from src.io_processor.base import BaseIOProcessor
-from src.agents.base import AgentContextDict
+from src.agents.context import AgentContext
 from src.registry import register, ComponentType
-from src.utils.prompt_utils import PromptTemplateReader
+from src.utils.prompt_utils import PromptManager
 from src.utils.io_utils import get_file_type
 
 
@@ -22,7 +22,7 @@ class InputMessageGenerator(BaseIOProcessor):
     """输入消息生成器"""
     USE_PROPAGATE_MODULE_CONFIGS = ("prompt",)
     
-    async def run_internal(self, ctx: AgentContextDict) -> AgentContextDict:
+    async def run_internal(self, ctx: AgentContext) -> AgentContext:
         if ctx.get('task_file_name') is not None:
             task_file_name = ctx['task_file_name']
             task_file_type = get_file_type(task_file_name)

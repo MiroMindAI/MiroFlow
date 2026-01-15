@@ -20,7 +20,8 @@ from src.logging.task_tracer import get_tracer
 from src.tool.manager import ToolManager
 
 from src.registry import register, ComponentType
-from src.agents.base import BaseAgent, AgentContextDict
+from src.agents.base import BaseAgent
+from src.agents.context import AgentContext
 from src.agents.sequential_agent import SequentialAgent
 
 AgentCaller = Callable[[str, dict], Awaitable[str]]
@@ -40,12 +41,12 @@ class IterativeAgentWithTool(BaseAgent):
             modules=[self.create_sub_module(module_cfg) for module_cfg in self.cfg.get('output_processor', [])] 
         )
 
-    async def run_internal(self, ctx: AgentContextDict) -> AgentContextDict:
+    async def run_internal(self, ctx: AgentContext) -> AgentContext:
         tracer = get_tracer()
         tracer.save_agent_states(self.name, states={'input_ctx': ctx})
 
         if ctx.get('message_history') is None:
-            input_processor_output = await self.input_processor.run(AgentContextDict(
+            input_processor_output = await self.input_processor.run(AgentContext(
                 **ctx, 
                 mcp_server_definitions=self.mcp_server_definitions
             ))
@@ -101,7 +102,7 @@ class IterativeAgentWithTool(BaseAgent):
             message_history.append(user_msg)
             tracer.save_agent_states(self.name, states={'input_ctx': ctx, 'message_history': message_history})
         
-        output_processor_result = await self.output_processor.run(AgentContextDict(
+        output_processor_result = await self.output_processor.run(AgentContext(
             **ctx,
             message_history=message_history,
             task_failed=task_failed
@@ -110,7 +111,7 @@ class IterativeAgentWithTool(BaseAgent):
             'message_history': message_history,
             'summary': output_processor_result.get("summary", None)
         })
-        return AgentContextDict(
+        return AgentContext(
             message_history=message_history, 
             summary=output_processor_result.get("summary", None),
             final_boxed_answer=output_processor_result.get("final_boxed_answer", None)

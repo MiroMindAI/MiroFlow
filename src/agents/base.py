@@ -18,18 +18,12 @@ from src.tool.manager import ToolManager
 from src.llm import build_llm_client
 from typing import List, Optional, Any
 from src.logging.decorators import span
-from src.utils.prompt_utils import PromptTemplateReader
+from src.utils.prompt_utils import PromptManager
 from types import MappingProxyType
-from src.tool.factory import get_mcp_server_configs_from_tool_cfg_paths
 from src.utils.tool_utils import expose_sub_agents_as_tools
 from src.skill.manager import SkillManager
+from src.agents.context import AgentContext
 
-
-class AgentContextDict(dict):
-    """Agent 上下文字典"""
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-    
 
 class BaseAgent(ABC):
     """Agent 基类"""
@@ -73,35 +67,25 @@ class BaseAgent(ABC):
             cfg = DictConfig(cfg)
         self.cfg = cfg
     
-        if hasattr(self.cfg, "llm") and not hasattr(self, "llm_client"):
-            self.llm_client = build_llm_client(llm_config=self.cfg.get("llm"))
-        if not hasattr(self, "tool_manager"):
-            if not hasattr(self.cfg, "tools"):
-                self.cfg.tools = OmegaConf.create([])
-            mcp_server_configs = get_mcp_server_configs_from_tool_cfg_paths(
-                cfg_paths = self.cfg.tools
-            )
-            self.tool_manager = ToolManager(mcp_server_configs)
-        if hasattr(self.cfg, "prompt") and not hasattr(self, "prompt_manager"):
-            self.prompt_manager = PromptTemplateReader(config_path = self.cfg.prompt)
-        
+        # if hasattr(self.cfg, "llm") and not hasattr(self, "llm_client"):
+        self.llm_client = build_llm_client(cfg=self.cfg.get("llm"))
+        self.prompt_manager = PromptManager(config_path=self.cfg.get("prompt"))
         self.sub_agents = self.cfg.get('sub_agents')
-
-        if hasattr(self.cfg, "skills"):
-            self.skill_manager = SkillManager(skill_dirs = self.cfg["skills"])
+        self.tool_manager = ToolManager(cfg=self.cfg.get("tools"))
+        self.skill_manager = SkillManager(skill_dirs = self.cfg.get("skills"))
 
             
     @abstractmethod
-    async def run_internal(self, ctx: AgentContextDict) -> AgentContextDict:
+    async def run_internal(self, ctx: AgentContext) -> AgentContext:
         pass
     
     @span()
-    async def run(self, ctx: AgentContextDict) -> AgentContextDict:
+    async def run(self, ctx: AgentContext) -> AgentContext:
         await self.post_initialize()
         ret = await self.run_internal(ctx)
         return ret
 
-    async def run_as_mcp_tool(self, ctx: AgentContextDict, return_ctx_key: str) -> AgentContextDict:
+    async def run_as_mcp_tool(self, ctx: AgentContext, return_ctx_key: str) -> AgentContext:
         ret = await self.run(ctx)
         if return_ctx_key in ret:
             return {
@@ -161,7 +145,7 @@ class BaseAgent(ABC):
         for agent_call in sub_agent_calls:
             # dynamic initialization of sub-agent
             sub_agent = self.create_sub_module(self.sub_agents[agent_call['server_name']], name = 'sub_agent')
-            sub_agent_result = await sub_agent.run_as_mcp_tool(AgentContextDict(
+            sub_agent_result = await sub_agent.run_as_mcp_tool(AgentContext(
                 task_description = agent_call['arguments']
             ), return_ctx_key = 'summary')
             sub_agent_results.append((agent_call['id'], sub_agent_result))

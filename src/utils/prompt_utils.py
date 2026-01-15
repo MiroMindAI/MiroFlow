@@ -2,16 +2,38 @@ import yaml
 from jinja2 import Environment, StrictUndefined
 
 
-class PromptTemplateReader:
-    def __init__(self, config_path: str):
+class PromptManager:
+    def __init__(self, config_path: str = None):
         """
         Load YAML containing templates and components.
+        
+        Args:
+            config_path: Path to the YAML config file. If None, creates an empty instance.
         """
-        with open(config_path, "r", encoding="utf-8") as f:
-            self.config = yaml.safe_load(f)
+        if config_path is not None:
+            with open(config_path, "r", encoding="utf-8") as f:
+                self.config = yaml.safe_load(f)
+        else:
+            self.config = {}
 
         # StrictUndefined 会在参数缺失时报错，如果你想容忍缺失就改成 Undefined
         self.env = Environment(undefined=StrictUndefined)
+    
+    @classmethod
+    def from_config(cls, cfg, instance=None):
+        """
+        Create PromptManager from config object if prompt path exists.
+        
+        Args:
+            cfg: Config object that may have a 'prompt' attribute
+            instance: Optional instance to check if prompt_manager already exists
+        
+        Returns:
+            PromptManager instance if config has prompt, None otherwise
+        """
+        if hasattr(cfg, "prompt") and (instance is None or not hasattr(instance, "prompt_manager")):
+            return cls(config_path=cfg.prompt)
+        return None
 
     def _validate_required_context(self, section_cfg: dict, context: dict, section_name: str):
         required = section_cfg.get("required_context", [])
@@ -69,7 +91,7 @@ class PromptTemplateReader:
 # Example Usage
 # ============================================================
 if __name__ == "__main__":
-    renderer = PromptTemplateReader("/home/muyan_zhong/dev/MiroFlow-baseline/config/agent_prompts/prompt_v0.yaml")
+    renderer = PromptManager("/home/muyan_zhong/dev/MiroFlow-baseline/config/agent_prompts/prompt_v0.yaml")
 
     context = {
         "task_description": "Explain the concept of reinforcement learning.",

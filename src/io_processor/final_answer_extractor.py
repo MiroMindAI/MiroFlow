@@ -9,7 +9,7 @@
 from omegaconf import DictConfig
 
 from src.io_processor.base import BaseIOProcessor
-from src.agents.base import AgentContextDict
+from src.agents.context import AgentContext
 from src.registry import register, ComponentType
 from src.utils.summary_utils import (
     extract_gaia_final_answer,
@@ -95,7 +95,7 @@ class FinalAnswerExtractor(BaseIOProcessor):
 
         return "\n".join(summary_lines), boxed_result
 
-    async def run_internal(self, ctx: AgentContextDict) -> AgentContextDict:
+    async def run_internal(self, ctx: AgentContext) -> AgentContext:
         if "browsecomp-zh" in ctx.get("task_meta", {}).get("dataset_name", ''):
             extract_final_answer_function = extract_browsecomp_zh_final_answer
         else:
@@ -110,7 +110,7 @@ class FinalAnswerExtractor(BaseIOProcessor):
 
         _, boxed_result = FinalAnswerExtractor._format_final_summary_and_log(extracted_answer)
 
-        return AgentContextDict(
+        return AgentContext(
             llm_extracted_final_answer=extracted_answer,
             final_boxed_answer=boxed_result    
         )

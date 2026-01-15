@@ -7,7 +7,8 @@
 """
 
 from src.registry import register, ComponentType
-from src.agents.base import BaseAgent, AgentContextDict
+from src.agents.base import BaseAgent
+from src.agents.context import AgentContext
 from omegaconf import DictConfig, ListConfig, OmegaConf
 from typing import List
 
@@ -45,7 +46,7 @@ class SequentialAgent(BaseAgent):
             from src.agents.factory import build_agent
             self.modules = [build_agent(cfg) for cfg in self.cfg.modules]
 
-    async def run_internal(self, ctx: AgentContextDict = {}, *args, **kwargs) -> AgentContextDict:
+    async def run_internal(self, ctx: AgentContext = {}, *args, **kwargs) -> AgentContext:
         for m in self.modules:
             patch_ctx = await m.run(ctx, *args, **kwargs)
             ctx.update(patch_ctx)

@@ -9,9 +9,9 @@
 from omegaconf import DictConfig
 
 from src.io_processor.base import BaseIOProcessor
-from src.agents.base import AgentContextDict
+from src.agents.context import AgentContext
 from src.registry import register, ComponentType
-from src.utils.prompt_utils import PromptTemplateReader
+from src.utils.prompt_utils import PromptManager
 
 
 @register(ComponentType.IO_PROCESSOR, "InputHintGenerator")
@@ -19,7 +19,7 @@ class InputHintGenerator(BaseIOProcessor):
     """输入提示生成器"""
     USE_PROPAGATE_MODULE_CONFIGS = ("llm", "prompt")
     
-    async def run_internal(self, ctx: AgentContextDict) -> AgentContextDict:
+    async def run_internal(self, ctx: AgentContext) -> AgentContext:
         prompt = self.prompt_manager.render_prompt(
             'hint_generation_prompt', 
             context=dict(

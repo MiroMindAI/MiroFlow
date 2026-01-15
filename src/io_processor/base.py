@@ -9,7 +9,8 @@ IO 处理器是一种特殊的 Agent，专门用于处理输入和输出。
 它们继承自 BaseAgent，但有特定的用途。
 """
 
-from src.agents.base import BaseAgent, AgentContextDict
+from src.agents.base import BaseAgent
+from src.agents.context import AgentContext
 
 
 class BaseIOProcessor(BaseAgent):
