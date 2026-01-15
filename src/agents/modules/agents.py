@@ -37,7 +37,7 @@ class IterativeAgentWithTool(BaseAgentModule):
         tracer = get_tracer()
         tracer.save_agent_states(self.name, states = {'input_ctx': ctx})
 
-        if 'message_history' not in ctx or ctx.get('message_history', None) is None:
+        if ctx.get('message_history') is None:
             input_processor_output = await self.input_processor.run(AgentContextDict(
                 **ctx, 
                 mcp_server_definitions = self.mcp_server_definitions
