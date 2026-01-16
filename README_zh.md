@@ -8,14 +8,10 @@
 
 [![文档](https://img.shields.io/badge/Documentation-4285F4?style=for-the-badge&logo=gitbook&logoColor=white)](https://miromindai.github.io/MiroFlow/)
 [![演示](https://img.shields.io/badge/Demo-FFB300?style=for-the-badge&logo=airplayvideo&logoColor=white)](https://dr.miromind.ai/)
-[![模型](https://img.shields.io/badge/Models-5EDDD2?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/collections/miromind-ai/mirothinker-v02-68af084a18035f57b17cd902)
 [![数据](https://img.shields.io/badge/Data-0040A1?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)
 
-[![博客](https://img.shields.io/badge/Website-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://miromind.ai/)
 [![GITHUB](https://img.shields.io/badge/Github-24292F?style=for-the-badge&logo=github&logoColor=white)](https://github.com/MiroMindAI)
 [![DISCORD](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/GPqEnkzQZd)
-[![微信](https://img.shields.io/badge/WeChat-07C160?style=for-the-badge&logo=wechat&logoColor=white)](https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/assets/wechat.png)
-[![小红书](https://img.shields.io/badge/RedNote-FF2442?style=for-the-badge&logo=revoltdotchat&logoColor=white)](https://www.xiaohongshu.com/user/profile/5e353bd80000000001000239)
 
 </div>
 
@@ -34,9 +30,7 @@
 这个仓库是MiroMind研究智能体项目的官方开源仓库。它是一个高性能、完全开源的研究智能体系统，旨在执行多步骤的互联网深度研究，用于解决复杂问题（例如：进行未来事件预测）。该项目目前包含四个核心组件：
 
 - 🤖 MiroFlow：一个开源研究智能体框架，在代表性基准（如 FutureX、GAIA、HLE、xBench-DeepSearch、BrowserComp）上实现了可复现的最高性能（代码详见本仓库）。动手尝试一下 [[5分钟快速上手]](#-5分钟快速开始)。
-- 🤔 MiroThinker：一个开源智能体基座模型，原生支持工具辅助推理。详见 [MiroThinker](https://github.com/MiroMindAI/mirothinker)。
 - 📊 MiroVerse：14.7万条高质量开源训练数据，用于研究智能体训练。详见 [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)。
-- 🚧 MiroTrain / MiroRL：支持研究智能体模型稳定高效训练的基础设施。详见 [MiroTrain](https://github.com/MiroMindAI/MiroTrain) / [MiroRL](https://github.com/MiroMindAI/MiroRL)。
 
 ---
 
