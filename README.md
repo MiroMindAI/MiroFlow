@@ -8,7 +8,6 @@
 <div align="center">
 
 [![DEMO](https://img.shields.io/badge/Demo-FFB300?style=for-the-badge&logo=airplayvideo&logoColor=white)](https://dr.miromind.ai/)
-[![MODELS](https://img.shields.io/badge/Models-5EDDD2?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/collections/miromind-ai/mirothinker-v02-68af084a18035f57b17cd902)
 [![DATA](https://img.shields.io/badge/Data-0040A1?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)
 [![BLOG](https://img.shields.io/badge/Blog-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://miromind.ai/blog/miroflow)
 
@@ -18,8 +17,6 @@
 </div>
 
 <div align="center">
-
-## 📚 **[READ THE DOCUMENTATION](https://miromindai.github.io/MiroFlow/)**
 
 ### 🚀 [Try Demo](https://dr.miromind.ai/) ｜ [中文](README_zh.md) ｜ [日本語](README_ja.md)
 
@@ -34,9 +31,8 @@
 This repo is the official implementation of the **MiroMind Research Agent Project**. It is a leading-performance, fully open-source system designed to perform multi-step internet research for addressing complex challenges such as future event prediction. The project currently comprises four key components:
 
 - 🤖 **MiroFlow**: an open-source research agent framework that offers reproducible state-of-the-art performance on representative benchmarks (e.g., FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks), included in this repo. See [[Get Started in Under 5 Minutes]](#-get-started-in-under-5-minutes) for a quick start.
-- 🤔 **MiroThinker**: an open-source agent foundation model that natively supports tool-assisted reasoning. See [MiroThinker](https://github.com/MiroMindAI/mirothinker).
+- 🤔 **MiroThinker**: an open-source agent that natively supports tool-assisted reasoning. See [MiroThinker](https://github.com/MiroMindAI/mirothinker).
 - 📊 **MiroVerse**: 147k premium open-source training data supporting research agent training. See [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1).
-- 🚧 **MiroTrain / MiroRL**: The training infra that supports stable and efficient training for the research agent models. See [MiroTrain](https://github.com/MiroMindAI/MiroTrain) / [MiroRL](https://github.com/MiroMindAI/MiroRL)
 
 ---
 
@@ -130,7 +126,7 @@ MiroFlow is a high-performance, modular framework for building intelligent AI ag
 
 ## 🔧 Supported Models & Tools
 
-- **Models**: GPT, Claude, Gemini, Qwen, MiroThinker, etc.
+- **Models**: GPT, Claude, Gemini, Qwen, etc.
 - **Tools**: [Audio Transcription](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/audio_mcp_server.py), [Python](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/python_server.py), [File Reading](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/reading_mcp_server.py), [Reasoning](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/reasoning_mcp_server.py), [Google Search](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/searching_mcp_server.py), [VQA](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/vision_mcp_server.py), E2B, etc.
 
 
