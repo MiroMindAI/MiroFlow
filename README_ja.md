@@ -8,14 +8,11 @@
 
 [![ドキュメント](https://img.shields.io/badge/Documentation-4285F4?style=for-the-badge&logo=gitbook&logoColor=white)](https://miromindai.github.io/MiroFlow/)
 [![デモ](https://img.shields.io/badge/Demo-FFB300?style=for-the-badge&logo=airplayvideo&logoColor=white)](https://dr.miromind.ai/)
-[![モデル](https://img.shields.io/badge/Models-5EDDD2?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/collections/miromind-ai/mirothinker-v02-68af084a18035f57b17cd902)
 [![データ](https://img.shields.io/badge/Data-0040A1?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)
 
 [![GITHUB](https://img.shields.io/badge/Github-24292F?style=for-the-badge&logo=github&logoColor=white)](https://github.com/MiroMindAI)
 [![ウェブサイト](https://img.shields.io/badge/Website-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://miromind.ai/)
 [![DISCORD](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/GPqEnkzQZd)
-[![WeChat](https://img.shields.io/badge/WeChat-07C160?style=for-the-badge&logo=wechat&logoColor=white)](https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/assets/wechat.png)
-[![RedNote](https://img.shields.io/badge/RedNote-FF2442?style=for-the-badge&logo=revoltdotchat&logoColor=white)](https://www.xiaohongshu.com/user/profile/5e353bd80000000001000239)
 
 </div>
 
@@ -34,9 +31,7 @@
 このリポジトリは、MiroMind のリサーチエージェント・プロジェクトの**公式オープンソース**です。複雑な課題（例：将来イベントの予測）を解くために、インターネット深層リサーチを**マルチステップ**で実行できる、**高性能・完全オープンソース**の研究エージェント・システムです。現在、4つのコアコンポーネントを含みます：
 
 * 🤖 **MiroFlow**：オープンソースの研究エージェント・フレームワーク。FutureX、GAIA、HLE、xBench-DeepSearch、BrowserComp など代表的ベンチマークで**再現可能な SOTA 性能**を達成（実装は本リポジトリ）。まずは [[5分でクイックスタート]](#-5分でクイックスタート) をお試しください。
-* 🤔 **MiroThinker**：ツール支援推論をネイティブにサポートする、オープンソースのエージェント基盤モデル。詳細は [MiroThinker](https://github.com/MiroMindAI/mirothinker)。
 * 📊 **MiroVerse**：研究エージェントの学習に使える**14.7万件の高品質データ**を公開。詳細は [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1)。
-* 🚧 **MiroTrain / MiroRL**：研究エージェント・モデルを**安定かつ効率的に学習**させるためのインフラ。詳細は [MiroTrain](https://github.com/MiroMindAI/MiroTrain) / [MiroRL](https://github.com/MiroMindAI/MiroRL)。
 
 ---
 
