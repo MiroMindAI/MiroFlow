@@ -174,7 +174,7 @@ def get(dataset: str):
     ds_gen = _prepare_dataset(env, dataset)
     _prepare_filesystem(env)
     ds_file = env.data_dir / dataset / env.meta_filename
-    with open(ds_file, mode="w") as f:
+    with open(ds_file, mode="w", encoding='utf8') as f:
         for task in ds_gen():
             f.write(task.to_json().decode() + "\n")
     print("\n" + "=" * 80)
