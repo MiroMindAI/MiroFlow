@@ -27,7 +27,8 @@ async def tool_name(param: str) -> str:
     Explanation of the tool, its parameters, and return value.
     """
     tool_result = ...  # Your logic here
-    return tool_result
+    usage = ... # Usage of billing tools
+    return ["text": tool_result, "usage": usage]
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
@@ -75,6 +76,9 @@ sub_agents:
 
 ---
 
+### Step 4: Update Tool Usage Pricing
+
+You need to add your price per unit of usage to `"tool"` in `utils/usage/pricing.json`. This needs to be in the appropriate string format; it can be a formula or a conditional statement. If you need to add other formats, please make the corresponding modifications at `utils/usage/calculate_usage_from_log.py`.
 
 !!! info "Documentation Info"
     **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI

@@ -8,6 +8,7 @@ import json
 import requests
 import datetime
 import calendar
+
 from fastmcp import FastMCP
 from mcp.client.stdio import stdio_client
 from mcp import ClientSession, StdioServerParameters  # (already imported in config.py)
@@ -15,6 +16,7 @@ import wikipedia
 import asyncio
 from .utils.smart_request import smart_request, request_to_json
 from src.logging.logger import setup_mcp_logging
+from collections import Counter
 
 
 SERPER_API_KEY = os.environ.get("SERPER_API_KEY", "")
@@ -40,6 +42,13 @@ REMOVE_ANSWER_BOX = os.environ.get("REMOVE_ANSWER_BOX", "").lower() in (
 # Initialize FastMCP server
 setup_mcp_logging(tool_name=os.path.basename(__file__))
 mcp = FastMCP("searching-mcp-server")
+
+
+def merge_usage(*usage_dicts):
+    total = Counter()
+    for d in usage_dicts:
+        total.update(d)
+    return dict(total)
 
 
 def filter_google_search_result(result_content: str) -> str:
@@ -94,7 +103,7 @@ async def google_search(
     num: int = 10,
     tbs: str = None,
     page: int = 1,
-) -> str:
+) -> dict:
     """Perform google searches via Serper API and retrieve rich results.
     It is able to retrieve organic search results, people also ask, related searches, and knowledge graph.
 
@@ -111,9 +120,10 @@ async def google_search(
         The search results.
     """
     if SERPER_API_KEY == "":
-        return (
-            "[ERROR]: SERPER_API_KEY is not set, google_search tool is not available."
-        )
+        return {
+            "text": "[ERROR]: SERPER_API_KEY is not set, google_search tool is not available.",
+            "usage": {},
+        }
     tool_name = "google_search"
     arguments = {
         "q": q,
@@ -161,19 +171,28 @@ async def google_search(
                     ), "Empty result from google_search tool, please try again."
                     # Apply filtering based on environment variables
                     filtered_result = filter_google_search_result(result_content)
-                    return filtered_result  # Success, exit retry loop
+                    return {
+                        "text": filtered_result,
+                        "usage": {"SERPER": 1},
+                    }  # Success, exit retry loop
         except Exception as error:
             retry_count += 1
             if retry_count >= max_retries:
-                return f"[ERROR]: google_search tool execution failed after {max_retries} attempts: {str(error)}"
+                return {
+                    "text": f"[ERROR]: google_search tool execution failed after {max_retries} attempts: {str(error)}",
+                    "usage": {},
+                }
             # Wait before retrying
             await asyncio.sleep(min(2**retry_count, 60))
 
-    return "[ERROR]: Unknown error occurred in google_search tool, please try again."
+    return {
+        "text": "[ERROR]: Unknown error occurred in google_search tool, please try again.",
+        "usage": {},
+    }
 
 
 @mcp.tool()
-async def wiki_get_page_content(entity: str, first_sentences: int = 10) -> str:
+async def wiki_get_page_content(entity: str, first_sentences: int = 10) -> dict:
     """Get specific Wikipedia page content for the specific entity (people, places, concepts, events) and return structured information.
 
     This tool searches Wikipedia for the given entity and returns either the first few sentences
@@ -222,7 +241,7 @@ async def wiki_get_page_content(entity: str, first_sentences: int = 10) -> str:
 
         result_parts.append(f"URL: {page.url}")
 
-        return "\n\n".join(result_parts)
+        return {"text": "\n\n".join(result_parts), "usage": {}}
 
     except wikipedia.exceptions.DisambiguationError as e:
         options_list = "\n".join(
@@ -238,11 +257,11 @@ async def wiki_get_page_content(entity: str, first_sentences: int = 10) -> str:
             search_results = wikipedia.search(entity, results=5)
             if search_results:
                 output += f"Try to search {entity} in Wikipedia: {search_results}"
-            return output
+            return {"text": output, "usage": {}}
         except Exception:
             pass
 
-        return output
+        return {"text": output, "usage": {}}
 
     except wikipedia.exceptions.PageError:
         # Try a search if direct page lookup fails
@@ -252,39 +271,60 @@ async def wiki_get_page_content(entity: str, first_sentences: int = 10) -> str:
                 suggestion_list = "\n".join(
                     [f"- {result}" for result in search_results[:5]]
                 )
-                return (
-                    f"Page Not Found: No Wikipedia page found for '{entity}'.\n\n"
-                    f"Similar pages found:\n{suggestion_list}\n\n"
-                    f"Try searching for one of these suggestions instead."
-                )
+                return {
+                    "text": (
+                        f"Page Not Found: No Wikipedia page found for '{entity}'.\n\n"
+                        f"Similar pages found:\n{suggestion_list}\n\n"
+                        f"Try searching for one of these suggestions instead."
+                    ),
+                    "usage": {},
+                }
             else:
-                return (
-                    f"Page Not Found: No Wikipedia page found for '{entity}' "
-                    f"and no similar pages were found. Please try a different search term."
-                )
+                return {
+                    "text": (
+                        f"Page Not Found: No Wikipedia page found for '{entity}' "
+                        f"and no similar pages were found. Please try a different search term."
+                    ),
+                    "usage": {},
+                }
         except Exception as search_error:
-            return (
-                f"Page Not Found: No Wikipedia page found for '{entity}'. "
-                f"Search for alternatives also failed: {str(search_error)}"
-            )
+            return {
+                "text": (
+                    f"Page Not Found: No Wikipedia page found for '{entity}'. "
+                    f"Search for alternatives also failed: {str(search_error)}"
+                ),
+                "usage": {},
+            }
 
     except wikipedia.exceptions.RedirectError:
-        return f"Redirect Error: Failed to follow redirect for '{entity}'"
+        return {
+            "text": f"Redirect Error: Failed to follow redirect for '{entity}'",
+            "usage": {},
+        }
 
     except requests.exceptions.RequestException as e:
-        return f"Network Error: Failed to connect to Wikipedia: {str(e)}"
+        return {
+            "text": f"Network Error: Failed to connect to Wikipedia: {str(e)}",
+            "usage": {},
+        }
 
     except wikipedia.exceptions.WikipediaException as e:
-        return f"Wikipedia Error: An error occurred while searching Wikipedia: {str(e)}"
+        return {
+            "text": f"Wikipedia Error: An error occurred while searching Wikipedia: {str(e)}",
+            "usage": {},
+        }
 
     except Exception as e:
-        return f"Unexpected Error: An unexpected error occurred: {str(e)}"
+        return {
+            "text": f"Unexpected Error: An unexpected error occurred: {str(e)}",
+            "usage": {},
+        }
 
 
 @mcp.tool()
 async def search_wiki_revision(
     entity: str, year: int, month: int, max_revisions: int = 50
-) -> str:
+) -> dict:
     """Search for an entity in Wikipedia and return the revision history for a specific month.
 
     Args:
@@ -357,7 +397,7 @@ async def search_wiki_revision(
             "rvprop": "timestamp|ids",
         }
 
-        content = await smart_request(
+        response = await smart_request(
             url=base_url,
             params=params,
             env={
@@ -367,32 +407,45 @@ async def search_wiki_revision(
                 "JINA_BASE_URL": JINA_BASE_URL,
             },
         )
+        content, usage = response.get("text", None), response.get("usage", {})
         data = request_to_json(content)
 
         # Check for API errors
         if "error" in data:
-            return f"[ERROR]: Wikipedia API Error: {data['error'].get('info', 'Unknown error')}"
+            return {
+                "text": f"[ERROR]: Wikipedia API Error: {data['error'].get('info', 'Unknown error')}",
+                "usage": usage,
+            }
 
         # Process the response
         pages = (data.get("query") or {}).get("pages", {})
 
         if not pages:
-            return f"[ERROR]: No results found for entity '{entity}'"
+            return {
+                "text": f"[ERROR]: No results found for entity '{entity}'",
+                "usage": usage,
+            }
 
         # Check if page exists
         page_id = list(pages.keys())[0]
         if page_id == "-1":
-            return f"[ERROR]: Page Not Found: No Wikipedia page found for '{entity}'"
+            return {
+                "text": f"[ERROR]: Page Not Found: No Wikipedia page found for '{entity}'",
+                "usage": usage,
+            }
 
         page_info = pages[page_id]
         page_title = page_info.get("title", entity)
 
         if "revisions" not in page_info or not page_info["revisions"]:
-            return (
-                adjustment_msg + f"Page Title: {page_title}\n\n"
-                f"No revisions found for '{entity}' in {year}-{month:02d}.\n\n"
-                f"The page may not have been edited during this time period."
-            )
+            return {
+                "text": (
+                    adjustment_msg + f"Page Title: {page_title}\n\n"
+                    f"No revisions found for '{entity}' in {year}-{month:02d}.\n\n"
+                    f"The page may not have been edited during this time period."
+                ),
+                "usage": usage,
+            }
 
         # Format the results
         result_parts = [
@@ -426,27 +479,42 @@ async def search_wiki_revision(
         if revisions_details:
             result_parts.append("Revisions:\n" + "\n\n".join(revisions_details))
 
-        return (
-            adjustment_msg
-            + "\n\n".join(result_parts)
-            + "\n\nHint: You can use the `scrape_website` tool to get the webpage content of a URL."
-        )
+        return {
+            "text": (
+                adjustment_msg
+                + "\n\n".join(result_parts)
+                + "\n\nHint: You can use the `scrape_website` tool to get the webpage content of a URL."
+            ),
+            "usage": usage,
+        }
 
     except requests.exceptions.Timeout:
-        return f"[ERROR]: Network Error: Request timed out while fetching revision history for '{entity}'"
+        return {
+            "text": f"[ERROR]: Network Error: Request timed out while fetching revision history for '{entity}'",
+            "usage": {},
+        }
 
     except requests.exceptions.RequestException as e:
-        return f"[ERROR]: Network Error: Failed to connect to Wikipedia: {str(e)}"
+        return {
+            "text": f"[ERROR]: Network Error: Failed to connect to Wikipedia: {str(e)}",
+            "usage": {},
+        }
 
     except ValueError as e:
-        return f"[ERROR]: Date Error: Invalid date values - {str(e)}"
+        return {
+            "text": f"[ERROR]: Date Error: Invalid date values - {str(e)}",
+            "usage": {},
+        }
 
     except Exception as e:
-        return f"[ERROR]: Unexpected Error: An unexpected error occurred: {str(e)}"
+        return {
+            "text": f"[ERROR]: Unexpected Error: An unexpected error occurred: {str(e)}",
+            "usage": {},
+        }
 
 
 @mcp.tool()
-async def search_archived_webpage(url: str, year: int, month: int, day: int) -> str:
+async def search_archived_webpage(url: str, year: int, month: int, day: int) -> dict:
     """Search the Wayback Machine (archive.org) for archived versions of a webpage, optionally for a specific date.
 
     Args:
@@ -459,9 +527,15 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
         str: Formatted archive information including archived URL, timestamp, and status.
              Returns error message if URL not found or other issues occur.
     """
+
+    usage = {}
+
     # Handle empty URL
     if not url:
-        return f"[ERROR]: Invalid URL: '{url}'. URL cannot be empty."
+        return {
+            "text": f"[ERROR]: Invalid URL: '{url}'. URL cannot be empty.",
+            "usage": usage,
+        }
 
     # Auto-add https:// if no protocol is specified
     protocol_hint = ""
@@ -521,7 +595,10 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
             # Validate the final adjusted date
             datetime.datetime(year, month, day)
         except ValueError as e:
-            return f"[ERROR]: Invalid date: {year}-{month:02d}-{day:02d}. {str(e)}"
+            return {
+                "text": f"[ERROR]: Invalid date: {year}-{month:02d}-{day:02d}. {str(e)}",
+                "usage": usage,
+            }
 
         # Prepare adjustment message if any changes were made
         if adjustments:
@@ -538,7 +615,7 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
             retry_count = 0
             # retry 5 times if the response is not valid
             while retry_count < 5:
-                content = await smart_request(
+                response = await smart_request(
                     url=base_url,
                     params={"url": url, "timestamp": date},
                     env={
@@ -548,7 +625,12 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
                         "JINA_BASE_URL": JINA_BASE_URL,
                     },
                 )
+                content, usage_temp = (
+                    response.get("text", None),
+                    response.get("usage", {}),
+                )
                 data = request_to_json(content)
+                usage = merge_usage(usage, usage_temp)
                 if (
                     "archived_snapshots" in data
                     and "closest" in data["archived_snapshots"]
@@ -564,17 +646,20 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
                 available = closest.get("available", True)
 
                 if not available:
-                    return (
-                        hint_message
-                        + adjustment_msg
-                        + (
-                            f"Archive Status: Snapshot exists but is not available\n\n"
-                            f"Original URL: {url}\n"
-                            f"Requested Date: {year:04d}-{month:02d}-{day:02d}\n"
-                            f"Closest Snapshot: {archived_timestamp}\n\n"
-                            f"Try a different date"
-                        )
-                    )
+                    return {
+                        "text": (
+                            hint_message
+                            + adjustment_msg
+                            + (
+                                f"Archive Status: Snapshot exists but is not available\n\n"
+                                f"Original URL: {url}\n"
+                                f"Requested Date: {year:04d}-{month:02d}-{day:02d}\n"
+                                f"Closest Snapshot: {archived_timestamp}\n\n"
+                                f"Try a different date"
+                            )
+                        ),
+                        "usage": usage,
+                    }
 
                 # Format timestamp for better readability
                 try:
@@ -583,25 +668,28 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
                 except Exception:
                     formatted_time = archived_timestamp
 
-                return (
-                    protocol_hint
-                    + hint_message
-                    + adjustment_msg
-                    + (
-                        f"Archive Found: Archived version located\n\n"
-                        f"Original URL: {url}\n"
-                        f"Requested Date: {year:04d}-{month:02d}-{day:02d}\n"
-                        f"Archived URL: {archived_url}\n"
-                        f"Archived Timestamp: {formatted_time}\n"
-                    )
-                    + "\n\nHint: You can also use the `scrape_website` tool to get the webpage content of a URL."
-                )
+                return {
+                    "text": (
+                        protocol_hint
+                        + hint_message
+                        + adjustment_msg
+                        + (
+                            f"Archive Found: Archived version located\n\n"
+                            f"Original URL: {url}\n"
+                            f"Requested Date: {year:04d}-{month:02d}-{day:02d}\n"
+                            f"Archived URL: {archived_url}\n"
+                            f"Archived Timestamp: {formatted_time}\n"
+                        )
+                        + "\n\nHint: You can also use the `scrape_website` tool to get the webpage content of a URL."
+                    ),
+                    "usage": usage,
+                }
 
         # Search without specific date (most recent)
         retry_count = 0
         # retry 5 times if the response is not valid
         while retry_count < 5:
-            content = await smart_request(
+            response = await smart_request(
                 url=base_url,
                 params={"url": url},
                 env={
@@ -611,6 +699,8 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
                     "JINA_BASE_URL": JINA_BASE_URL,
                 },
             )
+            content, usage_temp = response.get("text", None), response.get("usage", {})
+            usage = merge_usage(usage, usage_temp)
             data = request_to_json(content)
             if "archived_snapshots" in data and "closest" in data["archived_snapshots"]:
                 break
@@ -624,16 +714,19 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
             available = closest.get("available", True)
 
             if not available:
-                return (
-                    protocol_hint
-                    + hint_message
-                    + (
-                        f"Archive Status: Most recent snapshot exists but is not available\n\n"
-                        f"Original URL: {url}\n"
-                        f"Most Recent Snapshot: {archived_timestamp}\n\n"
-                        f"The URL may have been archived but access is restricted"
-                    )
-                )
+                return {
+                    "text": (
+                        protocol_hint
+                        + hint_message
+                        + (
+                            f"Archive Status: Most recent snapshot exists but is not available\n\n"
+                            f"Original URL: {url}\n"
+                            f"Most Recent Snapshot: {archived_timestamp}\n\n"
+                            f"The URL may have been archived but access is restricted"
+                        )
+                    ),
+                    "usage": usage,
+                }
 
             # Format timestamp for better readability
             try:
@@ -642,43 +735,58 @@ async def search_archived_webpage(url: str, year: int, month: int, day: int) -> 
             except Exception:
                 formatted_time = archived_timestamp
 
-            return (
-                protocol_hint
-                + hint_message
-                + (
-                    f"Archive Found: Most recent archived version\n\n"
-                    f"Original URL: {url}\n"
-                    f"Archived URL: {archived_url}\n"
-                    f"Archived Timestamp: {formatted_time}\n"
-                )
-                + "\n\nHint: You can also use the `scrape_website` tool to get the webpage content of a URL."
-            )
+            return {
+                "text": (
+                    protocol_hint
+                    + hint_message
+                    + (
+                        f"Archive Found: Most recent archived version\n\n"
+                        f"Original URL: {url}\n"
+                        f"Archived URL: {archived_url}\n"
+                        f"Archived Timestamp: {formatted_time}\n"
+                    )
+                    + "\n\nHint: You can also use the `scrape_website` tool to get the webpage content of a URL."
+                ),
+                "usage": usage,
+            }
         else:
-            return (
-                protocol_hint
-                + hint_message
-                + (
-                    f"Archive Not Found: No archived versions available\n\n"
-                    f"Original URL: {url}\n\n"
-                    f"The URL '{url}' has not been archived by the Wayback Machine.\n"
-                    f"You may want to:\n"
-                    f"- Check if the URL is correct\n"
-                    f"- Try a different URL and date\n"
-                )
-            )
+            return {
+                "text": (
+                    protocol_hint
+                    + hint_message
+                    + (
+                        f"Archive Not Found: No archived versions available\n\n"
+                        f"Original URL: {url}\n\n"
+                        f"The URL '{url}' has not been archived by the Wayback Machine.\n"
+                        f"You may want to:\n"
+                        f"- Check if the URL is correct\n"
+                        f"- Try a different URL and date\n"
+                    )
+                ),
+                "usage": usage,
+            }
 
     except requests.exceptions.RequestException as e:
-        return f"[ERROR]: Network Error: Failed to connect to Wayback Machine: {str(e)}"
+        return {
+            "text": f"[ERROR]: Network Error: Failed to connect to Wayback Machine: {str(e)}",
+            "usage": usage,
+        }
 
     except ValueError as e:
-        return f"[ERROR]: Data Error: Failed to parse response from Wayback Machine: {str(e)}"
+        return {
+            "text": f"[ERROR]: Data Error: Failed to parse response from Wayback Machine: {str(e)}",
+            "usage": usage,
+        }
 
     except Exception as e:
-        return f"[ERROR]: Unexpected Error: An unexpected error occurred: {str(e)}"
+        return {
+            "text": f"[ERROR]: Unexpected Error: An unexpected error occurred: {str(e)}",
+            "usage": usage,
+        }
 
 
 @mcp.tool()
-async def scrape_website(url: str) -> str:
+async def scrape_website(url: str) -> dict:
     """This tool is used to scrape a website for its content. Search engines are not supported by this tool. This tool can also be used to get YouTube video non-visual information (however, it may be incomplete), such as video subtitles, titles, descriptions, key moments, etc.
 
     Args:
