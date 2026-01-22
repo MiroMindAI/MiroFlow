@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "miroflow": {
+      "command": "uv",
+      "args": ["run", "python", "-m", "src.mcp_server.server", "--transport", "stdio"],
+      "env": {
+        "OPENROUTER_API_KEY": "${OPENROUTER_API_KEY}",
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "SERPER_API_KEY": "${SERPER_API_KEY}",
+        "JINA_API_KEY": "${JINA_API_KEY}"
+      }
+    }
+  }
+}
