@@ -26,7 +26,7 @@ from src.utils.task_utils import run_single_task
 
 
 # Configuration constants
-CONFIG_PATH = "config/agent-gaia-validation-gpt5-single-agent.yaml"
+CONFIG_PATH = "config/agent_gaia-validation-text-only_mirothinker_single_agent.yaml"
 OVERRIDES = ["benchmark.execution.max_concurrent=1"]
 
 # Task constants
@@ -36,10 +36,9 @@ OVERRIDES = ["benchmark.execution.max_concurrent=1"]
 
 # Example of a task with file input
 TASK_DESCRIPTION = (
-    "What is the first country listed in the XLSX file "
-    "that have names starting with Co?"
+    "I’m researching species that became invasive after people who kept them as pets released them. There’s a certain species of fish that was popularized as a pet by being the main character of the movie Finding Nemo. According to the USGS, where was this fish found as a nonnative species, before the year 2020? I need the answer formatted as the five-digit zip codes of the places the species was found, separated by commas if there is more than one place."
 )
-TASK_FILE_PATH = os.path.abspath('data/FSI-2023-DOWNLOAD.xlsx')
+# TASK_FILE_PATH = os.path.abspath('data/FSI-2023-DOWNLOAD.xlsx')
 
 
 if __name__ == "__main__":
@@ -66,7 +65,7 @@ if __name__ == "__main__":
             task=Task(
                 task_id="task_1",
                 task_question=TASK_DESCRIPTION,
-                file_path=TASK_FILE_PATH
+                # file_path=TASK_FILE_PATH
             ),
             attempt_num=1
         )
