@@ -1,0 +1,144 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "build": {
+      "mode": "primary",
+      "description": "Primary development agent with full tool access. Use for implementation, feature building, and code changes.",
+      "temperature": 0.3,
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "*": "allow"
+        }
+      }
+    },
+    "plan": {
+      "mode": "primary",
+      "description": "Analysis and planning agent. Reviews code and creates plans without making changes.",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "deny",
+          "git status*": "allow",
+          "git diff*": "allow",
+          "git log*": "allow",
+          "python --version": "allow",
+          "pip list": "allow",
+          "uv pip list": "allow"
+        }
+      }
+    },
+    "oracle": {
+      "mode": "subagent",
+      "description": "Expert technical advisor for architecture decisions, code analysis, and engineering guidance",
+      "permission": {
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "implementor": {
+      "mode": "subagent",
+      "description": "End-to-end feature implementation specialist with TDD discipline",
+      "permission": {
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "tests": {
+      "mode": "subagent",
+      "description": "Test strategy, generation, and repair specialist",
+      "permission": {
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "document-writer": {
+      "mode": "subagent",
+      "description": "Technical writer for README, API docs, and user guides",
+      "permission": {
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "git-ops": {
+      "mode": "subagent",
+      "description": "Git operations specialist for commits, branches, and PRs",
+      "permission": {
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "code-review": {
+      "mode": "subagent",
+      "description": "Code review specialist for PRs and quality validation",
+      "permission": {
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "security-audit": {
+      "mode": "subagent",
+      "description": "Security vulnerability assessment and remediation specialist",
+      "permission": {
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "debug": {
+      "mode": "subagent",
+      "description": "Bug investigation and debugging specialist",
+      "permission": {
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "refactor": {
+      "mode": "subagent",
+      "description": "Code refactoring specialist with staged execution",
+      "permission": {
+        "task": {
+          "*": "deny"
+        }
+      }
+    },
+    "pixel-perfect": {
+      "mode": "subagent",
+      "description": "Visual QA agent comparing implemented UI with Figma designs for pixel-perfect accuracy",
+      "permission": {
+        "task": {
+          "*": "deny",
+          "implementor": "allow"
+        }
+      }
+    }
+  },
+  "permission": {
+    "edit": "allow",
+    "bash": {
+      "*": "allow",
+      "rm -rf /*": "deny",
+      "rm -rf /": "deny"
+    },
+    "webfetch": "allow"
+  },
+  "tools": {
+    "write": true,
+    "edit": true,
+    "bash": true,
+    "glob": true,
+    "grep": true,
+    "read": true,
+    "webfetch": true,
+    "todowrite": true,
+    "todoread": true
+  }
+}
