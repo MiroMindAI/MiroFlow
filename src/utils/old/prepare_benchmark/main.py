@@ -88,7 +88,7 @@ def _prepare_dataset(env: _Env, dataset: str):
         case "gaia-val":
 
             def gen():
-                for x in gen_gaia_validation(env.hf_token):
+                for x in gen_gaia_validation(env.hf_token, env.data_dir):
                     yield x
 
             return gen
