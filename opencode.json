@@ -119,6 +119,17 @@
           "implementor": "allow"
         }
       }
+    },
+    "research": {
+      "mode": "primary",
+      "description": "Research agent using MiroFlow for complex web research, document analysis, and multi-step reasoning tasks. Use miroflow MCP tools: run_agent, list_configs, get_task_status.",
+      "temperature": 0.3,
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "*": "deny"
+        }
+      }
     }
   },
   "permission": {
