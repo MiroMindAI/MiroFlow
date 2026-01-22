@@ -234,28 +234,37 @@ class Evaluator:
         if (gaia_val_dir / "standardized_data.jsonl").exists():
             return
         
-        print("Downloading gaia-val from HuggingFace...")
-        zip_file = self.data_dir.parent / "gaia-val.zip"
+        # Determine which dataset to download based on benchmark name
+        is_text_only = "text-only" in self.benchmark_name.lower()
+        if is_text_only:
+            dataset_name = "gaia-val-text-only"
+            zip_filename = "gaia-val-text-only.zip"
+        else:
+            dataset_name = "gaia-val"
+            zip_filename = "gaia-val.zip"
+        
+        print(f"Downloading {dataset_name} from HuggingFace...")
+        zip_file = self.data_dir.parent / zip_filename
         
         try:
             # Download
+            download_url = f"https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/{zip_filename}"
             subprocess.run(
-                ["wget", "--no-check-certificate", "-O", str(zip_file),
-                 "https://huggingface.co/datasets/miromind-ai/MiroFlow-Benchmarks/resolve/main/gaia-val.zip"],
+                ["wget", "--no-check-certificate", "-O", str(zip_file), download_url],
                 check=True, capture_output=True, text=True
             )
             
-            # Extract to parent directory (zip contains gaia-val/ folder)
-            # This ensures final structure is data/gaia-val/, not data/gaia-val/gaia-val/
+            # Extract to parent directory (zip contains dataset folder)
+            # This ensures final structure is data/{dataset_name}/, not data/{dataset_name}/{dataset_name}/
             subprocess.run(
                 ["unzip", "-P", "pf4*", "-d", str(self.data_dir.parent), str(zip_file)],
                 check=True, capture_output=True, text=True
             )
             
-            print(f"Successfully extracted gaia-val to {gaia_val_dir}")
+            print(f"Successfully extracted {dataset_name} to {gaia_val_dir}")
             
         except Exception as e:
-            print(f"Failed to download gaia-val: {e}")
+            print(f"Failed to download {dataset_name}: {e}")
             raise
         finally:
             # Cleanup

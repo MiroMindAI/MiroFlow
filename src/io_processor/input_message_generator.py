@@ -23,8 +23,8 @@ class InputMessageGenerator(BaseIOProcessor):
     USE_PROPAGATE_MODULE_CONFIGS = ("prompt",)
     
     async def run_internal(self, ctx: AgentContext) -> AgentContext:
-        if ctx.get('task_file_name') is not None:
-            task_file_name = ctx['task_file_name']
+        task_file_name = ctx.get('task_file_name')
+        if task_file_name is not None and task_file_name.strip():
             task_file_type = get_file_type(task_file_name)
             file_input = dict(
                 file_type=task_file_type, 

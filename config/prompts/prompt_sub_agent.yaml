@@ -17,7 +17,7 @@ template:
       {{ task_description }}
 
     file_input_prompt: |
-      {% if file_input is defined and file_input is not none %}
+      {% if file_input is defined and file_input is not none and file_input.file_name is defined and file_input.file_name %}
       Note: A {{ file_input.file_type }} file '{{ file_input.file_name }}' is associated with this task. If you need worker agent to read its content, you should provide the complete local system file path: {{ file_input.absolute_file_path }}.\n\n
       {% endif %}
   
