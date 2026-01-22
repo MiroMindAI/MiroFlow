@@ -8,6 +8,8 @@ import pathlib
 import os
 import uuid
 import traceback
+import json
+from datetime import datetime
 from typing import Any
 from concurrent.futures import ThreadPoolExecutor
 
@@ -28,25 +30,46 @@ logger = bootstrap_logger(level=LOGGER_LEVEL)
 
 mcp = FastMCP(
     "MiroFlow",
-    instructions="MiroFlow is a high-performance research agent framework for complex reasoning tasks. Use run_agent to execute research tasks with web search, file reading, and multi-step reasoning capabilities.",
+    instructions="""MiroFlow is an AI orchestration framework that manages complex multi-step tasks.
+
+IMPORTANT FOR VIBE-KANBAN INTEGRATION:
+- Use run_agent() to delegate complex research/analysis tasks
+- Use get_task_status() to monitor progress and get results
+- Use list_sub_agents() to see available specialized agents
+- Tasks run asynchronously - check status periodically until completed
+
+WORKFLOW:
+1. Call run_agent(task="...", wait=False) to start a task
+2. Poll get_task_status(task_id) every few seconds
+3. When status="completed", read the answer from the result
+
+AVAILABLE SUB-AGENTS:
+- agent-code-review: Code quality analysis, best practices
+- agent-pixel-perfect: UI/Figma design comparison
+- agent-ios-developer: iOS/Swift development expertise
+- agent-rust-developer: Rust development expertise  
+- agent-researcher: Web research, documentation lookup
+""",
 )
 
 _pipeline_cache: dict[str, Any] = {}
-_config_cache: dict[str, DictConfig] = {}
+_config_cache: dict[str, Any] = {}
 _executor = ThreadPoolExecutor(max_workers=4)
 
+_task_progress: dict[str, dict[str, Any]] = {}
 
-def _load_config(config_name: str) -> DictConfig:
+
+def _load_config(config_name: str):
     if config_name in _config_cache:
         return _config_cache[config_name]
 
     GlobalHydra.instance().clear()
     with hydra.initialize_config_dir(config_dir=config_path(), version_base=None):
         cfg = hydra.compose(config_name=config_name)
-        cfg = OmegaConf.to_container(cfg, resolve=True)
-        cfg = OmegaConf.create(cfg)
-        _config_cache[config_name] = cfg
-    return cfg
+        resolved = OmegaConf.to_container(cfg, resolve=True)
+        result = DictConfig(resolved)
+        _config_cache[config_name] = result
+    return result
 
 
 def _get_or_create_pipeline(config_name: str) -> tuple[Any, Any, Any, DictConfig]:
@@ -73,35 +96,65 @@ _task_results: dict[str, dict[str, Any]] = {}
 async def run_agent(
     task: str,
     task_file: str = "",
-    config_name: str = "agent_quickstart_reading",
+    config_name: str = "agent_llm_opencode_opus45",
     task_id: str = "",
     wait: bool = False,
+    sub_agent: str = "",
 ) -> dict[str, str]:
     """
     Execute a MiroFlow research agent to perform complex multi-step tasks.
 
+    IMPORTANT: For Vibe-Kanban orchestration, use wait=False and poll get_task_status().
+
     Args:
         task: The task description or question for the agent to solve.
         task_file: Optional path to a file associated with the task.
-        config_name: Agent configuration (agent_quickstart_reading, agent_quickstart_search).
+        config_name: Agent configuration (default: agent_llm_opencode_opus45).
         task_id: Optional unique identifier. Auto-generated if not provided.
-        wait: If True, wait for completion. If False, return immediately with task_id.
+        wait: If True, wait for completion. If False, return immediately with task_id for polling.
+        sub_agent: Optional sub-agent to use (agent-code-review, agent-pixel-perfect, agent-ios-developer, agent-rust-developer, agent-researcher).
 
     Returns:
-        Dictionary with task status. Use get_task_status to check results if wait=False.
+        Dictionary with task_id and status. Poll get_task_status(task_id) until status="completed".
+
+    Example workflow:
+        1. result = run_agent(task="Review this code for bugs", wait=False)
+        2. task_id = result["task_id"]
+        3. Loop: status = get_task_status(task_id) until status["status"] == "completed"
+        4. Read status["answer"] for the final result
     """
     if not task_id:
         task_id = f"mcp_{uuid.uuid4().hex[:8]}"
 
     logger.info(f"[MCP Server] Starting task: {task_id}")
 
+    _task_progress[task_id] = {
+        "task_id": task_id,
+        "status": "initializing",
+        "started_at": datetime.now().isoformat(),
+        "task": task[:200] + "..." if len(task) > 200 else task,
+        "sub_agent": sub_agent or "main",
+        "steps_completed": 0,
+        "current_step": "Initializing pipeline...",
+    }
+
     if not wait:
 
         async def run_in_background():
             try:
-                result = await _execute_task(task, task_file, config_name, task_id)
+                _task_progress[task_id]["status"] = "running"
+                _task_progress[task_id]["current_step"] = "Executing agent..."
+
+                result = await _execute_task(
+                    task, task_file, config_name, task_id, sub_agent
+                )
+
+                _task_progress[task_id]["status"] = "completed"
+                _task_progress[task_id]["completed_at"] = datetime.now().isoformat()
                 _task_results[task_id] = result
             except Exception as e:
+                _task_progress[task_id]["status"] = "failed"
+                _task_progress[task_id]["error"] = str(e)
                 _task_results[task_id] = {
                     "task_id": task_id,
                     "status": "failed",
@@ -117,10 +170,11 @@ async def run_agent(
         return {
             "task_id": task_id,
             "status": "started",
-            "message": f"Task started in background. Use get_task_status('{task_id}') to check progress.",
+            "message": f"Task started. Poll get_task_status('{task_id}') until status='completed'.",
+            "sub_agent": sub_agent or "main",
         }
 
-    return await _execute_task(task, task_file, config_name, task_id)
+    return await _execute_task(task, task_file, config_name, task_id, sub_agent)
 
 
 async def _execute_task(
@@ -128,6 +182,7 @@ async def _execute_task(
     task_file: str,
     config_name: str,
     task_id: str,
+    sub_agent: str = "",
 ) -> dict[str, Any]:
     try:
         main_agent_tool_manager, sub_agent_tool_managers, output_formatter, cfg = (
@@ -137,6 +192,9 @@ async def _execute_task(
         logs_dir = pathlib.Path(cfg.output_dir)
         logs_dir.mkdir(parents=True, exist_ok=True)
         log_path = logs_dir / f"{task_id}.log"
+
+        if sub_agent and sub_agent in (sub_agent_tool_managers or {}):
+            _task_progress[task_id]["current_step"] = f"Running sub-agent: {sub_agent}"
 
         final_summary, final_boxed_answer, log_file_path = await execute_task_pipeline(
             cfg=cfg,
@@ -158,6 +216,7 @@ async def _execute_task(
             "task_id": task_id,
             "log_path": str(log_file_path),
             "status": "completed",
+            "sub_agent": sub_agent or "main",
         }
 
     except Exception as e:
@@ -178,44 +237,43 @@ async def list_configs() -> list[dict[str, str]]:
     config_dir = pathlib.Path(config_path())
     configs = []
 
-    for f in config_dir.glob("agent_quickstart*.yaml"):
-        name = f.stem
-        configs.append(
-            {
-                "name": name,
-                "description": _get_config_description(name),
-            }
-        )
+    priority_configs = [
+        "agent_llm_opencode_opus45",
+        "agent_quickstart_reading",
+        "agent_quickstart_search",
+    ]
+    for name in priority_configs:
+        if (config_dir / f"{name}.yaml").exists():
+            configs.append(
+                {
+                    "name": name,
+                    "description": _get_config_description(name),
+                }
+            )
 
     return configs
 
 
 def _get_config_description(name: str) -> str:
     descriptions = {
-        "agent_quickstart_reading": "Document analysis with file reading capabilities",
-        "agent_quickstart_search": "Web search and research tasks",
-        "agent_quickstart_single_agent": "Simple single-agent mode for basic tasks",
+        "agent_llm_opencode_opus45": "Claude Opus 4.5 via OpenCode OAuth (default, recommended)",
+        "agent_quickstart_reading": "Document analysis with file reading (OpenRouter)",
+        "agent_quickstart_search": "Web search and research tasks (OpenRouter)",
+        "agent_quickstart_single_agent": "Simple single-agent mode (OpenRouter)",
     }
     return descriptions.get(name, "Custom agent configuration")
 
 
 @mcp.tool()
 async def get_task_status(task_id: str) -> dict[str, Any]:
-    """
-    Get the status and results of a task.
+    """Get the status and results of a running or completed task. Poll this until status='completed'."""
+    if task_id in _task_progress:
+        progress = _task_progress[task_id].copy()
 
-    Args:
-        task_id: The unique identifier of the task.
+        if task_id in _task_results:
+            progress.update(_task_results[task_id])
 
-    Returns:
-        Dictionary with task status and results.
-    """
-    if task_id in _running_tasks:
-        return {
-            "task_id": task_id,
-            "status": "running",
-            "message": "Task is still running",
-        }
+        return progress
 
     if task_id in _task_results:
         return _task_results[task_id]
@@ -231,15 +289,13 @@ async def get_task_status(task_id: str) -> dict[str, Any]:
         }
 
     try:
-        import json
-
         with open(log_file, "r") as f:
             log_data = json.load(f)
 
         return {
             "task_id": task_id,
             "status": log_data.get("status", "unknown"),
-            "final_answer": log_data.get("final_boxed_answer", ""),
+            "answer": log_data.get("final_boxed_answer", ""),
         }
     except Exception as e:
         return {
@@ -247,6 +303,38 @@ async def get_task_status(task_id: str) -> dict[str, Any]:
             "status": "error",
             "message": f"Failed to read log: {str(e)}",
         }
+
+
+@mcp.tool()
+async def list_sub_agents() -> list[dict[str, str]]:
+    """List available sub-agents for specialized tasks."""
+    return [
+        {
+            "name": "agent-code-review",
+            "description": "Code review, quality analysis, best practices, bug detection",
+            "tools": "reading, searching, context7, code execution",
+        },
+        {
+            "name": "agent-pixel-perfect",
+            "description": "UI/UX comparison with Figma designs, visual QA",
+            "tools": "reading, image-video, talk-to-figma",
+        },
+        {
+            "name": "agent-ios-developer",
+            "description": "iOS/Swift/SwiftUI development, Apple frameworks",
+            "tools": "reading, searching, context7, code execution",
+        },
+        {
+            "name": "agent-rust-developer",
+            "description": "Rust development, systems programming, cargo ecosystem",
+            "tools": "reading, searching, context7, code execution",
+        },
+        {
+            "name": "agent-researcher",
+            "description": "Web research, documentation lookup, information gathering",
+            "tools": "searching, reading, context7, playwright browser",
+        },
+    ]
 
 
 @mcp.tool()

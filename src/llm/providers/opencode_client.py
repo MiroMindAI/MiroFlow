@@ -70,9 +70,7 @@ class OpenCodeClient(LLMProviderClientBase):
     def _create_client(self, config: DictConfig):
         opencode_path = self.cfg.llm.get("opencode_path", "opencode")
         result = subprocess.run(
-            [opencode_path, "--version"],
-            capture_output=True,
-            text=True
+            [opencode_path, "--version"], capture_output=True, text=True
         )
         if result.returncode != 0:
             raise RuntimeError(f"OpenCode not found or not working: {result.stderr}")
@@ -80,9 +78,7 @@ class OpenCodeClient(LLMProviderClientBase):
         return opencode_path
 
     def _build_prompt_from_messages(
-        self,
-        system_prompt: str,
-        messages: List[Dict[str, Any]]
+        self, system_prompt: str, messages: List[Dict[str, Any]]
     ) -> str:
         parts = []
 
@@ -120,20 +116,23 @@ class OpenCodeClient(LLMProviderClientBase):
         cmd = [
             opencode_path,
             "run",
-            "--model", model,
-            "--format", "json",
-            prompt
+            "--model",
+            model,
+            "--format",
+            "json",
         ]
 
-        logger.debug(f"Running OpenCode: {' '.join(cmd[:5])}...")
+        logger.info(f"Running OpenCode with model: {model}")
+        logger.debug(f"Prompt length: {len(prompt)} chars")
 
         process = await asyncio.create_subprocess_exec(
             *cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            stdin=asyncio.subprocess.PIPE,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
         )
 
-        stdout, stderr = await process.communicate()
+        stdout, stderr = await process.communicate(input=prompt.encode())
 
         if process.returncode != 0 and not stdout:
             error_msg = stderr.decode() if stderr else "Unknown error"
@@ -170,7 +169,9 @@ class OpenCodeClient(LLMProviderClientBase):
 
                 elif event_type == "error":
                     error_data = event.get("error", {})
-                    error_msg = error_data.get("data", {}).get("message", str(error_data))
+                    error_msg = error_data.get("data", {}).get(
+                        "message", str(error_data)
+                    )
                     if "context" in error_msg.lower() or "token" in error_msg.lower():
                         raise ContextLimitError(error_msg)
                     raise RuntimeError(f"OpenCode API error: {error_msg}")
@@ -217,12 +218,16 @@ class OpenCodeClient(LLMProviderClientBase):
                 logger.warning("OpenCode returned empty response")
 
             message = OpenCodeMessage(role="assistant", content=response.text)
-            choice = OpenCodeChoice(message=message, finish_reason=response.finish_reason)
+            choice = OpenCodeChoice(
+                message=message, finish_reason=response.finish_reason
+            )
             usage = OpenCodeUsage(
                 prompt_tokens=response.input_tokens,
                 completion_tokens=response.output_tokens,
                 prompt_tokens_details={"cached_tokens": response.cached_tokens},
-                completion_tokens_details={"reasoning_tokens": response.reasoning_tokens},
+                completion_tokens_details={
+                    "reasoning_tokens": response.reasoning_tokens
+                },
             )
 
             return OpenCodeAPIResponse(choices=[choice], usage=usage)
@@ -266,6 +271,7 @@ class OpenCodeClient(LLMProviderClientBase):
 
     def extract_tool_calls_info(self, llm_response, assistant_response_text):
         from src.utils.parsing_utils import parse_llm_response_for_tool_calls
+
         return parse_llm_response_for_tool_calls(assistant_response_text)
 
     def update_message_history(

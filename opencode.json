@@ -151,5 +151,11 @@
     "webfetch": true,
     "todowrite": true,
     "todoread": true
+  },
+  "mcp": {
+    "miroflow": {
+      "type": "remote",
+      "url": "http://localhost:8000/mcp"
+    }
   }
 }
