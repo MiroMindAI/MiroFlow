@@ -1,0 +1,5 @@
+name: "tool-playwright"
+tool_command: "npx"
+args:
+  - "@playwright/mcp@latest"
+env:

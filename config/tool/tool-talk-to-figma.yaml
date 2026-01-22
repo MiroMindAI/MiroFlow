@@ -1,0 +1,5 @@
+name: "tool-talk-to-figma"
+tool_command: "bunx"
+args:
+  - "cursor-talk-to-figma-mcp@latest"
+env:

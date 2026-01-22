@@ -1,0 +1,6 @@
+name: "tool-context7"
+type: "http"
+url: "https://mcp.context7.com/mcp"
+headers:
+  CONTEXT7_API_KEY: "${oc.env:CONTEXT7_API_KEY}"
+env:
