@@ -1,6 +1,6 @@
 # config/llm/base.yaml
 provider_class: "MiroThinkerSGLangClient"
-model_name: null
+model_name: mirothinker-v1.5
 api_key: ${oc.env:OAI_MIROTHINKER_API_KEY,???}
 base_url: ${oc.env:OAI_MIROTHINKER_BASE_URL,http://localhost:61005/v1}
 
