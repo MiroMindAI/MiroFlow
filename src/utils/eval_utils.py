@@ -194,7 +194,12 @@ class Evaluator:
         self.data_dir = Path(cfg.data.data_dir)
         self.benchmark_name = cfg.name
         self.pass_at_k = cfg.execution.get("pass_at_k", 1)
-        self.evaluation_llm = AsyncOpenAI(api_key=cfg.openai_api_key)
+        # Support custom base_url for OpenAI-compatible APIs
+        openai_base_url = cfg.get("openai_base_url", None)
+        self.evaluation_llm = AsyncOpenAI(
+            api_key=cfg.openai_api_key,
+            base_url=openai_base_url if openai_base_url else None
+        )
         self.tasks: List[Task] = []
         
         metadata_file = cfg.data.get("metadata_file")
@@ -480,7 +485,8 @@ def get_verifier(benchmark_name: str, openai_client: Optional[AsyncOpenAI] = Non
         return XBenchVerifier(openai_client)
     if "browsecomp" in benchmark_name or "hle" in benchmark_name:
         return HLEVerifier(openai_client)
-    return None
+    # Default to SimpleQA verifier
+    return SimpleQAVerifier(openai_client)
 
 
 async def verify_answer_for_benchmark(

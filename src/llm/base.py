@@ -61,6 +61,7 @@ class LLMClientBase(ABC):
 
         self.use_tool_calls: Optional[bool] = self.cfg.use_tool_calls
         self.disable_cache_control: bool = self.cfg.disable_cache_control
+        self.keep_tool_result: int = self.cfg.get("keep_tool_result", -1)
 
         self.client = self._create_client(self.cfg)
 
@@ -177,13 +178,17 @@ class LLMClientBase(ABC):
         system_prompt: str = None,
         message_history: List[Dict] = None,
         tool_definitions: List[Dict] = None,
-        keep_tool_result: int = -1,
+        keep_tool_result: int = None,
     ):
         """
         Call LLM to generate response, supports tool calls - unified implementation
         """
         assert message_text is not None or message_history is not None, "Either message_text or message_history must be provided"
         assert message_text is None or message_history is None, "Only one of message_text or message_history can be provided"
+
+        # Use config value if not explicitly provided
+        if keep_tool_result is None:
+            keep_tool_result = self.keep_tool_result
 
         if message_history is None:
             message_history = []
