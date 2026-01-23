@@ -8,7 +8,7 @@
 NUM_RUNS=3
 BENCHMARK_NAME="gaia-validation"
 AGENT_SET="agent-gaia-validation-mirothinker-single-agent"
-MAX_CONCURRENT=5
+MAX_CONCURRENT=10
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)

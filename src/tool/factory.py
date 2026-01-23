@@ -30,6 +30,7 @@ def get_mcp_server_configs_from_tool_cfg_paths(cfg_paths: Optional[List[str]] = 
     
     configs = []
 
+    # TODO: add support for SSE endpoint
     for config_path in cfg_paths:
         try:
             tool_cfg = OmegaConf.load(config_path)
