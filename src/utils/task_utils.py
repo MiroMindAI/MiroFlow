@@ -50,6 +50,7 @@ async def run_single_attempt(
             "run_id": str(attempt_id),
             "task_description": task.task_question,
             "task_file_name": task.file_path or "",
+            "ground_truth": task.ground_truth,  # Set ground_truth early
         }
     )
     
@@ -61,7 +62,19 @@ async def run_single_attempt(
         })
         
         attempt_result.update_from_response(response, log_path)
-        tracer.update_task_meta(patch={"final_boxed_answer": attempt_result.model_boxed_answer})
+        tracer.update_task_meta(patch={
+            "final_boxed_answer": attempt_result.model_boxed_answer,
+        })
+        
+        # Perform verification if evaluator is provided (before finish to capture judge_result)
+        if evaluator is not None:
+            attempt_result = await evaluator.verify_attempt_result(
+                task, attempt_id, attempt_result
+            )
+            tracer.update_task_meta(patch={
+                "judge_result": attempt_result.judge_result,
+            })
+        
         # Finish with completed status if no exception
         tracer.finish(status="completed")
     except Exception as e:
@@ -72,12 +85,6 @@ async def run_single_attempt(
     finally:
         # Reset context after all tracer operations are done
         reset_current_task_context_var(token)
-    
-    # Perform verification if evaluator is provided
-    if evaluator is not None:
-        attempt_result = await evaluator.verify_attempt_result(
-            task, attempt_id, attempt_result
-        )
     
     return attempt_result
 
@@ -107,15 +114,7 @@ async def run_single_task(
                 task=task,
                 attempt_id=attempt_id,
                 evaluator=evaluator,
-            )                
-            tracer.update_task_meta(patch={
-                'model_response': attempt_result.model_response,
-                'final_boxed_answer': attempt_result.model_boxed_answer,
-                'status': attempt_result.status,
-                'error': attempt_result.error_message,
-                'judge_result': attempt_result.judge_result,
-                'ground_truth': task.ground_truth
-            })
+            )
             
             result.update_with_attempt(attempt_result)
             
