@@ -1,7 +1,0 @@
-name: "tool-forge"
-tool_command: "npx"
-args:
-  - "-y"
-  - "automagik-forge@latest"
-  - "--mcp"
-env:

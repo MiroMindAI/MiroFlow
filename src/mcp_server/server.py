@@ -9,6 +9,7 @@ import os
 import uuid
 import traceback
 import json
+import aiohttp
 from datetime import datetime
 from typing import Any
 from concurrent.futures import ThreadPoolExecutor
@@ -30,25 +31,36 @@ logger = bootstrap_logger(level=LOGGER_LEVEL)
 
 mcp = FastMCP(
     "MiroFlow",
-    instructions="""MiroFlow is an AI orchestration framework that manages complex multi-step tasks.
+    instructions="""MiroFlow - AI orchestration framework with Vibe-Kanban integration.
 
-IMPORTANT FOR VIBE-KANBAN INTEGRATION:
-- Use run_agent() to delegate complex research/analysis tasks
-- Use get_task_status() to monitor progress and get results
-- Use list_sub_agents() to see available specialized agents
-- Tasks run asynchronously - check status periodically until completed
+MAIN ORCHESTRATION TOOL:
+orchestrate_task(project_name, main_task, subtasks, parallel=True)
+  - Automatically creates subtasks in Vibe-Kanban
+  - Executes them via sub-agents (parallel or sequential)
+  - Tracks progress and merges results
+  - Updates Vibe-Kanban task statuses
 
-WORKFLOW:
-1. Call run_agent(task="...", wait=False) to start a task
-2. Poll get_task_status(task_id) every few seconds
-3. When status="completed", read the answer from the result
+Example:
+  orchestrate_task(
+    project_name="MyProject",
+    main_task="Build login feature",
+    subtasks=[
+      {"title": "Design UI", "description": "...", "sub_agent": "agent-pixel-perfect"},
+      {"title": "Implement API", "description": "...", "sub_agent": "agent-code-review"},
+      {"title": "Write tests", "description": "...", "sub_agent": "agent-code-review"}
+    ]
+  )
 
-AVAILABLE SUB-AGENTS:
-- agent-code-review: Code quality analysis, best practices
-- agent-pixel-perfect: UI/Figma design comparison
-- agent-ios-developer: iOS/Swift development expertise
-- agent-rust-developer: Rust development expertise  
-- agent-researcher: Web research, documentation lookup
+MONITORING:
+- get_orchestration_status(session_id) - poll until status="completed"
+- get_task_status(task_id) - single task status
+
+SUB-AGENTS:
+- agent-code-review: Code quality, bugs, best practices
+- agent-pixel-perfect: UI/Figma comparison
+- agent-ios-developer: iOS/Swift development
+- agent-rust-developer: Rust development
+- agent-researcher: Web research, docs lookup
 """,
 )
 
@@ -339,18 +351,365 @@ async def list_sub_agents() -> list[dict[str, str]]:
 
 @mcp.tool()
 async def cancel_task(task_id: str) -> dict[str, str]:
-    """
-    Cancel a running task.
-
-    Args:
-        task_id: The unique identifier of the task to cancel.
-    """
+    """Cancel a running MiroFlow task."""
     if task_id not in _running_tasks:
         return {"status": "not_found", "message": f"No running task with id {task_id}"}
 
     _running_tasks[task_id].cancel()
     _running_tasks.pop(task_id, None)
     return {"status": "cancelled", "task_id": task_id}
+
+
+VIBE_KANBAN_API = os.getenv("VIBE_KANBAN_API", "http://127.0.0.1:61265/api")
+
+
+async def _vk_api_get(endpoint: str) -> dict:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{VIBE_KANBAN_API}{endpoint}") as resp:
+            return await resp.json()
+
+
+async def _vk_api_post(endpoint: str, data: dict) -> dict:
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{VIBE_KANBAN_API}{endpoint}", json=data) as resp:
+            return await resp.json()
+
+
+async def _vk_api_patch(endpoint: str, data: dict) -> dict:
+    async with aiohttp.ClientSession() as session:
+        async with session.patch(f"{VIBE_KANBAN_API}{endpoint}", json=data) as resp:
+            return await resp.json()
+
+
+@mcp.tool()
+async def vibe_kanban_list_projects() -> list[dict[str, str]]:
+    """List all projects in Vibe-Kanban."""
+    try:
+        result = await _vk_api_get("/projects")
+        if result.get("success"):
+            return [
+                {
+                    "id": p["id"],
+                    "name": p["name"],
+                    "working_dir": p.get("default_agent_working_dir", ""),
+                }
+                for p in result["data"]
+            ]
+        return [{"error": result.get("message", "API error")}]
+    except Exception as e:
+        return [{"error": f"Failed to connect to Vibe-Kanban: {e}"}]
+
+
+@mcp.tool()
+async def vibe_kanban_list_tasks(
+    project_id: str = "", status: str = ""
+) -> list[dict[str, Any]]:
+    """List tasks in Vibe-Kanban. Requires project_id. Optional status filter (todo, inprogress, done, cancelled, inreview)."""
+    if not project_id:
+        return [{"error": "project_id is required"}]
+
+    try:
+        endpoint = f"/tasks?project_id={project_id}"
+        result = await _vk_api_get(endpoint)
+        if result.get("success"):
+            tasks = result["data"]
+            if status:
+                tasks = [t for t in tasks if t["status"] == status]
+            return tasks
+        return [{"error": result.get("message", "API error")}]
+    except Exception as e:
+        return [{"error": f"Failed to connect to Vibe-Kanban: {e}"}]
+
+
+@mcp.tool()
+async def vibe_kanban_create_task(
+    project_id: str, title: str, description: str = "", status: str = "todo"
+) -> dict[str, str]:
+    """Create a new task in Vibe-Kanban. Status: todo, inprogress, done, cancelled, inreview."""
+    try:
+        result = await _vk_api_post(
+            "/tasks",
+            {
+                "project_id": project_id,
+                "title": title,
+                "description": description,
+                "status": status,
+            },
+        )
+        if result.get("success"):
+            return {
+                "status": "created",
+                "task_id": result["data"]["id"],
+                "title": title,
+            }
+        return {"error": result.get("message", "API error")}
+    except Exception as e:
+        return {"error": f"Failed to connect to Vibe-Kanban: {e}"}
+
+
+@mcp.tool()
+async def vibe_kanban_update_task(
+    task_id: str, title: str = "", description: str = "", status: str = ""
+) -> dict[str, str]:
+    """Update a task in Vibe-Kanban. Provide task_id and fields to update."""
+    try:
+        data = {}
+        if title:
+            data["title"] = title
+        if description:
+            data["description"] = description
+        if status:
+            data["status"] = status
+
+        if not data:
+            return {"error": "No fields to update"}
+
+        result = await _vk_api_patch(f"/tasks/{task_id}", data)
+        if result.get("success"):
+            return {"status": "updated", "task_id": task_id}
+        return {"error": result.get("message", "API error")}
+    except Exception as e:
+        return {"error": f"Failed to connect to Vibe-Kanban: {e}"}
+
+
+_orchestration_sessions: dict[str, dict[str, Any]] = {}
+
+
+@mcp.tool()
+async def orchestrate_task(
+    project_name: str,
+    main_task: str,
+    subtasks: list[dict[str, str]],
+    parallel: bool = True,
+) -> dict[str, Any]:
+    """
+    Orchestrate a complex task by creating subtasks in Vibe-Kanban and executing them.
+
+    Args:
+        project_name: Vibe-Kanban project to create subtasks in
+        main_task: Description of the main task being orchestrated
+        subtasks: List of subtasks, each with 'title', 'description', and optional 'sub_agent'
+                  Example: [{"title": "Review code", "description": "...", "sub_agent": "agent-code-review"}]
+        parallel: If True, run subtasks in parallel. If False, run sequentially.
+
+    Returns:
+        Orchestration session with session_id to track progress via get_orchestration_status()
+    """
+    session_id = f"orch_{uuid.uuid4().hex[:8]}"
+
+    session = {
+        "session_id": session_id,
+        "project_name": project_name,
+        "main_task": main_task,
+        "status": "initializing",
+        "started_at": datetime.now().isoformat(),
+        "subtasks": [],
+        "results": [],
+        "parallel": parallel,
+    }
+    _orchestration_sessions[session_id] = session
+
+    async def run_orchestration():
+        try:
+            session["status"] = "creating_subtasks"
+
+            for i, subtask in enumerate(subtasks):
+                vk_result = await _create_vk_task(
+                    project_name,
+                    subtask.get("title", f"Subtask {i + 1}"),
+                    subtask.get("description", ""),
+                )
+
+                session["subtasks"].append(
+                    {
+                        "index": i,
+                        "title": subtask.get("title"),
+                        "description": subtask.get("description", ""),
+                        "sub_agent": subtask.get("sub_agent", ""),
+                        "vk_task_id": vk_result.get("task_id", ""),
+                        "miroflow_task_id": "",
+                        "status": "created",
+                        "result": None,
+                    }
+                )
+
+            session["status"] = "executing"
+
+            if parallel:
+                tasks = []
+                for i, subtask_info in enumerate(session["subtasks"]):
+                    task_coro = _execute_subtask(session_id, i, subtask_info)
+                    tasks.append(asyncio.create_task(task_coro))
+
+                await asyncio.gather(*tasks, return_exceptions=True)
+            else:
+                for i, subtask_info in enumerate(session["subtasks"]):
+                    await _execute_subtask(session_id, i, subtask_info)
+
+            session["status"] = "merging"
+
+            all_results = []
+            for subtask_info in session["subtasks"]:
+                if subtask_info.get("result"):
+                    all_results.append(
+                        {
+                            "title": subtask_info["title"],
+                            "answer": subtask_info["result"].get("answer", ""),
+                            "summary": subtask_info["result"].get("summary", ""),
+                        }
+                    )
+
+            session["merged_result"] = {
+                "main_task": main_task,
+                "subtask_count": len(subtasks),
+                "completed_count": len(
+                    [s for s in session["subtasks"] if s["status"] == "completed"]
+                ),
+                "results": all_results,
+            }
+
+            session["status"] = "completed"
+            session["completed_at"] = datetime.now().isoformat()
+
+            for subtask_info in session["subtasks"]:
+                if subtask_info.get("vk_task_id"):
+                    await _update_vk_task(subtask_info["vk_task_id"], status="done")
+
+        except Exception as e:
+            session["status"] = "failed"
+            session["error"] = str(e)
+            logger.error(f"Orchestration {session_id} failed: {e}")
+
+    asyncio.create_task(run_orchestration())
+
+    return {
+        "session_id": session_id,
+        "status": "started",
+        "subtask_count": len(subtasks),
+        "message": f"Orchestration started. Poll get_orchestration_status('{session_id}') for progress.",
+    }
+
+
+async def _get_project_id_by_name(project_name: str) -> str | None:
+    try:
+        result = await _vk_api_get("/projects")
+        if result.get("success"):
+            for p in result["data"]:
+                if project_name.lower() in p["name"].lower():
+                    return p["id"]
+    except:
+        pass
+    return None
+
+
+async def _create_vk_task(project_name: str, title: str, description: str) -> dict:
+    project_id = await _get_project_id_by_name(project_name)
+    if not project_id:
+        return {"error": f"Project '{project_name}' not found"}
+
+    try:
+        result = await _vk_api_post(
+            "/tasks",
+            {
+                "project_id": project_id,
+                "title": title,
+                "description": description,
+                "status": "inprogress",
+            },
+        )
+        if result.get("success"):
+            return {"task_id": result["data"]["id"]}
+        return {"error": result.get("message", "API error")}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+async def _update_vk_task(task_id: str, status: str) -> dict:
+    try:
+        result = await _vk_api_patch(f"/tasks/{task_id}", {"status": status})
+        if result.get("success"):
+            return {"status": "updated"}
+        return {"error": result.get("message", "API error")}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+async def _execute_subtask(session_id: str, index: int, subtask_info: dict):
+    session = _orchestration_sessions.get(session_id)
+    if not session:
+        return
+
+    subtask_info["status"] = "running"
+
+    task_description = f"{subtask_info['title']}\n\n{subtask_info['description']}"
+    sub_agent = subtask_info.get("sub_agent", "")
+
+    task_id = f"orch_{session_id}_{index}"
+    subtask_info["miroflow_task_id"] = task_id
+
+    if subtask_info.get("vk_task_id"):
+        await _update_vk_task(subtask_info["vk_task_id"], status="inprogress")
+
+    try:
+        result = await _execute_task(
+            task=task_description,
+            task_file="",
+            config_name="agent_llm_opencode_opus45",
+            task_id=task_id,
+            sub_agent=sub_agent,
+        )
+
+        subtask_info["status"] = (
+            "completed" if result.get("status") == "completed" else "failed"
+        )
+        subtask_info["result"] = result
+
+        if subtask_info.get("vk_task_id"):
+            vk_status = "done" if subtask_info["status"] == "completed" else "cancelled"
+            await _update_vk_task(subtask_info["vk_task_id"], status=vk_status)
+
+    except Exception as e:
+        subtask_info["status"] = "failed"
+        subtask_info["error"] = str(e)
+        if subtask_info.get("vk_task_id"):
+            await _update_vk_task(subtask_info["vk_task_id"], status="cancelled")
+
+
+@mcp.tool()
+async def get_orchestration_status(session_id: str) -> dict[str, Any]:
+    """Get status of an orchestration session. Poll until status='completed'."""
+    session = _orchestration_sessions.get(session_id)
+    if not session:
+        return {"error": f"Orchestration session '{session_id}' not found"}
+
+    subtask_summary = []
+    for s in session.get("subtasks", []):
+        subtask_summary.append(
+            {
+                "title": s.get("title"),
+                "status": s.get("status"),
+                "sub_agent": s.get("sub_agent", "main"),
+            }
+        )
+
+    result = {
+        "session_id": session_id,
+        "status": session.get("status"),
+        "main_task": session.get("main_task"),
+        "started_at": session.get("started_at"),
+        "subtasks": subtask_summary,
+    }
+
+    if session.get("completed_at"):
+        result["completed_at"] = session["completed_at"]
+
+    if session.get("merged_result"):
+        result["merged_result"] = session["merged_result"]
+
+    if session.get("error"):
+        result["error"] = session["error"]
+
+    return result
 
 
 def run_server(

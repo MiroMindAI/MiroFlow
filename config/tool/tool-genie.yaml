@@ -1,7 +1,0 @@
-name: "tool-genie"
-tool_command: "npx"
-args:
-  - "-y"
-  - "automagik-genie@latest"
-  - "mcp"
-env:
