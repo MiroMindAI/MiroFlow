@@ -13,7 +13,6 @@ see NewAPI documentation here:
 
 import asyncio
 import dataclasses
-import os
 
 # from tenacity import retry, stop_after_attempt, wait_fixed
 import json
@@ -22,8 +21,7 @@ from typing import Any, Dict, List
 from omegaconf import DictConfig
 from openai import AsyncOpenAI, OpenAI
 
-from src.llm.base import LLMClientBase
-
+from src.llm.base import LLMProviderClientBase
 from src.logging.task_tracer import get_tracer
 
 logger = get_tracer()
@@ -125,12 +123,10 @@ class ClaudeNewAPIClient(LLMProviderClientBase):
         else:
             return self.client.chat.completions.create(**params)
 
-    def process_llm_response(
-        self, llm_response
-    ) -> tuple[str, bool, dict]:
+    def process_llm_response(self, llm_response) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response
-        
+
         Returns:
             tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
         """
@@ -143,7 +139,10 @@ class ClaudeNewAPIClient(LLMProviderClientBase):
         # Extract LLM response text
         if llm_response.choices[0].finish_reason == "stop":
             assistant_response_text = llm_response.choices[0].message.content or ""
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         elif llm_response.choices[0].finish_reason == "tool_calls":
             # For tool_calls, we need to extract tool call information as text
             tool_calls = llm_response.choices[0].message.tool_calls
@@ -177,7 +176,10 @@ class ClaudeNewAPIClient(LLMProviderClientBase):
             assistant_response_text = llm_response.choices[0].message.content or ""
             if assistant_response_text == "":
                 assistant_response_text = "LLM response is empty. This is likely due to thinking block used up all tokens."
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         else:
             raise ValueError(
                 f"Unsupported finish reason: {llm_response.choices[0].finish_reason}"

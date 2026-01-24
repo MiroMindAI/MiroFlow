@@ -66,18 +66,18 @@ if __name__ == "__main__":
             task=Task(
                 task_id="task_1",
                 task_question=TASK_DESCRIPTION,
-                file_path=TASK_FILE_PATH
+                file_path=TASK_FILE_PATH,
             ),
-            attempt_num=1
+            attempt_num=1,
         )
     )
-    
+
     # Save result to JSON file in the configured output directory
     output_dir = cfg.output_dir
     os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, 'task_result.json')
-    
-    with open(output_file, 'w', encoding='utf-8') as f:
+    output_file = os.path.join(output_dir, "task_result.json")
+
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump(result.model_response, f, indent=4, ensure_ascii=False)
-    
+
     print(f"Task result saved to {output_file}")

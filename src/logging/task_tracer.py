@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import copy
 import json
 import os
 import threading
@@ -15,17 +14,19 @@ from pathlib import Path
 from typing import Any, Dict, Literal, Optional
 from dataclasses import dataclass
 from pydantic import BaseModel, Field
-from .span import Span 
+from .span import Span
 
 # -------------------------------------------------------------------------
 # Utilities
 # -------------------------------------------------------------------------
+
 
 def utc_iso(ts: Optional[float] = None) -> str:
     if ts is None:
         ts = time.time()
     dt = datetime.fromtimestamp(ts, tz=timezone.utc)
     return dt.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
 
 def _ensure_jsonable(x: Any) -> Any:
     """Best-effort JSON conversion. Never raise."""
@@ -38,37 +39,45 @@ def _ensure_jsonable(x: Any) -> Any:
         except Exception:
             return "<unserializable>"
 
+
 # -------------------------------------------------------------------------
 # Context Management
 # -------------------------------------------------------------------------
+
 
 @dataclass(frozen=True)
 class TaskContextVar:
     task_id: str
     run_id: str
-    
+
     def __repr__(self) -> str:
         return f"task_{self.task_id}_attempt_{self.run_id}"
+
 
 # 使用默认对象代替 None，避免后续大量的 None check
 ROOT_CONTEXT = TaskContextVar(task_id="root", run_id="0")
 
-CURRENT_TASK_CONTEXT_VAR: contextvars.ContextVar[TaskContextVar] = contextvars.ContextVar(
-    "CURRENT_TASK_CONTEXT_VAR", default=ROOT_CONTEXT
+CURRENT_TASK_CONTEXT_VAR: contextvars.ContextVar[TaskContextVar] = (
+    contextvars.ContextVar("CURRENT_TASK_CONTEXT_VAR", default=ROOT_CONTEXT)
 )
+
 
 def set_current_task_context_var(task_context_var: TaskContextVar):
     return CURRENT_TASK_CONTEXT_VAR.set(task_context_var)
 
+
 def reset_current_task_context_var(token):
     CURRENT_TASK_CONTEXT_VAR.reset(token)
+
 
 def get_current_task_context_var() -> TaskContextVar:
     return CURRENT_TASK_CONTEXT_VAR.get()
 
+
 # -------------------------------------------------------------------------
 # Data Models (Pydantic)
 # -------------------------------------------------------------------------
+
 
 class TaskMeta(BaseModel):
     task_id: str = Field(default_factory=lambda: f"task_{uuid.uuid4().hex[:12]}")
@@ -76,7 +85,9 @@ class TaskMeta(BaseModel):
     task_description: str = ""
     task_file_name: Optional[str] = None
 
-    status: Literal["pending", "running", "completed", "interrupted", "failed"] = "pending"
+    status: Literal["pending", "running", "completed", "interrupted", "failed"] = (
+        "pending"
+    )
     start_time: Optional[str] = None
     end_time: Optional[str] = None
 
@@ -87,39 +98,44 @@ class TaskMeta(BaseModel):
 
     updated_at: str = Field(default_factory=utc_iso)
 
+
 class AgentStateEntry(BaseModel):
     updated_at: str = Field(default_factory=utc_iso)
     state: Dict[str, Any] = Field(default_factory=dict)
 
+
 class TaskLogFile(BaseModel):
     """Represents the structure of the JSON log file."""
+
     task_meta: TaskMeta = Field(default_factory=TaskMeta)
     current_span: Optional[Span] = None
     agent_states: Dict[str, AgentStateEntry] = Field(default_factory=dict)
     step_logs: list[Dict[str, Any]] = Field(default_factory=list)
 
+
 # -------------------------------------------------------------------------
 # Tracer Implementation
 # -------------------------------------------------------------------------
+
 
 class TaskTracer:
     """
     Thread-safe, singleton-friendly tracer that manages logs per TaskContext.
     """
-    
+
     def __init__(self, log_path: str | Path = "./logs"):
         self.log_path = Path(log_path)
         if not self.log_path.exists():
             self.log_path.mkdir(parents=True, exist_ok=True)
-            
+
         self._active_tasks: Dict[str, TaskLogFile] = {}
-        
+
         # 序列号追踪：Key -> int
         self._seq_map: Dict[str, int] = {}
-        
+
         # 锁：保护 _active_tasks 和 _seq_map 的并发修改
         self._data_lock = threading.Lock()
-        
+
         # 锁：保护文件写入，防止多线程写同一个文件导致错乱
         # (虽然这里使用了 key 隔离文件，但为了防止原子重命名冲突，保留一个 IO 锁是个好习惯，或者针对每个文件锁)
         # 这里为了简单高效，假设不同 task 写不同文件，IO 不互斥。
@@ -148,9 +164,9 @@ class TaskTracer:
 
     def _flush_to_disk(self, key: str, log_obj: TaskLogFile):
         """将对象序列化并写入磁盘。执行原子写入 (Write-Replace)。"""
-        if not key: 
+        if not key:
             return
-            
+
         try:
             payload = log_obj.model_dump_json(indent=2)
         except Exception as e:
@@ -173,8 +189,7 @@ class TaskTracer:
         手动刷新当前任务的日志到磁盘。
         """
         key = self._get_context_key()
-        log_copy = None
-        
+
         with self._data_lock:
             if key in self._active_tasks:
                 # 浅拷贝模型对象用于序列化，尽量减少锁持有时间
@@ -183,7 +198,7 @@ class TaskTracer:
                 log_obj = self._active_tasks[key]
                 # 在锁内不能做 IO，但可以做数据的快照。
                 # 简单起见，我们在锁内拿到引用，在锁外 dump (虽然有极小概率读取到修改中的数据，但在 logger 场景可接受)
-                pass 
+                pass
             else:
                 return
 
@@ -199,7 +214,7 @@ class TaskTracer:
             log_file.task_meta.status = "running"
             log_file.task_meta.start_time = utc_iso()
             log_file.task_meta.updated_at = utc_iso()
-        
+
         self.flush()
 
     # todo: 这里的interrupted有被使用吗？
@@ -210,12 +225,12 @@ class TaskTracer:
         error: Optional[str] = None,
     ) -> None:
         key = self._get_context_key()
-        
+
         # 1. 更新最终状态
         with self._data_lock:
             if key not in self._active_tasks:
-                return # 甚至没开始过
-            
+                return  # 甚至没开始过
+
             log_file = self._active_tasks[key]
             log_file.task_meta.status = status
             log_file.task_meta.end_time = utc_iso()
@@ -260,7 +275,9 @@ class TaskTracer:
         key = self._get_context_key()
         with self._data_lock:
             log_file = self._get_or_create_log(key)
-            log_file.current_span = current_span # 假设 Span 是 Pydantic model 或 jsonable
+            log_file.current_span = (
+                current_span  # 假设 Span 是 Pydantic model 或 jsonable
+            )
         self.flush()
 
     # ---------- Logging ----------
@@ -269,16 +286,16 @@ class TaskTracer:
         key = self._get_context_key()
         ev = dict(event)
         ev.setdefault("ts", utc_iso())
-        
+
         with self._data_lock:
             log_file = self._get_or_create_log(key)
-            
+
             # 生成递增序号
             self._seq_map[key] += 1
             ev["seq"] = self._seq_map[key]
-            
+
             log_file.step_logs.append(_ensure_jsonable(ev))
-        
+
         # 每次 log 都 flush 在高频场景下性能较差
         # 如果追求极致性能，可以设定阈值或只在 finish 时 flush
         # 这里为了数据安全性保持 flush
@@ -295,16 +312,18 @@ class TaskTracer:
         data: Optional[Dict[str, Any]] = None,
         where: Optional[Dict[str, Any]] = None,
     ) -> None:
-        payload = {
-            "type": f"log_{level.lower()}",
-            "msg": msg
-        }
+        payload = {"type": f"log_{level.lower()}", "msg": msg}
         # 仅添加非空字段，保持日志整洁
-        if span_id: payload["span_id"] = span_id
-        if node_id: payload["node_id"] = node_id
-        if step_id: payload["step_id"] = step_id
-        if data: payload["data"] = data
-        if where: payload["where"] = where
+        if span_id:
+            payload["span_id"] = span_id
+        if node_id:
+            payload["node_id"] = node_id
+        if step_id:
+            payload["step_id"] = step_id
+        if data:
+            payload["data"] = data
+        if where:
+            payload["where"] = where
 
         self.append_step_event(payload)
 
@@ -328,6 +347,7 @@ class TaskTracer:
 _SINGLETON_LOCK = threading.Lock()
 _SINGLETON: Optional[TaskTracer] = None
 
+
 def set_tracer(log_path: Path):
     global _SINGLETON
     with _SINGLETON_LOCK:
@@ -335,6 +355,7 @@ def set_tracer(log_path: Path):
             _SINGLETON = TaskTracer(log_path)
         else:
             _SINGLETON.set_log_path(log_path)
+
 
 def get_tracer() -> TaskTracer:
     global _SINGLETON

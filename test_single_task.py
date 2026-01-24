@@ -35,9 +35,7 @@ OVERRIDES = ["benchmark.execution.max_concurrent=1"]
 # TASK_FILE_PATH = None
 
 # Example of a task with file input
-TASK_DESCRIPTION = (
-    "I’m researching species that became invasive after people who kept them as pets released them. There’s a certain species of fish that was popularized as a pet by being the main character of the movie Finding Nemo. According to the USGS, where was this fish found as a nonnative species, before the year 2020? I need the answer formatted as the five-digit zip codes of the places the species was found, separated by commas if there is more than one place."
-)
+TASK_DESCRIPTION = "I’m researching species that became invasive after people who kept them as pets released them. There’s a certain species of fish that was popularized as a pet by being the main character of the movie Finding Nemo. According to the USGS, where was this fish found as a nonnative species, before the year 2020? I need the answer formatted as the five-digit zip codes of the places the species was found, separated by commas if there is more than one place."
 # TASK_FILE_PATH = os.path.abspath('data/FSI-2023-DOWNLOAD.xlsx')
 
 
@@ -67,16 +65,16 @@ if __name__ == "__main__":
                 task_question=TASK_DESCRIPTION,
                 # file_path=TASK_FILE_PATH
             ),
-            attempt_num=1
+            attempt_num=1,
         )
     )
-    
+
     # Save result to JSON file in the configured output directory
     output_dir = cfg.output_dir
     os.makedirs(output_dir, exist_ok=True)
-    output_file = os.path.join(output_dir, 'task_result.json')
-    
-    with open(output_file, 'w', encoding='utf-8') as f:
+    output_file = os.path.join(output_dir, "task_result.json")
+
+    with open(output_file, "w", encoding="utf-8") as f:
         json.dump(result.model_response, f, indent=4, ensure_ascii=False)
-    
+
     print(f"Task result saved to {output_file}")

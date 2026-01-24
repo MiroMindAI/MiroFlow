@@ -63,11 +63,11 @@ def _lazy_import_modules(component_type: ComponentType):
     """懒加载指定类型的所有模块"""
     if _IMPORTED[component_type]:
         return
-    
+
     with _LOCK:
         if _IMPORTED[component_type]:
             return
-        
+
         package_name = _PACKAGE_MAP[component_type]
         try:
             pkg = importlib.import_module(package_name)
@@ -80,19 +80,20 @@ def _lazy_import_modules(component_type: ComponentType):
                     logger.warning(f"Failed to import {package_name}.{name}: {e}")
         except ImportError as e:
             logger.warning(f"Failed to import package {package_name}: {e}")
-        
+
         _IMPORTED[component_type] = True
 
 
 def register(component_type: ComponentType, name: str) -> Callable[[Type], Type]:
     """
     注册组件的装饰器
-    
+
     Usage:
         @register(ComponentType.AGENT, "IterativeAgentWithTool")
         class IterativeAgentWithTool(BaseAgent):
             ...
     """
+
     def _decorator(cls: Type) -> Type:
         registry = _REGISTRIES[component_type]
         if name in registry and registry[name] is not cls:
@@ -102,6 +103,7 @@ def register(component_type: ComponentType, name: str) -> Callable[[Type], Type]
             )
         registry[name] = cls
         return cls
+
     return _decorator
 
 
@@ -125,15 +127,17 @@ def get_component_class(component_type: ComponentType, name: str) -> Type:
 
 # ==================== 兼容旧 API ====================
 
+
 def register_module(name: str) -> Callable[[Type], Type]:
     """
     兼容旧的 register_module API
     自动检测组件类型并注册
     """
+
     def _decorator(cls: Type) -> Type:
         # 根据类名或模块路径推断组件类型
         module_path = cls.__module__
-        
+
         if "io_processor" in module_path:
             component_type = ComponentType.IO_PROCESSOR
         elif "agents" in module_path:
@@ -143,8 +147,9 @@ def register_module(name: str) -> Callable[[Type], Type]:
         else:
             # 默认作为 AGENT
             component_type = ComponentType.AGENT
-        
+
         return register(component_type, name)(cls)
+
     return _decorator
 
 

@@ -48,19 +48,19 @@ def post_with_retry(url, json, headers):
                 # logger.warning(
                 #     f"HTTP {resp.status_code} on attempt {attempt}: {resp.text[:200]}"
                 # )
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException:
             pass
-            #logger.warning(f"Request failed on attempt {attempt}: {e}")
+            # logger.warning(f"Request failed on attempt {attempt}: {e}")
 
         # Backoff before next retry
         if attempt < MAX_RETRIES:
             sleep_time = min(BACKOFF_BASE * (2 ** (attempt - 1)), BACKOFF_MAX)
             # Add jitter to avoid thundering herd
             sleep_time *= 0.8 + 0.4 * random.random()
-            #logger.info(f"Retrying in {sleep_time:.1f}s...")
+            # logger.info(f"Retrying in {sleep_time:.1f}s...")
             time.sleep(sleep_time)
 
-    #logger.warning(f"All {MAX_RETRIES} retries failed for {url}")
+    # logger.warning(f"All {MAX_RETRIES} retries failed for {url}")
     return None
 
 
@@ -97,7 +97,7 @@ async def reasoning(question: str) -> str:
             content = content.split("</think>", 1)[1].strip()
         return content
     except Exception:
-        #logger.info("Reasoning Error: only thinking content is returned")
+        # logger.info("Reasoning Error: only thinking content is returned")
         return json_response["choices"][0]["message"]["reasoning_content"]
 
 

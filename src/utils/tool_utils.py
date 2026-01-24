@@ -2,17 +2,11 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-import pathlib
-import sys
 import importlib
-from mcp import StdioServerParameters
-from omegaconf import DictConfig, OmegaConf
 
 from src.logging.task_tracer import get_tracer
 
 logger = get_tracer()
-
-
 
 
 def _load_agent_prompt_class(prompt_class_name: str):
@@ -52,6 +46,7 @@ def _load_agent_prompt_class(prompt_class_name: str):
 #             raise ValueError(f"Failed to expose sub-agent {sub_agent} as a tool: {e}")
 #     return sub_agents_server_params
 
+
 def expose_sub_agents_as_tools(sub_agent_names):
     """Expose sub-agents as tools"""
     sub_agents_server_params = []
@@ -80,30 +75,33 @@ def expose_sub_agents_as_tools(sub_agent_names):
             )
             sub_agents_server_params.append(sub_agent_tool_definition)
         except Exception as e:
-            raise ValueError(f"Failed to expose sub-agent {sub_agent_name} as a tool: {e}")
+            raise ValueError(
+                f"Failed to expose sub-agent {sub_agent_name} as a tool: {e}"
+            )
     return sub_agents_server_params
 
+
 def format_tool_result(tool_call_execution_result):
-        """
-        Format tool execution results to be fed back to LLM as user messages.
-        Only includes necessary information (results or errors).
-        """
-        server_name = tool_call_execution_result["server_name"]
-        tool_name = tool_call_execution_result["tool_name"]
+    """
+    Format tool execution results to be fed back to LLM as user messages.
+    Only includes necessary information (results or errors).
+    """
+    server_name = tool_call_execution_result["server_name"]
+    tool_name = tool_call_execution_result["tool_name"]
 
-        if "error" in tool_call_execution_result:
-            # Provide concise error information to LLM
-            content = f"Tool call to {tool_name} on {server_name} failed. Error: {tool_call_execution_result['error']}"
-        elif "result" in tool_call_execution_result:
-            # Provide tool's original output results
-            content = tool_call_execution_result["result"]
-            # Can consider truncating overly long results
-            max_len = 100_000  # 100k chars = 25k tokens
-            if len(content) > max_len:
-                content = content[:max_len] + "\n... [Result truncated]"
-        else:
-            content = f"Tool call to {tool_name} on {server_name} completed, but produced no specific output or result."
+    if "error" in tool_call_execution_result:
+        # Provide concise error information to LLM
+        content = f"Tool call to {tool_name} on {server_name} failed. Error: {tool_call_execution_result['error']}"
+    elif "result" in tool_call_execution_result:
+        # Provide tool's original output results
+        content = tool_call_execution_result["result"]
+        # Can consider truncating overly long results
+        max_len = 100_000  # 100k chars = 25k tokens
+        if len(content) > max_len:
+            content = content[:max_len] + "\n... [Result truncated]"
+    else:
+        content = f"Tool call to {tool_name} on {server_name} completed, but produced no specific output or result."
 
-        # Return format suitable as user message content
-        # return [{"type": "text", "text": content}]
-        return {"type": "text", "text": content}
+    # Return format suitable as user message content
+    # return [{"type": "text", "text": content}]
+    return {"type": "text", "text": content}

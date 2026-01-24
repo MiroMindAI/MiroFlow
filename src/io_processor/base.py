@@ -10,15 +10,15 @@ IO 处理器是一种特殊的 Agent，专门用于处理输入和输出。
 """
 
 from src.agents.base import BaseAgent
-from src.agents.context import AgentContext
 
 
 class BaseIOProcessor(BaseAgent):
     """
     IO 处理器基类
-    
+
     IO 处理器用于：
     - 输入处理：生成提示、处理用户输入
     - 输出处理：生成摘要、提取最终答案
     """
+
     pass

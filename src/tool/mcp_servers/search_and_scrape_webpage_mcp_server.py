@@ -326,4 +326,3 @@ async def google_search(
 
 if __name__ == "__main__":
     mcp.run()
-

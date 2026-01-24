@@ -9,6 +9,7 @@ import uuid
 
 from src.llm import LLMClientBase
 
+
 def _generate_message_id() -> str:
     """Generate random message ID using common LLM format"""
     # Use 8-character random hex string, similar to OpenAI API format, avoid cross-conversation cache hits
@@ -24,11 +25,11 @@ def _generate_message_id() -> str:
 )
 async def extract_hints(
     question: str,
-    #api_key: str,
+    # api_key: str,
     chinese_context: bool,
     add_message_id: bool,
     llm_client: LLMClientBase,
-    #base_url: str = "https://api.openai.com/v1",
+    # base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract task hints"""
 
@@ -76,6 +77,8 @@ Here is the question:
         message_id = _generate_message_id()
         content = f"[{message_id}] {content}"
 
+    # Use llm_client's client (AsyncOpenAI or OpenAI instance)
+    client = llm_client.client
     response = await client.chat.completions.create(
         model="o3",
         messages=[{"role": "user", "content": content}],
@@ -98,11 +101,8 @@ Here is the question:
         f"Retry attempt {retry_state.attempt_number} for get_gaia_answer_type"
     ),
 )
-async def get_gaia_answer_type(
-    task_description: str, 
-    llm_client: LLMClientBase
-) -> str:
-    #client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
+async def get_gaia_answer_type(task_description: str, llm_client: LLMClientBase) -> str:
+    # client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
     instruction = f"""Input:
 `{task_description}`
@@ -143,15 +143,15 @@ Return exactly one of the [number, date, time, string], nothing else.
 async def extract_gaia_final_answer(
     task_description_detail: str,
     summary: str,
-    #api_key: str,
+    # api_key: str,
     chinese_context: bool,
     llm_client: LLMClientBase,
-    #base_url: str = "https://api.openai.com/v1",
+    # base_url: str = "https://api.openai.com/v1",
 ) -> str:
     """Use LLM to extract final answer from summary"""
     answer_type = await get_gaia_answer_type(task_description_detail, llm_client)
 
-    #client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
+    # client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
 
     # Add Chinese-specific instructions and output format if enabled
     chinese_supplement = ""
@@ -464,7 +464,7 @@ The boxed content must be **one** of:
 
     message_id = _generate_message_id()
     response = await llm_client.create_message(
-        #model="o3",
+        # model="o3",
         message_text=f"[{message_id}] {full_prompt}"
     )
     result = response.response_text
@@ -492,7 +492,7 @@ The boxed content must be **one** of:
         f"Retry attempt {retry_state.attempt_number} for extract_browsecomp_zh_final_answer"
     ),
 )
-async def extract_browsecomp_zh_final_answer( #TODO Gaia实现了，bc还没改
+async def extract_browsecomp_zh_final_answer(  # TODO Gaia实现了，bc还没改
     task_description_detail: str,
     summary: str,
     api_key: str,

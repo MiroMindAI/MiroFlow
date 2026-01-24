@@ -16,37 +16,41 @@ from typing import List
 @register(ComponentType.AGENT, "SequentialAgentModule")
 class SequentialAgent(BaseAgent):
     """顺序执行的 Agent 模块"""
-    
+
     def __init__(
-        self, 
-        cfg: DictConfig | ListConfig = {'type': 'SequentialAgentModule'}, 
-        modules: List[BaseAgent] = None
+        self,
+        cfg: DictConfig | ListConfig = {"type": "SequentialAgentModule"},
+        modules: List[BaseAgent] = None,
     ):
         super().__init__(cfg)
-        
+
         # Support both DictConfig (with 'modules' key) and ListConfig (direct list)
         if modules is not None:
             cfgs = [m.cfg for m in modules]
             self.cfg = OmegaConf.create(
-                {'type': 'SequentialAgentModule', 
-                'modules': cfgs}
+                {"type": "SequentialAgentModule", "modules": cfgs}
             )
             self.modules = modules
         else:
             if isinstance(cfg, DictConfig):
-                if 'modules' not in cfg:
-                    raise ValueError(f"SequentialAgentModule config must have field `modules`. \n" + str(cfg))
+                if "modules" not in cfg:
+                    raise ValueError(
+                        "SequentialAgentModule config must have field `modules`. \n"
+                        + str(cfg)
+                    )
             else:
-                cfg = OmegaConf.create({
-                    'type': 'SequentialAgentModule',
-                    'modules': cfg
-                })
+                cfg = OmegaConf.create(
+                    {"type": "SequentialAgentModule", "modules": cfg}
+                )
             self.cfg = cfg
-            
+
             from src.agents.factory import build_agent
+
             self.modules = [build_agent(cfg) for cfg in self.cfg.modules]
 
-    async def run_internal(self, ctx: AgentContext = {}, *args, **kwargs) -> AgentContext:
+    async def run_internal(
+        self, ctx: AgentContext = {}, *args, **kwargs
+    ) -> AgentContext:
         for m in self.modules:
             patch_ctx = await m.run(ctx, *args, **kwargs)
             ctx.update(patch_ctx)

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import dataclasses
 from typing import Any, Dict, List
 
 from omegaconf import DictConfig
@@ -91,7 +90,9 @@ class GPTOpenAIClient(LLMClientBase):
         )
 
         if tools_definitions:
-            tool_list = await self.convert_tool_definition_to_tool_call(tools_definitions)
+            tool_list = await self.convert_tool_definition_to_tool_call(
+                tools_definitions
+            )
         else:
             tool_list = None
 
@@ -178,12 +179,10 @@ class GPTOpenAIClient(LLMClientBase):
         messages.pop()
         return response
 
-    def process_llm_response(
-        self, llm_response
-    ) -> tuple[str, bool, dict]:
+    def process_llm_response(self, llm_response) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response
-        
+
         Returns:
             tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
         """
@@ -196,7 +195,10 @@ class GPTOpenAIClient(LLMClientBase):
         # Extract LLM response text
         if llm_response.choices[0].finish_reason == "stop":
             assistant_response_text = llm_response.choices[0].message.content or ""
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         elif llm_response.choices[0].finish_reason == "tool_calls":
             # For tool_calls, we need to extract tool call information as text
             tool_calls = llm_response.choices[0].message.tool_calls
@@ -230,7 +232,10 @@ class GPTOpenAIClient(LLMClientBase):
             assistant_response_text = llm_response.choices[0].message.content or ""
             if assistant_response_text == "":
                 assistant_response_text = "LLM response is empty. This is likely due to thinking block used up all tokens."
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         else:
             raise ValueError(
                 f"Unsupported finish reason: {llm_response.choices[0].finish_reason}"

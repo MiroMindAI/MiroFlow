@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import re
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
 
 @dataclass
 class SkillMeta:
@@ -12,7 +13,7 @@ class SkillMeta:
     name: str
     description: str
     root_dir: Path = Path(".")
-    skill_md: Path = Path("SKILL.md")   
+    skill_md: Path = Path("SKILL.md")
 
 
 class SkillError(Exception):
@@ -20,6 +21,7 @@ class SkillError(Exception):
 
 
 _FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n(.*)\Z", re.S | re.M)
+
 
 def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
     m = _FRONTMATTER_RE.match(md_text)
@@ -71,11 +73,14 @@ def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
             meta[key] = [x.strip() for x in inner.split(",") if x.strip()]
         else:
             # 去掉包裹引号（简单处理）
-            if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+            if (val.startswith('"') and val.endswith('"')) or (
+                val.startswith("'") and val.endswith("'")
+            ):
                 val = val[1:-1]
             meta[key] = val
 
     return meta, body
+
 
 class SkillManager:
     def __init__(
@@ -99,12 +104,10 @@ class SkillManager:
         index = self.discover()
         print("index:", index)
         schema = {
-                "type": "object",
-                "properties": {
-                    "subtask": {"title": "Subtask", "type": "string"}
-                },
-                "required": ["subtask"],
-            }
+            "type": "object",
+            "properties": {"subtask": {"title": "Subtask", "type": "string"}},
+            "required": ["subtask"],
+        }
         for skill in index.values():
             try:
                 skill_tool_definition = dict(
@@ -156,7 +159,10 @@ class SkillManager:
                 index[meta.skill_id] = meta
             except Exception as e:
                 # 生产环境建议记录日志，不要直接炸
-                print(f"[warn] Failed to load skill meta from {skill_md}: {e}", file=sys.stderr)
+                print(
+                    f"[warn] Failed to load skill meta from {skill_md}: {e}",
+                    file=sys.stderr,
+                )
 
         self._index = index
         return index
@@ -173,19 +179,25 @@ class SkillManager:
         # step1: push total skill.md to agent
         meta = self.get(skill_id)
 
-        if self.allowed_skill_ids is not None and meta.skill_id not in self.allowed_skill_ids:
-            raise SkillError(f"Skill '{meta.skill_id}' 不在 allowed_skill_ids 白名单内，拒绝加载执行。")
+        if (
+            self.allowed_skill_ids is not None
+            and meta.skill_id not in self.allowed_skill_ids
+        ):
+            raise SkillError(
+                f"Skill '{meta.skill_id}' 不在 allowed_skill_ids 白名单内，拒绝加载执行。"
+            )
 
         text = meta.skill_md.read_text(encoding="utf-8")
         _, body = _parse_frontmatter(text)
 
         return body
 
-
     def execute_skill_command(self, skill_id: str, run_command: str) -> Dict[str, Any]:
         return "Not supported yet"
 
-    async def execute_skill_calls_batch(self, skill_calls: Tuple[Dict[str, Any]], max_skill_calls: int = 10) -> Tuple[List[Tuple[str, Any]], bool]:
+    async def execute_skill_calls_batch(
+        self, skill_calls: Tuple[Dict[str, Any]], max_skill_calls: int = 10
+    ) -> Tuple[List[Tuple[str, Any]], bool]:
         """
         Execute a batch of skill calls.
         :param skill_calls: Tuple of skill calls
@@ -203,15 +215,13 @@ class SkillManager:
             call_id = skill_call["id"]
             server_name = skill_call["server_name"]
             skill_name = skill_call["tool_name"]
-            result = self.load(
-                skill_id=skill_name
-            )
+            result = self.load(skill_id=skill_name)
             result = {
-                'server_name': server_name,
-                'tool_name': skill_name,
-                'result': result
+                "server_name": server_name,
+                "tool_name": skill_name,
+                "result": result,
             }
-            #TODO error process
+            # TODO error process
             results.append((call_id, result))
 
         return results, exceeded

@@ -5,11 +5,10 @@
 import asyncio
 import logging
 import pathlib
-from pathlib import Path
 import dotenv
 import hydra
 
-from src.logging.logger import setup_logger, get_logger
+from src.logging.logger import setup_logger
 from config import config_name, config_path, debug_config
 from omegaconf import DictConfig
 
@@ -28,19 +27,25 @@ async def single_task(
     log_path = pathlib.Path(".") / pathlib.Path(cfg.output_dir) / f"{task_name}.log"
     logger.info(f"logger_path is {log_path.absolute()}")
 
+    # TODO: Orchestrator class has been removed/refactored
+    # This file is in the old/ directory and may be deprecated
+    # Consider using BaseAgent and run_single_attempt from src.utils.task_utils instead
     # 创建 Orchestrator（可复用）
-    orchestrator = Orchestrator(cfg=cfg)
-    
+    # orchestrator = Orchestrator(cfg=cfg)
+
     # 执行任务
-    result, task_log = await orchestrator.run_task(
-        task_name=task_name,
-        task_id=task_id,
-        task_description=task_description,
-        task_file_name=task_file_name,
-        log_path=log_path.absolute(),
+    # result, task_log = await orchestrator.run_task(
+    #     task_name=task_name,
+    #     task_id=task_id,
+    #     task_description=task_description,
+    #     task_file_name=task_file_name,
+    #     log_path=log_path.absolute(),
+    # )
+
+    # logger.info(f"Task {task_id} completed with status: {task_log.status}")
+    logger.warning(
+        f"Orchestrator functionality has been removed. Task {task_id} execution skipped."
     )
-    
-    logger.info(f"Task {task_id} completed with status: {task_log.status}")
 
 
 def main(

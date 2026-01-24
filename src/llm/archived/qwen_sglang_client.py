@@ -9,8 +9,7 @@ from omegaconf import DictConfig
 from openai import AsyncOpenAI, OpenAI
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from src.llm.base import LLMClientBase
-
+from src.llm.base import LLMProviderClientBase
 from src.logging.task_tracer import get_tracer
 
 logger = get_tracer()
@@ -103,12 +102,10 @@ class QwenSGLangClient(LLMProviderClientBase):
             logger.debug(f"OpenAI LLM call failed: {str(e)}")
             raise e
 
-    def process_llm_response(
-        self, llm_response
-    ) -> tuple[str, bool, dict]:
+    def process_llm_response(self, llm_response) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response
-        
+
         Returns:
             tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
         """
@@ -120,12 +117,18 @@ class QwenSGLangClient(LLMProviderClientBase):
         # Extract LLM response text
         if llm_response.choices[0].finish_reason == "stop":
             assistant_response_text = llm_response.choices[0].message.content or ""
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         elif llm_response.choices[0].finish_reason == "length":
             assistant_response_text = llm_response.choices[0].message.content or ""
             if assistant_response_text == "":
                 assistant_response_text = "LLM response is empty. This is likely due to thinking block used up all tokens."
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         else:
             # Different from Openai Client, we don't use tool calls for qwen,
             # so we don't support tool_call finish reason

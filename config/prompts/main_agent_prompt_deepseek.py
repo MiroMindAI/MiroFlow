@@ -2,7 +2,7 @@ import datetime
 from typing import Any
 
 
-class MainAgentPromptBoxedDeepSeek():
+class MainAgentPromptBoxedDeepSeek:
     """
     Adapted from MainAgentPromptBoxedAnswer. Since the tool-use is DeepSeek format, we remove the <use_mcp_tool> tags and its corresponding format instructions.
     """

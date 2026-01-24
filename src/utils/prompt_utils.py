@@ -6,7 +6,7 @@ class PromptManager:
     def __init__(self, config_path: str = None):
         """
         Load YAML containing templates and components.
-        
+
         Args:
             config_path: Path to the YAML config file. If None, creates an empty instance.
         """
@@ -18,24 +18,28 @@ class PromptManager:
 
         # StrictUndefined 会在参数缺失时报错，如果你想容忍缺失就改成 Undefined
         self.env = Environment(undefined=StrictUndefined)
-    
+
     @classmethod
     def from_config(cls, cfg, instance=None):
         """
         Create PromptManager from config object if prompt path exists.
-        
+
         Args:
             cfg: Config object that may have a 'prompt' attribute
             instance: Optional instance to check if prompt_manager already exists
-        
+
         Returns:
             PromptManager instance if config has prompt, None otherwise
         """
-        if hasattr(cfg, "prompt") and (instance is None or not hasattr(instance, "prompt_manager")):
+        if hasattr(cfg, "prompt") and (
+            instance is None or not hasattr(instance, "prompt_manager")
+        ):
             return cls(config_path=cfg.prompt)
         return None
 
-    def _validate_required_context(self, section_cfg: dict, context: dict, section_name: str):
+    def _validate_required_context(
+        self, section_cfg: dict, context: dict, section_name: str
+    ):
         required = section_cfg.get("required_context", [])
         missing = [k for k in required if k not in context]
 
@@ -44,7 +48,9 @@ class PromptManager:
                 f"[PromptRenderer] Section '{section_name}' missing required context keys: {missing}"
             )
 
-    def _render_components(self, section_cfg: dict, context: dict, section_name: str, component: str = None) -> str:
+    def _render_components(
+        self, section_cfg: dict, context: dict, section_name: str, component: str = None
+    ) -> str:
         rendered_parts = []
 
         if component:
@@ -79,7 +85,9 @@ class PromptManager:
         # 2. render components in order
         return self._render_components(section_cfg, context, prompt_name)
 
-    def render_prompt_component(self, prompt_name: str, context: dict, component: str) -> str:
+    def render_prompt_component(
+        self, prompt_name: str, context: dict, component: str
+    ) -> str:
         """
         Render a single component of a prompt section (e.g., basic_system_prompt, chinese_context_extra_prompt).
         """
@@ -87,28 +95,30 @@ class PromptManager:
 
         return self._render_components(section_cfg, context, prompt_name, component)
 
+
 # ============================================================
 # Example Usage
 # ============================================================
 if __name__ == "__main__":
-    renderer = PromptManager("/home/muyan_zhong/dev/MiroFlow-baseline/config/agent_prompts/prompt_v0.yaml")
+    renderer = PromptManager(
+        "/home/muyan_zhong/dev/MiroFlow-baseline/config/agent_prompts/prompt_v0.yaml"
+    )
 
     context = {
         "task_description": "Explain the concept of reinforcement learning.",
         "file_input": {
             "file_type": "pdf",
             "file_name": "notes.pdf",
-            "absolute_file_path": "/workspace/notes.pdf"
+            "absolute_file_path": "/workspace/notes.pdf",
         },
         "formatted_date": "2025-12-01",
         "chinese_context": True,
-        "mcp_server_definitions": "{...schema...}"
+        "mcp_server_definitions": "{...schema...}",
     }
 
     # Render specific section
     print(renderer.render_prompt("initial_user_text", context))
 
     # Or render all at once
-    #all_outputs = renderer.render_all(context)
-    #print(all_outputs["system_prompt"])
-
+    # all_outputs = renderer.render_all(context)
+    # print(all_outputs["system_prompt"])

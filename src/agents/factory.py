@@ -26,7 +26,8 @@ _RESERVED = {"entrypoint", "global_parameters"}
 def build_agent_from_config(cfg: Union[DictConfig, dict]) -> BaseAgent:
     """从完整配置文件构建 Agent（包含 entrypoint）"""
     entrypoint = cfg.get("entrypoint", None)
-    global_parameters = cfg.get("global_parameters", None)
+    # global_parameters is reserved but not currently used
+    _ = cfg.get("global_parameters", None)
 
     return build_agent(cfg[entrypoint])
 
@@ -34,25 +35,25 @@ def build_agent_from_config(cfg: Union[DictConfig, dict]) -> BaseAgent:
 def build_agent(cfg: Union[DictConfig, dict], sequential: bool = False) -> BaseAgent:
     """
     从配置构建 Agent 实例
-    
+
     Args:
         cfg: Agent 配置，必须包含 'type' 字段
         sequential: 是否顺序执行（保留参数，未使用）
-    
+
     Returns:
         BaseAgent: 构建的 Agent 实例
     """
     # 确保模块已导入
     _lazy_import_modules(ComponentType.AGENT)
     _lazy_import_modules(ComponentType.IO_PROCESSOR)
-    
+
     if isinstance(cfg, dict) or isinstance(cfg, list):
         cfg = OmegaConf.create(cfg)
-    
-    assert 'type' in cfg, f"Agent module config must have field `type`. \n" + str(cfg)
-    
-    module_class = str(cfg['type'])
-    
+
+    assert "type" in cfg, "Agent module config must have field `type`. \n" + str(cfg)
+
+    module_class = str(cfg["type"])
+
     try:
         cls = safe_get_module_class(module_class)
     except KeyError:
@@ -61,14 +62,14 @@ def build_agent(cfg: Union[DictConfig, dict], sequential: bool = False) -> BaseA
             f"Unknown module class '{module_class}', "
             f"registered={list(registered.keys())}"
         )
-    
+
     try:
         ret = cls(cfg=cfg)
     except Exception as e:
-        print('------------------')
+        print("------------------")
         print(cfg)
-        error_msg = f'Error initializing module {module_class}: {e}, cfg: {cfg}'
+        error_msg = f"Error initializing module {module_class}: {e}, cfg: {cfg}"
         logger.error(error_msg)
         raise RuntimeError(error_msg)
-    
+
     return ret
