@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import dataclasses
 import json
-import os
 import re
 from typing import Any, Dict, List
 
@@ -216,12 +214,10 @@ class ClaudeOpenRouterClient(LLMClientBase):
 
         return cleaned_text
 
-    def process_llm_response(
-        self, llm_response
-    ) -> tuple[str, bool, dict]:
+    def process_llm_response(self, llm_response) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response
-        
+
         Returns:
             tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
         """
@@ -254,9 +250,9 @@ class ClaudeOpenRouterClient(LLMClientBase):
                 "Successful response, but unsupported finish reason: "
                 + llm_response.choices[0].finish_reason
             )
-        
+
         logger.debug(f"LLM Response: {assistant_response_text}")
-        
+
         # Build assistant message (caller will append to message_history)
         assistant_message = {"role": "assistant", "content": assistant_response_text}
 

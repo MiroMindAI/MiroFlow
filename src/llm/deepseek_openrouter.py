@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import dataclasses
 import json
-import os
 import re
 from typing import Any, Dict, List
 
@@ -28,6 +26,7 @@ logger = get_tracer()
 
 class ContextLimitError(Exception):
     pass
+
 
 class DeepSeekOpenRouterClient(LLMClientBase):
     def _create_client(self, config: DictConfig):
@@ -221,12 +220,10 @@ class DeepSeekOpenRouterClient(LLMClientBase):
 
         return cleaned_text
 
-    def process_llm_response(
-        self, llm_response
-    ) -> tuple[str, bool, dict]:
+    def process_llm_response(self, llm_response) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response
-        
+
         Returns:
             tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
         """
@@ -243,7 +240,10 @@ class DeepSeekOpenRouterClient(LLMClientBase):
             assistant_response_text = self._clean_user_content_from_response(
                 assistant_response_text
             )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         elif llm_response.choices[0].finish_reason == "length":
             assistant_response_text = llm_response.choices[0].message.content or ""
             if assistant_response_text == "":
@@ -252,7 +252,10 @@ class DeepSeekOpenRouterClient(LLMClientBase):
                 assistant_response_text = self._clean_user_content_from_response(
                     assistant_response_text
                 )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         elif llm_response.choices[0].finish_reason == "tool_calls":
             # For tool_calls, we need to extract tool call information as text
             tool_calls = llm_response.choices[0].message.tool_calls
@@ -290,7 +293,10 @@ class DeepSeekOpenRouterClient(LLMClientBase):
                 "Successful response, but unsupported finish reason: "
                 + llm_response.choices[0].finish_reason
             )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         logger.debug(f"LLM Response: {assistant_response_text}")
 
         return assistant_response_text, False, assistant_message

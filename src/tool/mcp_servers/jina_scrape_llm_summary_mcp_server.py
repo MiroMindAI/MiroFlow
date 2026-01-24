@@ -877,4 +877,3 @@ if __name__ == "__main__":
 
     # Run the MCP server
     mcp.run(transport="stdio")
-

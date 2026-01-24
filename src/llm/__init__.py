@@ -35,7 +35,7 @@ for module_info in pkgutil.iter_modules([package_dir]):
         continue
     if module_info.ispkg:  # 跳过子目录（如 archived）
         continue
-    
+
     try:
         # Import the module
         module = importlib.import_module(f"{__name__}.{module_name}")

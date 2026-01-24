@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import dataclasses
 import json
-import os
 import re
 from typing import Any, Dict, List
 
@@ -25,8 +23,11 @@ from src.logging.task_tracer import get_tracer
 
 logger = get_tracer()
 
+
 class ContextLimitError(Exception):
     pass
+
+
 class GPT5OpenAIClient(LLMClientBase):
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client"""
@@ -144,7 +145,9 @@ class GPT5OpenAIClient(LLMClientBase):
             if self.top_p != 1.0:
                 params["top_p"] = self.top_p
 
-            response = await self._create_completion_with_service_tier_fallback(params, self.async_client)
+            response = await self._create_completion_with_service_tier_fallback(
+                params, self.async_client
+            )
 
             if (
                 response is None
@@ -199,14 +202,16 @@ class GPT5OpenAIClient(LLMClientBase):
             )
             raise e
 
-    async def _create_completion_with_service_tier_fallback(self, params: Dict[str, Any], is_async: bool):
+    async def _create_completion_with_service_tier_fallback(
+        self, params: Dict[str, Any], is_async: bool
+    ):
         """Helper to create a completion, handling async and sync calls."""
         # if is_async:
         #     return await self.client.chat.completions.create(**params)
         # else:
         #     return self.client.chat.completions.create(**params)
         flex_params = dict(params)
-        #flex_params["service_tier"] = "flex"
+        # flex_params["service_tier"] = "flex"
 
         try:
             logger.debug("LLM call using service_tier='flex'")
@@ -214,7 +219,7 @@ class GPT5OpenAIClient(LLMClientBase):
                 return await self.client.chat.completions.create(**flex_params)
             else:
                 return self.client.chat.completions.create(**flex_params)
-        except Exception as e:
+        except Exception:
             # 这里是“flex 模式失败”的回退逻辑
             logger.warning(
                 "LLM call with service_tier='flex' failed, falling back to default tier",
@@ -238,12 +243,10 @@ class GPT5OpenAIClient(LLMClientBase):
 
         return cleaned_text
 
-    def process_llm_response(
-        self, llm_response
-    ) -> tuple[str, bool, dict]:
+    def process_llm_response(self, llm_response) -> tuple[str, bool, dict]:
         """
         Process OpenAI LLM response
-        
+
         Returns:
             tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
         """
@@ -260,7 +263,10 @@ class GPT5OpenAIClient(LLMClientBase):
             assistant_response_text = self._clean_user_content_from_response(
                 assistant_response_text
             )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         elif llm_response.choices[0].finish_reason == "length":
             assistant_response_text = llm_response.choices[0].message.content or ""
             if assistant_response_text == "":
@@ -269,7 +275,10 @@ class GPT5OpenAIClient(LLMClientBase):
                 assistant_response_text = self._clean_user_content_from_response(
                     assistant_response_text
                 )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         else:
             logger.error(
                 f"Unsupported finish reason: {llm_response.choices[0].finish_reason}"
@@ -278,7 +287,10 @@ class GPT5OpenAIClient(LLMClientBase):
                 "Successful response, but unsupported finish reason: "
                 + llm_response.choices[0].finish_reason
             )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         logger.debug(f"LLM Response: {assistant_response_text}")
 
         return assistant_response_text, False, assistant_message
@@ -337,10 +349,7 @@ class GPT5OpenAIClient(LLMClientBase):
                 output_parts.append(content["text"])
 
         merged_text = "\n\n".join(output_parts)
-        return {
-            "role": "user",
-            "content": [{"type": "text", "text": merged_text}]
-        }
+        return {"role": "user", "content": [{"type": "text", "text": merged_text}]}
 
     def update_message_history(
         self, message_history, tool_call_info, tool_calls_exceeded=False

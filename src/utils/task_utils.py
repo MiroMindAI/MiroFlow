@@ -22,11 +22,11 @@ from src.utils.eval_utils import (
     Evaluator,
     TaskResult,
     Task,
-    STATUS_PENDING,
     STATUS_FAILED,
-    STATUS_COMPLETED
 )
+
 tracer = get_tracer()
+
 
 async def run_single_attempt(
     cfg: DictConfig,
@@ -36,9 +36,9 @@ async def run_single_attempt(
     evaluator: Optional[Evaluator] = None,
 ) -> AttemptResult:
     """Execute a single task attempt with optional evaluation."""
-    
+
     attempt_result = AttemptResult(task=task, attempt_id=attempt_id)
-    
+
     # Setup tracer and context
     log_path = Path(cfg.output_dir) / f"task_{task.task_id}_attempt_{attempt_id}.json"
     task_context_var = TaskContextVar(task_id=task.task_id, run_id=str(attempt_id))
@@ -53,39 +53,45 @@ async def run_single_attempt(
             "ground_truth": task.ground_truth,  # Set ground_truth early
         }
     )
-    
+
     tracer.start()
     try:
-        response = await agent.run({
-            "task_description": task.task_question,
-            "task_file_name": task.file_path or "",
-        })
-        
+        response = await agent.run(
+            {
+                "task_description": task.task_question,
+                "task_file_name": task.file_path or "",
+            }
+        )
+
         attempt_result.update_from_response(response, log_path)
-        tracer.update_task_meta(patch={
-            "final_boxed_answer": attempt_result.model_boxed_answer,
-        })
-        
+        tracer.update_task_meta(
+            patch={
+                "final_boxed_answer": attempt_result.model_boxed_answer,
+            }
+        )
+
         # Perform verification if evaluator is provided (before finish to capture judge_result)
         if evaluator is not None:
             attempt_result = await evaluator.verify_attempt_result(
                 task, attempt_id, attempt_result
             )
-            tracer.update_task_meta(patch={
-                "judge_result": attempt_result.judge_result,
-            })
-        
+            tracer.update_task_meta(
+                patch={
+                    "judge_result": attempt_result.judge_result,
+                }
+            )
+
         # Finish with completed status if no exception
         tracer.finish(status="completed")
     except Exception as e:
         attempt_result.status = STATUS_FAILED
         attempt_result.error_message = str(e)
         print(f"    Error in attempt {attempt_id}: {e}")
-        tracer.finish(status="failed", error=str(e))    
+        tracer.finish(status="failed", error=str(e))
     finally:
         # Reset context after all tracer operations are done
         reset_current_task_context_var(token)
-    
+
     return attempt_result
 
 
@@ -97,17 +103,17 @@ async def run_single_task(
     evaluator: Optional[Evaluator] = None,
 ) -> TaskResult:
     """Run a single task with optional pass@k evaluation."""
-    
+
     pass_at_k = evaluator.pass_at_k if evaluator else attempt_num
     print(f"Processing task {task.task_id} with pass@{pass_at_k}")
-    
+
     result = TaskResult(task=task)
     found_correct = False
-    
+
     try:
         for attempt_id in range(1, pass_at_k + 1):
             print(f"  Attempt {attempt_id}/{pass_at_k} for task {task.task_id}")
-            
+
             attempt_result = await run_single_attempt(
                 cfg=cfg,
                 agent=agent,
@@ -115,31 +121,36 @@ async def run_single_task(
                 attempt_id=attempt_id,
                 evaluator=evaluator,
             )
-            
+
             result.update_with_attempt(attempt_result)
-            
+
             # Early stopping when correct answer is found
             if evaluator and attempt_result.is_correct:
                 found_correct = True
-                print(f"    🎯 Found correct answer! Stopping early after {attempt_id} attempts.")
+                print(
+                    f"    🎯 Found correct answer! Stopping early after {attempt_id} attempts."
+                )
                 break
     except Exception as e:
         result.status = STATUS_FAILED
         result.error_message = str(e)
         print(f"Error processing task {task.task_id}: {e}")
-        
+
     finally:
         result.pass_at_k_success = found_correct
-        
+
         # Set judge result based on evaluation outcome
         if evaluator:
-            result.judge_result = "PASS_AT_K_SUCCESS" if found_correct else "PASS_AT_K_FAILED"
+            result.judge_result = (
+                "PASS_AT_K_SUCCESS" if found_correct else "PASS_AT_K_FAILED"
+            )
             status_icon = "✅ SUCCESS" if found_correct else "❌ FAILED"
             print(f"    Pass@{pass_at_k} result: {status_icon}")
-        
+
         print(f"Task {task.task_id} completed with {len(result.attempts)} attempts")
-    
+
     return result
+
 
 async def run_tasks(
     cfg: DictConfig,
@@ -149,19 +160,23 @@ async def run_tasks(
     max_concurrent: int = 3,
 ) -> List[TaskResult]:
     """Run multiple tasks in parallel with concurrency control."""
-    
-    print(f"Running inference on {len(tasks)} tasks with max_concurrent={max_concurrent}")
-    
+
+    print(
+        f"Running inference on {len(tasks)} tasks with max_concurrent={max_concurrent}"
+    )
+
     semaphore = asyncio.Semaphore(max_concurrent)
-    
+
     async def run_with_semaphore(task: Task) -> TaskResult:
         async with semaphore:
-            return await run_single_task(cfg=cfg, agent=agent, task=task, evaluator=evaluator)
-    
+            return await run_single_task(
+                cfg=cfg, agent=agent, task=task, evaluator=evaluator
+            )
+
     # Run tasks in parallel with semaphore control
     results = await asyncio.gather(
         *[run_with_semaphore(task) for task in tasks],
         return_exceptions=True,
     )
-    
+
     return results

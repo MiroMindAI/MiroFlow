@@ -6,22 +6,21 @@
 最终答案提取器 - 从摘要中提取最终答案
 """
 
-from omegaconf import DictConfig
-
 from src.io_processor.base import BaseIOProcessor
 from src.agents.context import AgentContext
 from src.registry import register, ComponentType
 from src.utils.summary_utils import (
     extract_gaia_final_answer,
-    extract_browsecomp_zh_final_answer
+    extract_browsecomp_zh_final_answer,
 )
 
 
-@register(ComponentType.IO_PROCESSOR, "FinalAnswerExtractor")    
+@register(ComponentType.IO_PROCESSOR, "FinalAnswerExtractor")
 class FinalAnswerExtractor(BaseIOProcessor):
     """最终答案提取器"""
+
     USE_PROPAGATE_MODULE_CONFIGS = ("llm", "prompt")
-    
+
     @staticmethod
     def _extract_boxed_content(text: str) -> str:
         """
@@ -60,7 +59,9 @@ class FinalAnswerExtractor(BaseIOProcessor):
 
             # If we found a balanced match (brace_count == 0)
             if brace_count == 0:
-                content = text[content_start : content_end - 1]  # -1 to exclude the closing brace
+                content = text[
+                    content_start : content_end - 1
+                ]  # -1 to exclude the closing brace
                 matches.append(content)
                 # Continue searching from after this complete match
                 i = content_end
@@ -96,21 +97,22 @@ class FinalAnswerExtractor(BaseIOProcessor):
         return "\n".join(summary_lines), boxed_result
 
     async def run_internal(self, ctx: AgentContext) -> AgentContext:
-        if "browsecomp-zh" in ctx.get("task_meta", {}).get("dataset_name", ''):
+        if "browsecomp-zh" in ctx.get("task_meta", {}).get("dataset_name", ""):
             extract_final_answer_function = extract_browsecomp_zh_final_answer
         else:
             extract_final_answer_function = extract_gaia_final_answer
-        
+
         extracted_answer = await extract_final_answer_function(
-            task_description_detail=ctx.get("task_description", ''),
+            task_description_detail=ctx.get("task_description", ""),
             summary=ctx.get("summary", None),
             chinese_context=self.cfg.get("chinese_context", False),
-            llm_client=self.llm_client
+            llm_client=self.llm_client,
         )
 
-        _, boxed_result = FinalAnswerExtractor._format_final_summary_and_log(extracted_answer)
+        _, boxed_result = FinalAnswerExtractor._format_final_summary_and_log(
+            extracted_answer
+        )
 
         return AgentContext(
-            llm_extracted_final_answer=extracted_answer,
-            final_boxed_answer=boxed_result    
+            llm_extracted_final_answer=extracted_answer, final_boxed_answer=boxed_result
         )

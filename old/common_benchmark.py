@@ -4,27 +4,19 @@
 
 import asyncio
 import json
-import os
-import random
-import signal
 from pathlib import Path
-from typing import List
 
 import dotenv
-import hydra
 from omegaconf import DictConfig, OmegaConf
 
 from config import load_config
 
 from src.utils.eval_utils import (
     Task,
-    TaskResult,
     Evaluator,
 )
 from src.utils.task_utils import run_tasks
 from src.agents.registry import build_agent_from_config
-from src.agents.base_module import BaseAgentModule
-from config import config_name, config_path
 from src.logging.task_tracer import get_tracer
 
 
@@ -40,7 +32,7 @@ async def run_benchmark(cfg: DictConfig) -> float:
     # 读 benchmark 的 task
     def parse_func(x: str) -> Task:
         data = json.loads(x)
-        
+
         return Task(
             task_id=data["task_id"],
             task_question=data["task_question"],
@@ -60,13 +52,15 @@ async def run_benchmark(cfg: DictConfig) -> float:
     if len(tasks) == 0:
         print("No tasks loaded. Exiting.")
         return 0.0
-    
+
     # 实例化 agent
-    agent = build_agent_from_config(cfg=cfg)  
+    agent = build_agent_from_config(cfg=cfg)
     # 测试 benchmark 里的 task
-    print(f"\nStarting parallel inference with {cfg.benchmark.execution.max_concurrent} concurrent tasks...")
+    print(
+        f"\nStarting parallel inference with {cfg.benchmark.execution.max_concurrent} concurrent tasks..."
+    )
     print(f"Using pass@{evaluator.pass_at_k} evaluation...")
-    
+
     results = await run_tasks(
         cfg=cfg,
         evaluator=evaluator,
@@ -86,7 +80,7 @@ async def run_benchmark(cfg: DictConfig) -> float:
     results_path = log_dir / output_filename
     evaluator.save_results(results, results_path)
     print(f"\nEvaluation completed! Results saved to {results_path}")
-    
+
     # save accuracy to a file
     accuracy_file = (
         results_path.parent
@@ -98,7 +92,6 @@ async def run_benchmark(cfg: DictConfig) -> float:
     return accuracy
 
 
-
 def main(*args, config_file_name: str = ""):
     # Load environment variables
     dotenv.load_dotenv()
@@ -106,5 +99,5 @@ def main(*args, config_file_name: str = ""):
     # Load configuration
     cfg = load_config(config_file_name, *args)
 
-    # Run benchmark 
+    # Run benchmark
     asyncio.run(run_benchmark(cfg))

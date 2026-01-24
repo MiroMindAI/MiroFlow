@@ -10,10 +10,12 @@ from functools import wraps
 from typing import Any, Callable, Dict, Optional
 
 from .span import Span, new_id
-from src.logging.task_tracer import TaskTracer, get_tracer, get_current_task_context_var
+from src.logging.task_tracer import get_tracer, get_current_task_context_var
 
 # ---- contextvars ----
-CURRENT_SPAN_ID: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar("CURRENT_SPAN_ID", default=None)
+CURRENT_SPAN_ID: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
+    "CURRENT_SPAN_ID", default=None
+)
 CURRENT_SPAN_PATH: contextvars.ContextVar[Optional[str]] = contextvars.ContextVar(
     "CURRENT_SPAN_PATH", default=None
 )
@@ -29,10 +31,16 @@ def _default_span_name(func: Callable[..., Any], args: tuple[Any, ...]) -> str:
 def span(
     name: Optional[str] = None,
     *,
-    name_fn: Optional[Callable[[Callable[..., Any], tuple[Any, ...], Dict[str, Any]], str]] = None,
+    name_fn: Optional[
+        Callable[[Callable[..., Any], tuple[Any, ...], Dict[str, Any]], str]
+    ] = None,
     # 可选：让调用方显式传 node_id/step_id（用于 heartbeat 和 step_logs）
-    node_id_fn: Optional[Callable[[Callable[..., Any], tuple[Any, ...], Dict[str, Any]], Optional[str]]] = None,
-    step_id_fn: Optional[Callable[[Callable[..., Any], tuple[Any, ...], Dict[str, Any]], Optional[int]]] = None,
+    node_id_fn: Optional[
+        Callable[[Callable[..., Any], tuple[Any, ...], Dict[str, Any]], Optional[str]]
+    ] = None,
+    step_id_fn: Optional[
+        Callable[[Callable[..., Any], tuple[Any, ...], Dict[str, Any]], Optional[int]]
+    ] = None,
 ):
     """
     Async decorator that:
@@ -41,6 +49,7 @@ def span(
       - updates tracer.data.heartbeat.current_span = {...} on start, clears on end
       - maintains CURRENT_SPAN_ID to form a call tree
     """
+
     def decorator(func: Callable[..., Any]):
         if not inspect.iscoroutinefunction(func):
             raise TypeError("@span can only decorate async functions")
@@ -59,14 +68,14 @@ def span(
 
             # trace/run ids stable in a task
             task_context_var = get_current_task_context_var()
-            
+
             if task_context_var is None:
                 return await func(*args, **kwargs)
-            
+
             parent_span_id = CURRENT_SPAN_ID.get()
             span_id = new_id("sp_")
 
-            #path  
+            # path
             parent_path = CURRENT_SPAN_PATH.get()
             if parent_path:
                 span_path = f"{parent_path}->{span_name}"
@@ -74,7 +83,6 @@ def span(
                 span_path = span_name
 
             path_token = CURRENT_SPAN_PATH.set(span_path)
-
 
             # compute node_id/step_id (optional)
             node_id = node_id_fn(func, args, kwargs) if node_id_fn else None
@@ -102,12 +110,12 @@ def span(
                 tracer.append_step_event(
                     {
                         "type": "span_start",
-                         #"run_id": run_id,
+                        # "run_id": run_id,
                         "span_id": span_id,
                         "parent_span_id": parent_span_id,
                         "path": span_path,
-                        #"node_id": node_id,
-                        #"step_id": step_id,
+                        # "node_id": node_id,
+                        # "step_id": step_id,
                         "start_ts": sp.start_ts,
                     }
                 )
@@ -127,17 +135,17 @@ def span(
                 if tracer is not None:
                     event = {
                         "type": "span_end",
-                        #"run_id": run_id,
+                        # "run_id": run_id,
                         "span_id": span_id,
                         "parent_span_id": parent_span_id,
                         "path": span_path,
-                        #"node_id": node_id,
-                        #"step_id": step_id,
-                        #"start_ts": sp.start_ts,
+                        # "node_id": node_id,
+                        # "step_id": step_id,
+                        # "start_ts": sp.start_ts,
                         "end_ts": sp.end_ts,
                         "duration_ms": sp.duration_ms,
-                        #"status": sp.status,
-                        #"error": sp.error,
+                        # "status": sp.status,
+                        # "error": sp.error,
                     }
                     if sp.error:
                         event["error"] = sp.error

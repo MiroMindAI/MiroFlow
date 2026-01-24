@@ -3,6 +3,7 @@ from pathlib import Path
 from omegaconf import DictConfig, OmegaConf
 from omegaconf.errors import ConfigInheritanceError
 
+
 def load_omegaconf_with_base(
     path: Union[str, Path],
     *,
@@ -36,7 +37,9 @@ def load_omegaconf_with_base(
         p = p.resolve()
         if p in visited:
             chain = " -> ".join(str(x) for x in visited + [p])
-            raise ConfigInheritanceError(f"Cycle detected in {base_key} inheritance: {chain}")
+            raise ConfigInheritanceError(
+                f"Cycle detected in {base_key} inheritance: {chain}"
+            )
 
         visited.append(p)
         cfg = OmegaConf.load(p)
@@ -54,7 +57,9 @@ def load_omegaconf_with_base(
 
         base_path = (p.parent / base_ref).resolve()
         if not base_path.is_file():
-            raise FileNotFoundError(f"Base config referenced by {p} not found: {base_path}")
+            raise FileNotFoundError(
+                f"Base config referenced by {p} not found: {base_path}"
+            )
 
         base_cfg = _load_recursive(base_path)
 

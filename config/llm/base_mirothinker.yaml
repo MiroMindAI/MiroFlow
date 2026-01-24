@@ -16,7 +16,7 @@ async_client: true
 reasoning_effort: null
 repetition_penalty: 1.05
 
-disable_cache_control: true
+disable_cache_control: false
 keep_tool_result: 5
 
 use_tool_calls: false

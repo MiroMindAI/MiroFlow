@@ -25,10 +25,10 @@ def build_llm_client(
     - llm_config: Direct LLM configuration
     """
     # assert cfg is not None, "cfg is required"
-    
+
     if cfg is None:
         return None
-    
+
     # Direct LLM config provided
     if isinstance(cfg, dict):
         cfg = OmegaConf.create(cfg)
@@ -36,7 +36,7 @@ def build_llm_client(
     if "_base_" in cfg:
         base_config = OmegaConf.load(cfg["_base_"])
         cfg = OmegaConf.merge(base_config, cfg)
-    
+
     provider_class = cfg.provider_class
     # Create compatible config structure
     config = OmegaConf.create(cfg)
@@ -64,6 +64,8 @@ def build_llm_client(
     try:
         client_instance = ProviderClass(cfg=config)
     except Exception as e:
-        raise RuntimeError(f"Failed to instantiate {provider_class}: {e}, llm config: {config} \n")
+        raise RuntimeError(
+            f"Failed to instantiate {provider_class}: {e}, llm config: {config} \n"
+        )
 
     return client_instance

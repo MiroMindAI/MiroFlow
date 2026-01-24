@@ -80,7 +80,7 @@ def gen_gaia_validation(hf_token: str, data_dir: str) -> Generator[Task, None, N
         question = metadata.pop("Question")
         gt = metadata.pop("Final answer")
         file_path = metadata.pop("file_path")
-        file_name = metadata.pop("file_name")
+        metadata.pop("file_name")  # Remove but don't use
 
         # Download the file if it exists
         local_file_path = None

@@ -3,8 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import dataclasses
-import os
 
 from anthropic import (
     NOT_GIVEN,
@@ -19,6 +17,7 @@ from src.llm.base import LLMClientBase
 from src.logging.task_tracer import get_tracer
 
 logger = get_tracer()
+
 
 class ClaudeAnthropicClient(LLMClientBase):
     def __post_init__(self):
@@ -105,12 +104,10 @@ class ClaudeAnthropicClient(LLMClientBase):
             logger.exception("Anthropic LLM endpoint failed")
             raise e
 
-    def process_llm_response(
-        self, llm_response
-    ) -> tuple[str, bool, dict]:
+    def process_llm_response(self, llm_response) -> tuple[str, bool, dict]:
         """
         Process Anthropic LLM response
-        
+
         Returns:
             tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
         """

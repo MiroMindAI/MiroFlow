@@ -3,9 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import dataclasses
 import json
-import os
 import re
 from typing import Any, Dict, List
 
@@ -94,7 +92,7 @@ class MiroThinkerSGLangClient(LLMClientBase):
         messages_copy = self._remove_tool_result_from_messages(
             messages, keep_tool_result
         )
-        
+
         params = None
         try:
             temperature = self.temperature
@@ -189,12 +187,10 @@ class MiroThinkerSGLangClient(LLMClientBase):
 
         return cleaned_text
 
-    def process_llm_response(
-        self, llm_response
-    ) -> tuple[str, bool, dict]:
+    def process_llm_response(self, llm_response) -> tuple[str, bool, dict]:
         """
         Process MiroThinker LLM response
-        
+
         Returns:
             tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
         """
@@ -211,7 +207,10 @@ class MiroThinkerSGLangClient(LLMClientBase):
             assistant_response_text = self._clean_user_content_from_response(
                 assistant_response_text
             )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         elif llm_response.choices[0].finish_reason == "length":
             assistant_response_text = llm_response.choices[0].message.content or ""
             if assistant_response_text == "":
@@ -220,7 +219,10 @@ class MiroThinkerSGLangClient(LLMClientBase):
                 assistant_response_text = self._clean_user_content_from_response(
                     assistant_response_text
                 )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         else:
             logger.error(
                 f"Unsupported finish reason: {llm_response.choices[0].finish_reason}"
@@ -229,7 +231,10 @@ class MiroThinkerSGLangClient(LLMClientBase):
                 "Successful response, but unsupported finish reason: "
                 + llm_response.choices[0].finish_reason
             )
-            assistant_message = {"role": "assistant", "content": assistant_response_text}
+            assistant_message = {
+                "role": "assistant",
+                "content": assistant_response_text,
+            }
         logger.debug(f"LLM Response: {assistant_response_text}")
 
         return assistant_response_text, False, assistant_message
@@ -289,10 +294,7 @@ class MiroThinkerSGLangClient(LLMClientBase):
                 output_parts.append(content["text"])
 
         merged_text = "\n\n".join(output_parts)
-        return {
-            "role": "user",
-            "content": [{"type": "text", "text": merged_text}]
-        }
+        return {"role": "user", "content": [{"type": "text", "text": merged_text}]}
 
     def update_message_history(
         self, message_history, tool_call_info, tool_calls_exceeded=False

@@ -10,7 +10,7 @@ Tool 管理器模块 - 负责管理和执行 MCP 工具调用
 
 import asyncio
 import functools
-from typing import Any, Awaitable, Callable, Protocol, TypeVar
+from typing import Any, Awaitable, Callable, TypeVar
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.sse import sse_client
@@ -35,6 +35,7 @@ def update_server_params_with_context_var(
     Update the server params with the context var.
     """
     from src.logging.task_tracer import get_current_task_context_var
+
     task_context_var = get_current_task_context_var()
     if task_context_var is not None:
         server_params.env["TASK_ID"] = task_context_var.task_id
@@ -60,8 +61,11 @@ def with_timeout(timeout_s: float = 300.0):
 
     return decorator
 
-class ToolManager():
-    def __init__(self, cfg: Optional[List[str]] = None, server_configs=None, tool_blacklist=None):
+
+class ToolManager:
+    def __init__(
+        self, cfg: Optional[List[str]] = None, server_configs=None, tool_blacklist=None
+    ):
         """
         Initialize ToolManager.
         :param cfg: List of tool configuration file paths. If provided, will be used to generate server_configs.
@@ -73,7 +77,7 @@ class ToolManager():
             server_configs = get_mcp_server_configs_from_tool_cfg_paths(cfg)
         elif server_configs is None:
             server_configs = []
-        
+
         self.server_configs = server_configs
         self.server_dict = {
             config["name"]: config["params"] for config in server_configs
@@ -256,7 +260,7 @@ class ToolManager():
 
         return all_servers_for_prompt
 
-    @span() 
+    @span()
     @with_timeout(900)
     async def execute_tool_call(self, server_name, tool_name, arguments) -> Any:
         """
@@ -522,7 +526,9 @@ class ToolManager():
                     "error": f"Tool call failed: {error_message}",
                 }
 
-    async def execute_tool_calls_batch(self, tool_calls: tuple, max_tool_calls: int = 10) -> tuple[list[tuple[str, dict]], bool]:
+    async def execute_tool_calls_batch(
+        self, tool_calls: tuple, max_tool_calls: int = 10
+    ) -> tuple[list[tuple[str, dict]], bool]:
         """
         Execute a batch of tool calls.
         :param tool_calls: Tuple of tool calls
@@ -542,11 +548,9 @@ class ToolManager():
             tool_name = tool_call["tool_name"]
             arguments = tool_call["arguments"]
             result = await self.execute_tool_call(
-                server_name=server_name,
-                tool_name=tool_name,
-                arguments=arguments
+                server_name=server_name, tool_name=tool_name, arguments=arguments
             )
-            #TODO error process
+            # TODO error process
             results.append((call_id, result))
 
         return results, exceeded
@@ -556,4 +560,3 @@ class ToolManager():
         for call_id, result in results:
             ret.append((call_id, format_tool_result(result)))
         return ret
-

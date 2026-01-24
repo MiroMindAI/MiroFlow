@@ -4,9 +4,8 @@
 
 import asyncio
 import json
-import os
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
 import tiktoken
 from omegaconf import DictConfig
@@ -16,7 +15,6 @@ from tenacity import (
     retry_if_not_exception_type,
     stop_after_attempt,
     wait_exponential,
-    wait_fixed,
 )
 
 from src.llm.base import LLMClientBase
@@ -32,6 +30,7 @@ OPENAI_REASONING_MODEL_SET = set(
 
 class ContextLimitError(Exception):
     """Non-retriable error: context length exceeded / prompt too long."""
+
     pass
 
 
@@ -59,7 +58,9 @@ class UnifiedOpenAIClient(LLMClientBase):
         # code2 flags
         self.disable_cache_control = getattr(self.cfg, "disable_cache_control", True)
         self.clean_user_echo = getattr(self.cfg, "clean_user_echo", True)
-        self.tool_mode = (getattr(self.cfg, "tool_mode", "auto") or "auto").strip().lower()
+        self.tool_mode = (
+            (getattr(self.cfg, "tool_mode", "auto") or "auto").strip().lower()
+        )
 
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client"""
@@ -114,7 +115,9 @@ class UnifiedOpenAIClient(LLMClientBase):
         # 3) Build tool payload if needed
         tool_list = None
         if tool_mode == "openai_native" and tools_definitions:
-            tool_list = await self.convert_tool_definition_to_tool_call(tools_definitions)
+            tool_list = await self.convert_tool_definition_to_tool_call(
+                tools_definitions
+            )
 
         # 4) Build request params (leave min_p/top_k policy for later)
         params = self._build_params(processed_messages, tool_list=tool_list)
@@ -122,7 +125,9 @@ class UnifiedOpenAIClient(LLMClientBase):
         # 5) Execute call (may do oai_tool_thinking two-step only for native tools)
         try:
             if self.oai_tool_thinking and tool_mode == "openai_native":
-                response = await self._handle_oai_tool_thinking(params, messages, self.async_client)
+                response = await self._handle_oai_tool_thinking(
+                    params, messages, self.async_client
+                )
             else:
                 response = await self._create_completion(params, self.async_client)
 
@@ -179,7 +184,9 @@ class UnifiedOpenAIClient(LLMClientBase):
             or mn.startswith("gpt-5")
         )
 
-    def _inject_system_prompt(self, system_prompt: str, messages: List[Dict[str, Any]]) -> None:
+    def _inject_system_prompt(
+        self, system_prompt: str, messages: List[Dict[str, Any]]
+    ) -> None:
         """Put the system prompt into messages[0] with correct role."""
         if not system_prompt:
             return
@@ -212,7 +219,9 @@ class UnifiedOpenAIClient(LLMClientBase):
         """
         self._inject_system_prompt(system_prompt, messages)
 
-        messages_copy = self._remove_tool_result_from_messages(messages, keep_tool_result)
+        messages_copy = self._remove_tool_result_from_messages(
+            messages, keep_tool_result
+        )
 
         if self.disable_cache_control:
             return messages_copy
@@ -307,13 +316,19 @@ class UnifiedOpenAIClient(LLMClientBase):
     # Error handling & validation
     # -----------------------------
     def _validate_response_or_raise(self, response, params: Dict[str, Any]) -> None:
-        if response is None or not getattr(response, "choices", None) or len(response.choices) == 0:
+        if (
+            response is None
+            or not getattr(response, "choices", None)
+            or len(response.choices) == 0
+        ):
             raise Exception(f"LLM call failed [rare case]: response = {response}")
 
         fr = response.choices[0].finish_reason
         if fr == "length":
             logger.debug("finish_reason is 'length', triggering ContextLimitError")
-            raise ContextLimitError("(finish_reason=length) Response truncated due to maximum context length")
+            raise ContextLimitError(
+                "(finish_reason=length) Response truncated due to maximum context length"
+            )
 
         # Some rare cases: stop but empty
         if fr == "stop":
@@ -472,10 +487,20 @@ class UnifiedOpenAIClient(LLMClientBase):
             return message_history
 
         # text_protocol behavior (code2): filter, summarize, then append as a "user" message
-        tool_call_info = [item for item in tool_call_info if item[1].get("type") == "text"]
+        tool_call_info = [
+            item for item in tool_call_info if item[1].get("type") == "text"
+        ]
 
-        valid_tool_calls = [(tool_id, content) for tool_id, content in tool_call_info if tool_id != "FAILED"]
-        bad_tool_calls = [(tool_id, content) for tool_id, content in tool_call_info if tool_id == "FAILED"]
+        valid_tool_calls = [
+            (tool_id, content)
+            for tool_id, content in tool_call_info
+            if tool_id != "FAILED"
+        ]
+        bad_tool_calls = [
+            (tool_id, content)
+            for tool_id, content in tool_call_info
+            if tool_id == "FAILED"
+        ]
 
         total_calls = len(valid_tool_calls) + len(bad_tool_calls)
         output_parts: List[str] = []
@@ -564,7 +589,9 @@ class UnifiedOpenAIClient(LLMClientBase):
                             processed_text = True
                         else:
                             new_content.append(item.copy())
-                    cached_messages.append({"role": turn["role"], "content": new_content})
+                    cached_messages.append(
+                        {"role": turn["role"], "content": new_content}
+                    )
                 else:
                     logger.debug(
                         "Warning: message content is not in expected list format, cache control not applied."

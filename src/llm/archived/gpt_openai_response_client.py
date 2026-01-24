@@ -11,8 +11,7 @@ from omegaconf import DictConfig
 from openai import AsyncOpenAI, OpenAI
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from src.llm.base import LLMClientBase
-
+from src.llm.base import LLMProviderClientBase
 from src.logging.task_tracer import get_tracer
 
 # OPENAI reasoning models only support temperature=1
@@ -163,12 +162,10 @@ class GPTOpenAIResponseClient(LLMProviderClientBase):
                     tool_list.append(tool_def)
         return tool_list
 
-    def process_llm_response(
-        self, llm_response
-    ) -> tuple[str, bool, dict]:
+    def process_llm_response(self, llm_response) -> tuple[str, bool, dict]:
         """
         Process OpenAI Response API LLM response
-        
+
         Returns:
             tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
         """

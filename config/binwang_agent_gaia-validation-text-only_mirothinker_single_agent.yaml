@@ -6,31 +6,23 @@ defaults:
 entrypoint: main_agent
 main_agent:
   name: main_agent
-  type: IterativeAgentWithTool                           
+  type: IterativeAgentWithToolAndRollback
+  max_consecutive_rollbacks: 3
   llm: 
     _base_: config/llm/base_mirothinker.yaml
-    provider_class: MiroThinkerSGLangClient
-    model_name: dummy
-  prompt: config/prompts/prompt_main_agent.yaml
+    max_context_length: 262144
+    max_tokens: 16384
+  prompt: config/prompts/binwang_prompt_main_agent.yaml
   tools:
-    - config/tool/tool-searching.yaml
-    # - config/tool/tool-image-video.yaml
-    - config/tool/tool-reading.yaml
+    - config/tool/tool-search-and-scrape-webpage.yaml
+    - config/tool/tool-jina-scrape-llm-summary.yaml
     - config/tool/tool-code.yaml
-    # - config/tool/tool-audio.yaml
-    # - config/tool/tool-reasoning.yaml
   input_processor:
-    # - ${input-hint-generator} 
     - ${input-message-generator}
   output_processor:
     - ${output-summary}
     - ${output-final-answer-extraction}
   
-input-hint-generator:
-  type: InputHintGenerator
-  llm:
-    _base_: config/llm/base_mirothinker.yaml
-    model_name: dummy
 input-message-generator:
   type: InputMessageGenerator
 output-summary:
@@ -40,7 +32,6 @@ output-final-answer-extraction:
   prompt: config/prompts/prompt_final_answer_extraction.yaml
   llm:
     _base_: config/llm/base_mirothinker.yaml
-    model_name: dummy
 
 
 output_dir: logs/

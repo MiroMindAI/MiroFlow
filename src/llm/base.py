@@ -9,7 +9,6 @@ LLM 客户端基类
 import asyncio
 import dataclasses
 import json
-import os
 from abc import ABC, abstractmethod
 from typing import (
     Any,
@@ -18,15 +17,11 @@ from typing import (
     Optional,
 )
 
-from omegaconf import DictConfig, OmegaConf
+from omegaconf import DictConfig
 
-import pathlib
-import importlib
 from src.logging.task_tracer import get_tracer
-from src.logging.task_tracer import TaskTracer
 from src.logging.decorators import span
 import uuid
-from pathlib import Path    
 
 logger = get_tracer()
 
@@ -34,6 +29,7 @@ logger = get_tracer()
 @dataclasses.dataclass
 class LLMOutput(ABC):
     """LLM 输出数据类"""
+
     response_text: str
     is_invalid: bool
     assistant_message: dict
@@ -86,18 +82,16 @@ class LLMClientBase(ABC):
         raise NotImplementedError("subclass must implement this")
 
     @abstractmethod
-    def process_llm_response(
-        self, llm_response
-    ) -> tuple[str, bool, dict]:
+    def process_llm_response(self, llm_response) -> tuple[str, bool, dict]:
         """
         Process LLM response - implemented by subclass
-        
+
         Returns:
             tuple[str, bool, dict]: (response_text, is_invalid, assistant_message)
             - response_text: The text content of the response
             - is_invalid: Whether the response is invalid and should break the loop
             - assistant_message: The message dict to append to message_history
-        
+
         Note:
             This method no longer modifies message_history in-place.
             The caller is responsible for appending assistant_message to message_history.
@@ -122,7 +116,9 @@ class LLMClientBase(ABC):
                 if msg.get("role") == "user" or msg.get("role") == "tool"
             ]
 
-            if len(user_indices) > 1:  # Only proceed if there are more than one user message
+            if (
+                len(user_indices) > 1
+            ):  # Only proceed if there are more than one user message
                 first_user_idx = user_indices[0]  # Always keep the first user message
 
                 # Calculate how many messages to keep from the end
@@ -183,8 +179,12 @@ class LLMClientBase(ABC):
         """
         Call LLM to generate response, supports tool calls - unified implementation
         """
-        assert message_text is not None or message_history is not None, "Either message_text or message_history must be provided"
-        assert message_text is None or message_history is None, "Only one of message_text or message_history can be provided"
+        assert (
+            message_text is not None or message_history is not None
+        ), "Either message_text or message_history must be provided"
+        assert (
+            message_text is None or message_history is None
+        ), "Only one of message_text or message_history can be provided"
 
         # Use config value if not explicitly provided
         if keep_tool_result is None:
@@ -193,7 +193,9 @@ class LLMClientBase(ABC):
         if message_history is None:
             message_history = []
         if message_text is not None:
-            message_history.append({"role": "user", "content": [{"type": "text", "text": message_text}]})
+            message_history.append(
+                {"role": "user", "content": [{"type": "text", "text": message_text}]}
+            )
 
         response = None
 
@@ -204,8 +206,15 @@ class LLMClientBase(ABC):
             tools_definitions=tool_definitions,
             keep_tool_result=keep_tool_result,
         )
-        response_text, is_invalid, assistant_message = self.process_llm_response(response)
-        return LLMOutput(response_text=response_text, is_invalid=is_invalid, assistant_message=assistant_message, raw_response=response)
+        response_text, is_invalid, assistant_message = self.process_llm_response(
+            response
+        )
+        return LLMOutput(
+            response_text=response_text,
+            is_invalid=is_invalid,
+            assistant_message=assistant_message,
+            raw_response=response,
+        )
 
     @staticmethod
     async def convert_tool_definition_to_tool_call(tools_definitions):
@@ -314,17 +323,21 @@ class LLMClientBase(ABC):
 
     def _inject_message_ids(self, message_history: list[dict]) -> None:
         """Inject unique message IDs to user messages to avoid cache hits"""
+
         def _generate_message_id() -> str:
             """Generate random message ID using common LLM format"""
             # Use 8-character random hex string, similar to OpenAI API format, avoid cross-conversation cache hits
             return f"msg_{uuid.uuid4().hex[:8]}"
+
         for message in message_history:
             if message.get("role") != "user":
                 continue
             content = message.get("content")
             if isinstance(content, list):
                 for item in content:
-                    if item.get("type") == "text" and not item["text"].startswith("[msg_"):
+                    if item.get("type") == "text" and not item["text"].startswith(
+                        "[msg_"
+                    ):
                         item["text"] = f"[{_generate_message_id()}] {item['text']}"
             elif isinstance(content, str) and not content.startswith("[msg_"):
                 message["content"] = f"[{_generate_message_id()}] {content}"

@@ -8,6 +8,7 @@ from src.logging.task_tracer import get_tracer
 
 logger = get_tracer()
 
+
 def get_file_type(file_name: str) -> str:
     file_extension = file_name.rsplit(".", maxsplit=1)[-1].lower()
     file_type = None
@@ -28,7 +29,7 @@ def get_file_type(file_name: str) -> str:
     else:
         file_type = file_extension
     return file_type
-    
+
 
 def process_input(task_description, task_file_name):
     """
@@ -134,7 +135,6 @@ class OutputFormatter:
                 i = content_start
 
         return matches[-1] if matches else ""
-
 
     def format_final_summary_and_log(self, final_answer_text, client=None):
         """Format final summary information, including answer and token statistics"""

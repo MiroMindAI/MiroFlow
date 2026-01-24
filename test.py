@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import re
-import sys
-from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Tuple
+
+from src.skill import SkillError
 
 _FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n(.*)\Z", re.S | re.M)
+
 
 def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
     m = _FRONTMATTER_RE.match(md_text)
@@ -58,11 +59,14 @@ def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
             meta[key] = [x.strip() for x in inner.split(",") if x.strip()]
         else:
             # 去掉包裹引号（简单处理）
-            if (val.startswith('"') and val.endswith('"')) or (val.startswith("'") and val.endswith("'")):
+            if (val.startswith('"') and val.endswith('"')) or (
+                val.startswith("'") and val.endswith("'")
+            ):
                 val = val[1:-1]
             meta[key] = val
 
     return meta, body
+
 
 skill_md = Path("src/skill/skills/Math/SKILL.md")
 text = skill_md.read_text(encoding="utf-8")

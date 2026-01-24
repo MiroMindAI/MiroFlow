@@ -6,20 +6,17 @@
 Agent 基类模块
 """
 
-from pdb import run
 import json
-from omegaconf import DictConfig, OmegaConf, ListConfig
+from omegaconf import DictConfig, OmegaConf
 
 from abc import ABC, abstractmethod
 
-from pydantic import NonNegativeInt
 
 from src.tool.manager import ToolManager
 from src.llm import build_llm_client
-from typing import List, Optional, Any
+from typing import Optional, Any
 from src.logging.decorators import span
 from src.utils.prompt_utils import PromptManager
-from types import MappingProxyType
 from src.utils.tool_utils import expose_sub_agents_as_tools
 from src.skill.manager import SkillManager
 from src.agents.context import AgentContext
@@ -27,20 +24,21 @@ from src.agents.context import AgentContext
 
 class BaseAgent(ABC):
     """Agent 基类"""
+
     USE_PROPAGATE_MODULE_CONFIGS = ("llm", "tools", "prompt")
     _instance_counters = {}
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-    
+
     @classmethod
     def get_instance_count(cls):
         return cls._instance_counters.get(cls.__name__, 0)
 
     @classmethod
     def get_instance_name(cls, cfg):
-        if cfg is not None and 'name' in cfg:
-            return cfg['name']
+        if cfg is not None and "name" in cfg:
+            return cfg["name"]
         else:
             return f"{cls.__name__}_call_{cls.get_instance_count()}"
 
@@ -58,49 +56,56 @@ class BaseAgent(ABC):
         merged_cfg = OmegaConf.merge(sub_agent_cfg, propagated)
         return build_agent(merged_cfg)
 
-    def __init__(self, cfg: Optional[DictConfig | dict] = None, parent = None):
+    def __init__(self, cfg: Optional[DictConfig | dict] = None, parent=None):
         self._parent = parent
         self.name = self.get_instance_name(cfg)
-        self.__class__._instance_counters[self.__class__.__name__] = self.get_instance_count() + 1
+        self.__class__._instance_counters[self.__class__.__name__] = (
+            self.get_instance_count() + 1
+        )
 
         if isinstance(cfg, dict):
             cfg = DictConfig(cfg)
         self.cfg = cfg
-    
+
         # if hasattr(self.cfg, "llm") and not hasattr(self, "llm_client"):
         self.llm_client = build_llm_client(cfg=self.cfg.get("llm"))
         self.prompt_manager = PromptManager(config_path=self.cfg.get("prompt"))
-        self.sub_agents = self.cfg.get('sub_agents')
+        self.sub_agents = self.cfg.get("sub_agents")
         self.tool_manager = ToolManager(cfg=self.cfg.get("tools"))
-        self.skill_manager = SkillManager(skill_dirs = self.cfg.get("skills"))
+        self.skill_manager = SkillManager(skill_dirs=self.cfg.get("skills"))
 
-            
     @abstractmethod
     async def run_internal(self, ctx: AgentContext) -> AgentContext:
         pass
-    
+
     @span()
     async def run(self, ctx: AgentContext) -> AgentContext:
         await self.post_initialize()
         ret = await self.run_internal(ctx)
         return ret
 
-    async def run_as_mcp_tool(self, ctx: AgentContext, return_ctx_key: str) -> AgentContext:
+    async def run_as_mcp_tool(
+        self, ctx: AgentContext, return_ctx_key: str
+    ) -> AgentContext:
         ret = await self.run(ctx)
         if return_ctx_key in ret:
             return {
-                'server_name': 'AgentWorker',
-                'tool_name': 'execute_subtask',
-                'result': ret[return_ctx_key]
+                "server_name": "AgentWorker",
+                "tool_name": "execute_subtask",
+                "result": ret[return_ctx_key],
             }
         else:
-            raise ValueError(f"Return context key '{return_ctx_key}' not found in result")
+            raise ValueError(
+                f"Return context key '{return_ctx_key}' not found in result"
+            )
 
     async def post_initialize(self):
         await self.init_tool_definitions()
 
     @staticmethod
-    def get_mcp_server_definitions_from_tool_definitions(tool_definitions: list[dict[str, Any]]) -> str:
+    def get_mcp_server_definitions_from_tool_definitions(
+        tool_definitions: list[dict[str, Any]],
+    ) -> str:
         mcp_server_definitions = ""
         if tool_definitions and len(tool_definitions) > 0:
             for server in tool_definitions:
@@ -108,50 +113,86 @@ class BaseAgent(ABC):
                 if "tools" in server and len(server["tools"]) > 0:
                     for tool in server["tools"]:
                         mcp_server_definitions += f"### Tool name: {tool['name']}\n"
-                        mcp_server_definitions += f"Description: {tool['description']}\n"
+                        mcp_server_definitions += (
+                            f"Description: {tool['description']}\n"
+                        )
                         mcp_server_definitions += f"Schema: {tool['schema']}\n"
         return mcp_server_definitions
-    
+
     async def init_tool_definitions(self):
-        if hasattr(self.cfg, "tools") or hasattr(self.cfg, "sub_agents") or hasattr(self.cfg, "skills"):
+        if (
+            hasattr(self.cfg, "tools")
+            or hasattr(self.cfg, "sub_agents")
+            or hasattr(self.cfg, "skills")
+        ):
             if hasattr(self.cfg, "tools"):
                 tool_definitions = await self.tool_manager.get_all_tool_definitions()
-                tool_mcp_server_definitions = self.get_mcp_server_definitions_from_tool_definitions(tool_definitions)
+                tool_mcp_server_definitions = (
+                    self.get_mcp_server_definitions_from_tool_definitions(
+                        tool_definitions
+                    )
+                )
             else:
                 tool_definitions, tool_mcp_server_definitions = [], ""
-            if hasattr(self.cfg, "sub_agents") and len(self.cfg['sub_agents']) > 0:
-                sub_agent_names = self.cfg['sub_agents'].keys()
-                subagent_as_tool_definitions = expose_sub_agents_as_tools(sub_agent_names)
-                sub_agent_mcp_server_definitions = self.get_mcp_server_definitions_from_tool_definitions(subagent_as_tool_definitions)
+            if hasattr(self.cfg, "sub_agents") and len(self.cfg["sub_agents"]) > 0:
+                sub_agent_names = self.cfg["sub_agents"].keys()
+                subagent_as_tool_definitions = expose_sub_agents_as_tools(
+                    sub_agent_names
+                )
+                sub_agent_mcp_server_definitions = (
+                    self.get_mcp_server_definitions_from_tool_definitions(
+                        subagent_as_tool_definitions
+                    )
+                )
             else:
                 subagent_as_tool_definitions, sub_agent_mcp_server_definitions = [], ""
             if hasattr(self.cfg, "skills"):
-                skills_as_tool_definitions = self.skill_manager.get_all_skills_definitions()
-                skills_mcp_server_definitions = self.get_mcp_server_definitions_from_tool_definitions(skills_as_tool_definitions)
+                skills_as_tool_definitions = (
+                    self.skill_manager.get_all_skills_definitions()
+                )
+                skills_mcp_server_definitions = (
+                    self.get_mcp_server_definitions_from_tool_definitions(
+                        skills_as_tool_definitions
+                    )
+                )
             else:
                 skills_as_tool_definitions, skills_mcp_server_definitions = [], ""
-            self.tool_definitions = tool_definitions + subagent_as_tool_definitions + skills_as_tool_definitions
-            self.mcp_server_definitions = tool_mcp_server_definitions + sub_agent_mcp_server_definitions + skills_mcp_server_definitions
+            self.tool_definitions = (
+                tool_definitions
+                + subagent_as_tool_definitions
+                + skills_as_tool_definitions
+            )
+            self.mcp_server_definitions = (
+                tool_mcp_server_definitions
+                + sub_agent_mcp_server_definitions
+                + skills_mcp_server_definitions
+            )
         else:
             self.tool_definitions = []
             self.mcp_server_definitions = []
 
-    async def run_sub_agents_as_mcp_tools(self, sub_agent_calls: list[dict]) -> list[tuple[str, dict]]:
+    async def run_sub_agents_as_mcp_tools(
+        self, sub_agent_calls: list[dict]
+    ) -> list[tuple[str, dict]]:
         # check if sub-agents are valid
         for call in sub_agent_calls:
-            if call['server_name'] not in self.sub_agents:
-                raise ValueError(f"Sub-agent {call['server_name']} not found in sub-agents")
+            if call["server_name"] not in self.sub_agents:
+                raise ValueError(
+                    f"Sub-agent {call['server_name']} not found in sub-agents"
+                )
         sub_agent_results = []
         for agent_call in sub_agent_calls:
             # dynamic initialization of sub-agent
-            sub_agent = self.create_sub_module(self.sub_agents[agent_call['server_name']], name = 'sub_agent')
-            sub_agent_result = await sub_agent.run_as_mcp_tool(AgentContext(
-                task_description = agent_call['arguments']
-            ), return_ctx_key = 'summary')
-            sub_agent_results.append((agent_call['id'], sub_agent_result))
+            sub_agent = self.create_sub_module(
+                self.sub_agents[agent_call["server_name"]], name="sub_agent"
+            )
+            sub_agent_result = await sub_agent.run_as_mcp_tool(
+                AgentContext(task_description=agent_call["arguments"]),
+                return_ctx_key="summary",
+            )
+            sub_agent_results.append((agent_call["id"], sub_agent_result))
         return sub_agent_results
 
-    
     @classmethod
     def build(cls, cfg: DictConfig | dict):
         instance = cls(cfg)
@@ -161,5 +202,3 @@ class BaseAgent(ABC):
         container = OmegaConf.to_container(self.cfg, resolve=True)
         cfg_str = json.dumps(container, indent=2)
         return f"{self.__class__.__name__}(cfg={cfg_str})"
-
-
