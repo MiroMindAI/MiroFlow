@@ -125,14 +125,6 @@ class MiroThinkerSGLangClient(LLMClientBase):
                 logger.debug(f"LLM call failed: response = {response}")
                 raise Exception(f"LLM call failed [rare case]: response = {response}")
 
-            if response.choices and response.choices[0].finish_reason == "length":
-                logger.debug(
-                    "LLM finish_reason is 'length', triggering ContextLimitError"
-                )
-                raise ContextLimitError(
-                    "(finish_reason=length) Response truncated due to maximum context length"
-                )
-
             if (
                 response.choices
                 and response.choices[0].finish_reason == "stop"
