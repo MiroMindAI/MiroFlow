@@ -658,6 +658,15 @@ async def extract_info_with_llm(
             "tokens_used": 0,
         }
 
+    # Build the complete API endpoint URL
+    # If SUMMARY_LLM_BASE_URL doesn't already include /chat/completions, append it
+    api_url = SUMMARY_LLM_BASE_URL.strip()
+    if "/chat/completions" not in api_url:
+        # Ensure proper URL formatting
+        if api_url.endswith("/"):
+            api_url = api_url.rstrip("/")
+        api_url = f"{api_url}/chat/completions"
+
     # Prepare headers (add Authorization if API key is available)
     headers = {"Content-Type": "application/json"}
     if SUMMARY_LLM_API_KEY:
@@ -672,7 +681,7 @@ async def extract_info_with_llm(
                 # Make the API request using httpx
                 async with httpx.AsyncClient() as client:
                     response = await client.post(
-                        SUMMARY_LLM_BASE_URL,
+                        api_url,
                         headers=headers,
                         json=payload,
                         timeout=httpx.Timeout(None, connect=30, read=300),
