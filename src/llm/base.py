@@ -194,9 +194,6 @@ class LLMClientBase(ABC):
             message_history = []
         if message_text is not None:
             message_history.append({"role": "user", "content": [{"type": "text", "text": message_text}]})
-        message_history = self._filter_message_history(
-            message_history, keep_tool_result
-        )
 
         response = None
 
@@ -242,19 +239,6 @@ class LLMClientBase(ABC):
         else:
             # If the client doesn't have a close method, or is async, we skip
             pass
-
-    def _filter_message_history(
-        self, message_history: List[Dict], keep_tool_result: int
-    ) -> List[Dict]:
-        """Filter message history, keep specified number of tool results"""
-        if keep_tool_result == -1:
-            return message_history
-
-        # Complex filtering logic can be implemented here
-        # For now, simply return the last keep_tool_result messages
-        if keep_tool_result > 0 and len(message_history) > keep_tool_result:
-            return message_history[-keep_tool_result:]
-        return message_history
 
     def _format_response_for_log(self, response) -> Dict:
         """Format response for logging"""

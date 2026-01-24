@@ -21,7 +21,7 @@ from tenacity import (
 
 from src.llm.base import LLMClientBase
 
-from src.logging.task_tracer import get_tracer
+from src.logging.task_tracer import get_tracer, get_current_task_context_var
 
 logger = get_tracer()
 
@@ -176,10 +176,18 @@ class MiroThinkerSGLangClient(LLMClientBase):
 
     async def _create_completion(self, params: Dict[str, Any], is_async: bool):
         """Helper to create a completion, handling async and sync calls."""
+        task_ctx = get_current_task_context_var()
+        session_id = task_ctx.task_id if task_ctx else "default"
+        extra_headers = {"x-upstream-session-id": session_id}
+
         if is_async:
-            return await self.client.chat.completions.create(**params)
+            return await self.client.chat.completions.create(
+                **params, extra_headers=extra_headers
+            )
         else:
-            return self.client.chat.completions.create(**params)
+            return self.client.chat.completions.create(
+                **params, extra_headers=extra_headers
+            )
 
     def _clean_user_content_from_response(self, text: str) -> str:
         """Remove content between \\n\\nUser: and <use_mcp_tool> in assistant response (if no <use_mcp_tool>, remove to end)"""

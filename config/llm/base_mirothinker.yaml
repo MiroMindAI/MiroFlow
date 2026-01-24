@@ -2,7 +2,7 @@
 provider_class: "MiroThinkerSGLangClient"
 model_name: mirothinker-v1.5
 api_key: ${oc.env:OAI_MIROTHINKER_API_KEY,???}
-base_url: ${oc.env:OAI_MIROTHINKER_BASE_URL,http://localhost:61005/v1}
+base_url: ${oc.env:OAI_MIROTHINKER_BASE_URL,http://localhost:9000/v1}
 
 temperature: 1.0
 top_p: 0.95
@@ -17,7 +17,7 @@ reasoning_effort: null
 repetition_penalty: 1.05
 
 disable_cache_control: true
-keep_tool_result: -1
+keep_tool_result: 5
 
 use_tool_calls: false
 oai_tool_thinking: false
