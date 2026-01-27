@@ -7,8 +7,8 @@
 # Configuration parameters
 NUM_RUNS=3
 BENCHMARK_NAME="gaia-validation-text-only"
-AGENT_SET="fangda_agent_gaia-validation-text-only_mirothinker_single_agent_rollback"
-MAX_CONCURRENT=52
+AGENT_SET="fangda_agent_gaia-validation-text-only_mirothinker_single_agent_rollback_new_tools"
+MAX_CONCURRENT=30
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)

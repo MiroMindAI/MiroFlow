@@ -547,10 +547,22 @@ class ToolManager:
             server_name = tool_call["server_name"]
             tool_name = tool_call["tool_name"]
             arguments = tool_call["arguments"]
-            result = await self.execute_tool_call(
-                server_name=server_name, tool_name=tool_name, arguments=arguments
-            )
-            # TODO error process
+            try:
+                result = await self.execute_tool_call(
+                    server_name=server_name, tool_name=tool_name, arguments=arguments
+                )
+            except Exception as e:
+                # Catch all exceptions (including TimeoutError) and convert to error result
+                # This allows the agent to continue processing instead of failing the task
+                logger.error(
+                    f"Tool '{tool_name}' (server: '{server_name}') "
+                    f"execution failed: {e}"
+                )
+                result = {
+                    "server_name": server_name,
+                    "tool_name": tool_name,
+                    "error": f"Tool call failed: {str(e)}",
+                }
             results.append((call_id, result))
 
         return results, exceeded

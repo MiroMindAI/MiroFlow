@@ -75,7 +75,7 @@ class FinalAnswerExtractor(BaseIOProcessor):
     def _format_final_summary_and_log(extracted_answer):
         summary_lines = []
         summary_lines.append("\n" + "=" * 30 + " Final Answer " + "=" * 30)
-        summary_lines.append(extracted_answer)
+        summary_lines.append(extracted_answer or "")
 
         # Extract boxed result - find the last match using safer regex patterns
         boxed_result = FinalAnswerExtractor._extract_boxed_content(extracted_answer)
