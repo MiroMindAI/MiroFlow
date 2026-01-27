@@ -16,12 +16,20 @@ def _generate_message_id() -> str:
     return f"msg_{uuid.uuid4().hex[:8]}"
 
 
+def _reraise_with_log(retry_state):
+    """Log retry exhaustion and re-raise the last exception."""
+    exception = retry_state.outcome.exception()
+    print(
+        f"All {retry_state.attempt_number} retries exhausted for "
+        f"{retry_state.fn.__name__}: {exception}"
+    )
+    raise exception
+
+
 @retry(
     wait=wait_exponential(multiplier=15),
     stop=stop_after_attempt(5),
-    retry_error_callback=lambda retry_state: print(
-        f"Retry attempt {retry_state.attempt_number} for extract_hints"
-    ),
+    retry_error_callback=_reraise_with_log,
 )
 async def extract_hints(
     question: str,
@@ -97,9 +105,7 @@ Here is the question:
 @retry(
     wait=wait_exponential(multiplier=15),
     stop=stop_after_attempt(5),
-    retry_error_callback=lambda retry_state: print(
-        f"Retry attempt {retry_state.attempt_number} for get_gaia_answer_type"
-    ),
+    retry_error_callback=_reraise_with_log,
 )
 async def get_gaia_answer_type(task_description: str, llm_client: LLMClientBase) -> str:
     # client = AsyncOpenAI(api_key=api_key, timeout=600, base_url=base_url)
@@ -136,9 +142,7 @@ Return exactly one of the [number, date, time, string], nothing else.
 @retry(
     wait=wait_exponential(multiplier=15),
     stop=stop_after_attempt(5),
-    retry_error_callback=lambda retry_state: print(
-        f"Retry attempt {retry_state.attempt_number} for extract_gaia_final_answer"
-    ),
+    retry_error_callback=_reraise_with_log,
 )
 async def extract_gaia_final_answer(
     task_description_detail: str,
@@ -488,9 +492,7 @@ The boxed content must be **one** of:
 @retry(
     wait=wait_exponential(multiplier=15),
     stop=stop_after_attempt(5),
-    retry_error_callback=lambda retry_state: print(
-        f"Retry attempt {retry_state.attempt_number} for extract_browsecomp_zh_final_answer"
-    ),
+    retry_error_callback=_reraise_with_log,
 )
 async def extract_browsecomp_zh_final_answer(  # TODO Gaia实现了，bc还没改
     task_description_detail: str,

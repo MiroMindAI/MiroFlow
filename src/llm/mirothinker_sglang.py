@@ -126,7 +126,7 @@ class MiroThinkerSGLangClient(LLMClientBase):
             if (
                 response.choices
                 and response.choices[0].finish_reason == "stop"
-                and response.choices[0].message.content.strip() == ""
+                and (response.choices[0].message.content or "").strip() == ""
             ):
                 logger.debug(
                     "LLM finish_reason is 'stop', but content is empty, triggering Error"
