@@ -71,44 +71,36 @@ class BaseAgent(ABC):
         self.llm_client = build_llm_client(cfg=self.cfg.get("llm"))
         self.prompt_manager = PromptManager(config_path=self.cfg.get("prompt"))
         self.sub_agents = self.cfg.get("sub_agents")
-
+        
         # Parse tool_blacklist from config
         tool_blacklist = self._parse_tool_blacklist(self.cfg.get("tool_blacklist"))
         self.tool_manager = ToolManager(
-            cfg=self.cfg.get("tools"), tool_blacklist=tool_blacklist
+            cfg=self.cfg.get("tools"), 
+            tool_blacklist=tool_blacklist
         )
         self.skill_manager = SkillManager(skill_dirs=self.cfg.get("skills"))
 
     def _parse_tool_blacklist(self, blacklist_cfg) -> set:
         """
         Parse tool_blacklist config into a set of (server_name, tool_name) tuples.
-
-        Supports two config formats:
-
-        Format 1 (MiroThinker style - recommended):
-            tool_blacklist:
-              - [ "tool-code", "create_sandbox" ]
-              - [ "tool-search-and-scrape-webpage", "sogou_search" ]
-
-        Format 2 (verbose style):
+        
+        Config format:
             tool_blacklist:
               - server: "tool-code"
                 tool: "create_sandbox"
-
+              - server: "tool-search-and-scrape-webpage"
+                tool: "sogou_search"
+        
         Returns:
             Set of (server_name, tool_name) tuples
         """
         if not blacklist_cfg:
             return set()
-
+        
         blacklist = set()
         for item in blacklist_cfg:
-            # Format 1: list/tuple like ["server_name", "tool_name"]
-            if isinstance(item, (list, tuple)) and len(item) == 2:
-                blacklist.add((str(item[0]), str(item[1])))
-            # Format 2: dict like {"server": "server_name", "tool": "tool_name"}
-            # Also handles OmegaConf DictConfig
-            elif hasattr(item, "get") and item.get("server") and item.get("tool"):
+            # Handles both regular dict and OmegaConf DictConfig
+            if hasattr(item, "get") and item.get("server") and item.get("tool"):
                 blacklist.add((str(item.get("server")), str(item.get("tool"))))
         return blacklist
 
