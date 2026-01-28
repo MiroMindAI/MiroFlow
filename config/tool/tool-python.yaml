@@ -1,0 +1,8 @@
+name: "tool-python"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.python_mcp_server"
+env:
+  E2B_API_KEY: "${oc.env:E2B_API_KEY}"
+  LOGS_DIR: "./logs"

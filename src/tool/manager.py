@@ -88,6 +88,8 @@ class ToolManager:
         logger.info(
             f"ToolManager initialized, loaded servers: {list(self.server_dict.keys())}"
         )
+        if self.tool_blacklist:
+            logger.info(f"Tool blacklist configured: {self.tool_blacklist}")
 
     def _is_huggingface_dataset_or_space_url(self, url):
         """

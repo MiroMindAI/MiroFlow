@@ -71,8 +71,37 @@ class BaseAgent(ABC):
         self.llm_client = build_llm_client(cfg=self.cfg.get("llm"))
         self.prompt_manager = PromptManager(config_path=self.cfg.get("prompt"))
         self.sub_agents = self.cfg.get("sub_agents")
-        self.tool_manager = ToolManager(cfg=self.cfg.get("tools"))
+
+        # Parse tool_blacklist from config
+        tool_blacklist = self._parse_tool_blacklist(self.cfg.get("tool_blacklist"))
+        self.tool_manager = ToolManager(
+            cfg=self.cfg.get("tools"), tool_blacklist=tool_blacklist
+        )
         self.skill_manager = SkillManager(skill_dirs=self.cfg.get("skills"))
+
+    def _parse_tool_blacklist(self, blacklist_cfg) -> set:
+        """
+        Parse tool_blacklist config into a set of (server_name, tool_name) tuples.
+
+        Config format:
+            tool_blacklist:
+              - server: "tool-code"
+                tool: "create_sandbox"
+              - server: "tool-search-and-scrape-webpage"
+                tool: "sogou_search"
+
+        Returns:
+            Set of (server_name, tool_name) tuples
+        """
+        if not blacklist_cfg:
+            return set()
+
+        blacklist = set()
+        for item in blacklist_cfg:
+            # Handles both regular dict and OmegaConf DictConfig
+            if hasattr(item, "get") and item.get("server") and item.get("tool"):
+                blacklist.add((str(item.get("server")), str(item.get("tool"))))
+        return blacklist
 
     @abstractmethod
     async def run_internal(self, ctx: AgentContext) -> AgentContext:
