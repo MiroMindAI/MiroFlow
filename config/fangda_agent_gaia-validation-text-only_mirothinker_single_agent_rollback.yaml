@@ -8,10 +8,10 @@ main_agent:
   name: main_agent
   type: IterativeAgentWithToolAndRollback  # 使用带 Rollback 的新版本
   max_consecutive_rollbacks: 3              # Rollback 最大重试次数
-  max_turns: 100
+  max_turns: 200
   llm: 
     _base_: config/llm/base_mirothinker.yaml
-  prompt: config/prompts/prompt_main_agent.yaml
+  prompt: config/prompts/fangda_prompt_main_agent.yaml
   tools:
     - config/tool/tool-searching.yaml
     - config/tool/tool-reading.yaml
@@ -21,6 +21,7 @@ main_agent:
   output_processor:
     - ${output-summary}
     - ${output-final-answer-extraction}
+    - ${output-failure-experience}
 
 input-message-generator:
   type: InputMessageGenerator
@@ -28,7 +29,12 @@ output-summary:
   type: SummaryGenerator
 output-final-answer-extraction:
   type: FinalAnswerExtractor
-  prompt: config/prompts/prompt_final_answer_extraction.yaml
+  prompt: config/prompts/fangda_prompt_main_agent.yaml
+  llm:
+    _base_: config/llm/base_mirothinker.yaml
+output-failure-experience:
+  type: FailureExperienceSummaryGenerator
+  prompt: config/prompts/fangda_prompt_main_agent.yaml
   llm:
     _base_: config/llm/base_mirothinker.yaml
 

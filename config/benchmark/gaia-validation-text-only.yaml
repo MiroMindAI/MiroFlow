@@ -9,9 +9,11 @@ data:
   data_dir: "${data_dir}/gaia-val-text-only"
 
 execution:
-  max_tasks: null  # null means no limit
+  max_tasks: null
   max_concurrent: 3
-  pass_at_k: 1
+  pass_at_k: 3
+  stop_condition: "valid_box"  # Options: "correct", "valid_box", "max_turn"
+  enable_failure_experience: true
 
 openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
 openai_base_url: "${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}"

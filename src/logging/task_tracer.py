@@ -11,7 +11,7 @@ import uuid
 import contextvars
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Dict, List, Literal, Optional
 from dataclasses import dataclass
 from pydantic import BaseModel, Field
 from .span import Span
@@ -95,6 +95,12 @@ class TaskMeta(BaseModel):
     judge_result: str = ""
     error: Optional[str] = None
     ground_truth: Optional[str] = None
+
+    is_valid_box: Optional[bool] = None
+    failure_experience_summary: Optional[str] = None
+    retry_with_experience: bool = False
+    previous_attempt_ids: List[int] = Field(default_factory=list)
+    stop_condition: Optional[str] = None
 
     updated_at: str = Field(default_factory=utc_iso)
 
