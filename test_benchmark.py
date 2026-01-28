@@ -62,12 +62,18 @@ async def test_benchmark(cfg: DictConfig) -> float:
     )
     print(f"Using pass@{evaluator.pass_at_k} evaluation...")
 
+    execution_cfg = cfg.benchmark.execution
     results = await run_tasks(
         cfg=cfg,
         agent=agent,
         tasks=tasks,
         evaluator=evaluator,
-        max_concurrent=cfg.benchmark.execution.max_concurrent,
+        max_concurrent=execution_cfg.max_concurrent,
+        stop_condition=execution_cfg.get("stop_condition", "correct"),
+        enable_failure_experience=execution_cfg.get("enable_failure_experience", False),
+        prompt_manager=agent.prompt_manager
+        if hasattr(agent, "prompt_manager")
+        else None,
     )
 
     # 计算测试结果正确性

@@ -34,6 +34,33 @@ STATUS_FAILED = "failed"
 STATUS_COMPLETED = "completed"
 STATUS_RESULT_JUDGED = "result_judged"
 
+# Stop condition constants
+STOP_CONDITION_CORRECT = "correct"
+STOP_CONDITION_VALID_BOX = "valid_box"
+STOP_CONDITION_MAX_TURN = "max_turn"
+
+# Invalid answer markers
+INVALID_ANSWER_MARKERS = [
+    "NO_ANSWER",
+    "INSUFFICIENT_INFO",
+    "CANNOT_DETERMINE",
+    "None",
+    "none",
+    "N/A",
+    "n/a",
+    "NONE",
+    "Unknown",
+    "unknown",
+    "UNKNOWN",
+]
+
+
+def is_valid_box(final_boxed_answer: str) -> bool:
+    """Check if the boxed answer is valid (not empty and not a placeholder)."""
+    if not final_boxed_answer:
+        return False
+    return not any(marker in final_boxed_answer for marker in INVALID_ANSWER_MARKERS)
+
 
 # ============================================================================
 # Data Classes
@@ -65,6 +92,10 @@ class AttemptResult:
         judge_result: Optional[str] = None,
         is_correct: bool = False,
         error_message: Optional[str] = None,
+        is_valid_box: bool = False,
+        failure_experience_summary: Optional[str] = None,
+        used_failure_experiences: Optional[List[str]] = None,
+        stop_reason: Optional[str] = None,
     ):
         self.task = task
         self.attempt_id = attempt_id
@@ -75,6 +106,10 @@ class AttemptResult:
         self.judge_result = judge_result
         self.is_correct = is_correct
         self.error_message = error_message
+        self.is_valid_box = is_valid_box
+        self.failure_experience_summary = failure_experience_summary
+        self.used_failure_experiences = used_failure_experiences or []
+        self.stop_reason = stop_reason
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
@@ -88,12 +123,18 @@ class AttemptResult:
             "judge_result": self.judge_result,
             "is_correct": self.is_correct,
             "error_message": self.error_message,
+            "is_valid_box": self.is_valid_box,
+            "failure_experience_summary": self.failure_experience_summary,
+            "used_failure_experiences": self.used_failure_experiences,
+            "stop_reason": self.stop_reason,
         }
 
     def update_from_response(self, response: Dict[str, Any], log_path: Path):
         """Update with response data from agent.run()."""
         self.model_response = response
         self.model_boxed_answer = response.get("final_boxed_answer", "")
+        self.is_valid_box = is_valid_box(self.model_boxed_answer)
+        self.failure_experience_summary = response.get("failure_experience_summary")
         self.status = STATUS_COMPLETED if self.model_boxed_answer else STATUS_FAILED
         self.log_path = log_path
 
@@ -141,6 +182,8 @@ class TaskResult:
         self.log_path = None
         self.attempts = []
         self.pass_at_k_success = False
+        self.stop_condition: Optional[str] = None
+        self.total_failure_experiences: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to serializable dictionary."""

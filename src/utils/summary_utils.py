@@ -255,14 +255,14 @@ Rate conservatively - if unsure between two ranges, choose the lower one.
 – If only one is well supported, use that one.
 3. **Revise** your chosen answer to fully satisfy all formatting and phrasing requirements listed below (**Formatting rules**, **Additional constraints**, **Common pitfalls to avoid**, and **Quick reference examples**). These requirements override those in the original question if there is any conflict.
 
-If no answer is clearly supported by the evidence, provide a well-justified educated guess. **Always wrap your final answer in a non-empty \\boxed{{...}}.**
+If no answer is clearly supported by the evidence, provide a well-justified educated guess. If the Agent Summary contains no useful information or you cannot determine any reasonable answer, output \\boxed{{NO_ANSWER}}. **Always wrap your final answer in \\boxed{{...}}.**
 
 ---
 
 # Output Guidelines
 
 1. **Box the answer**
-Wrap the answer in `\\boxed{{}}`.
+Wrap the answer in `\\boxed{{}}`. Use `\\boxed{{NO_ANSWER}}` only when absolutely no answer can be determined.
 
 2. **Answer type**
 The boxed content must be a time.
@@ -312,14 +312,14 @@ The boxed content must be a time.
 – For questions involving calculations, if your answer and the Agent Summary's final answer are numerically similar, prefer the summary's answer.
 3. **Revise** your chosen answer to fully satisfy all formatting and phrasing requirements listed below (**Formatting rules**, **Additional constraints**, **Common pitfalls to avoid**, and **Quick reference examples**). These requirements override those in the original question if there is any conflict.
 
-If no answer is clearly supported by the evidence, provide a well-justified educated guess. **Always wrap your final answer in a non-empty \\boxed{{...}}.**
+If no answer is clearly supported by the evidence, provide a well-justified educated guess. If the Agent Summary contains no useful information or you cannot determine any reasonable answer, output \\boxed{{NO_ANSWER}}. **Always wrap your final answer in \\boxed{{...}}.**
 
 ---
 
 # Output Guidelines
 
 1. **Box the answer**
-Wrap the answer in `\\boxed{{}}`.
+Wrap the answer in `\\boxed{{}}`. Use `\\boxed{{NO_ANSWER}}` only when absolutely no answer can be determined.
 
 2. **Answer type**
 The boxed content must be a single number.
@@ -387,14 +387,14 @@ The boxed content must be a single number.
 – If only one is well supported, use that one.
 3. **Revise** your chosen answer to fully satisfy all formatting and phrasing requirements listed below (**Formatting rules**, **Additional constraints**, **Common pitfalls to avoid**, and **Quick reference examples**). These requirements override those in the original question if there is any conflict.
 
-If no answer is clearly supported by the evidence, provide a well-justified educated guess. **Always wrap your final answer in a non-empty \\boxed{{...}}.**
+If no answer is clearly supported by the evidence, provide a well-justified educated guess. If the Agent Summary contains no useful information or you cannot determine any reasonable answer, output \\boxed{{NO_ANSWER}}. **Always wrap your final answer in \\boxed{{...}}.**
 
 ---
 
 # Output Guidelines
 
 1. **Box the answer**
-Wrap the final answer in \\boxed{{...}}.
+Wrap the final answer in \\boxed{{...}}. Use `\\boxed{{NO_ANSWER}}` only when absolutely no answer can be determined.
 
 2. **Answer type**
 The boxed content must be **one** of:
@@ -582,14 +582,14 @@ async def extract_browsecomp_zh_final_answer(  # TODO Gaia实现了，bc还没�
 3. **修订**：将你选定的答案修订为完全符合下方所有格式和表述要求（**格式规则**、**附加约束**、**常见错误**）。
 4. **输出**：你需要在输出中展现你的分析过程，并给出最终答案。
 
-如果没有答案能被证据明确支持，请给出有充分理由的最佳猜测。**最终答案必须用非空的 \\boxed{{...}} 包裹。**
+如果没有答案能被证据明确支持，请给出有充分理由的最佳猜测。如果Agent总结中没有任何有用信息，或完全无法确定任何合理答案，请输出 \\boxed{{NO_ANSWER}}。**最终答案必须用 \\boxed{{...}} 包裹。**
 
 ---
 
 # 输出指南
 
 1. **答案加框**
-用 `\\boxed{{}}` 包裹最终答案。
+用 `\\boxed{{}}` 包裹最终答案。仅在完全无法确定答案时使用 `\\boxed{{NO_ANSWER}}`。
 
 2. **格式规则**
 * 严格遵循原始问题中的所有格式说明（单位、四舍五入、保留小数位等）。
