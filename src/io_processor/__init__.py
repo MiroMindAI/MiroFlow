@@ -5,11 +5,11 @@
 """IO processor module for input/output handling."""
 
 from src.io_processor.base import BaseIOProcessor
-from src.io_processor.failure_experience_generator import (
-    FailureExperienceSummaryGenerator,
+from src.io_processor.exceed_max_turn_summary_generator import (
+    ExceedMaxTurnSummaryGenerator,
 )
 
 __all__ = [
     "BaseIOProcessor",
-    "FailureExperienceSummaryGenerator",
+    "ExceedMaxTurnSummaryGenerator",
 ]

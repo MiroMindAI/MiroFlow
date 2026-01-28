@@ -8,5 +8,7 @@ data:
 
 execution:
   max_tasks: null  # null means no limit
-  max_concurrent: 5 
+  max_concurrent: 5
   pass_at_k: 1
+  max_retry: 1
+  exceed_max_turn_summary: false

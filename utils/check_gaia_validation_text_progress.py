@@ -65,7 +65,7 @@ class TaskResult:
     passed_at: Optional[int] = None
     final_status: str = "unknown"
     final_judge_result: str = ""
-    used_failure_experience: bool = False
+    used_exceed_max_turn_summary: bool = False
     has_valid_box: bool = False
     is_running: bool = False
 
@@ -94,7 +94,7 @@ class RunStats:
     pass_at_higher: int = 0
 
     # Feature usage
-    used_failure_experience: int = 0
+    used_exceed_max_turn_summary: int = 0
     has_valid_box: int = 0
 
     # Task lists
@@ -162,7 +162,7 @@ def analyze_task_attempts(task_id: str, attempt_files: List[Path]) -> TaskResult
             "judge_result": task_meta.get("judge_result", "").upper(),
             "is_valid_box": task_meta.get("is_valid_box"),
             "final_boxed_answer": task_meta.get("final_boxed_answer", ""),
-            "failure_experience_summary": task_meta.get("failure_experience_summary"),
+            "exceed_max_turn_summary": task_meta.get("exceed_max_turn_summary"),
             "retry_with_experience": task_meta.get("retry_with_experience", False),
             "error": task_meta.get("error"),
         }
@@ -175,7 +175,7 @@ def analyze_task_attempts(task_id: str, attempt_files: List[Path]) -> TaskResult
             result.is_running = True
 
         if attempt["retry_with_experience"]:
-            result.used_failure_experience = True
+            result.used_exceed_max_turn_summary = True
 
         if attempt["is_valid_box"]:
             result.has_valid_box = True
@@ -206,8 +206,8 @@ def analyze_run(task_files: Dict[str, List[Path]]) -> RunStats:
             stats.running_tasks.append(task_id)
             continue
 
-        if task_result.used_failure_experience:
-            stats.used_failure_experience += 1
+        if task_result.used_exceed_max_turn_summary:
+            stats.used_exceed_max_turn_summary += 1
 
         if task_result.has_valid_box:
             stats.has_valid_box += 1
@@ -274,7 +274,7 @@ def display_run_summary(run_id: str, stats: RunStats) -> None:
     )
     print(f"  Accuracy: {stats.correct}/{stats.completed} {accuracy_bar}")
     print(
-        f"  Features: failure_exp={stats.used_failure_experience} | "
+        f"  Features: exceed_summary={stats.used_exceed_max_turn_summary} | "
         f"valid_box={stats.has_valid_box}"
     )
     print()
@@ -316,7 +316,7 @@ def display_overall_summary(all_results: Dict[str, RunStats]) -> None:
         totals.pass_at_2 += stats.pass_at_2
         totals.pass_at_3 += stats.pass_at_3
         totals.pass_at_higher += stats.pass_at_higher
-        totals.used_failure_experience += stats.used_failure_experience
+        totals.used_exceed_max_turn_summary += stats.used_exceed_max_turn_summary
         totals.has_valid_box += stats.has_valid_box
 
         for task in stats.correct_tasks:
@@ -368,7 +368,7 @@ def display_overall_summary(all_results: Dict[str, RunStats]) -> None:
 
     print()
     print("FEATURE USAGE:")
-    print(f"  Used Failure Exp:   {totals.used_failure_experience}")
+    print(f"  Used Exceed Summary: {totals.used_exceed_max_turn_summary}")
     print(f"  Has Valid Box:      {totals.has_valid_box}")
 
     # Final accuracy with progress bar

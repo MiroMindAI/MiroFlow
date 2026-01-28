@@ -34,11 +34,6 @@ STATUS_FAILED = "failed"
 STATUS_COMPLETED = "completed"
 STATUS_RESULT_JUDGED = "result_judged"
 
-# Stop condition constants
-STOP_CONDITION_CORRECT = "correct"
-STOP_CONDITION_VALID_BOX = "valid_box"
-STOP_CONDITION_MAX_TURN = "max_turn"
-
 # Invalid answer markers
 INVALID_ANSWER_MARKERS = [
     "NO_ANSWER",
@@ -79,12 +74,13 @@ class Task:
 
 
 class AttemptResult:
-    """Single attempt result for a benchmark task."""
+    """Single attempt result for a benchmark task (one retry within an attempt)."""
 
     def __init__(
         self,
         task: Task,
         attempt_id: int,
+        retry_id: int = 0,
         model_response: str = "",
         model_boxed_answer: str = "",
         status: str = STATUS_PENDING,
@@ -93,12 +89,12 @@ class AttemptResult:
         is_correct: bool = False,
         error_message: Optional[str] = None,
         is_valid_box: bool = False,
-        failure_experience_summary: Optional[str] = None,
-        used_failure_experiences: Optional[List[str]] = None,
-        stop_reason: Optional[str] = None,
+        exceed_max_turn_summary: Optional[str] = None,
+        used_exceed_max_turn_summaries: Optional[List[str]] = None,
     ):
         self.task = task
         self.attempt_id = attempt_id
+        self.retry_id = retry_id
         self.model_response = model_response
         self.model_boxed_answer = model_boxed_answer
         self.status = status
@@ -107,15 +103,15 @@ class AttemptResult:
         self.is_correct = is_correct
         self.error_message = error_message
         self.is_valid_box = is_valid_box
-        self.failure_experience_summary = failure_experience_summary
-        self.used_failure_experiences = used_failure_experiences or []
-        self.stop_reason = stop_reason
+        self.exceed_max_turn_summary = exceed_max_turn_summary
+        self.used_exceed_max_turn_summaries = used_exceed_max_turn_summaries or []
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "task_id": self.task.task_id,
             "attempt_id": self.attempt_id,
+            "retry_id": self.retry_id,
             "model_response": self.model_response,
             "model_boxed_answer": self.model_boxed_answer,
             "status": self.status,
@@ -124,9 +120,8 @@ class AttemptResult:
             "is_correct": self.is_correct,
             "error_message": self.error_message,
             "is_valid_box": self.is_valid_box,
-            "failure_experience_summary": self.failure_experience_summary,
-            "used_failure_experiences": self.used_failure_experiences,
-            "stop_reason": self.stop_reason,
+            "exceed_max_turn_summary": self.exceed_max_turn_summary,
+            "used_exceed_max_turn_summaries": self.used_exceed_max_turn_summaries,
         }
 
     def update_from_response(self, response: Dict[str, Any], log_path: Path):
@@ -134,7 +129,7 @@ class AttemptResult:
         self.model_response = response
         self.model_boxed_answer = response.get("final_boxed_answer", "")
         self.is_valid_box = is_valid_box(self.model_boxed_answer)
-        self.failure_experience_summary = response.get("failure_experience_summary")
+        self.exceed_max_turn_summary = response.get("exceed_max_turn_summary")
         self.status = STATUS_COMPLETED if self.model_boxed_answer else STATUS_FAILED
         self.log_path = log_path
 
@@ -182,8 +177,8 @@ class TaskResult:
         self.log_path = None
         self.attempts = []
         self.pass_at_k_success = False
-        self.stop_condition: Optional[str] = None
-        self.total_failure_experiences: int = 0
+        self.total_attempts: int = 0
+        self.total_retries: int = 0
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to serializable dictionary."""

@@ -303,9 +303,9 @@ template:
 
       Extract the final answer in \boxed{} format:
 
-  failure_summary_prompt:
+  exceed_max_turn_summary_prompt:
     components:
-      - basic_failure_summary_prompt
+      - basic_exceed_max_turn_summary_prompt
 
     required_context:
       - task_description
@@ -315,7 +315,7 @@ template:
       - final_boxed_answer
       - error_message
 
-    basic_failure_summary_prompt: |
+    basic_exceed_max_turn_summary_prompt: |
       The task was not completed successfully. Do NOT call any tools. Provide a structured summary:
 
       Failure type: [incomplete / blocked / misdirected / format_missed]
@@ -346,7 +346,7 @@ template:
       Error Encountered: {{ error_message }}
       {% endif %}
 
-  failure_experience_header:
+  exceed_max_turn_summary_header:
     components:
       - header_text
 
@@ -354,19 +354,19 @@ template:
       === Previous Attempts Analysis ===
       The following summarizes what was tried before and why it did not work. Use this to guide a NEW approach.
 
-  failure_experience_item:
+  exceed_max_turn_summary_item:
     components:
       - item_text
 
     required_context:
       - attempt_number
-      - failure_summary
+      - summary
 
     item_text: |
       [Attempt {{ attempt_number }}]
-      {{ failure_summary }}
+      {{ summary }}
 
-  failure_experience_footer:
+  exceed_max_turn_summary_footer:
     components:
       - footer_text
 

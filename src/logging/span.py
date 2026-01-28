@@ -21,7 +21,8 @@ class Span:
     name: str
     parent_span_id: Optional[str]
     task_id: Optional[str] = None
-    run_id: Optional[str] = None
+    attempt_id: Optional[int] = None
+    retry_id: Optional[int] = None
 
     start_ts: float = field(default_factory=time.time)
     end_ts: Optional[float] = None

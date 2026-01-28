@@ -21,14 +21,14 @@ main_agent:
   output_processor:
     - ${output-summary}
     - ${output-final-answer-extraction}
-    - ${output-failure-experience}
+    - ${output-exceed-max-turn-summary}
 
 input-message-generator:
   type: InputMessageGenerator
 output-summary:
   type: SummaryGenerator
-output-failure-experience:
-  type: FailureExperienceSummaryGenerator
+output-exceed-max-turn-summary:
+  type: ExceedMaxTurnSummaryGenerator
   prompt: config/prompts/fangda_prompt_main_agent.yaml
   llm:
     _base_: config/llm/base_mirothinker.yaml

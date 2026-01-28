@@ -23,30 +23,31 @@ from src.utils.eval_utils import (
     TaskResult,
     Task,
     STATUS_FAILED,
-    STOP_CONDITION_CORRECT,
-    STOP_CONDITION_VALID_BOX,
-    STOP_CONDITION_MAX_TURN,
 )
 
 tracer = get_tracer()
 
 
-def _build_failure_experience_text(
-    failure_experiences: List[str],
+def _build_exceed_max_turn_summary_text(
+    summaries: List[str],
     prompt_manager=None,
 ) -> str:
-    """Build failure experience text from list of summaries."""
-    if not failure_experiences:
+    """Build summary text from list of exceed max turn summaries."""
+    if not summaries:
         return ""
 
     if prompt_manager:
-        header = prompt_manager.render_prompt("failure_experience_header", context={})
-        footer = prompt_manager.render_prompt("failure_experience_footer", context={})
+        header = prompt_manager.render_prompt(
+            "exceed_max_turn_summary_header", context={}
+        )
+        footer = prompt_manager.render_prompt(
+            "exceed_max_turn_summary_footer", context={}
+        )
         items = []
-        for i, summary in enumerate(failure_experiences, 1):
+        for i, summary in enumerate(summaries, 1):
             item = prompt_manager.render_prompt(
-                "failure_experience_item",
-                context={"attempt_number": i, "failure_summary": summary},
+                "exceed_max_turn_summary_item",
+                context={"attempt_number": i, "summary": summary},
             )
             items.append(item)
         return f"{header}\n{''.join(items)}\n{footer}"
@@ -59,67 +60,62 @@ def _build_failure_experience_text(
             "Use this to guide a NEW approach. Avoid repeating the same mistakes.\n"
         )
         items = []
-        for i, summary in enumerate(failure_experiences, 1):
+        for i, summary in enumerate(summaries, 1):
             items.append(f"[Attempt {i}]\n{summary}\n")
         footer = "=== End of Previous Attempts ===\n"
         footer += "Based on the above analysis, try a different approach.\n"
         return f"{header}\n{''.join(items)}\n{footer}"
 
 
-def _check_stop_condition(
-    stop_condition: str,
-    attempt_result: AttemptResult,
-) -> bool:
-    """Check if the stop condition is met based on the attempt result."""
-    if stop_condition == STOP_CONDITION_CORRECT:
-        return attempt_result.is_correct
-    elif stop_condition == STOP_CONDITION_VALID_BOX:
-        return attempt_result.is_valid_box
-    elif stop_condition == STOP_CONDITION_MAX_TURN:
-        return False
-    return False
-
-
-async def run_single_attempt(
+async def run_single_retry(
     cfg: DictConfig,
     agent: BaseAgent,
     task: Task,
     attempt_id: int,
+    retry_id: int,
     evaluator: Optional[Evaluator] = None,
-    failure_experiences: Optional[List[str]] = None,
+    previous_summaries: Optional[List[str]] = None,
     prompt_manager=None,
 ) -> AttemptResult:
-    """Execute a single task attempt with optional evaluation."""
+    """Execute a single retry within an attempt."""
 
-    attempt_result = AttemptResult(task=task, attempt_id=attempt_id)
+    attempt_result = AttemptResult(task=task, attempt_id=attempt_id, retry_id=retry_id)
 
-    log_path = Path(cfg.output_dir) / f"task_{task.task_id}_attempt_{attempt_id}.json"
-    task_context_var = TaskContextVar(task_id=task.task_id, run_id=str(attempt_id))
+    log_path = (
+        Path(cfg.output_dir)
+        / f"task_{task.task_id}_attempt_{attempt_id}_retry_{retry_id}.json"
+    )
+    task_context_var = TaskContextVar(
+        task_id=task.task_id,
+        attempt_id=attempt_id,
+        retry_id=retry_id,
+    )
     token = set_current_task_context_var(task_context_var)
     tracer = get_tracer()
 
-    retry_with_experience = bool(failure_experiences)
-    previous_attempt_ids = list(range(1, attempt_id)) if failure_experiences else []
+    used_exceed_max_turn_summaries = bool(previous_summaries)
+    previous_retry_ids = list(range(retry_id)) if previous_summaries else []
 
     tracer.update_task_meta(
         patch={
             "task_id": task.task_id,
-            "run_id": str(attempt_id),
+            "attempt_id": attempt_id,
+            "retry_id": retry_id,
             "task_description": task.task_question,
             "task_file_name": task.file_path or "",
             "ground_truth": task.ground_truth,
-            "retry_with_experience": retry_with_experience,
-            "previous_attempt_ids": previous_attempt_ids,
+            "used_exceed_max_turn_summaries": used_exceed_max_turn_summaries,
+            "previous_retry_ids": previous_retry_ids,
         }
     )
 
     task_description = task.task_question
-    if failure_experiences:
-        experience_text = _build_failure_experience_text(
-            failure_experiences, prompt_manager
+    if previous_summaries:
+        summary_text = _build_exceed_max_turn_summary_text(
+            previous_summaries, prompt_manager
         )
-        task_description = f"{experience_text}\n\n{task.task_question}"
-        attempt_result.used_failure_experiences = failure_experiences
+        task_description = f"{summary_text}\n\n{task.task_question}"
+        attempt_result.used_exceed_max_turn_summaries = previous_summaries
 
     tracer.start()
     try:
@@ -135,7 +131,7 @@ async def run_single_attempt(
             patch={
                 "final_boxed_answer": attempt_result.model_boxed_answer,
                 "is_valid_box": attempt_result.is_valid_box,
-                "failure_experience_summary": attempt_result.failure_experience_summary,
+                "exceed_max_turn_summary": attempt_result.exceed_max_turn_summary,
             }
         )
 
@@ -153,7 +149,7 @@ async def run_single_attempt(
     except Exception as e:
         attempt_result.status = STATUS_FAILED
         attempt_result.error_message = str(e)
-        print(f"    Error in attempt {attempt_id}: {e}")
+        print(f"    Error in attempt {attempt_id} retry {retry_id}: {e}")
         tracer.finish(status="failed", error=str(e))
     finally:
         reset_current_task_context_var(token)
@@ -165,62 +161,82 @@ async def run_single_task(
     cfg: DictConfig,
     agent: BaseAgent,
     task: Task,
-    attempt_num: int = 1,
+    pass_at_k: int = 1,
+    max_retry: int = 1,
     evaluator: Optional[Evaluator] = None,
-    stop_condition: str = STOP_CONDITION_CORRECT,
-    enable_failure_experience: bool = False,
+    exceed_max_turn_summary: bool = False,
     prompt_manager=None,
 ) -> TaskResult:
-    """Run a single task with optional pass@k evaluation and failure experience."""
+    """Run a single task with pass@k attempts and retry logic.
 
-    pass_at_k = evaluator.pass_at_k if evaluator else attempt_num
-    print(f"Processing task {task.task_id} with pass@{pass_at_k}")
+    Args:
+        cfg: Configuration object.
+        agent: The agent to run.
+        task: The task to execute.
+        pass_at_k: Number of attempts (outer loop, stops on correct answer).
+        max_retry: Number of retries per attempt (inner loop, stops on valid_box).
+        evaluator: Optional evaluator for judging correctness.
+        exceed_max_turn_summary: Whether to generate failure summaries for retries.
+        prompt_manager: Optional prompt manager for rendering templates.
+
+    Returns:
+        TaskResult containing all attempts and final status.
+    """
+
+    print(
+        f"Processing task {task.task_id} with pass@{pass_at_k}, max_retry={max_retry}"
+    )
 
     result = TaskResult(task=task)
-    result.stop_condition = stop_condition
     found_correct = False
-    should_stop = False
-    failure_experiences: List[str] = []
 
     try:
         for attempt_id in range(1, pass_at_k + 1):
             print(f"  Attempt {attempt_id}/{pass_at_k} for task {task.task_id}")
+            result.total_attempts = attempt_id
 
-            current_experiences = (
-                failure_experiences if enable_failure_experience else None
-            )
+            collected_summaries: List[str] = []
 
-            attempt_result = await run_single_attempt(
-                cfg=cfg,
-                agent=agent,
-                task=task,
-                attempt_id=attempt_id,
-                evaluator=evaluator,
-                failure_experiences=current_experiences,
-                prompt_manager=prompt_manager,
-            )
+            for retry_id in range(max_retry):
+                print(f"    Retry {retry_id}/{max_retry - 1}")
+                result.total_retries += 1
 
-            result.update_with_attempt(attempt_result)
-
-            should_stop = _check_stop_condition(stop_condition, attempt_result)
-
-            if should_stop:
-                attempt_result.stop_reason = stop_condition
-                if attempt_result.is_correct:
-                    found_correct = True
-                print(
-                    f"    Stop condition '{stop_condition}' met after {attempt_id} attempts."
+                current_summaries = (
+                    collected_summaries if exceed_max_turn_summary else None
                 )
-                break
 
-            if (
-                enable_failure_experience
-                and attempt_id < pass_at_k
-                and attempt_result.failure_experience_summary
-            ):
-                failure_experiences.append(attempt_result.failure_experience_summary)
-                result.total_failure_experiences = len(failure_experiences)
-                print(f"    Collected failure experience #{len(failure_experiences)}")
+                retry_result = await run_single_retry(
+                    cfg=cfg,
+                    agent=agent,
+                    task=task,
+                    attempt_id=attempt_id,
+                    retry_id=retry_id,
+                    evaluator=evaluator,
+                    previous_summaries=current_summaries,
+                    prompt_manager=prompt_manager,
+                )
+
+                result.update_with_attempt(retry_result)
+
+                if retry_result.is_valid_box:
+                    print(f"    Got valid box at retry {retry_id}")
+
+                    if retry_result.is_correct:
+                        found_correct = True
+                        print("    Answer is CORRECT!")
+                    break
+
+                if (
+                    exceed_max_turn_summary
+                    and retry_id < max_retry - 1
+                    and retry_result.exceed_max_turn_summary
+                ):
+                    collected_summaries.append(retry_result.exceed_max_turn_summary)
+                    print(f"    Collected summary #{len(collected_summaries)}")
+
+            if found_correct:
+                print(f"  Found correct answer at attempt {attempt_id}")
+                break
 
     except Exception as e:
         result.status = STATUS_FAILED
@@ -237,7 +253,7 @@ async def run_single_task(
             status_icon = "✅ SUCCESS" if found_correct else "❌ FAILED"
             print(f"    Pass@{pass_at_k} result: {status_icon}")
 
-        print(f"Task {task.task_id} completed with {len(result.attempts)} attempts")
+        print(f"Task {task.task_id} completed with {len(result.attempts)} retries")
 
     return result
 
@@ -248,8 +264,9 @@ async def run_tasks(
     tasks: List[Task],
     evaluator: Optional[Evaluator] = None,
     max_concurrent: int = 3,
-    stop_condition: str = STOP_CONDITION_CORRECT,
-    enable_failure_experience: bool = False,
+    pass_at_k: int = 1,
+    max_retry: int = 1,
+    exceed_max_turn_summary: bool = False,
     prompt_manager=None,
 ) -> List[TaskResult]:
     """Run multiple tasks in parallel with concurrency control."""
@@ -257,6 +274,7 @@ async def run_tasks(
     print(
         f"Running inference on {len(tasks)} tasks with max_concurrent={max_concurrent}"
     )
+    print(f"  pass@k={pass_at_k}, max_retry={max_retry}")
 
     semaphore = asyncio.Semaphore(max_concurrent)
 
@@ -266,9 +284,10 @@ async def run_tasks(
                 cfg=cfg,
                 agent=agent,
                 task=task,
+                pass_at_k=pass_at_k,
+                max_retry=max_retry,
                 evaluator=evaluator,
-                stop_condition=stop_condition,
-                enable_failure_experience=enable_failure_experience,
+                exceed_max_turn_summary=exceed_max_turn_summary,
                 prompt_manager=prompt_manager,
             )
 

@@ -152,7 +152,7 @@ class IterativeAgentWithTool(BaseAgent):
             message_history=message_history,
             summary=output_processor_result.get("summary", None),
             final_boxed_answer=output_processor_result.get("final_boxed_answer", None),
-            failure_experience_summary=output_processor_result.get(
-                "failure_experience_summary", None
+            exceed_max_turn_summary=output_processor_result.get(
+                "exceed_max_turn_summary", None
             ),
         )

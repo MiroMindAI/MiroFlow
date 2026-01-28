@@ -69,8 +69,9 @@ async def test_benchmark(cfg: DictConfig) -> float:
         tasks=tasks,
         evaluator=evaluator,
         max_concurrent=execution_cfg.max_concurrent,
-        stop_condition=execution_cfg.get("stop_condition", "correct"),
-        enable_failure_experience=execution_cfg.get("enable_failure_experience", False),
+        pass_at_k=execution_cfg.get("pass_at_k", 1),
+        max_retry=execution_cfg.get("max_retry", 1),
+        exceed_max_turn_summary=execution_cfg.get("exceed_max_turn_summary", False),
         prompt_manager=agent.prompt_manager
         if hasattr(agent, "prompt_manager")
         else None,
