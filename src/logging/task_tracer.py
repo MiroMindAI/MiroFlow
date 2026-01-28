@@ -48,14 +48,15 @@ def _ensure_jsonable(x: Any) -> Any:
 @dataclass(frozen=True)
 class TaskContextVar:
     task_id: str
-    run_id: str
+    attempt_id: int
+    retry_id: int
 
     def __repr__(self) -> str:
-        return f"task_{self.task_id}_attempt_{self.run_id}"
+        return f"task_{self.task_id}_attempt_{self.attempt_id}_retry_{self.retry_id}"
 
 
 # 使用默认对象代替 None，避免后续大量的 None check
-ROOT_CONTEXT = TaskContextVar(task_id="root", run_id="0")
+ROOT_CONTEXT = TaskContextVar(task_id="root", attempt_id=0, retry_id=0)
 
 CURRENT_TASK_CONTEXT_VAR: contextvars.ContextVar[TaskContextVar] = (
     contextvars.ContextVar("CURRENT_TASK_CONTEXT_VAR", default=ROOT_CONTEXT)
@@ -81,7 +82,8 @@ def get_current_task_context_var() -> TaskContextVar:
 
 class TaskMeta(BaseModel):
     task_id: str = Field(default_factory=lambda: f"task_{uuid.uuid4().hex[:12]}")
-    run_id: str = Field(default_factory=lambda: f"run_{uuid.uuid4().hex[:12]}")
+    attempt_id: int = 1
+    retry_id: int = 0
     task_description: str = ""
     task_file_name: Optional[str] = None
 
@@ -97,10 +99,9 @@ class TaskMeta(BaseModel):
     ground_truth: Optional[str] = None
 
     is_valid_box: Optional[bool] = None
-    failure_experience_summary: Optional[str] = None
-    retry_with_experience: bool = False
-    previous_attempt_ids: List[int] = Field(default_factory=list)
-    stop_condition: Optional[str] = None
+    exceed_max_turn_summary: Optional[str] = None
+    used_exceed_max_turn_summaries: bool = False
+    previous_retry_ids: List[int] = Field(default_factory=list)
 
     updated_at: str = Field(default_factory=utc_iso)
 

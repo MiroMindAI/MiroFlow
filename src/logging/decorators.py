@@ -90,7 +90,8 @@ def span(
 
             sp = Span(
                 task_id=task_context_var.task_id,
-                run_id=task_context_var.run_id,
+                attempt_id=task_context_var.attempt_id,
+                retry_id=task_context_var.retry_id,
                 span_id=span_id,
                 parent_span_id=parent_span_id,
                 name=span_name,
