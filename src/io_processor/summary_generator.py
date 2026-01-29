@@ -26,10 +26,12 @@ class SummaryGenerator(BaseIOProcessor):
                 chinese_context=self.cfg.get("chinese_context", False),
             ),
         )
+
         message_history = ctx.get("message_history", [])
         llm_response = await self.llm_client.create_message(
             message_history=message_history
             + [{"role": "user", "content": [{"type": "text", "text": prompt}]}]
         )
 
-        return AgentContext(summary=llm_response.response_text)
+        # Return both summary_prompt and summary in agent state
+        return AgentContext(summary_prompt=prompt, summary=llm_response.response_text)

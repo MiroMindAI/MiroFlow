@@ -138,14 +138,16 @@ class BaseAgent(ABC):
         mcp_server_definitions = ""
         if tool_definitions and len(tool_definitions) > 0:
             for server in tool_definitions:
-                mcp_server_definitions += f"## Server name: {server['name']}\n"
+                mcp_server_definitions += f"\n## Server name: {server['name']}\n"
                 if "tools" in server and len(server["tools"]) > 0:
                     for tool in server["tools"]:
-                        mcp_server_definitions += f"### Tool name: {tool['name']}\n"
+                        mcp_server_definitions += f"\n### Tool name: {tool['name']}\n"
                         mcp_server_definitions += (
                             f"Description: {tool['description']}\n"
                         )
-                        mcp_server_definitions += f"Schema: {tool['schema']}\n"
+                        mcp_server_definitions += (
+                            f"\nInput JSON schema: {tool['schema']}\n"
+                        )
         return mcp_server_definitions
 
     async def init_tool_definitions(self):

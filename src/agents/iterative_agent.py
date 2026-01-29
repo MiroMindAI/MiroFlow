@@ -145,6 +145,7 @@ class IterativeAgentWithTool(BaseAgent):
             self.name,
             states={
                 "message_history": message_history,
+                "summary_prompt": output_processor_result.get("summary_prompt", None),
                 "summary": output_processor_result.get("summary", None),
             },
         )
