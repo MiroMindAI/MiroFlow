@@ -27,7 +27,9 @@ def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
     """
     m = _FRONTMATTER_RE.match(md_text)
     if not m:
-        raise ValueError("SKILL.md missing frontmatter (must start with --- and close with ---)")
+        raise ValueError(
+            "SKILL.md missing frontmatter (must start with --- and close with ---)"
+        )
 
     fm_raw, body = m.group(1), m.group(2)
     meta: Dict[str, Any] = {}
@@ -127,7 +129,10 @@ def test_parse_skill_md(skill_md_path: str):
 
         # Validate required fields
         if not name or not description:
-            print("Warning: Missing required field 'name' or 'description'", file=sys.stderr)
+            print(
+                "Warning: Missing required field 'name' or 'description'",
+                file=sys.stderr,
+            )
             return False
 
         print("\n✓ Parse successful!")
