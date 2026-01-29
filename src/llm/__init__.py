@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-LLM 模块
+LLM Module
 
-包含所有 LLM 客户端实现
+Contains all LLM client implementations
 """
 
 import os
@@ -18,22 +18,22 @@ from src.llm.factory import build_llm_client
 
 __all__ = [
     "LLMClientBase",
-    "LLMProviderClientBase",  # 向后兼容
+    "LLMProviderClientBase",  # Backward compatible
     "LLMOutput",
     "build_llm_client",
 ]
 
-# 动态导入当前目录下所有 LLM 客户端类
+# Dynamically import all LLM client classes in the current directory
 package_dir = os.path.dirname(__file__)
 
-# 排除的模块名
+# Excluded module names
 _EXCLUDED_MODULES = {"__init__", "base", "factory", "util"}
 
 for module_info in pkgutil.iter_modules([package_dir]):
     module_name = module_info.name
     if module_name in _EXCLUDED_MODULES:
         continue
-    if module_info.ispkg:  # 跳过子目录（如 archived）
+    if module_info.ispkg:  # Skip subdirectories (e.g., archived)
         continue
 
     try:

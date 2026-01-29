@@ -55,7 +55,7 @@ class TaskContextVar:
         return f"task_{self.task_id}_attempt_{self.attempt_id}_retry_{self.retry_id}"
 
 
-# 使用默认对象代替 None，避免后续大量的 None check
+# Use default object instead of None to avoid many None checks later
 ROOT_CONTEXT = TaskContextVar(task_id="root", attempt_id=0, retry_id=0)
 
 CURRENT_TASK_CONTEXT_VAR: contextvars.ContextVar[TaskContextVar] = (
@@ -137,15 +137,16 @@ class TaskTracer:
 
         self._active_tasks: Dict[str, TaskLogFile] = {}
 
-        # 序列号追踪：Key -> int
+        # Sequence number tracking: Key -> int
         self._seq_map: Dict[str, int] = {}
 
-        # 锁：保护 _active_tasks 和 _seq_map 的并发修改
+        # Lock: protects concurrent modification of _active_tasks and _seq_map
         self._data_lock = threading.Lock()
 
-        # 锁：保护文件写入，防止多线程写同一个文件导致错乱
-        # (虽然这里使用了 key 隔离文件，但为了防止原子重命名冲突，保留一个 IO 锁是个好习惯，或者针对每个文件锁)
-        # 这里为了简单高效，假设不同 task 写不同文件，IO 不互斥。
+        # Lock: protects file writing to prevent multi-thread file corruption
+        # (Although files are isolated by key here, keeping an IO lock is good practice
+        # to prevent atomic rename conflicts, or use per-file locks)
+        # For simplicity and efficiency, assume different tasks write different files, IO not mutually exclusive.
         pass
 
     def set_log_path(self, log_path: Path | str) -> None:
@@ -156,21 +157,21 @@ class TaskTracer:
     # ---------- Internal Helpers ----------
 
     def _get_context_key(self) -> str:
-        """从 ContextVars 获取当前任务的唯一标识字符串"""
+        """Get unique identifier string for current task from ContextVars"""
         ctx = get_current_task_context_var()
         return str(ctx)
 
     def _get_or_create_log(self, key: str) -> TaskLogFile:
-        """调用方必须持有 self._data_lock"""
+        """Caller must hold self._data_lock"""
         if key not in self._active_tasks:
             self._active_tasks[key] = TaskLogFile()
             self._seq_map[key] = 0
-            # 同步 meta 中的 ID 信息 (可选)
+            # Optionally sync ID info in meta
             # self._active_tasks[key].task_meta.task_id = ...
         return self._active_tasks[key]
 
     def _flush_to_disk(self, key: str, log_obj: TaskLogFile):
-        """将对象序列化并写入磁盘。执行原子写入 (Write-Replace)。"""
+        """Serialize object and write to disk. Performs atomic write (Write-Replace)."""
         if not key:
             return
 
@@ -183,7 +184,7 @@ class TaskTracer:
         file_path = self.log_path / f"{key}.json"
         temp_path = self.log_path / f"{key}.tmp"
 
-        # 2. 写入临时文件然后重命名，保证原子性
+        # Write to temp file then rename for atomicity
         try:
             with open(temp_path, "w", encoding="utf-8") as f:
                 f.write(payload)
@@ -193,23 +194,23 @@ class TaskTracer:
 
     def flush(self):
         """
-        手动刷新当前任务的日志到磁盘。
+        Manually flush current task's log to disk.
         """
         key = self._get_context_key()
 
         with self._data_lock:
             if key in self._active_tasks:
-                # 浅拷贝模型对象用于序列化，尽量减少锁持有时间
-                # 注意：如果模型很深，这里可能需要 model_copy(deep=True)
-                # 但为了性能，通常直接序列化即可，因为单线程内通常不会竞争修改
+                # Shallow copy model object for serialization, minimize lock hold time
+                # Note: if model is deep, may need model_copy(deep=True)
+                # But for performance, usually serialize directly since single thread won't compete
                 log_obj = self._active_tasks[key]
-                # 在锁内不能做 IO，但可以做数据的快照。
-                # 简单起见，我们在锁内拿到引用，在锁外 dump (虽然有极小概率读取到修改中的数据，但在 logger 场景可接受)
+                # Can't do IO inside lock, but can snapshot data.
+                # For simplicity, get reference in lock, dump outside (tiny chance of reading mid-modification, acceptable for logger)
                 pass
             else:
                 return
 
-        # 执行 IO
+        # Perform IO
         self._flush_to_disk(key, log_obj)
 
     # ---------- Lifecycle ----------
@@ -224,7 +225,7 @@ class TaskTracer:
 
         self.flush()
 
-    # todo: 这里的interrupted有被使用吗？
+    # TODO: is 'interrupted' status being used?
     def finish(
         self,
         status: Literal["completed", "interrupted", "failed"] = "completed",
@@ -233,10 +234,10 @@ class TaskTracer:
     ) -> None:
         key = self._get_context_key()
 
-        # 1. 更新最终状态
+        # 1. Update final status
         with self._data_lock:
             if key not in self._active_tasks:
-                return  # 甚至没开始过
+                return  # Never even started
 
             log_file = self._active_tasks[key]
             log_file.task_meta.status = status
@@ -245,11 +246,11 @@ class TaskTracer:
             if error is not None:
                 log_file.task_meta.error = error
 
-        # 2. 最后一次强制 Flush
+        # 2. Final forced flush
         if key in self._active_tasks:
             self._flush_to_disk(key, self._active_tasks[key])
 
-        # 3. [关键修复] 清理内存，防止内存泄漏
+        # 3. [Key fix] Clean up memory to prevent memory leak
         with self._data_lock:
             if key in self._active_tasks:
                 del self._active_tasks[key]
@@ -283,7 +284,7 @@ class TaskTracer:
         with self._data_lock:
             log_file = self._get_or_create_log(key)
             log_file.current_span = (
-                current_span  # 假设 Span 是 Pydantic model 或 jsonable
+                current_span  # Assumes Span is Pydantic model or jsonable
             )
         self.flush()
 
@@ -297,15 +298,15 @@ class TaskTracer:
         with self._data_lock:
             log_file = self._get_or_create_log(key)
 
-            # 生成递增序号
+            # Generate incrementing sequence number
             self._seq_map[key] += 1
             ev["seq"] = self._seq_map[key]
 
             log_file.step_logs.append(_ensure_jsonable(ev))
 
-        # 每次 log 都 flush 在高频场景下性能较差
-        # 如果追求极致性能，可以设定阈值或只在 finish 时 flush
-        # 这里为了数据安全性保持 flush
+        # Flushing on every log is poor performance in high-frequency scenarios
+        # For extreme performance, set threshold or only flush on finish
+        # Here we keep flush for data safety
         self.flush()
 
     def log(
@@ -320,7 +321,7 @@ class TaskTracer:
         where: Optional[Dict[str, Any]] = None,
     ) -> None:
         payload = {"type": f"log_{level.lower()}", "msg": msg}
-        # 仅添加非空字段，保持日志整洁
+        # Only add non-empty fields to keep logs clean
         if span_id:
             payload["span_id"] = span_id
         if node_id:

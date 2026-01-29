@@ -220,13 +220,13 @@ class GPT5OpenAIClient(LLMClientBase):
             else:
                 return self.client.chat.completions.create(**flex_params)
         except Exception:
-            # 这里是“flex 模式失败”的回退逻辑
+            # Fallback logic when flex mode fails
             logger.warning(
                 "LLM call with service_tier='flex' failed, falling back to default tier",
                 exc_info=True,
             )
 
-            # 用正常模式再试一次（删掉 service_tier，让它走默认/auto）
+            # Retry with normal mode (remove service_tier, let it use default/auto)
             normal_params = dict(params)
             normal_params.pop("service_tier", None)
 

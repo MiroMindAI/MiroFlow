@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-迭代式 Agent - 带工具调用能力
+Iterative Agent - with tool calling capability
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ AgentCaller = Callable[[str, dict], Awaitable[str]]
 
 @register(ComponentType.AGENT, "IterativeAgentWithTool")
 class IterativeAgentWithTool(BaseAgent):
-    """迭代式带工具调用的 Agent"""
+    """Iterative agent with tool calling capability"""
 
     def __init__(self, cfg: DictConfig):
         super().__init__(cfg=cfg)

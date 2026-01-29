@@ -30,7 +30,7 @@ async def test_benchmark(cfg: DictConfig) -> float:
     tracer = get_tracer()
     tracer.set_log_path(cfg.output_dir)
 
-    # 读 benchmark 的 task
+    # Load benchmark tasks
     def parse_func(x: str) -> Task:
         data = json.loads(x)
 
@@ -47,16 +47,16 @@ async def test_benchmark(cfg: DictConfig) -> float:
         parse_func=parse_func,
     )
 
-    # 读 benchmark 的 task
+    # Load benchmark tasks
     print(f"Starting evaluation for benchmark: {cfg.benchmark.name}")
     tasks = evaluator.load_tasks()
     if len(tasks) == 0:
         print("No tasks loaded. Exiting.")
         return 0.0
 
-    # 实例化 agent
+    # Instantiate agent
     agent = build_agent_from_config(cfg=cfg)
-    # 测试 benchmark 里的 task
+    # Test benchmark tasks
     print(
         f"\nStarting parallel inference with {cfg.benchmark.execution.max_concurrent} concurrent tasks..."
     )
@@ -77,12 +77,12 @@ async def test_benchmark(cfg: DictConfig) -> float:
         else None,
     )
 
-    # 计算测试结果正确性
+    # Calculate test result accuracy
     print("Evaluating accuracy...")
     accuracy = await evaluator.evaluate_accuracy(results)
     print(f"\nOverall pass@{evaluator.pass_at_k} accuracy: {accuracy:.2%}")
 
-    # 输出测试精度
+    # Output test accuracy
     log_dir = Path(cfg.output_dir)
     results_path = log_dir / "benchmark_results.jsonl"
     evaluator.save_results(results, results_path)

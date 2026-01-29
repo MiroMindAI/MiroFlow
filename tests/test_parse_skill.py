@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-测试脚本：提取 SKILL.md 文件中的 name 和 description
+Test script: Extract name and description from SKILL.md files
 """
 
 from __future__ import annotations
@@ -10,29 +10,29 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, Tuple
 
-# 修复后的正则表达式：匹配 YAML front matter
-# 使用 \A 和 \Z 表示字符串的开始和结束，\s 匹配空白字符
+# Regex pattern to match YAML front matter
+# Uses \A and \Z for string start/end, \s matches whitespace
 _FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n(.*)\Z", re.S | re.M)
 
 
 def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
     """
-    解析 Markdown 文件的 YAML front matter
+    Parse YAML front matter from a Markdown file
 
     Args:
-        md_text: Markdown 文件内容
+        md_text: Markdown file content
 
     Returns:
-        Tuple[Dict[str, Any], str]: (frontmatter 字典, 正文内容)
+        Tuple[Dict[str, Any], str]: (frontmatter dict, body content)
     """
     m = _FRONTMATTER_RE.match(md_text)
     if not m:
-        raise ValueError("SKILL.md 缺少 frontmatter（必须以 --- 开头并闭合 ---）")
+        raise ValueError("SKILL.md missing frontmatter (must start with --- and close with ---)")
 
     fm_raw, body = m.group(1), m.group(2)
     meta: Dict[str, Any] = {}
 
-    # 简易行解析
+    # Simple line-by-line parsing
     lines = fm_raw.splitlines()
     i = 0
     while i < len(lines):
@@ -73,7 +73,7 @@ def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
             inner = val[1:-1].strip()
             meta[key] = [x.strip() for x in inner.split(",") if x.strip()]
         else:
-            # 去掉包裹引号（简单处理）
+            # Remove wrapping quotes (simple handling)
             if (val.startswith('"') and val.endswith('"')) or (
                 val.startswith("'") and val.endswith("'")
             ):
@@ -85,56 +85,56 @@ def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
 
 def test_parse_skill_md(skill_md_path: str):
     """
-    测试解析 SKILL.md 文件
+    Test parsing a SKILL.md file
 
     Args:
-        skill_md_path: SKILL.md 文件路径
+        skill_md_path: Path to SKILL.md file
     """
     skill_md = Path(skill_md_path)
 
     if not skill_md.exists():
-        print(f"错误：文件不存在: {skill_md_path}", file=sys.stderr)
+        print(f"Error: File not found: {skill_md_path}", file=sys.stderr)
         return False
 
     try:
-        # 读取文件内容
+        # Read file content
         text = skill_md.read_text(encoding="utf-8")
         print("=" * 60)
-        print(f"文件路径: {skill_md_path}")
+        print(f"File path: {skill_md_path}")
         print("=" * 60)
-        print("\n文件内容:")
+        print("\nFile content:")
         print("-" * 60)
         print(text)
         print("-" * 60)
 
-        # 解析 frontmatter
+        # Parse frontmatter
         fm, body = _parse_frontmatter(text)
 
-        # 提取 name 和 description
+        # Extract name and description
         name = str(fm.get("name", "")).strip()
         description = str(fm.get("description", "")).strip()
 
-        print("\n解析结果:")
+        print("\nParse result:")
         print("=" * 60)
         print(f"Name: {name}")
         print(f"Description: {description}")
-        print("\n所有 frontmatter 字段:")
+        print("\nAll frontmatter fields:")
         for key, value in fm.items():
             print(f"  {key}: {value}")
-        print("\n正文内容（前100个字符）:")
+        print("\nBody content (first 100 characters):")
         print(body[:100] + "..." if len(body) > 100 else body)
         print("=" * 60)
 
-        # 验证必需字段
+        # Validate required fields
         if not name or not description:
-            print("警告：缺少必需的字段 'name' 或 'description'", file=sys.stderr)
+            print("Warning: Missing required field 'name' or 'description'", file=sys.stderr)
             return False
 
-        print("\n✓ 解析成功！")
+        print("\n✓ Parse successful!")
         return True
 
     except Exception as e:
-        print(f"错误：解析失败 - {e}", file=sys.stderr)
+        print(f"Error: Parse failed - {e}", file=sys.stderr)
         import traceback
 
         traceback.print_exc()
@@ -142,10 +142,10 @@ def test_parse_skill_md(skill_md_path: str):
 
 
 if __name__ == "__main__":
-    # 默认测试 Math/SKILL.md
+    # Default test with Math/SKILL.md
     default_path = "src/skill/skills/Math/SKILL.md"
 
-    # 如果提供了命令行参数，使用参数作为路径
+    # If command line argument provided, use it as path
     if len(sys.argv) > 1:
         skill_path = sys.argv[1]
     else:

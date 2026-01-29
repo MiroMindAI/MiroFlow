@@ -346,5 +346,5 @@ class LLMClientBase(ABC):
         return f"LLMClientBase(provider_class={self.provider_class}, model_name={self.model_name})"
 
 
-# 保持向后兼容的别名
+# Backward compatible alias
 LLMProviderClientBase = LLMClientBase

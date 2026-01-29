@@ -3,16 +3,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-统一注册机制 - 只包含代码类组件
+Unified registration mechanism - only includes code-based components
 
 ComponentType:
-  - AGENT: Agent 模块
-  - IO_PROCESSOR: 输入/输出处理器
-  - LLM: LLM 客户端
+  - AGENT: Agent modules
+  - IO_PROCESSOR: Input/output processors
+  - LLM: LLM clients
 
-不包含:
-  - TOOL_SERVER: 通过 MCP 协议动态发现
-  - SKILL: 通过文件系统扫描发现
+Not included:
+  - TOOL_SERVER: Discovered dynamically via MCP protocol
+  - SKILL: Discovered via filesystem scanning
 """
 
 from typing import Dict, Type, Callable
@@ -30,26 +30,26 @@ class ComponentType(str, Enum):
     AGENT = "agent"
     IO_PROCESSOR = "io_processor"
     LLM = "llm"
-    # 注意：没有 TOOL_SERVER 和 SKILL
-    # - TOOL_SERVER: 通过 MCP 协议动态发现
-    # - SKILL: 通过文件系统扫描发现
+    # Note: No TOOL_SERVER and SKILL
+    # - TOOL_SERVER: Discovered dynamically via MCP protocol
+    # - SKILL: Discovered via filesystem scanning
 
 
-# 注册表：每种组件类型对应一个字典
+# Registry: each component type corresponds to a dictionary
 _REGISTRIES: Dict[ComponentType, Dict[str, Type]] = {
     ComponentType.AGENT: {},
     ComponentType.IO_PROCESSOR: {},
     ComponentType.LLM: {},
 }
 
-# 包路径映射
+# Package path mapping
 _PACKAGE_MAP = {
     ComponentType.AGENT: "src.agents",
     ComponentType.IO_PROCESSOR: "src.io_processor",
     ComponentType.LLM: "src.llm",
 }
 
-# 导入状态
+# Import status
 _IMPORTED: Dict[ComponentType, bool] = {
     ComponentType.AGENT: False,
     ComponentType.IO_PROCESSOR: False,
@@ -60,7 +60,7 @@ _LOCK = threading.Lock()
 
 
 def _lazy_import_modules(component_type: ComponentType):
-    """懒加载指定类型的所有模块"""
+    """Lazy load all modules of the specified type"""
     if _IMPORTED[component_type]:
         return
 
@@ -86,7 +86,7 @@ def _lazy_import_modules(component_type: ComponentType):
 
 def register(component_type: ComponentType, name: str) -> Callable[[Type], Type]:
     """
-    注册组件的装饰器
+    Decorator to register a component
 
     Usage:
         @register(ComponentType.AGENT, "IterativeAgentWithTool")
@@ -108,13 +108,13 @@ def register(component_type: ComponentType, name: str) -> Callable[[Type], Type]
 
 
 def get_registered_components(component_type: ComponentType) -> Dict[str, Type]:
-    """获取指定类型的所有已注册组件（调试用）"""
+    """Get all registered components of the specified type (for debugging)"""
     _lazy_import_modules(component_type)
     return dict(_REGISTRIES[component_type])
 
 
 def get_component_class(component_type: ComponentType, name: str) -> Type:
-    """获取指定类型和名称的组件类"""
+    """Get the component class by type and name"""
     _lazy_import_modules(component_type)
     registry = _REGISTRIES[component_type]
     if name not in registry:
@@ -125,17 +125,17 @@ def get_component_class(component_type: ComponentType, name: str) -> Type:
     return registry[name]
 
 
-# ==================== 兼容旧 API ====================
+# ==================== Legacy API Compatibility ====================
 
 
 def register_module(name: str) -> Callable[[Type], Type]:
     """
-    兼容旧的 register_module API
-    自动检测组件类型并注册
+    Backward compatible register_module API
+    Automatically detects component type and registers
     """
 
     def _decorator(cls: Type) -> Type:
-        # 根据类名或模块路径推断组件类型
+        # Infer component type from class name or module path
         module_path = cls.__module__
 
         if "io_processor" in module_path:
@@ -145,7 +145,7 @@ def register_module(name: str) -> Callable[[Type], Type]:
         elif "llm" in module_path:
             component_type = ComponentType.LLM
         else:
-            # 默认作为 AGENT
+            # Default to AGENT
             component_type = ComponentType.AGENT
 
         return register(component_type, name)(cls)
@@ -153,15 +153,15 @@ def register_module(name: str) -> Callable[[Type], Type]:
     return _decorator
 
 
-# 暴露旧的函数名以保持兼容性
+# Expose old function names for backward compatibility
 _AGENT_MODULE_REGISTRY = _REGISTRIES[ComponentType.AGENT]
 
 
 def get_registered_modules() -> Dict[str, Type]:
-    """兼容旧 API：获取已注册的 agent 模块"""
+    """Legacy API: Get registered agent modules"""
     _lazy_import_modules(ComponentType.AGENT)
     _lazy_import_modules(ComponentType.IO_PROCESSOR)
-    # 合并 AGENT 和 IO_PROCESSOR 注册表（旧行为）
+    # Merge AGENT and IO_PROCESSOR registries (old behavior)
     merged = {}
     merged.update(_REGISTRIES[ComponentType.AGENT])
     merged.update(_REGISTRIES[ComponentType.IO_PROCESSOR])
@@ -169,7 +169,7 @@ def get_registered_modules() -> Dict[str, Type]:
 
 
 def safe_get_module_class(cls_name: str) -> Type:
-    """兼容旧 API：安全获取模块类"""
+    """Legacy API: Safely get module class"""
     modules = get_registered_modules()
     if cls_name in modules:
         return modules[cls_name]
