@@ -5,6 +5,7 @@
 """Task execution utilities for benchmark evaluation."""
 
 import asyncio
+import random
 from pathlib import Path
 from typing import List, Optional
 
@@ -276,6 +277,11 @@ async def run_tasks(
     )
     print(f"  pass@k={pass_at_k}, max_retry={max_retry}")
 
+    # Shuffle tasks to avoid order bias and improve balancing
+    # This prevents long-tail tasks from accumulating at the end
+    shuffled_tasks = tasks.copy()
+    random.shuffle(shuffled_tasks)
+
     semaphore = asyncio.Semaphore(max_concurrent)
 
     async def run_with_semaphore(task: Task) -> TaskResult:
@@ -292,7 +298,7 @@ async def run_tasks(
             )
 
     results = await asyncio.gather(
-        *[run_with_semaphore(task) for task in tasks],
+        *[run_with_semaphore(task) for task in shuffled_tasks],
         return_exceptions=True,
     )
 
