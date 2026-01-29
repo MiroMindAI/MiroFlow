@@ -11,11 +11,11 @@ main_agent:
   max_turns: 200
   llm:
     _base_: config/llm/base_mirothinker.yaml
-  prompt: config/prompts/fangda_prompt_main_agent.yaml
+  prompt: config/prompts/binwang_prompt_main_agent_0128.yaml
   tools:
+    - config/tool/tool-python.yaml
     - config/tool/tool-search-and-scrape-webpage.yaml
     - config/tool/tool-jina-scrape-llm-summary.yaml
-    - config/tool/tool-python.yaml
   tool_blacklist:
     - server: "tool-search-and-scrape-webpage"
       tool: "sogou_search"
@@ -25,25 +25,23 @@ main_agent:
     - ${input-message-generator}
   output_processor:
     - ${output-summary}
-    - ${output-final-answer-extraction}
+    - ${output-boxed-extractor}
     - ${output-exceed-max-turn-summary}
 
 input-message-generator:
   type: InputMessageGenerator
 output-summary:
   type: SummaryGenerator
+output-boxed-extractor:
+  type: RegexBoxedExtractor
 output-exceed-max-turn-summary:
   type: ExceedMaxTurnSummaryGenerator
-  prompt: config/prompts/fangda_prompt_main_agent.yaml
-  llm:
-    _base_: config/llm/base_mirothinker.yaml
-output-final-answer-extraction:
-  type: FinalAnswerExtractor
-  prompt: config/prompts/fangda_prompt_main_agent.yaml
+  prompt: config/prompts/binwang_prompt_main_agent_0128.yaml
   llm:
     _base_: config/llm/base_mirothinker.yaml
 
 output_dir: logs/
 data_dir: "${oc.env:DATA_DIR,data}"
 
-
+benchmark:
+  exceed_max_turn_summary: true

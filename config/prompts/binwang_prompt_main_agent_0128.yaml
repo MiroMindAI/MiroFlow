@@ -156,6 +156,11 @@ template:
       Do NOT include any punctuation such as '.', '!', or '?' at the end of the answer.
       Do NOT include any invisible or non-printable characters in the answer output.
 
+      You must absolutely not perform any MCP tool call, tool invocation, search, scrape, code execution, or similar actions.
+      You can only answer the original question based on the information already retrieved and your own internal knowledge.
+      If you attempt to call any tool, it will be considered a mistake.
+
+
     chinese_context_extra_prompt: |
       {% if chinese_context is defined and chinese_context %}
       ## 中文总结要求
@@ -207,3 +212,45 @@ template:
       - **时效性**：注意中文信息源的时效性和地域性特征
       - **分析输出**：使用中文进行分析和提示，确保语言一致性 
       {% endif %}
+
+  exceed_max_turn_summary_prompt:
+    components:
+      - basic_exceed_max_turn_summary_prompt
+
+    basic_exceed_max_turn_summary_prompt: |
+      The task was not completed successfully. Do NOT call any tools. Provide a summary:
+
+      Failure type: [incomplete / blocked / misdirected / format_missed]
+        - incomplete: ran out of turns before finishing
+        - blocked: got stuck due to tool failure or missing information
+        - misdirected: went down the wrong path
+        - format_missed: found the answer but forgot to use \boxed{}
+      What happened: [describe the approach taken and why a final answer was not reached]
+      Useful findings: [list any facts, intermediate results, or conclusions discovered that should be reused]
+
+  exceed_max_turn_summary_header:
+    components:
+      - header_text
+
+    header_text: |
+      === Previous Attempts Analysis ===
+      The following summarizes what was tried before and why it did not work. Use this to guide a NEW approach.
+
+  exceed_max_turn_summary_item:
+    components:
+      - item_text
+
+    required_context:
+      - attempt_number
+      - summary
+
+    item_text: |
+      [Attempt {{ attempt_number }}]
+      {{ summary }}
+
+  exceed_max_turn_summary_footer:
+    components:
+      - footer_text
+
+    footer_text: |
+      === End of Analysis ===
