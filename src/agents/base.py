@@ -145,7 +145,9 @@ class BaseAgent(ABC):
                         mcp_server_definitions += (
                             f"Description: {tool['description']}\n"
                         )
-                        mcp_server_definitions += f"\nInput JSON schema: {tool['schema']}\n"
+                        mcp_server_definitions += (
+                            f"\nInput JSON schema: {tool['schema']}\n"
+                        )
         return mcp_server_definitions
 
     async def init_tool_definitions(self):
