@@ -72,7 +72,9 @@ def main(results_dir: str, pass_at_k: int = 3):
         f.write("=" * 50 + "\n")
         f.write("=" * 50 + "\n")
 
-        f.write(f"Success id:\n{'\n'.join(success_id)}\n")
-        f.write(f"Failed id:\n{'\n'.join(failed_id)}\n")
+        success_ids_str = "\n".join(success_id)
+        failed_ids_str = "\n".join(failed_id)
+        f.write(f"Success id:\n{success_ids_str}\n")
+        f.write(f"Failed id:\n{failed_ids_str}\n")
 
     print(f"\nResults saved to: {output_file}")

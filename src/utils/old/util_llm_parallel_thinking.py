@@ -247,13 +247,14 @@ def create_parallel_thinking_gaia_prompt(
         agent_summaries.append(
             f"**Agent Summary {i}:**\n```markdown\n{d['agent_summary']}\n```"
         )
+    agent_summaries_str = "\n\n".join(agent_summaries)
 
     prompt = f"""You are an expert evaluator working with me to determine the best answer from multiple agent summaries. I need your help to analyze these detailed summaries and extract the final answers to determine the best solution.
 
 Question: {task_data[0]["input"]}
 
 Agent Summaries:
-{"\n\n".join(agent_summaries)}
+{agent_summaries_str}
 
 Here's how we can approach this together:
 
@@ -323,13 +324,14 @@ def create_parallel_thinking_xbench_prompt(
         agent_summaries.append(
             f"**智能体总结 {i}：**\n```markdown\n{d['agent_summary']}\n```"
         )
+    agent_summaries_str = "\n\n".join(agent_summaries)
 
     prompt = f"""你是一位专业的评估专家，我需要你帮助我从多个智能体总结中确定最佳答案。请分析这些详细总结并提取最终答案来确定最佳解决方案。
 
 问题：{task_data[0]["input"]}
 
 智能体总结：
-{"\n\n".join(agent_summaries)}
+{agent_summaries_str}
 
 让我们一起来解决这个问题：
 
