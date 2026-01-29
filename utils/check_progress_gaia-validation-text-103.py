@@ -388,10 +388,7 @@ def analyze_run(task_files: Dict[str, List[Path]], parallel: bool = True) -> Run
     # Use parallel processing for better performance
     if parallel and len(task_files) > 10:
         with ProcessPoolExecutor(max_workers=8) as executor:
-            task_results = list(executor.map(
-                _analyze_task_wrapper,
-                task_files.items()
-            ))
+            task_results = list(executor.map(_analyze_task_wrapper, task_files.items()))
     else:
         task_results = [
             analyze_task_attempts(task_id, attempt_files)
