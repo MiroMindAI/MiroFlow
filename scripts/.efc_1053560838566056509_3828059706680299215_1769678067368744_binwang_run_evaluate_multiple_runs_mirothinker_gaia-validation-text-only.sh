@@ -6,9 +6,9 @@
 
 # Configuration parameters
 NUM_RUNS=3
-BENCHMARK_NAME="gaia-validation"
-AGENT_SET="fangda_agent_gaia-validation_mirothinker_single_agent_rollback_new_tools_toolblacklist"
-MAX_CONCURRENT=30
+BENCHMARK_NAME="gaia-validation-text-only"
+AGENT_SET="binwang_fangda_agent_gaia-validation-text-only_mirothinker_single_agent_rollback_new_tools_toolblacklist"
+MAX_CONCURRENT=10
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)
@@ -101,7 +101,7 @@ echo "All $NUM_RUNS runs completed!"
 echo "=========================================="
 
 echo "Calculating average scores..."
-uv run python -c "from src.utils.calculate_average_score import main; main('$RESULTS_DIR')"
+uv run python -c "from src.utils.old.calculate_average_score import main; main('$RESULTS_DIR')"
 
 echo "=========================================="
 echo "Multiple runs evaluation completed!"
