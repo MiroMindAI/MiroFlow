@@ -5,10 +5,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Configuration parameters
-NUM_RUNS=3
-BENCHMARK_NAME="gaia-validation"
-AGENT_SET="fangda_agent_gaia-validation_mirothinker_single_agent_rollback_new_tools_toolblacklist"
-MAX_CONCURRENT=30
+NUM_RUNS=8
+BENCHMARK_NAME="gaia-validation-text-only"
+AGENT_SET="standard_gaia-validation-text-103_mirothinker"
+MAX_CONCURRENT=10
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)
@@ -51,18 +51,18 @@ for i in $(seq 1 $NUM_RUNS); do
     echo "=========================================="
     echo "Launching experiment $i/$NUM_RUNS"
     echo "=========================================="
-    
+
     RUN_ID="run_$i"
-    
+
     # Start process in new process group (set -m creates new pgrp)
     (
         set -m
-        uv run test_benchmark.py \
+        uv run tests/test_benchmark.py \
             --config-path config/${AGENT_SET}.yaml \
             benchmark.execution.max_concurrent=$MAX_CONCURRENT \
             output_dir="$RESULTS_DIR/$RUN_ID" \
             > "$RESULTS_DIR/${RUN_ID}_output.log" 2>&1
-        
+
         EXIT_CODE=$?
         if [ $EXIT_CODE -eq 0 ]; then
             echo "Run $i completed successfully"
@@ -82,10 +82,10 @@ for i in $(seq 1 $NUM_RUNS); do
             fi
         fi
     ) &
-    
+
     # Get the PID and store it
     CHILD_PIDS+=($!)
-    
+
     sleep 2
 done
 

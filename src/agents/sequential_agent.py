@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-顺序执行 Agent - 按顺序执行多个子模块
+Sequential Agent - executes multiple sub-modules in sequence
 """
 
 from src.registry import register, ComponentType
@@ -15,7 +15,7 @@ from typing import List
 
 @register(ComponentType.AGENT, "SequentialAgentModule")
 class SequentialAgent(BaseAgent):
-    """顺序执行的 Agent 模块"""
+    """Sequential execution agent module"""
 
     def __init__(
         self,
@@ -63,5 +63,5 @@ class SequentialAgent(BaseAgent):
         return _repr_
 
 
-# 保持向后兼容的别名
+# Backward compatible alias
 SequentialAgentModule = SequentialAgent

@@ -34,7 +34,7 @@ def span(
     name_fn: Optional[
         Callable[[Callable[..., Any], tuple[Any, ...], Dict[str, Any]], str]
     ] = None,
-    # 可选：让调用方显式传 node_id/step_id（用于 heartbeat 和 step_logs）
+    # Optional: allow caller to explicitly pass node_id/step_id (for heartbeat and step_logs)
     node_id_fn: Optional[
         Callable[[Callable[..., Any], tuple[Any, ...], Dict[str, Any]], Optional[str]]
     ] = None,

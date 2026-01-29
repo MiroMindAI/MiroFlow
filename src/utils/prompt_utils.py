@@ -16,7 +16,7 @@ class PromptManager:
         else:
             self.config = {}
 
-        # StrictUndefined 会在参数缺失时报错，如果你想容忍缺失就改成 Undefined
+        # StrictUndefined raises error on missing parameters, use Undefined to tolerate missing
         self.env = Environment(undefined=StrictUndefined)
 
     @classmethod

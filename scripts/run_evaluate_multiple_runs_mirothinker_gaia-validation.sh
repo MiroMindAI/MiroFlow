@@ -60,7 +60,7 @@ echo "All $NUM_RUNS runs completed!"
 echo "=========================================="
 
 echo "Calculating average scores..."
-uv run python -c "from src.utils.old.calculate_average_score import main; main('$RESULTS_DIR')"
+uv run python -c "from src.utils.calculate_average_score import main; main('$RESULTS_DIR')"
 
 echo "=========================================="
 echo "Multiple runs evaluation completed!"

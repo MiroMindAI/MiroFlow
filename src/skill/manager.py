@@ -31,7 +31,7 @@ def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
     fm_raw, body = m.group(1), m.group(2)
     meta: Dict[str, Any] = {}
 
-    # 简易行解析
+    # Simple line-by-line parsing
     lines = fm_raw.splitlines()
     i = 0
     while i < len(lines):
@@ -72,7 +72,7 @@ def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
             inner = val[1:-1].strip()
             meta[key] = [x.strip() for x in inner.split(",") if x.strip()]
         else:
-            # 去掉包裹引号（简单处理）
+            # Remove wrapping quotes (simple handling)
             if (val.startswith('"') and val.endswith('"')) or (
                 val.startswith("'") and val.endswith("'")
             ):

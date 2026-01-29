@@ -43,7 +43,7 @@ def build_agent(cfg: Union[DictConfig, dict], sequential: bool = False) -> BaseA
     Returns:
         BaseAgent: 构建的 Agent 实例
     """
-    # 确保模块已导入
+    # Ensure module is imported
     _lazy_import_modules(ComponentType.AGENT)
     _lazy_import_modules(ComponentType.IO_PROCESSOR)
 

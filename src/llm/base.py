@@ -179,12 +179,12 @@ class LLMClientBase(ABC):
         """
         Call LLM to generate response, supports tool calls - unified implementation
         """
-        assert (
-            message_text is not None or message_history is not None
-        ), "Either message_text or message_history must be provided"
-        assert (
-            message_text is None or message_history is None
-        ), "Only one of message_text or message_history can be provided"
+        assert message_text is not None or message_history is not None, (
+            "Either message_text or message_history must be provided"
+        )
+        assert message_text is None or message_history is None, (
+            "Only one of message_text or message_history can be provided"
+        )
 
         # Use config value if not explicitly provided
         if keep_tool_result is None:
@@ -346,5 +346,5 @@ class LLMClientBase(ABC):
         return f"LLMClientBase(provider_class={self.provider_class}, model_name={self.model_name})"
 
 
-# 保持向后兼容的别名
+# Backward compatible alias
 LLMProviderClientBase = LLMClientBase

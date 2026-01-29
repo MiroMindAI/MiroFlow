@@ -3,9 +3,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """
-迭代式 Agent - 带工具调用能力和 Rollback 重试机制
+Iterative Agent - with tool calling capability and rollback retry mechanism
 
-当 LLM 输出被截断或格式错误时，支持自动 rollback 重试。
+Supports automatic rollback retry when LLM output is truncated or malformed.
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from src.agents.sequential_agent import SequentialAgent
 
 AgentCaller = Callable[[str, dict], Awaitable[str]]
 
-# MCP 标签 - 如果这些出现在响应中但没有被解析成 tool calls，说明格式错误/被截断
+# MCP tags - if these appear in response but no tool calls are parsed, indicates format error/truncation
 MCP_TAGS = [
     "<use_mcp_tool>",
     "</use_mcp_tool>",
@@ -35,7 +35,7 @@ MCP_TAGS = [
 
 @register(ComponentType.AGENT, "IterativeAgentWithToolAndRollback")
 class IterativeAgentWithToolAndRollback(BaseAgent):
-    """迭代式带工具调用的 Agent，支持 Rollback 重试机制"""
+    """Iterative agent with tool calling capability, supports rollback retry mechanism"""
 
     def __init__(self, cfg: DictConfig):
         super().__init__(cfg=cfg)
@@ -53,35 +53,35 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
             ]
         )
 
-        # Rollback 配置 - 从 yaml 读取，默认值为 3
+        # Rollback config - read from yaml, default is 3
         self.max_consecutive_rollbacks = self.cfg.get("max_consecutive_rollbacks", 3)
 
     def _should_rollback(
         self, llm_output, tool_calls: List, response_text: str
     ) -> Tuple[bool, str]:
         """
-        判断是否需要 rollback 重试
+        Determine whether rollback retry is needed
 
-        判断条件（按优先级）：
-        1. 如果有 tool calls，不需要 rollback（正常流程）
-        2. finish_reason == "length" - API 明确告诉我们被截断了（100% 可靠）
-        3. 响应中有 MCP 标签但没解析出 tool calls - 格式不完整（100% 可靠）
-        4. 其他情况视为正常结束
+        Conditions (by priority):
+        1. If there are tool calls, no rollback needed (normal flow)
+        2. finish_reason == "length" - API explicitly tells us it was truncated (100% reliable)
+        3. Response has MCP tags but no tool calls parsed - incomplete format (100% reliable)
+        4. Other cases are treated as normal completion
 
         Args:
-            llm_output: LLM 输出对象
-            tool_calls: 解析出的 tool calls 列表
-            response_text: LLM 响应文本
+            llm_output: LLM output object
+            tool_calls: List of parsed tool calls
+            response_text: LLM response text
 
         Returns:
-            (should_rollback, reason) - 是否需要 rollback 及原因
+            (should_rollback, reason) - whether rollback is needed and the reason
         """
-        # 1. 如果有 tool calls，不需要 rollback
+        # 1. If there are tool calls, no rollback needed
         if tool_calls:
             return False, "has_tool_calls"
 
-        # 2. 检查 finish_reason == "length"（100% 可靠）
-        # 这是 API 返回的标志，明确表示响应被截断
+        # 2. Check finish_reason == "length" (100% reliable)
+        # This is a flag returned by the API, explicitly indicating the response was truncated
         try:
             if (
                 llm_output.raw_response
@@ -91,14 +91,14 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
             ):
                 return True, "finish_reason_length"
         except (AttributeError, IndexError):
-            pass  # raw_response 结构不符合预期，跳过这个检查
+            pass  # raw_response structure doesn't match expected, skip this check
 
-        # 3. 检查响应中有 MCP 标签但没解析出 tool calls（格式错误/被截断）
-        # 这说明模型想调用工具，但 XML 不完整
+        # 3. Check if response has MCP tags but no tool calls parsed (format error/truncated)
+        # This means the model wanted to call tools, but the XML is incomplete
         if any(tag in response_text for tag in MCP_TAGS):
             return True, "mcp_tag_without_tool_calls"
 
-        # 4. 正常结束 - 没有 tool calls 且没有异常情况，说明模型认为任务完成了
+        # 4. Normal completion - no tool calls and no anomalies, model considers task complete
         return False, "normal_completion"
 
     async def run_internal(self, ctx: AgentContext) -> AgentContext:
@@ -124,7 +124,7 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
         max_turns = self.cfg.get("max_turns", -1)
         task_failed = False
 
-        # Rollback 相关变量
+        # Rollback related variables
         consecutive_rollbacks = 0
 
         while max_turns == -1 or turn_count < max_turns:
@@ -151,7 +151,7 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
                 llm_output.raw_response, llm_output.response_text
             )[0]
 
-            # 检查是否需要 rollback
+            # Check if rollback is needed
             should_rollback, rollback_reason = self._should_rollback(
                 llm_output, tool_and_sub_agent_calls, llm_output.response_text
             )
@@ -161,17 +161,17 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
                     should_rollback
                     and consecutive_rollbacks < self.max_consecutive_rollbacks
                 ):
-                    # 执行 rollback：撤销这一轮的 assistant message
+                    # Execute rollback: undo this turn's assistant message
                     message_history.pop()
-                    turn_count -= 1  # 不计入这一轮
+                    turn_count -= 1  # Don't count this turn
                     consecutive_rollbacks += 1
                     tracer.log(
                         f"Rollback #{consecutive_rollbacks}: {rollback_reason}, "
                         f"max={self.max_consecutive_rollbacks}"
                     )
-                    continue  # 重试这一轮
+                    continue  # Retry this turn
                 else:
-                    # 正常结束或达到最大 rollback 次数
+                    # Normal completion or max rollback count reached
                     if consecutive_rollbacks >= self.max_consecutive_rollbacks:
                         tracer.log(
                             f"Max rollbacks reached ({self.max_consecutive_rollbacks}), "
@@ -179,7 +179,7 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
                         )
                     break
             else:
-                # 有 tool calls，重置 rollback 计数器
+                # Has tool calls, reset rollback counter
                 consecutive_rollbacks = 0
 
                 tool_calls = [
