@@ -26,10 +26,16 @@ import json
 import re
 import sys
 from collections import defaultdict
+from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+# Precompile regex patterns for better performance
+MCP_TOOL_PATTERN = re.compile(r"<tool_name>(.*?)</tool_name>")
+TASK_FILENAME_NEW_PATTERN = re.compile(r"task_(.+)_attempt_(\d+)_retry_(\d+)\.json$")
+TASK_FILENAME_OLD_PATTERN = re.compile(r"task_(.+)_attempt_(\d+)\.json$")
 
 PROGRESS_BAR_WIDTH = 20
 GREEN_THRESHOLD = 80
@@ -62,21 +68,25 @@ def parse_task_filename(filename: str) -> Optional[Tuple[str, int, int]]:
     - New format: task_{task_id}_attempt_{attempt_id}_retry_{retry_id}.json
     - Old format: task_{task_id}_attempt_{attempt_id}.json (retry_id = 0)
     """
-    # New format
-    match = re.match(r"task_(.+)_attempt_(\d+)_retry_(\d+)\.json$", filename)
+    # New format (use precompiled pattern)
+    match = TASK_FILENAME_NEW_PATTERN.match(filename)
     if match:
         return match.group(1), int(match.group(2)), int(match.group(3))
 
     # Old format fallback
-    match = re.match(r"task_(.+)_attempt_(\d+)\.json$", filename)
+    match = TASK_FILENAME_OLD_PATTERN.match(filename)
     if match:
         return match.group(1), int(match.group(2)), 0
 
     return None
 
 
-def calculate_turns(data: Dict) -> int:
-    """Calculate number of turns from task data (excluding system prompt)."""
+def calculate_turns_and_tools(data: Dict) -> Tuple[int, int, Dict[str, int]]:
+    """Calculate turns and tool calls in a single pass through message_history.
+
+    Returns:
+        Tuple of (turn_count, total_tool_calls, tool_breakdown)
+    """
     try:
         agent_states = data.get("agent_states", {})
         main_agent = agent_states.get("main_agent", {})
@@ -84,35 +94,22 @@ def calculate_turns(data: Dict) -> int:
         message_history = state.get("message_history", [])
 
         if not message_history:
-            return 0
+            return 0, 0, {}
 
-        non_system_messages = [
-            msg for msg in message_history if msg.get("role") != "system"
-        ]
-        turn_count = len(non_system_messages) // 2
-        return turn_count
-    except (KeyError, TypeError, IndexError):
-        return 0
-
-
-def calculate_tool_calls(data: Dict) -> Tuple[int, Dict[str, int]]:
-    """Calculate total number of tool calls and breakdown by tool name."""
-    try:
-        agent_states = data.get("agent_states", {})
-        main_agent = agent_states.get("main_agent", {})
-        state = main_agent.get("state", {})
-        message_history = state.get("message_history", [])
-
-        if not message_history:
-            return 0, {}
-
+        non_system_count = 0
         total_tool_calls = 0
         tool_breakdown = defaultdict(int)
 
         for msg in message_history:
-            if msg.get("role") == "assistant":
+            role = msg.get("role")
+            if role == "system":
+                continue
+
+            non_system_count += 1
+
+            if role == "assistant":
                 # Method 1: Check tool_calls array (OpenAI format)
-                tool_calls = msg.get("tool_calls", [])
+                tool_calls = msg.get("tool_calls")
                 if tool_calls:
                     for tc in tool_calls:
                         total_tool_calls += 1
@@ -123,14 +120,15 @@ def calculate_tool_calls(data: Dict) -> Tuple[int, Dict[str, int]]:
                 # Method 2: Check content for MCP tool call XML format
                 content = msg.get("content", "")
                 if isinstance(content, str) and "<use_mcp_tool>" in content:
-                    mcp_calls = re.findall(r"<tool_name>(.*?)</tool_name>", content)
+                    mcp_calls = MCP_TOOL_PATTERN.findall(content)
                     for tool_name in mcp_calls:
                         total_tool_calls += 1
                         tool_breakdown[tool_name.strip()] += 1
 
-        return total_tool_calls, dict(tool_breakdown)
+        turn_count = non_system_count // 2
+        return turn_count, total_tool_calls, dict(tool_breakdown)
     except (KeyError, TypeError, IndexError):
-        return 0, {}
+        return 0, 0, {}
 
 
 @dataclass
@@ -300,9 +298,8 @@ def analyze_task_attempts(task_id: str, attempt_files: List[Path]) -> TaskResult
 
         task_meta = data.get("task_meta", {})
 
-        # Calculate turns and tool calls
-        turns = calculate_turns(data)
-        tool_calls, tool_breakdown = calculate_tool_calls(data)
+        # Calculate turns and tool calls in a single pass
+        turns, tool_calls, tool_breakdown = calculate_turns_and_tools(data)
 
         retry = RetryResult(
             retry_id=retry_id,
@@ -378,12 +375,31 @@ def analyze_task_attempts(task_id: str, attempt_files: List[Path]) -> TaskResult
     return result
 
 
-def analyze_run(task_files: Dict[str, List[Path]]) -> RunStats:
+def _analyze_task_wrapper(args: Tuple[str, List[Path]]) -> TaskResult:
+    """Wrapper for parallel processing."""
+    task_id, attempt_files = args
+    return analyze_task_attempts(task_id, attempt_files)
+
+
+def analyze_run(task_files: Dict[str, List[Path]], parallel: bool = True) -> RunStats:
     """Analyze all tasks for a single run."""
     stats = RunStats(total_tasks=len(task_files))
 
-    for task_id, attempt_files in task_files.items():
-        task_result = analyze_task_attempts(task_id, attempt_files)
+    # Use parallel processing for better performance
+    if parallel and len(task_files) > 10:
+        with ProcessPoolExecutor(max_workers=8) as executor:
+            task_results = list(executor.map(
+                _analyze_task_wrapper,
+                task_files.items()
+            ))
+    else:
+        task_results = [
+            analyze_task_attempts(task_id, attempt_files)
+            for task_id, attempt_files in task_files.items()
+        ]
+
+    for task_result in task_results:
+        task_id = task_result.task_id
         stats.total_attempts += len(task_result.attempts)
         stats.total_retries += task_result.total_retries
 
