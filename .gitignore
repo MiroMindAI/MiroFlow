@@ -216,3 +216,14 @@ data/*
 
 debug.py
 **/debug.py
+
+# Web app
+web_app/frontend/node_modules/
+web_app/frontend/dist/
+web_app/frontend/package-lock.json
+web_app/static/
+web_app/sessions/
+.claude/
+.ruff_cache/
+.env
+.env.local

@@ -1,0 +1,56 @@
+# MiroFlow Gradio Demo Configuration
+# A simplified configuration for the Gradio web interface (using MiroThinker)
+
+# No benchmark defaults - this is a standalone config
+defaults:
+  - override hydra/job_logging: none
+  - _self_
+
+entrypoint: main_agent
+
+main_agent:
+  name: main_agent
+  type: IterativeAgentWithTool
+  max_turns: 30
+
+  llm:
+    _base_: config/llm/base_mirothinker.yaml
+    provider_class: MiroThinkerSGLangClient
+    model_name: mirothinker-v1.5
+
+  prompt: config/prompts/prompt_main_agent.yaml
+
+  tools:
+    - config/tool/tool-python.yaml
+    - config/tool/tool-search-and-scrape-webpage.yaml
+    - config/tool/tool-jina-scrape-llm-summary.yaml
+    - config/tool/tool-reading.yaml
+    #- config/tool/tool-code.yaml
+    #- config/tool/tool-image-video.yaml
+    # - config/tool/tool-audio.yaml     # Uncomment for audio processing
+
+  input_processor:
+    - ${input-message-generator}
+
+  output_processor:
+    - ${output-summary}
+    - ${output-final-answer-extraction}
+
+# Input processor: generates initial message from task description
+input-message-generator:
+  type: InputMessageGenerator
+
+# Output processor: summarizes conversation
+output-summary:
+  type: SummaryGenerator
+
+# Output processor: extracts final answer
+output-final-answer-extraction:
+  type: FinalAnswerExtractor
+  prompt: config/prompts/prompt_final_answer_extraction.yaml
+  llm:
+    _base_: config/llm/base_mirothinker.yaml
+    model_name: mirothinker-v1.5
+
+# Output directory for logs
+output_dir: logs/gradio_runs/

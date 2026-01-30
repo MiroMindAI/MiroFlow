@@ -543,7 +543,9 @@ def get_verifier(
         return SimpleQAVerifier(openai_client)
     if "xbench" in benchmark_name:
         return XBenchVerifier(openai_client)
-    if "browsecomp" in benchmark_name or "hle" in benchmark_name:
+    if "browsecomp" in benchmark_name:
+        return HLEVerifier(openai_client)
+    if "hle" in benchmark_name:
         return HLEVerifier(openai_client)
     # Default to SimpleQA verifier
     return SimpleQAVerifier(openai_client)
