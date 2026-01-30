@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+    'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Light mode markdown styling */
+.markdown-content h1 { @apply text-2xl font-bold mb-4 text-gray-900; }
+.markdown-content h2 { @apply text-xl font-bold mb-3 text-gray-900; }
+.markdown-content h3 { @apply text-lg font-bold mb-2 text-gray-900; }
+.markdown-content p { @apply mb-3 text-gray-700; }
+.markdown-content ul { @apply list-disc list-inside mb-3 text-gray-700; }
+.markdown-content ol { @apply list-decimal list-inside mb-3 text-gray-700; }
+.markdown-content li { @apply mb-1; }
+.markdown-content code { @apply bg-gray-100 px-1.5 py-0.5 rounded text-sm text-pink-600; }
+.markdown-content pre { @apply bg-gray-100 p-4 rounded-lg mb-3 overflow-x-auto border border-gray-200; }
+.markdown-content pre code { @apply bg-transparent p-0 text-gray-800; }
+.markdown-content a { @apply text-blue-600 hover:underline; }
+.markdown-content blockquote { @apply border-l-4 border-gray-300 pl-4 italic text-gray-600; }
+.markdown-content strong { @apply text-gray-900 font-semibold; }
+.markdown-content em { @apply text-gray-700; }
+.markdown-content hr { @apply border-gray-200 my-4; }
+.markdown-content table { @apply w-full border-collapse mb-4; }
+.markdown-content th { @apply bg-gray-100 border border-gray-200 px-3 py-2 text-left; }
+.markdown-content td { @apply border border-gray-200 px-3 py-2; }
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Scroll optimization */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+.overscroll-contain {
+  overscroll-behavior: contain;
+}
+
+/* GPU acceleration for smooth scrolling */
+.overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
+  transform: translateZ(0);
+}
+
+/* Textarea auto-resize helper */
+textarea {
+  field-sizing: content;
+}
