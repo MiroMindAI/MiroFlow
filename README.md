@@ -215,16 +215,12 @@ Join our community and help us build the future of AI agents!
 
 ## References
 
-The technical report is coming soon!
-
 ```
-@misc{2025mirothinker,
-    title={MiroFlow: A High-Performance Open-Source Research Agent Framework},
-    author={MiroMind AI Team},
-    howpublished={\url{https://github.com/MiroMindAI/MiroFlow}},
-    year={2025}
+@article{miromind2025mirothinker,
+  title={MiroThinker: Pushing the Performance Boundaries of Open-Source Research Agents via Model, Context, and Interactive Scaling},
+  author={MiroMind Team and Bai, Song and Bing, Lidong and Chen, Carson and Chen, Guanzheng and Chen, Yuntao and Chen, Zhe and Chen, Ziyi and Dong, Xuan and others},
+  journal={arXiv preprint arXiv:2511.11793},
+  year={2025}
 }
 ```
-
-[![Star History Chart](https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Timeline)](https://www.star-history.com/#MiroMindAI/MiroFlow&Timeline)
 
