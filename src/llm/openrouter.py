@@ -23,24 +23,51 @@ from src.logging.task_tracer import get_tracer
 
 logger = get_tracer()
 
+# Monkey-patch OpenAI SDK models to allow extra fields (for Kimi model's reasoning fields)
+try:
+    from openai.types.chat import ChatCompletion, ChatCompletionMessage
+    from pydantic import ConfigDict
+
+    # Allow extra fields in ChatCompletionMessage to handle 'reasoning' and 'reasoning_details'
+    if hasattr(ChatCompletionMessage, "model_config"):
+        ChatCompletionMessage.model_config = ConfigDict(extra="allow")
+    if hasattr(ChatCompletion, "model_config"):
+        ChatCompletion.model_config = ConfigDict(extra="allow")
+
+    logger.debug("Successfully patched OpenAI SDK models to allow extra fields")
+except Exception as e:
+    logger.warning(f"Could not patch OpenAI SDK models: {e}")
+
 
 class ContextLimitError(Exception):
     pass
 
 
-class DeepSeekOpenRouterClient(LLMClientBase):
+class OpenRouterClient(LLMClientBase):
+    def __init__(self, cfg: DictConfig):
+        """Initialize OpenRouter client with provider-specific config"""
+        # Initialize OpenRouter-specific attributes before calling super().__init__()
+        # because super().__init__() will call _create_client()
+        self.openrouter_api_key = cfg.get("openrouter_api_key", "")
+        self.openrouter_base_url = cfg.get(
+            "openrouter_base_url", "https://openrouter.ai/api/v1"
+        )
+        self.openrouter_provider = cfg.get("openrouter_provider", "")
+
+        super().__init__(cfg)
+
     def _create_client(self, config: DictConfig):
         """Create configured OpenAI client"""
         if self.async_client:
             return AsyncOpenAI(
-                api_key=self.cfg.llm.openrouter_api_key,
-                base_url=self.cfg.llm.openrouter_base_url,
+                api_key=self.openrouter_api_key,
+                base_url=self.openrouter_base_url,
                 timeout=1800,
             )
         else:
             return OpenAI(
-                api_key=self.cfg.llm.openrouter_api_key,
-                base_url=self.cfg.llm.openrouter_base_url,
+                api_key=self.openrouter_api_key,
+                base_url=self.openrouter_base_url,
                 timeout=1800,
             )
 
@@ -94,7 +121,7 @@ class DeepSeekOpenRouterClient(LLMClientBase):
         else:
             processed_messages = self._apply_cache_control(messages_copy)
 
-        # For deepseek, we need to explicitly specify the tool list and add it to the messages
+        # Get tool list for OpenRouter API
         tool_list = await self.convert_tool_definition_to_tool_call(tools_definitions)
 
         params = None
@@ -137,10 +164,17 @@ class DeepSeekOpenRouterClient(LLMClientBase):
                 "temperature": temperature,
                 "max_tokens": self.max_tokens,
                 "messages": processed_messages,
-                "tools": tool_list,
                 "stream": False,
                 "extra_body": extra_body,
             }
+
+            # Only add tools parameter if use_tool_calls is True
+            # When tools parameter is not provided, model will return text format (MCP XML)
+            if self.use_tool_calls and tool_list:
+                params["tools"] = tool_list
+                logger.debug(f"Using tool_calls mode with {len(tool_list)} tools")
+            else:
+                logger.debug("Using text-only mode (no tool_calls)")
 
             # Add optional parameters only if they have non-default values
             if self.top_p != 1.0:
@@ -167,7 +201,7 @@ class DeepSeekOpenRouterClient(LLMClientBase):
             if (
                 response.choices
                 and response.choices[0].finish_reason == "stop"
-                and response.choices[0].message.content.strip() == ""
+                and (response.choices[0].message.content or "").strip() == ""
             ):
                 logger.debug(
                     "LLM finish_reason is 'stop', but content is empty, triggering Error"
@@ -199,9 +233,12 @@ class DeepSeekOpenRouterClient(LLMClientBase):
                 logger.debug(f"OpenRouter LLM Context limit exceeded: {error_str}")
                 raise ContextLimitError(f"Context limit exceeded: {error_str}")
 
+            # Log error with traceback
+            import traceback
+
+            error_details = traceback.format_exc()
             logger.error(
-                f"OpenRouter LLM call failed: {str(e)}, input = {json.dumps(params)}",
-                exc_info=True,
+                f"OpenRouter LLM call failed: {str(e)}, input = {json.dumps(params)}\n{error_details}"
             )
             raise e
 
@@ -305,13 +342,15 @@ class DeepSeekOpenRouterClient(LLMClientBase):
         """Extract tool call information from OpenAI LLM response"""
         from src.utils.parsing_utils import parse_llm_response_for_tool_calls
 
-        # For OpenAI, directly get tool calls from response object
+        # For tool_calls mode, get tool calls from response object
         if llm_response.choices[0].finish_reason == "tool_calls":
             return parse_llm_response_for_tool_calls(
                 llm_response.choices[0].message.tool_calls
             )
         else:
-            return [], []
+            # For text mode (when use_tool_calls=false), parse MCP XML format from response text
+            # This is similar to how Claude Anthropic client handles it
+            return parse_llm_response_for_tool_calls(assistant_response_text)
 
     def update_message_history(
         self, message_history, tool_call_info, tool_calls_exceeded=False
@@ -373,6 +412,60 @@ class DeepSeekOpenRouterClient(LLMClientBase):
             }
         )
         return message_history
+
+    def get_user_msg_from_tool_call(self, tool_call_info, tool_calls_exceeded=False):
+        """Get user message from tool call results (without modifying message history)"""
+        # Filter tool call results with type "text"
+        tool_call_info = [item for item in tool_call_info if item[1]["type"] == "text"]
+
+        # Separate valid tool calls and bad tool calls
+        valid_tool_calls = [
+            (tool_id, content)
+            for tool_id, content in tool_call_info
+            if tool_id != "FAILED"
+        ]
+        bad_tool_calls = [
+            (tool_id, content)
+            for tool_id, content in tool_call_info
+            if tool_id == "FAILED"
+        ]
+
+        total_calls = len(valid_tool_calls) + len(bad_tool_calls)
+
+        # Build output text
+        output_parts = []
+
+        if total_calls > 1:
+            # Handling for multiple tool calls
+            if tool_calls_exceeded:
+                output_parts.append(
+                    f"You made too many tool calls. I can only afford to process {len(valid_tool_calls)} valid tool calls in this turn."
+                )
+            else:
+                output_parts.append(
+                    f"I have processed {len(valid_tool_calls)} valid tool calls in this turn."
+                )
+
+            # Output each valid tool call result
+            for i, (tool_id, content) in enumerate(valid_tool_calls, 1):
+                output_parts.append(f"Valid tool call {i} result:\n{content['text']}")
+
+            # Output bad tool calls results
+            for i, (tool_id, content) in enumerate(bad_tool_calls, 1):
+                output_parts.append(f"Failed tool call {i} result:\n{content['text']}")
+        else:
+            # For single tool call, output result directly
+            for tool_id, content in valid_tool_calls:
+                output_parts.append(content["text"])
+            for tool_id, content in bad_tool_calls:
+                output_parts.append(content["text"])
+
+        merged_text = "\n\n".join(output_parts)
+
+        return {
+            "role": "user",
+            "content": [{"type": "text", "text": merged_text}],
+        }
 
     def parse_llm_response(self, llm_response) -> str:
         """Parse OpenAI LLM response to get text content"""
@@ -452,3 +545,7 @@ class DeepSeekOpenRouterClient(LLMClientBase):
                 # Other messages add directly
                 cached_messages.append(turn)
         return list(reversed(cached_messages))
+
+
+# Backward compatibility alias
+DeepSeekOpenRouterClient = OpenRouterClient
