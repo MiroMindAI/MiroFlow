@@ -1,0 +1,24 @@
+# config/llm/base_kimi_k25.yaml
+provider_class: "OpenRouterClient"
+model_name: "moonshotai/kimi-k2.5"
+openrouter_api_key: ${oc.env:OPENROUTER_API_KEY,???}
+openrouter_base_url: ${oc.env:OPENROUTER_BASE_URL,https://openrouter.ai/api/v1}
+openrouter_provider: ""
+
+temperature: 1.0
+top_p: 0.95
+min_p: 0.0
+top_k: -1
+
+max_tokens: 32000
+max_context_length: -1
+async_client: true
+
+reasoning_effort: null
+repetition_penalty: 1.0
+
+disable_cache_control: true
+keep_tool_result: 5
+
+use_tool_calls: false
+oai_tool_thinking: false

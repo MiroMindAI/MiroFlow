@@ -219,6 +219,10 @@ class LLMClientBase(ABC):
     @staticmethod
     async def convert_tool_definition_to_tool_call(tools_definitions):
         tool_list = []
+        # Handle None case (when SummaryGenerator or other components don't provide tools)
+        if tools_definitions is None:
+            return tool_list
+
         for server in tools_definitions:
             if "tools" in server and len(server["tools"]) > 0:
                 for tool in server["tools"]:
