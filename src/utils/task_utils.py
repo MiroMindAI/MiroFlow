@@ -5,9 +5,15 @@
 """Task execution utilities for benchmark evaluation."""
 
 import asyncio
+import atexit
+import ctypes
 import gc
 import random
+import signal
+import sys
+import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
+from multiprocessing import get_context
 from pathlib import Path
 from typing import List, Optional
 
@@ -30,6 +36,92 @@ from src.utils.eval_utils import (
 
 tracer = get_tracer()
 
+# Global executor reference for cleanup
+_global_executor: Optional[ProcessPoolExecutor] = None
+
+
+def _set_pdeathsig():
+    """
+    Set PR_SET_PDEATHSIG so child process receives SIGTERM when parent dies.
+    This is Linux-specific and ensures orphan processes are automatically killed.
+    """
+    if sys.platform == "linux":
+        try:
+            libc = ctypes.CDLL("libc.so.6", use_errno=True)
+            PR_SET_PDEATHSIG = 1
+            result = libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM, 0, 0, 0)
+            if result != 0:
+                pass  # Silently fail on error
+        except Exception:
+            pass  # Silently fail if not available
+
+
+def _cleanup_executor():
+    """Clean up the global executor and terminate all worker processes."""
+    global _global_executor
+    if _global_executor is not None:
+        print("\n⚠️ Cleaning up worker processes...")
+        try:
+            # Cancel all pending futures
+            _global_executor.shutdown(wait=False, cancel_futures=True)
+        except Exception:
+            pass
+
+        # Force terminate remaining processes via executor's internal state
+        try:
+            if hasattr(_global_executor, "_processes") and _global_executor._processes:
+                for pid, process in list(_global_executor._processes.items()):
+                    try:
+                        if process.is_alive():
+                            process.terminate()
+                    except Exception:
+                        pass
+
+                # Wait briefly for graceful termination
+                time.sleep(0.5)
+
+                # Force kill any remaining processes
+                for pid, process in list(_global_executor._processes.items()):
+                    try:
+                        if process.is_alive():
+                            process.kill()
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+        _global_executor = None
+        print("✅ Worker processes cleaned up.")
+
+
+def _signal_handler(signum, frame):
+    """Handle termination signals by cleaning up executor."""
+    signal_name = signal.Signals(signum).name
+    print(f"\n⚠️ Received {signal_name}, terminating workers...")
+    _cleanup_executor()
+    sys.exit(128 + signum)
+
+
+# Register cleanup handlers
+atexit.register(_cleanup_executor)
+signal.signal(signal.SIGTERM, _signal_handler)
+signal.signal(signal.SIGINT, _signal_handler)
+
+
+def _worker_signal_handler(signum, frame):
+    """Handle signals in worker process by exiting gracefully."""
+    sys.exit(128 + signum)
+
+
+def _worker_initializer():
+    """
+    Initializer function called when each worker process starts.
+    Sets up PR_SET_PDEATHSIG so worker dies when parent dies.
+    """
+    _set_pdeathsig()
+    signal.signal(signal.SIGTERM, _worker_signal_handler)
+    signal.signal(signal.SIGINT, _worker_signal_handler)
+
 
 def _task_worker(task_dict, cfg_dict, pass_at_k, max_retry, exceed_max_turn_summary):
     """
@@ -44,6 +136,13 @@ def _task_worker(task_dict, cfg_dict, pass_at_k, max_retry, exceed_max_turn_summ
     from src.agents import build_agent_from_config
     from src.logging.task_tracer import set_tracer
     from src.utils.eval_utils import Evaluator, Task
+
+    # Set up PR_SET_PDEATHSIG to auto-terminate when parent dies (Linux only)
+    _set_pdeathsig()
+
+    # Set up signal handlers for graceful termination
+    signal.signal(signal.SIGTERM, _worker_signal_handler)
+    signal.signal(signal.SIGINT, _worker_signal_handler)
 
     # Reconstruct config and task
     cfg = OmegaConf.create(cfg_dict)
@@ -339,7 +438,13 @@ def run_tasks(
 
     Each task runs in a separate process with its own agent and evaluator,
     bypassing Python's GIL for true parallelism.
+
+    Signal handling ensures worker processes are terminated when the main
+    process receives SIGTERM or SIGINT. On Linux, PR_SET_PDEATHSIG ensures
+    workers automatically die when parent process dies (handles kill -9).
     """
+    global _global_executor
+
     print(
         f"Running inference on {len(tasks)} tasks with max_concurrent={max_concurrent} (multiprocessing)"
     )
@@ -359,17 +464,25 @@ def run_tasks(
     ]
 
     results_dict = {}
-    executor = None
 
     try:
-        executor = ProcessPoolExecutor(max_workers=max_concurrent)
+        # Create executor with initializer to set PR_SET_PDEATHSIG in each worker
+        # Use 'fork' context on Linux for better compatibility with PR_SET_PDEATHSIG
+        mp_context = get_context("fork") if sys.platform == "linux" else None
+        _global_executor = ProcessPoolExecutor(
+            max_workers=max_concurrent,
+            mp_context=mp_context,
+            initializer=_worker_initializer,
+        )
+
         future_to_task_id = {
-            executor.submit(_task_worker, *args): args[0]["task_id"]
+            _global_executor.submit(_task_worker, *args): args[0]["task_id"]
             for args in worker_args
         }
 
         for future in as_completed(future_to_task_id):
             task_id = future_to_task_id[future]
+
             try:
                 result_dict = future.result()
                 result = TaskResult.from_dict(result_dict)
@@ -390,17 +503,16 @@ def run_tasks(
 
     except KeyboardInterrupt:
         print("\n⚠️ Received interrupt, terminating workers...")
-        if executor:
-            for future in future_to_task_id:
-                future.cancel()
-            executor.shutdown(wait=False, cancel_futures=True)
+        _cleanup_executor()
         raise
     finally:
-        if executor:
+        # Clean shutdown
+        if _global_executor:
             try:
-                executor.shutdown(wait=True)
+                _global_executor.shutdown(wait=True, cancel_futures=False)
             except Exception:
                 pass
+            _global_executor = None
 
     # Sort results by original task order
     task_id_to_index = {task.task_id: i for i, task in enumerate(tasks)}
