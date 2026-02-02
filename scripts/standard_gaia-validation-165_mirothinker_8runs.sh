@@ -6,8 +6,8 @@
 
 # Configuration parameters
 NUM_RUNS=8
-BENCHMARK_NAME="gaia-validation-text-165"
-AGENT_SET="standard_gaia-validation-text-165_mirothinker"
+BENCHMARK_NAME="gaia-validation-165"
+AGENT_SET="standard_gaia-validation-165_mirothinker"
 MAX_CONCURRENT=10
 
 # Set results directory with timestamp

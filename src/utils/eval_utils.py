@@ -72,6 +72,27 @@ class Task:
     ground_truth: str = ""
     metadata: Dict[str, Any] = field(default_factory=dict)
 
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for serialization."""
+        return {
+            "task_id": self.task_id,
+            "task_question": self.task_question,
+            "file_path": self.file_path,
+            "ground_truth": self.ground_truth,
+            "metadata": self.metadata.copy() if self.metadata else {},
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Task":
+        """Create Task from dictionary."""
+        return cls(
+            task_id=data["task_id"],
+            task_question=data["task_question"],
+            file_path=data.get("file_path"),
+            ground_truth=data.get("ground_truth", ""),
+            metadata=data.get("metadata", {}),
+        )
+
 
 class AttemptResult:
     """Single attempt result for a benchmark task (one retry within an attempt)."""
@@ -223,6 +244,29 @@ class TaskResult:
             self.log_path = attempt_result.log_path
             self.status = attempt_result.status
             self.error_message = attempt_result.error_message
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "TaskResult":
+        """Create TaskResult from dictionary."""
+        task = Task(
+            task_id=data["task_id"],
+            task_question=data["task_question"],
+            file_path=data.get("file_path"),
+            ground_truth=data.get("ground_truth", ""),
+            metadata=data.get("metadata", {}),
+        )
+        result = cls(task=task)
+        result.model_response = data.get("model_response", "")
+        result.model_boxed_answer = data.get("model_boxed_answer", "")
+        result.status = data.get("status", STATUS_PENDING)
+        result.error_message = data.get("error_message", "")
+        result.judge_result = data.get("judge_result")
+        result.log_path = data.get("log_path")
+        result.pass_at_k_success = data.get("pass_at_k_success", False)
+        result.total_attempts = data.get("total_attempts", 0)
+        result.total_retries = data.get("total_retries", 0)
+        result.attempts = data.get("attempts", [])
+        return result
 
 
 # ============================================================================
