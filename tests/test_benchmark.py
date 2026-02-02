@@ -5,6 +5,8 @@
 import argparse
 import asyncio
 import json
+import signal
+import sys
 from pathlib import Path
 
 import dotenv
@@ -16,9 +18,17 @@ from src.utils.eval_utils import (
     Task,
     Evaluator,
 )
-from src.utils.task_utils import run_tasks
+from src.utils.task_utils import run_tasks, _cleanup_executor
 from src.agents import build_agent_from_config
 from src.logging.task_tracer import get_tracer, set_tracer
+
+
+def _main_signal_handler(signum, frame):
+    """Handle termination signals in main process."""
+    signal_name = signal.Signals(signum).name
+    print(f"\n⚠️ Main process received {signal_name}, cleaning up...")
+    _cleanup_executor()
+    sys.exit(128 + signum)
 
 
 async def test_benchmark(cfg: DictConfig) -> float:
@@ -99,6 +109,10 @@ async def test_benchmark(cfg: DictConfig) -> float:
 
 
 if __name__ == "__main__":
+    # Register signal handlers for main process (only when run as main script)
+    signal.signal(signal.SIGTERM, _main_signal_handler)
+    signal.signal(signal.SIGINT, _main_signal_handler)
+
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Run benchmark evaluation")
     parser.add_argument(

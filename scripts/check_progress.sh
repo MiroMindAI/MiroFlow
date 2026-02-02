@@ -1,6 +1,6 @@
 #!/bin/bash
 
-LOG_DIR="/mnt/agent-framework/bin_wang/miroflow-private-2026/logs/gaia-validation-165/standard_gaia-validation-165_mirothinker_20260202_1147"
+LOG_DIR="/mnt/agent-framework/bin_wang/miroflow-private-2026/logs/gaia-validation-165/standard_gaia-validation-165_mirothinker_20260203_0113"
 
 while true; do
     clear
