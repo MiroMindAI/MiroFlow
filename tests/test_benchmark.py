@@ -63,7 +63,7 @@ async def test_benchmark(cfg: DictConfig) -> float:
     print(f"Using pass@{evaluator.pass_at_k} evaluation...")
 
     execution_cfg = cfg.benchmark.execution
-    results = await run_tasks(
+    results = run_tasks(
         cfg=cfg,
         agent=agent,
         tasks=tasks,

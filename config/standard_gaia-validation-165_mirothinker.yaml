@@ -1,5 +1,5 @@
 defaults:
-  - benchmark: gaia-validation-text-165
+  - benchmark: gaia-validation-165
   - override hydra/job_logging: none
   - _self_
 

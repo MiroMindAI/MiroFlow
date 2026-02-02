@@ -5,11 +5,13 @@
 """Task execution utilities for benchmark evaluation."""
 
 import asyncio
+import gc
 import random
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 from typing import List, Optional
 
-from omegaconf import DictConfig
+from omegaconf import DictConfig, OmegaConf
 
 from src.agents import BaseAgent
 from src.logging.task_tracer import (
@@ -27,6 +29,69 @@ from src.utils.eval_utils import (
 )
 
 tracer = get_tracer()
+
+
+def _task_worker(task_dict, cfg_dict, pass_at_k, max_retry, exceed_max_turn_summary):
+    """
+    Worker function for ProcessPoolExecutor.
+    Must be at module level for pickling.
+    Runs a single task in a separate process.
+    """
+    import json
+
+    from omegaconf import OmegaConf
+
+    from src.agents import build_agent_from_config
+    from src.logging.task_tracer import set_tracer
+    from src.utils.eval_utils import Evaluator, Task
+
+    # Reconstruct config and task
+    cfg = OmegaConf.create(cfg_dict)
+    task = Task.from_dict(task_dict)
+
+    # Set up tracer for this process
+    set_tracer(cfg.output_dir)
+
+    # Create agent in this process
+    agent = build_agent_from_config(cfg)
+
+    # Create evaluator with parse_func defined inline
+    def parse_func(x: str) -> Task:
+        data = json.loads(x)
+        return Task(
+            task_id=data["task_id"],
+            task_question=data["task_question"],
+            ground_truth=data["ground_truth"],
+            file_path=data.get("file_path"),
+            metadata=data.get("metadata", {}),
+        )
+
+    evaluator = Evaluator(cfg=cfg.benchmark, parse_func=parse_func)
+
+    # Run in new event loop
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.set_exception_handler(lambda _loop, _context: None)  # Suppress warnings
+
+    try:
+        result = loop.run_until_complete(
+            run_single_task(
+                cfg=cfg,
+                agent=agent,
+                task=task,
+                pass_at_k=pass_at_k,
+                max_retry=max_retry,
+                evaluator=evaluator,
+                exceed_max_turn_summary=exceed_max_turn_summary,
+                prompt_manager=agent.prompt_manager
+                if hasattr(agent, "prompt_manager")
+                else None,
+            )
+        )
+        return result.to_dict()
+    finally:
+        loop.close()
+        gc.collect()
 
 
 def _build_exceed_max_turn_summary_text(
@@ -259,7 +324,7 @@ async def run_single_task(
     return result
 
 
-async def run_tasks(
+def run_tasks(
     cfg: DictConfig,
     agent: BaseAgent,
     tasks: List[Task],
@@ -270,36 +335,80 @@ async def run_tasks(
     exceed_max_turn_summary: bool = False,
     prompt_manager=None,
 ) -> List[TaskResult]:
-    """Run multiple tasks in parallel with concurrency control."""
+    """Run multiple tasks in parallel using ProcessPoolExecutor.
 
+    Each task runs in a separate process with its own agent and evaluator,
+    bypassing Python's GIL for true parallelism.
+    """
     print(
-        f"Running inference on {len(tasks)} tasks with max_concurrent={max_concurrent}"
+        f"Running inference on {len(tasks)} tasks with max_concurrent={max_concurrent} (multiprocessing)"
     )
     print(f"  pass@k={pass_at_k}, max_retry={max_retry}")
 
+    # Serialize config for passing to worker processes
+    cfg_dict = OmegaConf.to_container(cfg, resolve=True)
+
     # Shuffle tasks to avoid order bias and improve balancing
-    # This prevents long-tail tasks from accumulating at the end
     shuffled_tasks = tasks.copy()
     random.shuffle(shuffled_tasks)
 
-    semaphore = asyncio.Semaphore(max_concurrent)
+    # Prepare worker arguments
+    worker_args = [
+        (task.to_dict(), cfg_dict, pass_at_k, max_retry, exceed_max_turn_summary)
+        for task in shuffled_tasks
+    ]
 
-    async def run_with_semaphore(task: Task) -> TaskResult:
-        async with semaphore:
-            return await run_single_task(
-                cfg=cfg,
-                agent=agent,
-                task=task,
-                pass_at_k=pass_at_k,
-                max_retry=max_retry,
-                evaluator=evaluator,
-                exceed_max_turn_summary=exceed_max_turn_summary,
-                prompt_manager=prompt_manager,
-            )
+    results_dict = {}
+    executor = None
 
-    results = await asyncio.gather(
-        *[run_with_semaphore(task) for task in shuffled_tasks],
-        return_exceptions=True,
-    )
+    try:
+        executor = ProcessPoolExecutor(max_workers=max_concurrent)
+        future_to_task_id = {
+            executor.submit(_task_worker, *args): args[0]["task_id"]
+            for args in worker_args
+        }
+
+        for future in as_completed(future_to_task_id):
+            task_id = future_to_task_id[future]
+            try:
+                result_dict = future.result()
+                result = TaskResult.from_dict(result_dict)
+                results_dict[task_id] = result
+                print(
+                    f"Progress: {len(results_dict)}/{len(shuffled_tasks)} tasks completed"
+                )
+            except Exception as e:
+                print(f"Exception in task {task_id}: {e}")
+                # Create error result
+                task_dict = next(
+                    a[0] for a in worker_args if a[0]["task_id"] == task_id
+                )
+                error_result = TaskResult(task=Task.from_dict(task_dict))
+                error_result.status = STATUS_FAILED
+                error_result.error_message = str(e)
+                results_dict[task_id] = error_result
+
+    except KeyboardInterrupt:
+        print("\n⚠️ Received interrupt, terminating workers...")
+        if executor:
+            for future in future_to_task_id:
+                future.cancel()
+            executor.shutdown(wait=False, cancel_futures=True)
+        raise
+    finally:
+        if executor:
+            try:
+                executor.shutdown(wait=True)
+            except Exception:
+                pass
+
+    # Sort results by original task order
+    task_id_to_index = {task.task_id: i for i, task in enumerate(tasks)}
+    results = [
+        results_dict[task.task_id]
+        for task in shuffled_tasks
+        if task.task_id in results_dict
+    ]
+    results.sort(key=lambda r: task_id_to_index.get(r.task.task_id, len(tasks)))
 
     return results

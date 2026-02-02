@@ -1,9 +1,9 @@
-# config/benchmark/gaia-validation-text-165.yaml
+# config/benchmark/gaia-validation-165.yaml
 defaults:
   - default
   - _self_
 
-name: "gaia-validation-text-165"
+name: "gaia-validation-165"
 
 data:
   data_dir: "${data_dir}/gaia-val"
