@@ -22,12 +22,15 @@ main_agent:
     - server: "tool-python"
       tool: "download_file_from_sandbox_to_local"
   input_processor:
+    - ${file-content-preprocessor}
     - ${input-message-generator}
   output_processor:
     - ${output-summary}
     - ${output-boxed-extractor}
     - ${output-exceed-max-turn-summary}
 
+file-content-preprocessor:
+  type: FileContentPreprocessor
 input-message-generator:
   type: InputMessageGenerator
 output-summary:
