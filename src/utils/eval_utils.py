@@ -47,6 +47,7 @@ INVALID_ANSWER_MARKERS = [
     "Unknown",
     "unknown",
     "UNKNOWN",
+    r"No \boxed{} content found.",
 ]
 
 

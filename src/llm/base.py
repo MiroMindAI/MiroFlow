@@ -9,6 +9,7 @@ LLM 客户端基类
 import asyncio
 import dataclasses
 import json
+import re
 from abc import ABC, abstractmethod
 from typing import (
     Any,
@@ -58,6 +59,9 @@ class LLMClientBase(ABC):
         self.use_tool_calls: Optional[bool] = self.cfg.use_tool_calls
         self.disable_cache_control: bool = self.cfg.disable_cache_control
         self.keep_tool_result: int = self.cfg.get("keep_tool_result", -1)
+        self.strip_think_from_history: bool = self.cfg.get(
+            "strip_think_from_history", False
+        )
 
         self.client = self._create_client(self.cfg)
 
@@ -105,9 +109,25 @@ class LLMClientBase(ABC):
         """Extract tool call information - implemented by subclass"""
         pass
 
-    def _remove_tool_result_from_messages(self, messages, keep_tool_result):
+    def _strip_think_from_messages(self, messages: List[Dict]) -> List[Dict]:
+        """Strip <think>...</think> blocks from assistant messages."""
+        think_pattern = re.compile(r"<think>.*?</think>\s*", re.DOTALL)
+        for msg in messages:
+            if msg.get("role") == "assistant":
+                content = msg.get("content", "")
+                if isinstance(content, str):
+                    msg["content"] = think_pattern.sub("", content)
+        return messages
+
+    def _remove_tool_result_from_messages(
+        self, messages, keep_tool_result, strip_think=False
+    ):
+        """Remove tool results from messages and optionally strip think blocks."""
         messages_copy = [m.copy() for m in messages]
-        """Remove tool results from messages"""
+
+        if strip_think:
+            messages_copy = self._strip_think_from_messages(messages_copy)
+
         if keep_tool_result >= 0:
             # Find indices of all user messages
             user_indices = [

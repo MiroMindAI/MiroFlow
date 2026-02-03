@@ -13,6 +13,7 @@ import re
 from src.agents.context import AgentContext
 from src.io_processor.base import BaseIOProcessor
 from src.registry import ComponentType, register
+from src.utils.eval_utils import is_valid_box
 
 # Assistant prefix for failure summary generation (aligned with MiroThinker)
 # This guides the model to think first and then output structured content
@@ -76,6 +77,10 @@ class ExceedMaxTurnSummaryGenerator(BaseIOProcessor):
         return content if content else think_content
 
     async def run_internal(self, ctx: AgentContext) -> AgentContext:
+        final_boxed_answer = ctx.get("final_boxed_answer", "")
+        if is_valid_box(final_boxed_answer):
+            return AgentContext(exceed_max_turn_summary=None)
+
         # Render the simplified prompt (no variables needed, context is in message_history)
         prompt = self.prompt_manager.render_prompt(
             "exceed_max_turn_summary_prompt", context={}
