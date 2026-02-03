@@ -625,8 +625,8 @@ function ThinkingSection({ content, defaultExpanded = false }: { content: string
         <Brain className="w-4 h-4" />
         <span>Thinking</span>
       </button>
-      <div className="px-3 py-2 border-t border-gray-200 bg-white">
-        <pre className={`text-sm text-gray-700 whitespace-pre-wrap break-words leading-relaxed ${!isExpanded ? 'line-clamp-2' : ''}`}>
+      <div className="px-3 py-2 border-t border-gray-200 bg-white overflow-hidden">
+        <pre className={`text-sm text-gray-700 whitespace-pre-wrap leading-relaxed overflow-hidden ${!isExpanded ? 'line-clamp-2' : ''}`} style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
           {isExpanded ? content : preview}
         </pre>
         {!isExpanded && hasMore && (
