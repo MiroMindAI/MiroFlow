@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Bot, Send, Plus, Trash2, Loader2, Menu, X, Square } from 'lucide-react';
-import { createTask, listTasks, getTask, getTaskStatus, deleteTask, listConfigs } from './api/tasks';
+import { Bot, Send, Plus, Trash2, Loader2, Menu, X, Square, Paperclip, File } from 'lucide-react';
+import { createTask, listTasks, getTask, getTaskStatus, deleteTask, listConfigs, uploadFile } from './api/tasks';
 import { usePolling } from './hooks/usePolling';
-import type { TaskStatusUpdate } from './types/task';
+import type { TaskStatusUpdate, UploadResponse, FileInfo } from './types/task';
 import MarkdownRenderer from './components/common/MarkdownRenderer';
 
 export default function App() {
@@ -11,8 +11,11 @@ export default function App() {
   const [inputValue, setInputValue] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [userScrolledUp, setUserScrolledUp] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<UploadResponse | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch configs
   const { data: configData } = useQuery({
@@ -55,10 +58,37 @@ export default function App() {
     onSuccess: (task) => {
       setSelectedTaskId(task.id);
       setInputValue('');
+      setUploadedFile(null);
       setUserScrolledUp(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       refetchTasks();
     },
   });
+
+  // Handle file selection
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const result = await uploadFile(file);
+      setUploadedFile(result);
+    } catch (err) {
+      console.error('Upload failed:', err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setUploadedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   // Delete task mutation
   const deleteMutation = useMutation({
@@ -103,7 +133,13 @@ export default function App() {
       if (container) {
         // Use requestAnimationFrame for smooth scrolling without jank
         requestAnimationFrame(() => {
-          container.scrollTop = container.scrollHeight;
+          // Double-check scroll position right before scrolling to avoid
+          // race condition with throttled scroll detection
+          const { scrollTop, scrollHeight, clientHeight } = container;
+          const isNearBottom = scrollHeight - scrollTop - clientHeight < 200;
+          if (isNearBottom) {
+            container.scrollTop = container.scrollHeight;
+          }
         });
       }
     }
@@ -124,11 +160,12 @@ export default function App() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || createMutation.isPending || isAnyTaskRunning) return;
+    if (!inputValue.trim() || createMutation.isPending || isAnyTaskRunning || isUploading) return;
 
     createMutation.mutate({
       task_description: inputValue,
       config_path: configData?.default || 'config/agent_gradio_demo.yaml',
+      file_id: uploadedFile?.file_id,
     });
   };
 
@@ -278,6 +315,7 @@ export default function App() {
               <MessageBubble
                 role="user"
                 content={selectedTask.task_description}
+                fileInfo={selectedTask.file_info}
               />
 
               {/* Agent Messages (only for running tasks) */}
@@ -359,37 +397,82 @@ export default function App() {
         {/* Input Area */}
         <div className="border-t border-gray-200 p-4 bg-white">
           <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
-            <div className="relative">
-              <textarea
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e);
-                  }
-                }}
-                placeholder={isAnyTaskRunning ? "Please wait for current task to complete..." : "Message MiroFlow..."}
-                disabled={isAnyTaskRunning}
-                rows={1}
-                className={`w-full border rounded-xl px-4 py-3 pr-12 resize-none focus:outline-none placeholder-gray-400 ${
-                  isAnyTaskRunning
-                    ? 'bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed'
-                    : 'bg-white border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
-                }`}
-                style={{ minHeight: '52px', maxHeight: '200px' }}
+            {/* Attached file display */}
+            {uploadedFile && (
+              <div className="mb-2 flex items-center gap-2 p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                <File className="w-4 h-4 text-gray-500" />
+                <span className="text-sm text-gray-700 flex-1 truncate">{uploadedFile.file_name}</span>
+                <span className="text-xs text-gray-400">({uploadedFile.file_type})</span>
+                <button
+                  type="button"
+                  onClick={handleRemoveFile}
+                  className="p-1 hover:bg-gray-200 rounded transition-colors"
+                  title="Remove file"
+                >
+                  <X className="w-4 h-4 text-gray-500" />
+                </button>
+              </div>
+            )}
+            <div className="relative flex items-end gap-2">
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                className="hidden"
+                onChange={handleFileSelect}
+                accept=".xlsx,.xls,.csv,.pdf,.doc,.docx,.txt,.json,.png,.jpg,.jpeg,.mp3,.wav,.mp4"
               />
+              {/* Attachment button */}
               <button
-                type="submit"
-                disabled={!inputValue.trim() || createMutation.isPending || isAnyTaskRunning}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isAnyTaskRunning || isUploading}
+                className={`p-3 rounded-xl border transition-colors flex-shrink-0 ${
+                  isAnyTaskRunning || isUploading
+                    ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                }`}
+                title="Attach file"
               >
-                {createMutation.isPending ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                {isUploading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  <Send className="w-4 h-4" />
+                  <Paperclip className="w-5 h-5" />
                 )}
               </button>
+              {/* Text input */}
+              <div className="relative flex-1">
+                <textarea
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
+                  }}
+                  placeholder={isAnyTaskRunning ? "Please wait for current task to complete..." : "Message MiroFlow..."}
+                  disabled={isAnyTaskRunning}
+                  rows={1}
+                  className={`w-full border rounded-xl px-4 py-3 pr-12 resize-none focus:outline-none placeholder-gray-400 ${
+                    isAnyTaskRunning
+                      ? 'bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed'
+                      : 'bg-white border-gray-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100'
+                  }`}
+                  style={{ minHeight: '52px', maxHeight: '200px' }}
+                />
+                <button
+                  type="submit"
+                  disabled={!inputValue.trim() || createMutation.isPending || isAnyTaskRunning || isUploading}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
+                >
+                  {createMutation.isPending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
             </div>
             <p className="text-xs text-gray-400 text-center mt-2">
               MiroFlow can make mistakes. Verify important information.
@@ -401,7 +484,7 @@ export default function App() {
   );
 }
 
-function MessageBubble({ role, content, isAnswer }: { role: string; content: string; isAnswer?: boolean }) {
+function MessageBubble({ role, content, isAnswer, fileInfo }: { role: string; content: string; isAnswer?: boolean; fileInfo?: FileInfo | null }) {
   const isUser = role === 'user';
 
   return (
@@ -416,6 +499,14 @@ function MessageBubble({ role, content, isAnswer }: { role: string; content: str
         )}
       </div>
       <div className={`flex-1 ${isAnswer ? 'bg-green-50 border border-green-200 rounded-lg p-4' : ''}`}>
+        {/* Display attached file for user messages */}
+        {isUser && fileInfo && (
+          <div className="mb-2 inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 border border-gray-200 rounded-lg">
+            <File className="w-4 h-4 text-gray-500" />
+            <span className="text-sm text-gray-700">{fileInfo.file_name}</span>
+            <span className="text-xs text-gray-400">({fileInfo.file_type})</span>
+          </div>
+        )}
         <div className="prose prose-sm max-w-none text-gray-800">
           <MarkdownRenderer content={content} />
         </div>
