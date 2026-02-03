@@ -616,21 +616,21 @@ function ThinkingSection({ content, defaultExpanded = false }: { content: string
   const hasMore = lines.length > 2 || preview.length < content.length;
 
   return (
-    <div className="border rounded-lg overflow-hidden bg-green-50 border-green-200">
+    <div className="border rounded-lg overflow-hidden bg-white border-gray-200">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 transition-colors"
+        className="w-full flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
       >
         {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
         <Brain className="w-4 h-4" />
         <span>Thinking</span>
       </button>
-      <div className="px-3 py-2 border-t border-green-200 bg-white/50">
+      <div className="px-3 py-2 border-t border-gray-200 bg-white">
         <pre className={`text-sm text-gray-700 whitespace-pre-wrap break-words leading-relaxed ${!isExpanded ? 'line-clamp-2' : ''}`}>
           {isExpanded ? content : preview}
         </pre>
         {!isExpanded && hasMore && (
-          <span className="text-xs text-green-600">...</span>
+          <span className="text-xs text-gray-500">...</span>
         )}
       </div>
     </div>
@@ -659,11 +659,12 @@ function CompletedView({
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Check if there's any thinking content in messages
+  // Check if there's any content to show in the trajectory
   const hasThinkingContent = messages.some(msg => {
     if (msg.role === 'user') return false;
     const parsed = parseMessageContent(msg.content);
-    return parsed.thinking || parsed.toolCalls.length > 0;
+    // Show trajectory if there's any thinking, tool calls, or text content
+    return parsed.thinking || parsed.toolCalls.length > 0 || parsed.text;
   });
 
   // Parse final answer and summary
@@ -679,55 +680,61 @@ function CompletedView({
 
   return (
     <>
-      {/* Thinking Trajectory - collapsed by default, shows full content like running state */}
+      {/* Thinking Trajectory - collapsed by default, transparent/borderless style */}
       {(hasThinkingContent || hasThinkingInAnswer) && (
-        <div className="border rounded-lg overflow-hidden bg-gray-50 border-gray-200">
+        <div>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
           >
             <List className="w-4 h-4" />
-            <span>Show thinking trajectory</span>
+            <span>{isExpanded ? 'Hide' : 'Show'} thinking trajectory</span>
             {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
           </button>
           {isExpanded && (
-            <div className="border-t border-gray-200 bg-white">
-              <div className="p-4 space-y-6 max-h-[800px] overflow-y-auto">
-                {/* Render each message with full ThinkingSection and ToolCallDisplay */}
-                {messages.map((msg, index) => {
-                  if (msg.role === 'user') return null;
-                  const parsed = parseMessageContent(msg.content);
-                  if (!parsed.thinking && parsed.toolCalls.length === 0) return null;
+            <div className="space-y-6 pt-4">
+              {/* Render each message with full ThinkingSection and ToolCallDisplay */}
+              {messages.map((msg, index) => {
+                if (msg.role === 'user') return null;
+                const parsed = parseMessageContent(msg.content);
+                // Show ALL messages - don't filter out those without thinking/toolCalls
+                // This ensures full trace is visible exactly as during running state
+                const hasAnyContent = parsed.thinking || parsed.toolCalls.length > 0 || parsed.text;
+                if (!hasAnyContent) return null;
 
-                  return (
-                    <div key={index} className="space-y-3">
-                      {/* Thinking section - same style as running state */}
-                      {parsed.thinking && (
-                        <ThinkingSection content={parsed.thinking} defaultExpanded={false} />
-                      )}
+                return (
+                  <div key={index} className="space-y-3">
+                    {/* Thinking section - same style as running state */}
+                    {parsed.thinking && (
+                      <ThinkingSection content={parsed.thinking} defaultExpanded={false} />
+                    )}
 
-                      {/* Tool calls - same style as running state */}
-                      {parsed.toolCalls.length > 0 && (
-                        <div className="space-y-3">
-                          {parsed.toolCalls.map((tool, idx) => (
-                            <ToolCallDisplay key={idx} tool={tool} />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                    {/* Tool calls - same style as running state */}
+                    {parsed.toolCalls.length > 0 && (
+                      <div className="space-y-3">
+                        {parsed.toolCalls.map((tool, idx) => (
+                          <ToolCallDisplay key={idx} tool={tool} />
+                        ))}
+                      </div>
+                    )}
 
-                {/* Thinking from final answer */}
-                {parsedFinalAnswer?.thinking && (
-                  <ThinkingSection content={parsedFinalAnswer.thinking} defaultExpanded={false} />
-                )}
+                    {/* Text content - show any non-thinking, non-tool text */}
+                    {parsed.text && (
+                      <SmartTextContent content={parsed.text} />
+                    )}
+                  </div>
+                );
+              })}
 
-                {/* Thinking from summary */}
-                {parsedSummary?.thinking && (
-                  <ThinkingSection content={parsedSummary.thinking} defaultExpanded={false} />
-                )}
-              </div>
+              {/* Thinking from final answer */}
+              {parsedFinalAnswer?.thinking && (
+                <ThinkingSection content={parsedFinalAnswer.thinking} defaultExpanded={false} />
+              )}
+
+              {/* Thinking from summary */}
+              {parsedSummary?.thinking && (
+                <ThinkingSection content={parsedSummary.thinking} defaultExpanded={false} />
+              )}
             </div>
           )}
         </div>
@@ -860,12 +867,12 @@ function SmartTextContent({ content }: { content: string }) {
         )}
 
         {/* Render search results */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <List className="w-4 h-4" />
+        <div className="space-y-2">
+          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+            <List className="w-3 h-3" />
             <span>Found {searchResults.length} results</span>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             {searchResults.slice(0, 10).map((result, idx) => {
               const resultUrl = result.link || result.url || '';
               let faviconUrl = '';
@@ -883,15 +890,15 @@ function SmartTextContent({ content }: { content: string }) {
                   href={resultUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-gray-200 rounded-full text-xs text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
                   title={result.snippet || result.title}
                 >
                   {faviconUrl ? (
-                    <img src={faviconUrl} alt="" className="w-4 h-4 flex-shrink-0" onError={(e) => {
+                    <img src={faviconUrl} alt="" className="w-3 h-3 flex-shrink-0" onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }} />
                   ) : (
-                    <Globe className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <Globe className="w-3 h-3 text-gray-400 flex-shrink-0" />
                   )}
                   <span className="truncate">{result.title || resultUrl}</span>
                 </a>
