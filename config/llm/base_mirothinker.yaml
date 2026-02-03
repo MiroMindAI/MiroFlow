@@ -18,6 +18,7 @@ repetition_penalty: 1.05
 
 disable_cache_control: false
 keep_tool_result: 5
+strip_think_from_history: false
 
 use_tool_calls: false
 oai_tool_thinking: false

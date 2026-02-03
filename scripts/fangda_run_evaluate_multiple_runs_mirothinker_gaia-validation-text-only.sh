@@ -7,7 +7,7 @@
 # Configuration parameters
 NUM_RUNS=3
 BENCHMARK_NAME="gaia-validation-text-only"
-AGENT_SET="fangda_agent_gaia-validation-text-only_mirothinker_single_agent_rollback_new_tools"
+AGENT_SET="fangda_agent_gaia-validation-text-only_mirothinker_single_agent_rollback_new_tools_toolblacklist"
 MAX_CONCURRENT=30
 
 # Set results directory with timestamp
@@ -57,7 +57,7 @@ for i in $(seq 1 $NUM_RUNS); do
     # Start process in new process group (set -m creates new pgrp)
     (
         set -m
-        uv run test_benchmark.py \
+        uv run tests/test_benchmark.py \
             --config-path config/${AGENT_SET}.yaml \
             benchmark.execution.max_concurrent=$MAX_CONCURRENT \
             output_dir="$RESULTS_DIR/$RUN_ID" \

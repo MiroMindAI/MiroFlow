@@ -28,7 +28,7 @@ for i in $(seq 1 $NUM_RUNS); do
     RUN_ID="run_$i"
     
     (
-        uv run test_benchmark.py \
+        uv run tests/test_benchmark.py \
             --config-path config/${AGENT_SET}.yaml \
             benchmark.execution.max_concurrent=$MAX_CONCURRENT \
             output_dir="$RESULTS_DIR/$RUN_ID" \

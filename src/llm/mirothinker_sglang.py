@@ -90,7 +90,7 @@ class MiroThinkerSGLangClient(LLMClientBase):
                 )
 
         messages_copy = self._remove_tool_result_from_messages(
-            messages, keep_tool_result
+            messages, keep_tool_result, strip_think=self.strip_think_from_history
         )
 
         params = None

@@ -1,0 +1,46 @@
+defaults:
+  - benchmark: browsecomp-en-200
+  - override hydra/job_logging: none
+  - _self_
+
+entrypoint: main_agent
+main_agent:
+  name: main_agent
+  type: IterativeAgentWithToolAndRollback
+  max_consecutive_rollbacks: 3
+  max_turns: 400
+  llm:
+    _base_: config/llm/base_mirothinker.yaml
+  prompt: config/prompts/fangda_prompt_main_agent_0128.yaml
+  tools:
+    - config/tool/tool-search-and-scrape-webpage.yaml
+    - config/tool/tool-jina-scrape-llm-summary.yaml
+    - config/tool/tool-python.yaml
+  tool_blacklist:
+    - server: "tool-search-and-scrape-webpage"
+      tool: "sogou_search"
+    - server: "tool-python"
+      tool: "download_file_from_sandbox_to_local"
+  input_processor:
+    - ${input-message-generator}
+  output_processor:
+    - ${output-summary}
+    - ${output-final-answer-extraction}
+    - ${output-exceed-max-turn-summary}
+
+input-message-generator:
+  type: InputMessageGenerator
+output-summary:
+  type: SummaryGenerator
+output-final-answer-extraction:
+  type: RegexBoxedExtractor
+output-exceed-max-turn-summary:
+  type: ExceedMaxTurnSummaryGenerator
+  prompt: config/prompts/fangda_prompt_main_agent_0128.yaml
+  llm:
+    _base_: config/llm/base_mirothinker.yaml
+
+output_dir: logs/
+data_dir: "${oc.env:DATA_DIR,data}"
+
+
