@@ -1,12 +1,12 @@
-# config/benchmark/browsecomp-zh.yaml
+# config/benchmark/browsecomp-en.yaml
 defaults:
   - default
   - _self_
 
-name: "browsecomp-zh"
+name: "browsecomp-en-200"
 
 data:
-  data_dir: "${data_dir}/browsecomp-zh-test"  # Path to browsecomp-zh-test (Chinese) dataset
+  data_dir: "${data_dir}/browsecomp-200"  # Path to browsecomp-200 (English) dataset
   metadata_file: "standardized_data.jsonl"  # Metadata filename
   whitelist: []  # Optional: List of specific task_ids to run
 
@@ -14,9 +14,8 @@ execution:
   max_tasks: null      # null = no limit, or specify a number
   max_concurrent: 5    # Number of parallel tasks
   pass_at_k: 1         # Number of attempts per task
-  max_retry: 5
-  exceed_max_turn_summary: true
 
-# OpenAI API key for evaluation (required for browsecomp-zh since it has ground truth)
+# OpenAI API key for evaluation (required for browsecomp since it has ground truth)
 openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
 openai_base_url: "${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}"
+
