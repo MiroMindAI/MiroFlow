@@ -121,6 +121,8 @@ async def get_task_status(
         raise HTTPException(status_code=404, detail="Task not found")
 
     progress: dict = {}
+    stored_messages: list = []
+
     if task.status == "running":
         progress = task_executor.get_task_progress(task_id)
         # Update session with progress
@@ -131,9 +133,15 @@ async def get_task_status(
                 "step_count": progress.get("step_count", 0),
             },
         )
+    else:
+        # For completed/failed/cancelled tasks, get stored messages from session
+        session_data = session_manager._read_session(task_id)
+        if session_data:
+            stored_messages = session_data.get("messages", [])
 
-    # Convert messages to Message objects
-    messages = [Message(**m) for m in progress.get("messages", [])]
+    # Convert messages to Message objects - use progress messages for running, stored for completed
+    raw_messages = progress.get("messages", []) if progress else stored_messages
+    messages = [Message(**m) for m in raw_messages]
 
     return TaskStatusUpdate(
         id=task.id,

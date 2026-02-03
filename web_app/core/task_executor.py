@@ -138,13 +138,17 @@ class TaskExecutor:
             # Run agent
             result = await agent.run(ctx)
 
-            # Update session with results
+            # Get final message history before cleanup
+            final_messages = self._get_all_messages_from_tracer(tracer)
+
+            # Update session with results and full message history
             self.session_manager.update_task(
                 task_id,
                 {
                     "status": "completed",
                     "final_answer": result.get("final_boxed_answer", ""),
                     "summary": result.get("summary", ""),
+                    "messages": final_messages,
                 },
             )
 
@@ -168,6 +172,24 @@ class TaskExecutor:
                 del self._running_tasks[task_id]
             if task_id in self._task_tracers:
                 del self._task_tracers[task_id]
+
+    def _get_all_messages_from_tracer(self, tracer: Any) -> list[dict]:
+        """Extract all messages from tracer for persistence."""
+        try:
+            with tracer._data_lock:
+                for key, log_file in tracer._active_tasks.items():
+                    agent_states = log_file.agent_states
+                    for agent_name, state in agent_states.items():
+                        state_data = (
+                            state.state
+                            if hasattr(state, "state")
+                            else state.get("state", {})
+                        )
+                        message_history = state_data.get("message_history", [])
+                        return self._format_messages(message_history)
+        except Exception:
+            pass
+        return []
 
     def get_task_progress(self, task_id: str) -> dict[str, Any]:
         """Get current progress from tracer."""
@@ -199,8 +221,8 @@ class TaskExecutor:
                         current_turn = max(
                             current_turn, (len(message_history) + 1) // 2
                         )
-                        # Get recent messages for display
-                        messages = self._format_messages(message_history[-6:])
+                        # Get ALL messages for display (full history)
+                        messages = self._format_messages(message_history)
 
                     # Filter and format logs to show tool calls
                     recent_logs = (
@@ -285,7 +307,12 @@ class TaskExecutor:
         return formatted[-15:]
 
     def _format_messages(self, messages: list[dict]) -> list[dict]:
-        """Format message history for display."""
+        """Format message history for display.
+
+        Note: We do NOT truncate message content here to preserve:
+        - Full thinking/reasoning content for proper display
+        - Complete tool results (e.g., search results JSON) for parsing
+        """
         formatted = []
         for msg in messages:
             role = msg.get("role", "unknown")
@@ -300,9 +327,12 @@ class TaskExecutor:
                         if item.get("type") == "text":
                             text_parts.append(item.get("text", ""))
                         elif item.get("type") == "tool_result":
-                            text_parts.append(
-                                f"[Tool Result: {self._truncate_output(item.get('content', ''))}]"
-                            )
+                            # Don't truncate tool results - need full JSON for parsing
+                            tool_content = item.get("content", "")
+                            if isinstance(tool_content, str):
+                                text_parts.append(tool_content)
+                            else:
+                                text_parts.append(str(tool_content))
                         elif item.get("type") == "tool_use":
                             text_parts.append(f"[Tool Call: {item.get('name', '')}]")
                     elif isinstance(item, str):
@@ -311,10 +341,11 @@ class TaskExecutor:
             elif not isinstance(content, str):
                 content = str(content)
 
+            # Don't truncate - preserve full content for thinking and tool results
             formatted.append(
                 {
                     "role": role,
-                    "content": self._truncate_output(content),
+                    "content": content,
                 }
             )
 
