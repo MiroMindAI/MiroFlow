@@ -450,4 +450,4 @@ async def download_file_from_sandbox_to_local(
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    mcp.run(transport="stdio", show_banner=False)
