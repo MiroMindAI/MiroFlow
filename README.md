@@ -22,47 +22,39 @@
 
 ## 📚 **[READ THE DOCUMENTATION](https://miromindai.github.io/MiroFlow/)**
 
-### 🚀 [Try Demo](https://dr.miromind.ai/) ｜ [中文](README_zh.md) ｜ [日本語](README_ja.md)
+### 🚀 [Try Demo](https://dr.miromind.ai/) 
 
-</div>
-
-<div align="center">
-  <img width="100%" alt="image" src="docs/mkdocs/docs/assets/futurex-09-12.png" />
 </div>
 
 ---
 
-This repo is the official implementation of the **MiroMind Research Agent Project**. It is a leading-performance, fully open-source system designed to perform multi-step internet research for addressing complex challenges such as future event prediction. The project currently comprises four key components:
+**MiroFlow** is an open-source research agent framework that achieves state-of-the-art performance on representative benchmarks (FutureX, GAIA, HLE, xBench-DeepSearch, BrowserComp). It powers [MiroThinker](https://github.com/MiroMindAI/mirothinker), our open-source agent foundation model with native tool-assisted reasoning.
 
-- 🤖 **MiroFlow**: an open-source research agent framework that offers reproducible state-of-the-art performance on representative benchmarks (e.g., FutureX, GAIA, HLE, xBench-DeepSearch, and BrowserComp benchmarks), included in this repo. See [[Get Started in Under 5 Minutes]](#-get-started-in-under-5-minutes) for a quick start.
-- 🤔 **MiroThinker**: an open-source agent foundation model that natively supports tool-assisted reasoning. See [MiroThinker](https://github.com/MiroMindAI/mirothinker).
-- 📊 **MiroVerse**: 147k premium open-source training data supporting research agent training. See [MiroVerse](https://huggingface.co/datasets/miromind-ai/MiroVerse-v0.1).
-- 🚧 **MiroTrain / MiroRL**: The training infra that supports stable and efficient training for the research agent models. See [MiroTrain](https://github.com/MiroMindAI/MiroTrain) / [MiroRL](https://github.com/MiroMindAI/MiroRL)
+## 📰 News
+
+- **[2026-03]**: 🎉 **MiroFlow 1.6 + MiroThinker 1.6**: Major release with Web Application interface (FastAPI + React), comprehensive verifier system for benchmark evaluation, and expanded LLM support including Kimi K2.5 and GPT-5.
+
+<details>
+<summary><strong>Previous Updates</strong></summary>
+
+- **[2025-09-15]**: 🎉🎉 **MiroFlow v0.3**: Enhanced codebase architecture and significantly improved benchmark performance, boosting GPT-5's prediction accuracy for future events by 11%. MiroFlow now ranks #1 in the future prediction benchmark. See [FutureX](https://futurex-ai.github.io/).
+- **[2025-08-27]**: **MiroFlow v0.2**: Achieves state-of-the-art performance across [multiple agentic benchmarks](https://miromind.ai/blog/miroflow), including HLE (27.2%), HLE-Text-Only (29.5%), BrowserComp-EN (33.2%), BrowserComp-ZH (47.1%), and xBench-DeepSearch (72.0%).
+- **[2025-08-26]**: Released [GAIA Validation Trace](docs/public_trace.md) (73.94% pass@1) and [Gradio Demo](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo) for local deployment.
+- **[2025-08-08]**: **MiroFlow v0.1**: Complete open-source release of the research agent framework.
+
+</details>
 
 ---
 
 ## 📋 Table of Contents
 
-- 📰 [News & Updates](#-news--updates)
-- 🚀 [Get Started in Under 5 Minutes](#-get-started-in-under-5-minutes)
-- 🤖 [What is MiroFlow?](#-what-is-miroflow)
-- 🌟 [Highlights](#-Highlights)
-- 📈 [Performance on Benchmarks](#-performance-on-benchmarks)
-- 🔧 [Supported Models & Tools](#-supported-models--tools)
+- 🚀 [Get Started](#-get-started-in-under-5-minutes)
+- 🏗️ [Architecture](#️-architecture)
+- 🌟 [Highlights](#-highlights)
+- 🔧 [Models & Tools](#-supported-models--tools)
+- 📈 [Benchmarks](#-performance-on-benchmarks)
 - ❓ [FAQ](#-faq)
-- 🤝 [Contributing](#-contributing)
-- 📄 [License](#-license)
-- 🙏 [Acknowledgments](#-acknowledgments-and-contributors)
-
----
-
-## 📰 News & Updates
-
-- **[2025-09-15]**: 🎉🎉 **MiroFlow v0.3**: Enhanced codebase architecture and significantly improved benchmark performance, boosting GPT-5's prediction accuracy for future events by 11%.
- MiroFlow now ranks #1 in the future prediction benchmark. See [FutureX](https://futurex-ai.github.io/).
-- **[2025-08-27]**: **MiroFlow v0.2**: Achieves state-of-the-art performance across [multiple agentic benchmarks](https://miromind.ai/blog/miroflow), including HLE (27.2%), HLE-Text-Only (29.5%), BrowserComp-EN (33.2%), BrowserComp-ZH (47.1%), and xBench-DeepSearch (72.0%).
-- **[2025-08-26]**: Released [GAIA Validation Trace](docs/public_trace.md) (73.94% pass@1) and [Gradio Demo](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo) for local deployment.
-- **[2025-08-08]**: **MiroFlow v0.1**: Complete open-source release of the research agent framework.
+- 📖 [References](#-references)
 
 ---
 
@@ -95,20 +87,31 @@ uv run main.py trace --config_file_name=agent_quickstart_reading --task="What is
 
 > **💡 Tip:** If you encounter issues, check that your API key is correctly set in the `.env` file and that all dependencies are installed.
 
+### 🌐 Web Application
+
+MiroFlow provides a web interface powered by FastAPI and React for interactive agent tasks.
+
+```bash
+# Start the web server (auto-builds frontend on first run)
+bash scripts/start_web.sh
+```
+
+Access the web interface at `http://localhost:8000` and API documentation at `http://localhost:8000/docs`.
+
 ---
 
-## 🤖 What is MiroFlow?
-
-MiroFlow is a high-performance, modular framework for building intelligent AI agents that deliver state-of-the-art results on complex reasoning tasks like future event prediction. The framework features advanced multi-turn conversation capabilities, extensive tool ecosystem integration, and hierarchical sub-agent orchestration for optimal task completion. Learn more about our [agent framework](https://miromindai.github.io/MiroFlow/core_concepts/).
+## 🏗️ Architecture
 
 <div align="center">
 <img src="docs/mkdocs/docs/assets/miroflow_architecture.png" width="100%" alt="MiroFlow Architecture">
 </div>
 
+<details>
+<summary><strong>📹 Demo: Research Assistant</strong></summary>
+<br>
 <table align="center" style="border: 1px solid #ccc; border-radius: 8px; padding: 12px; background-color: #f9f9f9; width: 60%;">
   <tr>
     <td style="text-align: center; padding: 10px;">
-      <strong>Research Assistant Demo</strong> - 
       <span style="font-size: 0.9em; color: #555;">Read CVPR 2025 Best Paper and Provide Research Advice</span>
       <br>
       <video src="https://github.com/user-attachments/assets/99ed3172-6e9a-467a-9ccb-be45957fe2e4"
@@ -118,6 +121,7 @@ MiroFlow is a high-performance, modular framework for building intelligent AI ag
     </td>
   </tr>
 </table>
+</details>
 
 ---
 
@@ -131,8 +135,8 @@ MiroFlow is a high-performance, modular framework for building intelligent AI ag
 
 ## 🔧 Supported Models & Tools
 
-- **Models**: GPT, Claude, Gemini, Qwen, MiroThinker, etc.
-- **Tools**: [Audio Transcription](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/audio_mcp_server.py), [Python](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/python_server.py), [File Reading](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/reading_mcp_server.py), [Reasoning](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/reasoning_mcp_server.py), [Google Search](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/searching_mcp_server.py), [VQA](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.3/src/tool/mcp_servers/vision_mcp_server.py), E2B, etc.
+- **Models**: MiroThinker 1.6, GPT-4o, GPT-5, Claude, Gemini, Qwen, Kimi K2.5, etc.
+- **Tools**: [Audio Transcription](https://github.com/MiroMindAI/MiroFlow/blob/main/src/tool/mcp_servers/audio_mcp_server.py), [Python](https://github.com/MiroMindAI/MiroFlow/blob/main/src/tool/mcp_servers/python_mcp_server.py), [File Reading](https://github.com/MiroMindAI/MiroFlow/blob/main/src/tool/mcp_servers/reading_mcp_server.py), [Reasoning](https://github.com/MiroMindAI/MiroFlow/blob/main/src/tool/mcp_servers/reasoning_mcp_server.py), [Google Search](https://github.com/MiroMindAI/MiroFlow/blob/main/src/tool/mcp_servers/searching_mcp_server.py), [VQA](https://github.com/MiroMindAI/MiroFlow/blob/main/src/tool/mcp_servers/vision_mcp_server.py), [Web Scraping](https://github.com/MiroMindAI/MiroFlow/blob/main/src/tool/mcp_servers/jina_scrape_llm_summary_mcp_server.py), E2B, etc.
 
 
 ---
@@ -191,45 +195,41 @@ For commercial inquiries and enterprise support, please contact us through our <
 
 ---
 
-## 🤝 Contributing
+## 📖 References
 
-We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+If you find our work helpful, please consider citing:
 
-- 📋 **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues).
-- 🔀 **Pull Requests**: Submit improvements via pull requests.
-- 💬 **Discussions**: Join our [Discord community](https://discord.com/invite/GPqEnkzQZd) for questions and discussions.
+**MiroThinker** (Model & Method)
+```bibtex
+@article{miromind2025mirothinker,
+  title={MiroThinker: Pushing the Performance Boundaries of Open-Source Research Agents via Model, Context, and Interactive Scaling},
+  author={MiroMind Team and Bai, Song and Bing, Lidong and Chen, Carson and Chen, Guanzheng and Chen, Yuntao and Chen, Zhe and Chen, Ziyi and Dong, Xuan and others},
+  journal={arXiv preprint arXiv:2511.11793},
+  year={2025}
+}
+```
 
+**MiroFlow** (Framework)
+```bibtex
+@misc{2026miroflow,
+  title={MiroFlow: A High-Performance Open-Source Research Agent Framework},
+  author={MiroMind AI Team},
+  howpublished={\url{https://github.com/MiroMindAI/MiroFlow}},
+  year={2026}
+}
+```
 
-## 📄 License
+---
 
-This project is licensed under the Apache License 2.0.
-
-## 🙏 Acknowledgments
-
-**Benchmark Contributors** for the comprehensive evaluation datasets.
-
-**Open Source Community** for the tools and libraries that make this possible.
-
-We thank all contributors who have helped make MiroFlow better:
+<div align="center">
 
 <a href="https://github.com/MiroMindAI/MiroFlow/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=MiroMindAI/MiroFlow" />
 </a>
 
-Join our community and help us build the future of AI agents!
+**Contributing**: [Issues](https://github.com/MiroMindAI/MiroFlow/issues) · [Pull Requests](https://github.com/MiroMindAI/MiroFlow/pulls) · [Discord](https://discord.com/invite/GPqEnkzQZd)
 
-## References
+**License**: Apache 2.0
 
-The technical report is coming soon!
-
-```
-@misc{2025mirothinker,
-    title={MiroFlow: A High-Performance Open-Source Research Agent Framework},
-    author={MiroMind AI Team},
-    howpublished={\url{https://github.com/MiroMindAI/MiroFlow}},
-    year={2025}
-}
-```
-
-[![Star History Chart](https://api.star-history.com/svg?repos=MiroMindAI/MiroFlow&type=Timeline)](https://www.star-history.com/#MiroMindAI/MiroFlow&Timeline)
+</div>
 

@@ -1367,9 +1367,6 @@ def process_file_content(
             traceback.print_exc()
             file_content_section += f"\nWarning: There was an error processing the file '{task_file_name}': {str(e)}"
 
-    # output format requirement
-    updated_task_description += "\nYou should follow the format instruction in the request strictly and wrap the final answer in \\boxed{}."
-
     # Append file content at the end
     updated_task_description += file_content_section
     updated_task_description = updated_task_description.strip()

@@ -13,7 +13,7 @@ import re
 from src.agents.context import AgentContext
 from src.io_processor.base import BaseIOProcessor
 from src.registry import ComponentType, register
-from src.utils.eval_utils import is_valid_box
+from src.benchmark.eval_utils import is_valid_box
 
 # Assistant prefix for failure summary generation (aligned with MiroThinker)
 # This guides the model to think first and then output structured content
@@ -47,9 +47,10 @@ class ExceedMaxTurnSummaryGenerator(BaseIOProcessor):
         - <think>...</think> block (thinking content)
         - Main content after </think> and before <use_mcp_tool>
         - <use_mcp_tool>...</use_mcp_tool> block (tool call, ignored)
+        - Empty \\boxed{} patterns (ignored)
 
         Returns:
-            - If content after </think> is non-empty, return that content
+            - If content after </think> is non-empty (after filtering), return that content
             - If content is empty, return think_content as fallback
             - Any <use_mcp_tool> block is always removed
         """
@@ -73,6 +74,9 @@ class ExceedMaxTurnSummaryGenerator(BaseIOProcessor):
             content = after_think[: mcp_match.start()].strip()
         else:
             content = after_think.strip()
+
+        # Remove empty \boxed{} patterns (common pollution in model output)
+        content = re.sub(r"\\boxed\{\s*\}", "", content).strip()
 
         return content if content else think_content
 

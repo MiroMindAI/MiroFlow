@@ -5,10 +5,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Configuration parameters
-NUM_RUNS=8
+NUM_RUNS=3
 BENCHMARK_NAME="gaia-validation-text-only"
 AGENT_SET="standard_gaia-validation-text-103_mirothinker"
-MAX_CONCURRENT=10
+MAX_CONCURRENT=30
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)
@@ -58,7 +58,7 @@ for i in $(seq 1 $NUM_RUNS); do
     RUN_ID="run_$i"
 
     # Start process in background
-    uv run tests/test_benchmark.py \
+    uv run src/benchmark/run_benchmark.py \
         --config-path config/${AGENT_SET}.yaml \
         benchmark.execution.max_concurrent=$MAX_CONCURRENT \
         output_dir="$RESULTS_DIR/$RUN_ID" \
@@ -95,7 +95,7 @@ echo "All $NUM_RUNS runs completed!"
 echo "=========================================="
 
 echo "Calculating average scores..."
-uv run python -c "from src.utils.calculate_average_score import main; main('$RESULTS_DIR')"
+uv run python -c "from src.benchmark.calculate_average_score import main; main('$RESULTS_DIR')"
 
 echo "=========================================="
 echo "Multiple runs evaluation completed!"

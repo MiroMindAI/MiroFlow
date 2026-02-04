@@ -95,6 +95,7 @@ class TaskMeta(BaseModel):
 
     final_boxed_answer: str = ""
     judge_result: str = ""
+    verifier_name: str = ""
     error: Optional[str] = None
     ground_truth: Optional[str] = None
 
@@ -286,7 +287,8 @@ class TaskTracer:
             log_file.current_span = (
                 current_span  # Assumes Span is Pydantic model or jsonable
             )
-        self.flush()
+        # Disabled for performance - data will be written in finish()
+        # self.flush()
 
     # ---------- Logging ----------
 
@@ -306,8 +308,8 @@ class TaskTracer:
 
         # Flushing on every log is poor performance in high-frequency scenarios
         # For extreme performance, set threshold or only flush on finish
-        # Here we keep flush for data safety
-        self.flush()
+        # Disabled for performance - data will be written in finish()
+        # self.flush()
 
     def log(
         self,

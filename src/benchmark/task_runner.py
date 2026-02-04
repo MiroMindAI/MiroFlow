@@ -26,7 +26,7 @@ from src.logging.task_tracer import (
     reset_current_task_context_var,
     set_current_task_context_var,
 )
-from src.utils.eval_utils import (
+from src.benchmark.eval_utils import (
     AttemptResult,
     Evaluator,
     TaskResult,
@@ -135,7 +135,7 @@ def _task_worker(task_dict, cfg_dict, pass_at_k, max_retry, exceed_max_turn_summ
 
     from src.agents import build_agent_from_config
     from src.logging.task_tracer import set_tracer
-    from src.utils.eval_utils import Evaluator, Task
+    from src.benchmark.eval_utils import Evaluator, Task
 
     # Set up PR_SET_PDEATHSIG to auto-terminate when parent dies (Linux only)
     _set_pdeathsig()
@@ -279,7 +279,7 @@ async def run_single_retry(
         summary_text = _build_exceed_max_turn_summary_text(
             previous_summaries, prompt_manager
         )
-        task_description = f"{summary_text}\n\n{task.task_question}"
+        task_description = f"{task.task_question}\n\n{summary_text}"
         attempt_result.used_exceed_max_turn_summaries = previous_summaries
 
     tracer.start()
@@ -307,6 +307,7 @@ async def run_single_retry(
             tracer.update_task_meta(
                 patch={
                     "judge_result": attempt_result.judge_result,
+                    "verifier_name": attempt_result.verifier_name,
                 }
             )
 

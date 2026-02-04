@@ -105,7 +105,7 @@ fi
 echo -e "${GREEN}Running test...${NC}"
 echo ""
 
-uv run python test_single_task.py \
+uv run python scripts/run_single_task.py \
     --config-path "$CONFIG_PATH" \
     --output-dir "$OUTPUT_DIR" \
     "${CMD_ARGS[@]}"
