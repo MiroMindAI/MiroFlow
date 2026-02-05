@@ -223,6 +223,7 @@ web_app/frontend/dist/
 web_app/frontend/package-lock.json
 web_app/static/
 web_app/sessions/
+web_app/uploads/
 .claude/
 .ruff_cache/
 .env
