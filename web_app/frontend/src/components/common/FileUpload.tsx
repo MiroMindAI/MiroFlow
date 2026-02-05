@@ -38,53 +38,48 @@ export default function FileUpload({ onFileUploaded, uploadedFile }: FileUploadP
   };
 
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Upload File (Optional)
-      </label>
+    <div className="flex items-center gap-2">
+      <input
+        ref={inputRef}
+        type="file"
+        className="hidden"
+        onChange={handleFileChange}
+        accept=".xlsx,.xls,.csv,.pdf,.doc,.docx,.txt,.json,.png,.jpg,.jpeg,.mp3,.wav,.mp4"
+      />
 
       {uploadedFile ? (
-        <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <File className="w-5 h-5 text-gray-500" />
-            <span className="text-sm">{uploadedFile.file_name}</span>
-            <span className="text-xs text-gray-500">({uploadedFile.file_type})</span>
-          </div>
+        <div className="flex items-center gap-1 bg-white border border-gray-300 rounded px-2 py-1">
+          <File className="w-4 h-4 text-gray-500" />
+          <span className="text-xs max-w-[100px] truncate">{uploadedFile.file_name}</span>
           <button
             onClick={handleRemove}
-            className="p-1 hover:bg-gray-200 rounded"
+            className="p-0.5 hover:bg-gray-200 rounded"
             title="Remove file"
           >
-            <X className="w-4 h-4 text-gray-500" />
+            <X className="w-3 h-3 text-gray-500" />
           </button>
         </div>
       ) : (
-        <div
-          className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
-            isUploading
-              ? 'border-blue-300 bg-blue-50'
-              : 'border-gray-300 hover:border-gray-400'
-          }`}
+        <button
+          type="button"
           onClick={() => inputRef.current?.click()}
+          disabled={isUploading}
+          className={`p-2 rounded-lg transition-colors ${
+            isUploading
+              ? 'bg-blue-100 text-blue-600'
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-600'
+          }`}
+          title="Upload file"
         >
-          <input
-            ref={inputRef}
-            type="file"
-            className="hidden"
-            onChange={handleFileChange}
-            accept=".xlsx,.xls,.csv,.pdf,.doc,.docx,.txt,.json,.png,.jpg,.jpeg,.mp3,.wav,.mp4"
-          />
-          <Upload className="w-6 h-6 mx-auto text-gray-400 mb-2" />
-          <p className="text-sm text-gray-600">
-            {isUploading ? 'Uploading...' : 'Click to upload or drag and drop'}
-          </p>
-          <p className="text-xs text-gray-400 mt-1">
-            Excel, PDF, Word, Text, Images, Audio, Video
-          </p>
-        </div>
+          <Upload className="w-5 h-5" />
+        </button>
       )}
 
-      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
+      {error && (
+        <div className="absolute bottom-full right-0 mb-1 text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+          {error}
+        </div>
+      )}
     </div>
   );
 }

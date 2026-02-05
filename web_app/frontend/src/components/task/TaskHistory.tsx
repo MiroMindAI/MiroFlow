@@ -9,6 +9,23 @@ interface TaskHistoryProps {
   refreshKey?: number;
 }
 
+function truncateTitle(title: string, maxTokens: number = 20): string {
+  const tokens = title.split(/\s+/);
+  if (tokens.length <= maxTokens) return title;
+  return tokens.slice(0, maxTokens).join(' ') + '...';
+}
+
+function formatTimestamp(dateStr: string): string {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${year}-${month}-${day}-${hours}-${minutes}`;
+}
+
 export default function TaskHistory({ onSelectTask, selectedTaskId, refreshKey }: TaskHistoryProps) {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['tasks', refreshKey],
@@ -55,11 +72,11 @@ export default function TaskHistory({ onSelectTask, selectedTaskId, refreshKey }
         >
           <div className="flex items-start justify-between">
             <div className="flex-1 min-w-0">
-              <p className="text-sm text-gray-800 break-words whitespace-normal">{task.task_description}</p>
+              <p className="text-sm text-gray-800 break-words whitespace-normal">{truncateTitle(task.task_description)}</p>
               <div className="flex items-center space-x-2 mt-1">
                 <StatusIcon status={task.status} />
                 <span className="text-xs text-gray-500">
-                  {formatRelativeTime(task.created_at)}
+                  {formatTimestamp(task.created_at)}
                 </span>
               </div>
             </div>
@@ -88,19 +105,4 @@ function StatusIcon({ status }: { status: string }) {
     default:
       return <Clock className="w-4 h-4 text-yellow-500" />;
   }
-}
-
-function formatRelativeTime(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMins / 60);
-  const diffDays = Math.floor(diffHours / 24);
-
-  if (diffMins < 1) return 'just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  return date.toLocaleDateString();
 }
