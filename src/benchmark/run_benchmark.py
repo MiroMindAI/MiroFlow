@@ -14,11 +14,11 @@ from omegaconf import DictConfig, OmegaConf
 
 # from config import load_config, config_name, config_path
 from config import load_config
-from src.utils.eval_utils import (
+from src.benchmark.eval_utils import (
     Task,
     Evaluator,
 )
-from src.utils.task_utils import run_tasks, _cleanup_executor
+from src.benchmark.task_runner import run_tasks, _cleanup_executor
 from src.agents import build_agent_from_config
 from src.logging.task_tracer import get_tracer, set_tracer
 

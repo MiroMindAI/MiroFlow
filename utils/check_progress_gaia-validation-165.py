@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-GAIA Validation Progress Checker (103 tasks version with time estimation)
+GAIA Validation Progress Checker (165 tasks version with time estimation)
 
 This script analyzes GAIA validation results with:
 - File format: task_{task_id}_attempt_{attempt_id}_retry_{retry_id}.json
@@ -9,10 +9,10 @@ This script analyzes GAIA validation results with:
 - Shows retry statistics per attempt
 
 Usage:
-    python check_progress_gaia-validation-text-103.py [LOG_FOLDER_PATH]
+    python check_progress_gaia-validation-165.py [LOG_FOLDER_PATH]
 
 Example:
-    python check_progress_gaia-validation-text-103.py logs/gaia-validation-text-only/xxx
+    python check_progress_gaia-validation-165.py logs/gaia-validation/xxx
 """
 
 import argparse
@@ -27,7 +27,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 # Benchmark configuration
-TASKS_PER_RUN = 103
+TASKS_PER_RUN = 165
 
 # Precompile regex patterns for better performance
 TASK_FILENAME_NEW_PATTERN = re.compile(r"task_(.+)_attempt_(\d+)_retry_(\d+)\.json$")
@@ -447,7 +447,7 @@ def display_overall_summary(all_results: Dict[str, RunStats], num_runs: int) -> 
     # Header
     print()
     print("=" * 80)
-    print("GAIA VALIDATION PROGRESS SUMMARY (103 tasks)")
+    print("GAIA VALIDATION PROGRESS SUMMARY (165 tasks)")
     print(f"Generated at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 80)
 
@@ -526,18 +526,18 @@ def display_overall_summary(all_results: Dict[str, RunStats], num_runs: int) -> 
 def main():
     """Main function to run the analysis."""
     parser = argparse.ArgumentParser(
-        description="GAIA Validation Progress Checker (103 tasks with time estimation)",
+        description="GAIA Validation Progress Checker (165 tasks with time estimation)",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Example:
-    python check_progress_gaia-validation-text-103.py logs/gaia-validation-text-only/xxx
+    python check_progress_gaia-validation-165.py logs/gaia-validation/xxx
         """,
     )
     parser.add_argument(
         "log_folder",
         nargs="?",
-        default="logs/gaia-validation-text-only",
-        help="Path to the log folder (default: logs/gaia-validation-text-only)",
+        default="logs/gaia-validation",
+        help="Path to the log folder (default: logs/gaia-validation)",
     )
 
     args = parser.parse_args()

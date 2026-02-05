@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Test a single task with the configured agent.
+Run a single task with the configured agent.
 
 Usage:
-    python test_single_task.py --config config/standard_gaia-validation-text-103_kimi_k25.yaml --task-id <task_id>
-    python test_single_task.py --config config/standard_gaia-validation-text-103_kimi_k25.yaml --task-question "What is 2+2?"
-    python test_single_task.py --config config/standard_gaia-validation-text-103_kimi_k25.yaml --task-index 0
+    python run_single_task.py --config config/standard_gaia-validation-text-103_kimi_k25.yaml --task-id <task_id>
+    python run_single_task.py --config config/standard_gaia-validation-text-103_kimi_k25.yaml --task-question "What is 2+2?"
+    python run_single_task.py --config config/standard_gaia-validation-text-103_kimi_k25.yaml --task-index 0
 """
 
 import argparse
@@ -23,6 +23,18 @@ from src.utils.eval_utils import Task, Evaluator
 from src.utils.task_utils import run_tasks
 from src.agents import build_agent_from_config
 from src.logging.task_tracer import get_tracer
+
+
+def parse_task_from_json(x: str) -> Task:
+    """Parse a task from a JSON string."""
+    data = json.loads(x)
+    return Task(
+        task_id=data["task_id"],
+        task_question=data["task_question"],
+        ground_truth=data["ground_truth"],
+        file_path=data.get("file_path"),
+        metadata=data.get("metadata", {}),
+    )
 
 
 async def test_single_task(cfg: DictConfig, task: Task) -> dict:
@@ -46,19 +58,9 @@ async def test_single_task(cfg: DictConfig, task: Task) -> dict:
     tracer.set_log_path(str(output_dir))
 
     # Create evaluator
-    def parse_func(x: str) -> Task:
-        data = json.loads(x)
-        return Task(
-            task_id=data["task_id"],
-            task_question=data["task_question"],
-            ground_truth=data["ground_truth"],
-            file_path=data.get("file_path"),
-            metadata=data.get("metadata", {}),
-        )
-
     evaluator = Evaluator(
         cfg=cfg.benchmark,
-        parse_func=parse_func,
+        parse_func=parse_task_from_json,
     )
 
     # Instantiate agent
@@ -166,17 +168,7 @@ def main():
 
     if args.task_id or args.task_index is not None:
         # Load task from benchmark file
-        def parse_func(x: str) -> Task:
-            data = json.loads(x)
-            return Task(
-                task_id=data["task_id"],
-                task_question=data["task_question"],
-                ground_truth=data["ground_truth"],
-                file_path=data.get("file_path"),
-                metadata=data.get("metadata", {}),
-            )
-
-        evaluator = Evaluator(cfg=cfg.benchmark, parse_func=parse_func)
+        evaluator = Evaluator(cfg=cfg.benchmark, parse_func=parse_task_from_json)
         all_tasks = evaluator.load_tasks()
 
         if args.task_index is not None:

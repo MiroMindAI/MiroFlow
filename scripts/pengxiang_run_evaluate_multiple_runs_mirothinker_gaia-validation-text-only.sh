@@ -28,7 +28,7 @@ for i in $(seq 1 $NUM_RUNS); do
     RUN_ID="run_$i"
     
     (
-        uv run tests/test_benchmark.py \
+        uv run src/benchmark/run_benchmark.py \
             --config-path config/${AGENT_SET}.yaml \
             benchmark.execution.max_concurrent=$MAX_CONCURRENT \
             output_dir="$RESULTS_DIR/$RUN_ID" \
@@ -60,7 +60,7 @@ echo "All $NUM_RUNS runs completed!"
 echo "=========================================="
 
 echo "Calculating average scores..."
-uv run python -c "from src.utils.calculate_average_score import main; main('$RESULTS_DIR')"
+uv run python -c "from src.benchmark.calculate_average_score import main; main('$RESULTS_DIR')"
 
 echo "=========================================="
 echo "Multiple runs evaluation completed!"
