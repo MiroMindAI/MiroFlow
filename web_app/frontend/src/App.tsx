@@ -890,17 +890,17 @@ function SmartTextContent({ content }: { content: string }) {
                   href={resultUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-gray-200 rounded-full text-xs text-gray-600 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                  className="flex max-w-full items-center gap-2 rounded-[16px] bg-gray-100 px-2 py-1 text-sm text-gray-500 hover:bg-gray-200 transition-colors"
                   title={result.snippet || result.title}
                 >
                   {faviconUrl ? (
-                    <img src={faviconUrl} alt="" className="w-3 h-3 flex-shrink-0" onError={(e) => {
+                    <img src={faviconUrl} alt={result.title || ''} className="h-4 w-4 rounded-full bg-slate-100 shadow flex-shrink-0" onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }} />
                   ) : (
-                    <Globe className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                    <Globe className="h-4 w-4 text-gray-400 flex-shrink-0" />
                   )}
-                  <span className="truncate">{result.title || resultUrl}</span>
+                  <span className="truncate flex-1">{result.title || resultUrl}</span>
                 </a>
               );
             })}
@@ -1060,17 +1060,17 @@ function ToolCallDisplay({ tool }: { tool: { name: string; args: string; result?
                   href={resultUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-full text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-colors"
+                  className="flex max-w-full items-center gap-2 rounded-[16px] bg-gray-100 px-2 py-1 text-sm text-gray-500 hover:bg-gray-200 transition-colors"
                   title={result.snippet || result.title}
                 >
                   {faviconUrl ? (
-                    <img src={faviconUrl} alt="" className="w-4 h-4 flex-shrink-0" onError={(e) => {
+                    <img src={faviconUrl} alt={result.title || ''} className="h-4 w-4 rounded-full bg-slate-100 shadow flex-shrink-0" onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }} />
                   ) : (
-                    <Globe className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <Globe className="h-4 w-4 text-gray-400 flex-shrink-0" />
                   )}
-                  <span className="truncate">{result.title || resultUrl}</span>
+                  <span className="truncate flex-1">{result.title || resultUrl}</span>
                 </a>
               );
             })}
