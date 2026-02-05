@@ -118,11 +118,9 @@ class TaskExecutor:
             ctx_kwargs: dict[str, Any] = {"task_description": task_description}
 
             if file_info:
-                ctx_kwargs["file_input"] = {
-                    "file_name": file_info.file_name,
-                    "file_type": file_info.file_type,
-                    "absolute_file_path": file_info.absolute_file_path,
-                }
+                # Pass the absolute file path as task_file_name (string)
+                # This is what InputMessageGenerator expects
+                ctx_kwargs["task_file_name"] = file_info.absolute_file_path
 
             ctx = AgentContext(**ctx_kwargs)
 
