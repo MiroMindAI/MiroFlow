@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Configuration parameters
-NUM_RUNS=3
+NUM_RUNS=8
 BENCHMARK_NAME="gaia-validation-165"
 AGENT_SET="standard_gaia-validation-165_mirothinker"
 MAX_CONCURRENT=30

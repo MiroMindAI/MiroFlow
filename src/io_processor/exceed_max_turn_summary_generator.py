@@ -44,41 +44,35 @@ class ExceedMaxTurnSummaryGenerator(BaseIOProcessor):
         """Extract failure experience summary from LLM response text.
 
         The text may contain:
-        - <think>...</think> block (thinking content)
-        - Main content after </think> and before <use_mcp_tool>
+        - Multiple <think>...</think> blocks (all removed from final output)
+        - Main content after removing all think blocks
         - <use_mcp_tool>...</use_mcp_tool> block (tool call, ignored)
         - Empty \\boxed{} patterns (ignored)
 
         Returns:
-            - If content after </think> is non-empty (after filtering), return that content
-            - If content is empty, return think_content as fallback
+            - Content with all <think> blocks removed
+            - If content is empty after filtering, return last think_content as fallback
             - Any <use_mcp_tool> block is always removed
         """
         if not text:
             return ""
 
-        think_content = ""
-        content = ""
+        # Extract all think contents (for fallback)
+        think_matches = list(re.finditer(r"<think>([\s\S]*?)</think>", text))
+        last_think_content = ""
+        if think_matches:
+            last_think_content = think_matches[-1].group(1).strip()
 
-        # Extract think content
-        think_match = re.search(r"<think>([\s\S]*?)</think>", text)
-        if think_match:
-            think_content = think_match.group(1).strip()
-            after_think = text[think_match.end() :]
-        else:
-            after_think = text
+        # Remove ALL <think>...</think> blocks from content
+        content = re.sub(r"<think>[\s\S]*?</think>", "", text).strip()
 
         # Remove <use_mcp_tool>...</use_mcp_tool> block from content
-        mcp_match = re.search(r"<use_mcp_tool>[\s\S]*", after_think)
-        if mcp_match:
-            content = after_think[: mcp_match.start()].strip()
-        else:
-            content = after_think.strip()
+        content = re.sub(r"<use_mcp_tool>[\s\S]*", "", content).strip()
 
         # Remove empty \boxed{} patterns (common pollution in model output)
         content = re.sub(r"\\boxed\{\s*\}", "", content).strip()
 
-        return content if content else think_content
+        return content if content else last_think_content
 
     async def run_internal(self, ctx: AgentContext) -> AgentContext:
         final_boxed_answer = ctx.get("final_boxed_answer", "")

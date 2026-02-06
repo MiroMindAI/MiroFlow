@@ -16,7 +16,6 @@ from .base_verifier import (
     RETRY_MAX_ATTEMPTS,
     RETRY_MULTIPLIER,
     BaseVerifier,
-    get_eval_prompt,
 )
 
 
@@ -25,9 +24,21 @@ class XBenchVerifier(BaseVerifier):
 
     MAX_TOKENS = 4096
 
-    @property
-    def JUDGE_PROMPT(self) -> str:
-        return get_eval_prompt("xbench", "judge_prompt")
+    JUDGE_PROMPT = """你是一个通用人工智能助手。根据下面给出的[正确答案], 判断以下对[原问题]的[回答]的回答是否正确。
+
+[原问题]: {question}
+
+[正确答案]: {correct_answer}
+
+[回答]:{response}
+
+你的判断必须按照以下格式和标准进行:
+
+最终答案: 从[回答]中提取出的最终准确答案。如果[回答]中没有明确的最终答案, 则填写'无'。
+
+解释: 根据[原问题]解释为什么[最终答案]是正确的或错误的。只关注[最终答案]与[正确答案]之间是否存在实质性差异, 不要评论题目的背景, 不要尝试重新解题, 不要为任何不同于[正确答案]的答案辩护, 只专注于判断答案是否一致。
+
+结论: 如果[最终答案]与上方给出的[正确答案]一致, 或者在数值题目中处于可接受的微小误差范围内, 则填写'正确'; 否则（即存在任何不一致、歧义、不等价或提取出的答案错误的情况）填写'错误'。"""
 
     class ExtractedAnswer(BaseModel):
         model_config = {"strict": True}
