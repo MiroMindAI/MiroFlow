@@ -16,7 +16,6 @@ from .base_verifier import (
     RETRY_MULTIPLIER,
     TEMP_DETERMINISTIC,
     BaseVerifier,
-    get_eval_prompt,
 )
 from .finsearchcomp_verifier import FinSearchCompVerifier
 from .gaia_common_verifier import GAIACommonVerifier
@@ -37,8 +36,6 @@ __all__ = [
     "TEMP_DETERMINISTIC",
     "RETRY_MULTIPLIER",
     "RETRY_MAX_ATTEMPTS",
-    # Functions
-    "get_eval_prompt",
     # Classes
     "BaseVerifier",
     "GAIACommonVerifier",

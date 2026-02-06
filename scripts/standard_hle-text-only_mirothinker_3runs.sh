@@ -8,7 +8,7 @@
 NUM_RUNS=3
 BENCHMARK_NAME="hle-text-only"
 AGENT_SET="standard_hle-text-only_mirothinker"
-MAX_CONCURRENT=10
+MAX_CONCURRENT=80
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)
