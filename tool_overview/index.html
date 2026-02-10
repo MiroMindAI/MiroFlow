@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../hle_text_only/">
+        <link rel="prev" href="../download_datasets/">
       
       
         <link rel="next" href="../contribute_tools/">
@@ -1270,6 +1270,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FRAMES-Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1835,7 +1863,7 @@
   <span class="md-ellipsis">
     
   
-    tool-python
+    tool-code / tool-code-sandbox
   
 
     
@@ -2746,22 +2774,30 @@
 <div class="admonition info">
 <p class="admonition-title">Core Tools</p>
 <ul>
-<li><strong><a href="../tool_python/">Python Tools</a></strong> - Code execution in secure sandbox</li>
-<li><strong><a href="../tool_searching/">Searching Tools</a></strong> - Web search and content retrieval  </li>
-<li><strong><a href="../tool_vqa/">Vision Tools</a></strong> - Image analysis and video processing</li>
-<li><strong><a href="../tool_reasoning/">Reasoning Tools</a></strong> - Advanced logical analysis</li>
+<li><strong><a href="../tool_python/">Code Execution</a></strong> (<code>tool-code</code> / <code>tool-code-sandbox</code>) - Python and shell execution in secure E2B sandbox</li>
+<li><strong><a href="../tool_searching/">Searching</a></strong> (<code>tool-searching</code>) - Web search, Wikipedia, Archive.org, and content retrieval</li>
+<li><strong><a href="../tool_searching_serper/">Searching (Serper)</a></strong> (<code>tool-searching-serper</code> / <code>tool-serper-search</code>) - Lightweight Google search via Serper API</li>
+<li><strong><a href="../tool_vqa/">Vision</a></strong> (<code>tool-image-video</code> / <code>tool-image-video-os</code>) - Image analysis and video processing</li>
+<li><strong><a href="../tool_reasoning/">Reasoning</a></strong> (<code>tool-reasoning</code> / <code>tool-reasoning-os</code>) - Advanced logical analysis via high-quality LLMs</li>
 </ul>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Additional Tools Available</p>
-<p>MiroFlow includes additional tools for audio processing, document reading, web browsing, and markdown conversion. See the <code>config/tool/</code> directory for complete tool configurations.</p>
+<p class="admonition-title">Additional Tools</p>
+<ul>
+<li><strong><a href="../tool_reading/">Reading</a></strong> (<code>tool-reading</code>) - Multi-format document reading and conversion</li>
+<li><strong><a href="../tool_audio/">Audio</a></strong> (<code>tool-audio</code> / <code>tool-audio-os</code>) - Audio transcription and question answering</li>
+<li><strong><a href="../tool_searching/">Jina Scrape</a></strong> (<code>tool-jina-scrape</code>) - URL scraping with LLM-powered information extraction</li>
+<li><strong>Web Browsing</strong> (<code>tool-browsing</code>) - Automated web browsing</li>
+<li><strong>Markdown Conversion</strong> (<code>tool-markitdown</code>) - Document to markdown conversion</li>
+</ul>
+<p>See the <code>config/tool/</code> directory for complete tool configurations.</p>
 </div>
 <h2 id="quick-setup">Quick Setup</h2>
 <p>Tools are configured in agent YAML files and require API keys in your <code>.env</code> file. See individual tool documentation for detailed setup instructions.</p>
 <hr />
 <div class="admonition info">
 <p class="admonition-title">Documentation Info</p>
-<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<p><strong>Last Updated:</strong> February 2026 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
 </div>
 
 

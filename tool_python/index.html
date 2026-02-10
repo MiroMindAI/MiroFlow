@@ -23,7 +23,7 @@
     
     
       
-        <title>tool-python - MiroFlow</title>
+        <title>tool-code / tool-code-sandbox - MiroFlow</title>
       
     
     
@@ -102,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              tool-python
+              tool-code / tool-code-sandbox
             
           </span>
         </div>
@@ -1270,6 +1270,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FRAMES-Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1775,7 +1803,7 @@
   <span class="md-ellipsis">
     
   
-    tool-python
+    tool-code / tool-code-sandbox
   
 
     
@@ -1793,7 +1821,7 @@
   <span class="md-ellipsis">
     
   
-    tool-python
+    tool-code / tool-code-sandbox
   
 
     
@@ -1898,6 +1926,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
   
 </li>
       
@@ -2842,6 +2881,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -2886,7 +2936,7 @@
 <ul>
 <li><strong>Required First Step</strong>: This tool must be called before using other tools within this MCP server</li>
 <li><strong>Session Management</strong>: The sandbox may timeout and automatically shut down after inactivity</li>
-<li><strong>Pre-installed Environment</strong>: The sandbox comes pre-installed with common packages for data science and document processing. For a detailed list and advanced usage information, see <a href="./e2b_extension.md">E2B Extension</a></li>
+<li><strong>Pre-installed Environment</strong>: The sandbox comes pre-installed with common packages for data science and document processing. For a detailed list and advanced usage information, see <a href="../e2b_advanced_features/">E2B Advanced Features</a></li>
 </ul>
 </div>
 <hr />
@@ -2948,9 +2998,17 @@
 <p><strong>Returns:</strong>
 - <code>str</code>: Local path of downloaded file or error message</p>
 <hr />
+<h2 id="configuration">Configuration</h2>
+<p>This tool is available under two configuration names:</p>
+<ul>
+<li><strong><code>tool-code</code></strong> - Original Python execution tool (config: <code>config/tool/tool-code.yaml</code>)</li>
+<li><strong><code>tool-code-sandbox</code></strong> - Simplified sandbox variant (config: <code>config/tool/tool-code-sandbox.yaml</code>)</li>
+</ul>
+<p>Both use E2B sandboxes and provide the same core functions. Add either to your agent's <code>tool_config</code> list to enable code execution.</p>
+<hr />
 <div class="admonition info">
 <p class="admonition-title">Documentation Info</p>
-<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<p><strong>Last Updated:</strong> February 2026 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
 </div>
 
 

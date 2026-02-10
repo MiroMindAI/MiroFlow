@@ -1270,6 +1270,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FRAMES-Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1761,7 +1789,7 @@
   <span class="md-ellipsis">
     
   
-    tool-python
+    tool-code / tool-code-sandbox
   
 
     
@@ -2853,7 +2881,7 @@
 <hr />
 <h2 id="implementation-steps">Implementation Steps</h2>
 <h3 id="step-1-create-provider-file">Step 1: Create Provider File</h3>
-<p>Create <code>src/llm/providers/your_provider_client.py</code>:</p>
+<p>Create <code>src/llm/your_provider_client.py</code>:</p>
 <div class="highlight"><span class="filename">Provider Implementation</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">dataclasses</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">src.llm.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMClientBase</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -2888,16 +2916,20 @@
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">export</span><span class="w"> </span><span class="nv">YOUR_BASE_URL</span><span class="o">=</span><span class="s2">&quot;https://api.yourprovider.com/v1&quot;</span><span class="w">  </span><span class="c1"># optional if using default</span>
 </code></pre></div>
 <h2 id="examples">Examples</h2>
-<p>See existing providers in <code>src/llm/providers/</code>:</p>
+<p>See existing providers in <code>src/llm/</code>:</p>
 <ul>
-<li><code>ClaudeAnthropicClient</code> - Direct API</li>
-<li><code>ClaudeOpenRouterClient</code> - Proxy API  </li>
-<li><code>GPTOpenAIClient</code> - OpenAI API</li>
+<li><code>ClaudeAnthropicClient</code> (<code>claude_anthropic.py</code>) - Direct Anthropic API</li>
+<li><code>ClaudeOpenRouterClient</code> (<code>claude_openrouter.py</code>) - Claude via OpenRouter</li>
+<li><code>GPTOpenAIClient</code> (<code>gpt_openai.py</code>) - OpenAI GPT models</li>
+<li><code>GPT5OpenAIClient</code> (<code>gpt5_openai.py</code>) - GPT-5 with reasoning</li>
+<li><code>OpenRouterClient</code> (<code>openrouter.py</code>) - Generic OpenRouter client</li>
+<li><code>OpenAIClient</code> (<code>openai_client.py</code>) - Generic OpenAI-compatible client</li>
+<li><code>MiroThinkerSGLangClient</code> (<code>mirothinker_sglang.py</code>) - MiroThinker via SGLang</li>
 </ul>
 <hr />
 <div class="admonition info">
 <p class="admonition-title">Documentation Info</p>
-<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<p><strong>Last Updated:</strong> February 2026 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
 </div>
 
 

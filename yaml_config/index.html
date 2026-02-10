@@ -1466,6 +1466,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../download_datasets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    FRAMES-Test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1957,7 +1985,7 @@
   <span class="md-ellipsis">
     
   
-    tool-python
+    tool-code / tool-code-sandbox
   
 
     
@@ -3049,11 +3077,12 @@
 <div class="admonition tip">
 <p class="admonition-title">Available Providers</p>
 <ul>
-<li><strong>Claude</strong>: <code>ClaudeOpenRouterClient</code>, <code>ClaudeAnthropicClient</code></li>
-<li><strong>OpenAI</strong>: <code>GPTOpenAIClient</code></li>
+<li><strong>Claude</strong>: <code>ClaudeOpenRouterClient</code> (recommended), <code>ClaudeAnthropicClient</code></li>
+<li><strong>OpenAI</strong>: <code>GPTOpenAIClient</code>, <code>GPT5OpenAIClient</code></li>
+<li><strong>OpenRouter (Generic)</strong>: <code>OpenRouterClient</code> - access any model via OpenRouter</li>
+<li><strong>OpenAI-Compatible</strong>: <code>OpenAIClient</code> - generic client for OpenAI-compatible APIs</li>
 <li><strong>MiroThinker</strong>: <code>MiroThinkerSGLangClient</code></li>
-<li><strong>Qwen</strong>: <code>QwenSGLangClient</code></li>
-<li><strong>DeepSeek</strong>: <code>DeepSeekNewAPIClient</code> (limited support)</li>
+<li><strong>DeepSeek</strong>: via <code>OpenRouterClient</code> or <code>ClaudeOpenRouterClient</code></li>
 </ul>
 <p>See <a href="../llm_clients_overview/">LLM Clients Overview</a> for details.</p>
 </div>
@@ -3061,12 +3090,14 @@
 <div class="admonition note">
 <p class="admonition-title">Tool Options</p>
 <ul>
-<li><strong><code>tool-reasoning</code></strong>: Enhanced reasoning capabilities</li>
-<li><strong><code>tool-searching</code></strong>: Web search and retrieval</li>
+<li><strong><code>tool-reasoning</code></strong> / <strong><code>tool-reasoning-os</code></strong>: Enhanced reasoning capabilities</li>
+<li><strong><code>tool-searching</code></strong>: Web search, Wikipedia, Archive.org, and retrieval</li>
+<li><strong><code>tool-searching-serper</code></strong> / <strong><code>tool-serper-search</code></strong>: Lightweight Google search via Serper</li>
 <li><strong><code>tool-reading</code></strong>: Document processing</li>
-<li><strong><code>tool-code</code></strong>: Python code execution</li>
-<li><strong><code>tool-image-video</code></strong>: Visual content analysis</li>
-<li><strong><code>tool-audio</code></strong>: Audio processing</li>
+<li><strong><code>tool-code</code></strong> / <strong><code>tool-code-sandbox</code></strong>: Python code execution in E2B sandbox</li>
+<li><strong><code>tool-image-video</code></strong> / <strong><code>tool-image-video-os</code></strong>: Visual content analysis</li>
+<li><strong><code>tool-audio</code></strong> / <strong><code>tool-audio-os</code></strong>: Audio processing</li>
+<li><strong><code>tool-jina-scrape</code></strong>: URL scraping with LLM-powered info extraction</li>
 <li><strong><code>tool-browsing</code></strong>: Web browsing</li>
 </ul>
 <p>See <a href="../tool_overview/">Tool Overview</a> for configurations.</p>
@@ -3171,7 +3202,7 @@
 <hr />
 <div class="admonition info">
 <p class="admonition-title">Documentation Info</p>
-<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<p><strong>Last Updated:</strong> February 2026 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
 </div>
 
 
