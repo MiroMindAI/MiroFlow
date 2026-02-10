@@ -40,7 +40,7 @@ export default function TaskForm({ onTaskCreated }: TaskFormProps) {
 
     createMutation.mutate({
       task_description: description,
-      config_path: configPath || configData?.default || 'config/agent_gradio_demo.yaml',
+      config_path: configPath || configData?.default || 'config/agent_web_demo.yaml',
       file_id: uploadedFile?.file_id,
     });
   };

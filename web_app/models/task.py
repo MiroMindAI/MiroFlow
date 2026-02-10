@@ -29,7 +29,7 @@ class TaskCreate(BaseModel):
         ..., min_length=1, description="The task/question to process"
     )
     config_path: str = Field(
-        default="config/agent_gradio_demo.yaml", description="Agent config path"
+        default="config/agent_web_demo.yaml", description="Agent config path"
     )
     file_id: str | None = Field(default=None, description="Uploaded file ID")
 

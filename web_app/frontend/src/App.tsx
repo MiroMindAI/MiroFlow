@@ -192,7 +192,7 @@ export default function App() {
 
     createMutation.mutate({
       task_description: inputValue,
-      config_path: configData?.default || 'config/agent_gradio_demo.yaml',
+      config_path: configData?.default || 'config/agent_web_demo.yaml',
       file_id: uploadedFile?.file_id,
     });
   };

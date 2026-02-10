@@ -38,7 +38,7 @@ class AppConfig:
     )
 
     # Default configuration
-    default_config: str = "config/agent_gradio_demo.yaml"
+    default_config: str = "config/agent_web_demo.yaml"
 
     # Task settings
     max_concurrent_tasks: int = 4
