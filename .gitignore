@@ -225,6 +225,7 @@ web_app/static/
 web_app/sessions/
 web_app/uploads/
 .claude/
+.vscode/
 .ruff_cache/
 .env
 .env.local

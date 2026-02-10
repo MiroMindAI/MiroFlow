@@ -19,8 +19,8 @@ import dotenv
 from omegaconf import DictConfig
 
 from config import load_config
-from src.utils.eval_utils import Task, Evaluator
-from src.utils.task_utils import run_tasks
+from src.benchmark.eval_utils import Task, Evaluator
+from src.benchmark.task_runner import run_single_task as _run_single_task
 from src.agents import build_agent_from_config
 from src.logging.task_tracer import get_tracer
 
@@ -37,7 +37,7 @@ def parse_task_from_json(x: str) -> Task:
     )
 
 
-async def test_single_task(cfg: DictConfig, task: Task) -> dict:
+def test_single_task(cfg: DictConfig, task: Task):
     """Test a single task with the configured agent."""
 
     print("=" * 80)
@@ -45,6 +45,8 @@ async def test_single_task(cfg: DictConfig, task: Task) -> dict:
     print("=" * 80)
     print(f"Task ID: {task.task_id}")
     print(f"Question: {task.task_question}")
+    if task.file_path:
+        print(f"File Path: {task.file_path}")
     if task.ground_truth:
         print(f"Ground Truth: {task.ground_truth}")
     print("=" * 80)
@@ -57,11 +59,13 @@ async def test_single_task(cfg: DictConfig, task: Task) -> dict:
     tracer = get_tracer()
     tracer.set_log_path(str(output_dir))
 
-    # Create evaluator
-    evaluator = Evaluator(
-        cfg=cfg.benchmark,
-        parse_func=parse_task_from_json,
-    )
+    # Only create evaluator when ground truth is provided
+    evaluator = None
+    if task.ground_truth:
+        evaluator = Evaluator(
+            cfg=cfg.benchmark,
+            parse_func=parse_task_from_json,
+        )
 
     # Instantiate agent
     print("\nInitializing agent...")
@@ -72,18 +76,21 @@ async def test_single_task(cfg: DictConfig, task: Task) -> dict:
     print("\nRunning task...")
     execution_cfg = cfg.benchmark.execution
 
-    results = await run_tasks(
-        cfg=cfg,
-        agent=agent,
-        tasks=[task],  # Only run this one task
-        evaluator=evaluator,
-        max_concurrent=1,
-        pass_at_k=1,
-        max_retry=execution_cfg.get("max_retry", 1),
-        exceed_max_turn_summary=execution_cfg.get("exceed_max_turn_summary", False),
-        prompt_manager=agent.prompt_manager
-        if hasattr(agent, "prompt_manager")
-        else None,
+    result = asyncio.run(
+        _run_single_task(
+            cfg=cfg,
+            agent=agent,
+            task=task,
+            pass_at_k=1,
+            max_retry=execution_cfg.get("max_retry", 1),
+            evaluator=evaluator,
+            exceed_max_turn_summary=execution_cfg.get(
+                "exceed_max_turn_summary", False
+            ),
+            prompt_manager=agent.prompt_manager
+            if hasattr(agent, "prompt_manager")
+            else None,
+        )
     )
 
     # Display results
@@ -91,28 +98,25 @@ async def test_single_task(cfg: DictConfig, task: Task) -> dict:
     print("RESULTS")
     print("=" * 80)
 
-    if results and len(results) > 0:
-        result = results[0]
-        print(f"Status: {result.get('status', 'unknown')}")
-        print(f"Final Answer: {result.get('final_boxed_answer', 'N/A')}")
-        print(f"Ground Truth: {result.get('ground_truth', 'N/A')}")
-        print(f"Correct: {result.get('judge_result', 'N/A')}")
+    print(f"Status: {result.status}")
+    print(f"Final Answer: {result.model_boxed_answer or 'N/A'}")
+    if task.ground_truth:
+        print(f"Ground Truth: {task.ground_truth}")
+        print(f"Correct: {result.judge_result or 'N/A'}")
 
-        if result.get("error"):
-            print(f"Error: {result['error']}")
+    if result.error_message:
+        print(f"Error: {result.error_message}")
 
-        print(f"\nOutput directory: {output_dir}")
+    print(f"\nOutput directory: {output_dir}")
 
-        # Find and display the log file
-        log_files = list(output_dir.glob("task_*.json"))
-        if log_files:
-            print(f"Task log: {log_files[0]}")
-    else:
-        print("No results returned")
+    # Find and display the log file
+    log_files = list(output_dir.glob("task_*.json"))
+    if log_files:
+        print(f"Task log: {log_files[0]}")
 
     print("=" * 80)
 
-    return results[0] if results else {}
+    return result
 
 
 def main():
@@ -143,6 +147,12 @@ def main():
         "--ground-truth",
         type=str,
         help="Ground truth answer (optional, for custom questions)",
+    )
+    parser.add_argument(
+        "--file-path",
+        type=str,
+        nargs="+",
+        help="Path(s) to attached file(s) for the task",
     )
     parser.add_argument(
         "--output-dir",
@@ -194,11 +204,14 @@ def main():
         # Create a custom task
         import uuid
 
+        file_path = args.file_path
+        if file_path and len(file_path) == 1:
+            file_path = file_path[0]
         task = Task(
             task_id=str(uuid.uuid4()),
             task_question=args.task_question,
             ground_truth=args.ground_truth or "",
-            file_path=None,
+            file_path=file_path,
             metadata={},
         )
         print("Created custom task")
@@ -209,10 +222,10 @@ def main():
         sys.exit(1)
 
     # Run the task
-    result = asyncio.run(test_single_task(cfg, task))
+    result = test_single_task(cfg, task)
 
     # Exit with appropriate code
-    if result.get("status") == "success":
+    if result.status == "completed":
         sys.exit(0)
     else:
         sys.exit(1)

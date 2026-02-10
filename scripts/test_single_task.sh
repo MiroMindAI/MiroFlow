@@ -9,6 +9,7 @@
 #   ./scripts/test_single_task.sh <task_index>           # Test task by index (0-based)
 #   ./scripts/test_single_task.sh --task-id <id>         # Test task by ID
 #   ./scripts/test_single_task.sh --question "What is 2+2?" --answer "4"  # Test custom question
+#   ./scripts/test_single_task.sh --task-question "Q?" --file-path /path/to/file.xlsx  # With attached file(s)
 
 set -e
 
@@ -38,11 +39,13 @@ if [ $# -eq 0 ]; then
     echo "Options:"
     echo "  --config <path>       Configuration file path (default: $CONFIG_PATH)"
     echo "  --output-dir <path>   Output directory (default: $OUTPUT_DIR)"
+    echo "  --file-path <path>... Attached file path(s) for the task"
     echo ""
     echo "Examples:"
     echo "  $0 0                                          # Test first task"
     echo "  $0 --task-id abc123                           # Test specific task"
     echo "  $0 --task-question \"What is 2+2?\" --ground-truth \"4\""
+    echo "  $0 --task-question \"Summarize this file\" --file-path data/report.pdf"
     exit 1
 fi
 
@@ -81,6 +84,14 @@ while [[ $# -gt 0 ]]; do
         --ground-truth)
             CMD_ARGS+=(--ground-truth "$2")
             shift 2
+            ;;
+        --file-path)
+            shift
+            CMD_ARGS+=(--file-path)
+            while [[ $# -gt 0 && ! "$1" =~ ^-- ]]; do
+                CMD_ARGS+=("$1")
+                shift
+            done
             ;;
         *)
             echo -e "${RED}Unknown option: $1${NC}"

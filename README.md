@@ -68,35 +68,41 @@
 
 ### ⚡ Quick Setup
 
-**Example**: Intelligent document analysis with file processing capabilities.
+MiroFlow provides a web interface powered by FastAPI and React for interactive agent tasks.
 
 ```bash
 # 1. Clone and setup
 git clone https://github.com/MiroMindAI/MiroFlow && cd MiroFlow
 uv sync
 
-# 2. Configure API key
+# 2. Configure API keys
 cp .env.template .env
-# Edit .env and add your OPENROUTER_API_KEY
+# Edit .env and add your API keys (see .env.template for details)
 
-# 3. Run your first agent
-uv run main.py trace --config_file_name=agent_quickstart_reading --task="What is the first country listed in the XLSX file that have names starting with Co?" --task_file_name="data/FSI-2023-DOWNLOAD.xlsx"
-```
-
-🎉 **Expected Output:** Your agent should return **\boxed{Congo Democratic Republic}** 😊
-
-> **💡 Tip:** If you encounter issues, check that your API key is correctly set in the `.env` file and that all dependencies are installed.
-
-### 🌐 Web Application
-
-MiroFlow provides a web interface powered by FastAPI and React for interactive agent tasks.
-
-```bash
-# Start the web server (auto-builds frontend on first run)
+# 3. Launch the web application
 bash scripts/start_web.sh
 ```
 
-Access the web interface at `http://localhost:8000` and API documentation at `http://localhost:8000/docs`.
+Access the web interface at `http://localhost:8000` and start querying the agent. The default agent configuration is `config/agent_gradio_demo.yaml`.
+
+> **💡 Tip:** If you encounter issues, check that your API keys are correctly set in the `.env` file and that all dependencies are installed.
+
+### 🖥️ CLI Usage
+
+You can also run single tasks from the command line:
+
+```bash
+# Run a single task with a custom question
+bash scripts/test_single_task.sh \
+  --config config/standard_gaia-validation-text-103_mirothinker.yaml \
+  --task-question "What is the first country listed in the XLSX file that have names starting with Co?" \
+  --file-path data/FSI-2023-DOWNLOAD.xlsx
+```
+
+🎉 Expected Output: Your agent should return \boxed{Congo Democratic Republic} 😊
+
+💡 Tip: If you encounter issues, check that your API key is correctly set in the .env file and that all dependencies are installed.
+
 
 ---
 
@@ -172,7 +178,7 @@ Follow our detailed guides to reproduce benchmark results in our [Benchmarks Doc
 <details>
 <summary><strong>What API keys do I need?</strong></summary>
 <br>
-You only need an OpenRouter API key to get started. OpenRouter provides access to multiple language models through a single API.
+The required API keys depend on your configuration. See <code>.env.template</code> for the full list. Common keys include: <code>OPENROUTER_API_KEY</code> (for models via OpenRouter), <code>SERPER_API_KEY</code> (web search), <code>JINA_API_KEY</code> (web scraping), and <code>E2B_API_KEY</code> (Python code execution).
 </details>
 
 <details>
