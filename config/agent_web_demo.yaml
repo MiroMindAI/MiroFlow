@@ -1,5 +1,5 @@
-# MiroFlow Gradio Demo Configuration
-# A simplified configuration for the Gradio web interface (using MiroThinker)
+# MiroFlow Web Demo Configuration
+# A simplified configuration for the web interface (using MiroThinker)
 
 # No benchmark defaults - this is a standalone config
 defaults:

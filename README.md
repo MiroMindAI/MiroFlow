@@ -83,7 +83,7 @@ cp .env.template .env
 bash scripts/start_web.sh
 ```
 
-Access the web interface at `http://localhost:8000` and start querying the agent. The default agent configuration is `config/agent_gradio_demo.yaml`.
+Access the web interface at `http://localhost:8000` and start querying the agent. The default agent configuration is `config/agent_web_demo.yaml`.
 
 > **💡 Tip:** If you encounter issues, check that your API keys are correctly set in the `.env` file and that all dependencies are installed.
 

@@ -11,6 +11,7 @@ import gc
 import random
 import signal
 import sys
+import threading
 import time
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import get_context
@@ -104,8 +105,9 @@ def _signal_handler(signum, frame):
 
 # Register cleanup handlers
 atexit.register(_cleanup_executor)
-signal.signal(signal.SIGTERM, _signal_handler)
-signal.signal(signal.SIGINT, _signal_handler)
+if threading.current_thread() is threading.main_thread():
+    signal.signal(signal.SIGTERM, _signal_handler)
+    signal.signal(signal.SIGINT, _signal_handler)
 
 
 def _worker_signal_handler(signum, frame):
