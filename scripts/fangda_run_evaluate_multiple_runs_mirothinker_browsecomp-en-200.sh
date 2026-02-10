@@ -7,7 +7,7 @@
 # Configuration parameters
 NUM_RUNS=3
 BENCHMARK_NAME="browsecomp-en-200"
-AGENT_SET="fangda_agent_browsecomp-en-200_mirothinker_single_agent_rollback_new_tools_toolblacklist"
+AGENT_SET="fangda_agent_browsecomp-en-200_mirothinker"
 MAX_CONCURRENT=50
 
 # Set results directory with timestamp
