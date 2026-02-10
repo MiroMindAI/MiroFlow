@@ -94,7 +94,7 @@ You can also run single tasks from the command line:
 ```bash
 # Run a single task with a custom question
 bash scripts/test_single_task.sh \
-  --config config/standard_gaia-validation-text-103_mirothinker.yaml \
+  --config config/agent_quickstart.yaml \
   --task-question "What is the first country listed in the XLSX file that have names starting with Co?" \
   --file-path data/FSI-2023-DOWNLOAD.xlsx
 ```
