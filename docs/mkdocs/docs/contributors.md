@@ -87,4 +87,4 @@ Thank you to all the amazing contributors who have helped make MiroFlow better! 
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

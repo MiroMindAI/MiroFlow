@@ -17,4 +17,5 @@ execution:
 
 # Set to skip evaluation since we don't have ground truth
 openai_api_key: "skip_evaluation"
+openai_base_url: "${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}"
 

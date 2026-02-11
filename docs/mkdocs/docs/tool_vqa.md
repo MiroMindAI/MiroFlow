@@ -100,4 +100,4 @@ Analyze **public YouTube videos** (audio + visual). Supports watch pages, Shorts
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

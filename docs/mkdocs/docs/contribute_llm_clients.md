@@ -17,7 +17,7 @@ Each LLM client inherits from `LLMClientBase` and implements 4 required methods:
 
 ### Step 1: Create Provider File
 
-Create `src/llm/providers/your_provider_client.py`:
+Create `src/llm/your_provider_client.py`:
 
 ```python title="Provider Implementation"
 import dataclasses
@@ -62,13 +62,17 @@ export YOUR_BASE_URL="https://api.yourprovider.com/v1"  # optional if using defa
 
 ## Examples
 
-See existing providers in `src/llm/providers/`:
+See existing providers in `src/llm/`:
 
-- `ClaudeAnthropicClient` - Direct API
-- `ClaudeOpenRouterClient` - Proxy API  
-- `GPTOpenAIClient` - OpenAI API
+- `ClaudeAnthropicClient` (`claude_anthropic.py`) - Direct Anthropic API
+- `ClaudeOpenRouterClient` (`claude_openrouter.py`) - Claude via OpenRouter
+- `GPTOpenAIClient` (`gpt_openai.py`) - OpenAI GPT models
+- `GPT5OpenAIClient` (`gpt5_openai.py`) - GPT-5 with reasoning
+- `OpenRouterClient` (`openrouter.py`) - Generic OpenRouter client
+- `OpenAIClient` (`openai_client.py`) - Generic OpenAI-compatible client
+- `MiroThinkerSGLangClient` (`mirothinker_sglang.py`) - MiroThinker via SGLang
 
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

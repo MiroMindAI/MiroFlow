@@ -14,6 +14,7 @@ from src.agents.context import AgentContext
 from src.io_processor.base import BaseIOProcessor
 from src.registry import ComponentType, register
 from src.benchmark.eval_utils import is_valid_box
+from src.llm.base import ContextLimitError
 
 # Assistant prefix for failure summary generation (aligned with MiroThinker)
 # This guides the model to think first and then output structured content
@@ -102,9 +103,14 @@ class ExceedMaxTurnSummaryGenerator(BaseIOProcessor):
         )
 
         # Call LLM - it will continue from the assistant prefix
-        llm_response = await self.llm_client.create_message(
-            message_history=message_history
-        )
+        try:
+            llm_response = await self.llm_client.create_message(
+                message_history=message_history
+            )
+        except ContextLimitError:
+            return AgentContext(
+                exceed_max_turn_summary="Task interrupted due to context limit."
+            )
 
         # Post-process: prepend prefix to response and extract content
         if llm_response.response_text:

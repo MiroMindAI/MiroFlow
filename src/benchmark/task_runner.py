@@ -243,6 +243,7 @@ async def run_single_retry(
     evaluator: Optional[Evaluator] = None,
     previous_summaries: Optional[List[str]] = None,
     prompt_manager=None,
+    is_final_retry: bool = False,
 ) -> AttemptResult:
     """Execute a single retry within an attempt."""
 
@@ -290,6 +291,7 @@ async def run_single_retry(
             {
                 "task_description": task_description,
                 "task_file_name": task.file_path or "",
+                "is_final_retry": is_final_retry,
             }
         )
 
@@ -369,6 +371,9 @@ async def run_single_task(
                 print(f"    Retry {retry_id}/{max_retry - 1}")
                 result.total_retries += 1
 
+                # Check if this is the final retry (no more chances after this)
+                is_final_retry = retry_id == max_retry - 1
+
                 current_summaries = (
                     collected_summaries if exceed_max_turn_summary else None
                 )
@@ -382,6 +387,7 @@ async def run_single_task(
                     evaluator=evaluator,
                     previous_summaries=current_summaries,
                     prompt_manager=prompt_manager,
+                    is_final_retry=is_final_retry,
                 )
 
                 result.update_with_attempt(retry_result)

@@ -9,6 +9,7 @@
 from src.io_processor.base import BaseIOProcessor
 from src.agents.context import AgentContext
 from src.registry import register, ComponentType
+from src.llm.base import ContextLimitError
 
 
 @register(ComponentType.IO_PROCESSOR, "SummaryGenerator")
@@ -28,10 +29,16 @@ class SummaryGenerator(BaseIOProcessor):
         )
 
         message_history = ctx.get("message_history", [])
-        llm_response = await self.llm_client.create_message(
-            message_history=message_history
-            + [{"role": "user", "content": [{"type": "text", "text": prompt}]}]
-        )
+        try:
+            llm_response = await self.llm_client.create_message(
+                message_history=message_history
+                + [{"role": "user", "content": [{"type": "text", "text": prompt}]}]
+            )
+        except ContextLimitError:
+            return AgentContext(
+                summary_prompt=prompt,
+                summary="Task interrupted due to context limit.",
+            )
 
         # Return both summary_prompt and summary in agent state
         return AgentContext(summary_prompt=prompt, summary=llm_response.response_text)

@@ -77,23 +77,26 @@ data_dir: "${oc.env:DATA_DIR,data}"
 ### LLM Providers
 
 !!! tip "Available Providers"
-    - **Claude**: `ClaudeOpenRouterClient`, `ClaudeAnthropicClient`
-    - **OpenAI**: `GPTOpenAIClient`
+    - **Claude**: `ClaudeOpenRouterClient` (recommended), `ClaudeAnthropicClient`
+    - **OpenAI**: `GPTOpenAIClient`, `GPT5OpenAIClient`
+    - **OpenRouter (Generic)**: `OpenRouterClient` - access any model via OpenRouter
+    - **OpenAI-Compatible**: `OpenAIClient` - generic client for OpenAI-compatible APIs
     - **MiroThinker**: `MiroThinkerSGLangClient`
-    - **Qwen**: `QwenSGLangClient`
-    - **DeepSeek**: `DeepSeekNewAPIClient` (limited support)
+    - **DeepSeek**: via `OpenRouterClient` or `ClaudeOpenRouterClient`
 
     See [LLM Clients Overview](llm_clients_overview.md) for details.
 
 ### Available Tools
 
 !!! note "Tool Options"
-    - **`tool-reasoning`**: Enhanced reasoning capabilities
-    - **`tool-searching`**: Web search and retrieval
+    - **`tool-reasoning`** / **`tool-reasoning-os`**: Enhanced reasoning capabilities
+    - **`tool-searching`**: Web search, Wikipedia, Archive.org, and retrieval
+    - **`tool-searching-serper`** / **`tool-serper-search`**: Lightweight Google search via Serper
     - **`tool-reading`**: Document processing
-    - **`tool-code`**: Python code execution
-    - **`tool-image-video`**: Visual content analysis
-    - **`tool-audio`**: Audio processing
+    - **`tool-code`** / **`tool-code-sandbox`**: Python code execution in E2B sandbox
+    - **`tool-image-video`** / **`tool-image-video-os`**: Visual content analysis
+    - **`tool-audio`** / **`tool-audio-os`**: Audio processing
+    - **`tool-jina-scrape`**: URL scraping with LLM-powered info extraction
     - **`tool-browsing`**: Web browsing
 
     See [Tool Overview](tool_overview.md) for configurations.
@@ -183,4 +186,4 @@ CHINESE_CONTEXT="false"
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

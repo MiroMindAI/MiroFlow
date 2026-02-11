@@ -15,8 +15,17 @@
 ## 📝 Recent Updates
 
 !!! success "Latest Changes & Improvements"
-    
-    **Oct 2025** - 
+
+    **Feb 2026**
+
+    - 🔧 Added new tools: `tool-code-sandbox`, `tool-jina-scrape`, `tool-serper-search`
+    - 🤖 Added generic `OpenRouterClient` and `OpenAIClient` for flexible LLM access
+    - 📊 Added FRAMES-Test benchmark evaluation support
+    - 🛠️ Refactored tool system: separated Jina scraping and Serper search into standalone tools
+    - 📝 Reorganized agent research papers into thematic categories
+    - 🔄 Inlined eval prompts into verifiers to fix broken LLM judge
+
+    **Oct 2025**
 
     **Week 2**
 
@@ -30,7 +39,7 @@
     - 🔌 Added support for MiroAPI integration [#76](https://github.com/MiroMindAI/MiroFlow/pull/76)
 
     **Week 1**
-    
+
     - 📊 Added support for FinSearchComp evaluation benchmark [#51](https://github.com/MiroMindAI/MiroFlow/pull/51)
     - 🔍 Added support for XBench-DS (Deep Search) evaluation [#47](https://github.com/MiroMindAI/MiroFlow/pull/47)
     - 🧠 Updated o3 hints and summary to more models [#58](https://github.com/MiroMindAI/MiroFlow/pull/58)
@@ -89,4 +98,4 @@ Explore the complete MiroMind AI ecosystem:
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI · **Version:** v0.3
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI · **Version:** v0.3

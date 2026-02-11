@@ -68,6 +68,7 @@ nav:
     - FinSearchComp: finsearchcomp.md
     - HLE: hle.md
     - HLE-Text-Only: hle_text_only.md
+    - FRAMES-Test: download_datasets.md
 
 
 
@@ -87,7 +88,7 @@ nav:
     - tool-reasoning-os: tool_reasoning_os.md
     - tool-image-video: tool_vqa.md
     - tool-image-video-os: tool_vqa_os.md
-    - tool-python: tool_python.md
+    - tool-code / tool-code-sandbox: tool_python.md
     - "": ""
     - "": ""
     - "": ""

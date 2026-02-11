@@ -76,4 +76,4 @@ The `./config/agent_llm_mirothinker.yaml` configuration file uses:
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Xalp @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Xalp @ MiroMind AI

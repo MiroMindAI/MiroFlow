@@ -18,13 +18,15 @@ We plan to merge these two projects in the future to create a single, unified pl
 
 ## Known Issues & Roadmap
 
+### ✅ Recently Completed
+- **FutureX Benchmark**: Full support for FutureX future prediction benchmark evaluation
+- **FRAMES Benchmark**: Added FRAMES-Test benchmark evaluation
+- **New Tools**: Added `tool-code-sandbox`, `tool-jina-scrape`, and `tool-serper-search`
+- **New LLM Clients**: Added `OpenRouterClient` and `OpenAIClient` for generic API access
+
 ### 🔄 Currently in Development
-- **FutureX Benchmark**: Adding support for FutureX benchmark evaluation
 - **Token Usage & Cost Tracking**: Implementing detailed usage analytics and cost calculation features
 
-
-
-
 ---
-**Last Updated:** Sep 2025  
+**Last Updated:** Feb 2026
 **Doc Contributor:** Team @ MiroMind AI

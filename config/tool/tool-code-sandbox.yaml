@@ -1,8 +1,8 @@
-name: "tool-python"
+name: "tool-code-sandbox"
 tool_command: "python"
 args:
   - "-m"
-  - "src.tool.mcp_servers.python_mcp_server"
+  - "src.tool.mcp_servers.code_sandbox"
 env:
   E2B_API_KEY: "${oc.env:E2B_API_KEY}"
   LOGS_DIR: "./logs"

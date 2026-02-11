@@ -20,7 +20,7 @@ from e2b_code_interpreter import Sandbox
 from fastmcp import FastMCP
 
 # Initialize FastMCP server
-mcp = FastMCP("tool-python")
+mcp = FastMCP("tool-code-sandbox")
 
 # API keys
 E2B_API_KEY = os.environ.get("E2B_API_KEY")

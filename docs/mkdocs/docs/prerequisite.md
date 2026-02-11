@@ -154,4 +154,4 @@ unzip gaia_validation_miroflow_trace_public_20250825.zip
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

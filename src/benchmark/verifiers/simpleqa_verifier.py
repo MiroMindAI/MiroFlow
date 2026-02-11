@@ -14,10 +14,9 @@ from .base_verifier import (
     EVAL_CORRECT,
     EVAL_INCORRECT,
     EVAL_NOT_ATTEMPTED,
-    LLM_GPT4O_MINI,
+    LLM_GPT41,
     RETRY_MAX_ATTEMPTS,
     RETRY_MULTIPLIER,
-    TEMP_DETERMINISTIC,
     BaseVerifier,
 )
 
@@ -211,10 +210,9 @@ Just return the letters "A", "B", or "C", with no text around it."""
         ]
 
         response = await self.openai_client.chat.completions.create(
-            model=LLM_GPT4O_MINI,
+            model=LLM_GPT41,
             messages=messages,
             max_completion_tokens=self.MAX_TOKENS,
-            temperature=TEMP_DETERMINISTIC,
         )
 
         content = response.choices[0].message.content

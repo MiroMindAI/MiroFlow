@@ -21,9 +21,9 @@ main_agent:
   prompt: config/prompts/prompt_main_agent.yaml
 
   tools:
-    - config/tool/tool-python.yaml
-    - config/tool/tool-search-and-scrape-webpage.yaml
-    - config/tool/tool-jina-scrape-llm-summary.yaml
+    - config/tool/tool-code-sandbox.yaml
+    - config/tool/tool-serper-search.yaml
+    - config/tool/tool-jina-scrape.yaml
     - config/tool/tool-reading.yaml
     #- config/tool/tool-code.yaml
     #- config/tool/tool-image-video.yaml

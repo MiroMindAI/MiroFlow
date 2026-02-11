@@ -49,5 +49,5 @@ The `agent_llm_gpt5.yaml` configuration file provides a ready-to-use setup with 
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** October 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI
 

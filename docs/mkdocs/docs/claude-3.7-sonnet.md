@@ -50,4 +50,4 @@ The `agent_llm_claude37sonnet_anthropic.yaml` configuration file provides a read
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

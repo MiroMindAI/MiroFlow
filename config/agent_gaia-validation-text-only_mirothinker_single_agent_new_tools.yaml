@@ -11,8 +11,8 @@ main_agent:
     _base_: config/llm/base_mirothinker.yaml
   prompt: config/prompts/prompt_main_agent.yaml
   tools:
-    - config/tool/tool-search-and-scrape-webpage.yaml
-    - config/tool/tool-jina-scrape-llm-summary.yaml
+    - config/tool/tool-serper-search.yaml
+    - config/tool/tool-jina-scrape.yaml
     - config/tool/tool-code.yaml
   input_processor:
     - ${input-message-generator}

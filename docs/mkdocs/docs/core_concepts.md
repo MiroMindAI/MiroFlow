@@ -52,15 +52,16 @@ MiroFlow is a flexible framework for building and deploying intelligent agents c
 !!! tip "Multi-Provider Support"
     Unified interface supporting:
 
-    - **Anthropic Claude** (via Anthropic API, OpenRouter)
-    - **OpenAI GPT** (via OpenAI API)
-    - **Qwen** (via SGLang)
-    - **MiroThinker** (via SGLang)
-    - see [LLM Clients Overview](llm_clients_overview.md) for details*
+    - **Anthropic Claude** (via Anthropic API or OpenRouter)
+    - **OpenAI GPT** (GPT-4o, GPT-5 via OpenAI API)
+    - **DeepSeek** (via OpenRouter)
+    - **MiroThinker** (via SGLang, open-source)
+    - **Any OpenAI-compatible API** (via generic OpenAI/OpenRouter clients)
+    - See [LLM Clients Overview](llm_clients_overview.md) for details
 
 
 
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

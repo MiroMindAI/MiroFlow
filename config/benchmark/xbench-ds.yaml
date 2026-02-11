@@ -12,5 +12,8 @@ execution:
   max_tasks: null  # null means no limit
   max_concurrent: 10
   pass_at_k: 1
+  max_retry: 5
+  exceed_max_turn_summary: true
 
 openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
+openai_base_url: "${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}"

@@ -70,4 +70,4 @@ This script runs 3 evaluations in parallel and calculates average scores. You ca
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** October 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

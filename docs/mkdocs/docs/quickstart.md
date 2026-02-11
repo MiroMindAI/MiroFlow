@@ -148,4 +148,4 @@ Once you've tried the examples above, explore more advanced features:
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** October 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI
