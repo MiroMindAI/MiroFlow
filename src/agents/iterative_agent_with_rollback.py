@@ -10,10 +10,14 @@ Supports automatic rollback retry when LLM output is truncated or malformed.
 
 from __future__ import annotations
 
+import json
+from collections import defaultdict
+
 from omegaconf import DictConfig
 from typing import Callable, Awaitable, Tuple, List
 
 from src.logging.task_tracer import get_tracer
+from src.llm.base import ContextLimitError
 
 from src.registry import register, ComponentType
 from src.agents.base import BaseAgent
@@ -55,6 +59,32 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
 
         # Rollback config - read from yaml, default is 3
         self.max_consecutive_rollbacks = self.cfg.get("max_consecutive_rollbacks", 3)
+        self.max_duplicate_rollbacks = self.cfg.get("max_duplicate_rollbacks", 3)
+
+    @staticmethod
+    def _get_query_key(tool_call: dict) -> str:
+        """Generate a dedup key from a tool call: server_name:tool_name:sorted_arguments_json"""
+        return (
+            f"{tool_call['server_name']}:{tool_call['tool_name']}:"
+            f"{json.dumps(tool_call.get('arguments', {}), sort_keys=True)}"
+        )
+
+    def _check_duplicate_tool_calls(
+        self, tool_calls: list, used_queries: dict
+    ) -> Tuple[bool, str]:
+        """Check if any tool call in the list is a duplicate of a previously executed query.
+
+        Returns:
+            (has_duplicate, duplicate_info_str)
+        """
+        for call in tool_calls:
+            key = self._get_query_key(call)
+            if used_queries.get(key, 0) > 0:
+                return True, (
+                    f"{call['tool_name']}"
+                    f"({json.dumps(call.get('arguments', {}), ensure_ascii=False)[:100]})"
+                )
+        return False, ""
 
     def _should_rollback(
         self, llm_output, tool_calls: List, response_text: str
@@ -124,18 +154,41 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
         max_turns = self.cfg.get("max_turns", -1)
         task_failed = False
 
+        # Pre-render summary prompt for proactive context limit checking
+        _summary_prompt_for_context_check = ""
+        if self.llm_client.max_context_length > 0:
+            try:
+                _summary_prompt_for_context_check = self.prompt_manager.render_prompt(
+                    "summarize_prompt",
+                    context=dict(
+                        task_description=ctx.get("task_description", ""),
+                        task_failed=False,
+                    ),
+                )
+            except Exception:
+                _summary_prompt_for_context_check = ""
+
         # Rollback related variables
         consecutive_rollbacks = 0
+        used_queries = defaultdict(int)  # query_key -> execution count
+        duplicate_rollbacks = 0
 
         while max_turns == -1 or turn_count < max_turns:
             turn_count += 1
 
-            # LLM call
-            llm_output = await self.llm_client.create_message(
-                system_prompt=system_prompt,
-                message_history=message_history,
-                tool_definitions=self.tool_definitions,
-            )
+            # LLM call (with ContextLimitError fallback)
+            try:
+                llm_output = await self.llm_client.create_message(
+                    system_prompt=system_prompt,
+                    message_history=message_history,
+                    tool_definitions=self.tool_definitions,
+                )
+            except ContextLimitError:
+                tracer.log(
+                    f"ContextLimitError caught at turn {turn_count}, "
+                    f"breaking to generate summary"
+                )
+                break
 
             if llm_output.is_invalid:
                 task_failed = True
@@ -179,9 +232,7 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
                         )
                     break
             else:
-                # Has tool calls, reset rollback counter
-                consecutive_rollbacks = 0
-
+                # Separate call types first
                 tool_calls = [
                     call
                     for call in tool_and_sub_agent_calls
@@ -200,6 +251,30 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
                     for call in tool_and_sub_agent_calls
                     if "skills-worker" in call["server_name"]
                 ]
+
+                # Check for duplicate queries (only regular tool calls)
+                has_dup, dup_info = self._check_duplicate_tool_calls(
+                    tool_calls, used_queries
+                )
+                if has_dup:
+                    if duplicate_rollbacks < self.max_duplicate_rollbacks:
+                        message_history.pop()
+                        turn_count -= 1
+                        duplicate_rollbacks += 1
+                        tracer.log(
+                            f"Duplicate query rollback #{duplicate_rollbacks}: "
+                            f"{dup_info}, max={self.max_duplicate_rollbacks}"
+                        )
+                        continue
+                    else:
+                        tracer.log(
+                            f"Allowing duplicate after {duplicate_rollbacks} "
+                            f"rollbacks: {dup_info}"
+                        )
+
+                # Passed all checks, reset rollback counters
+                consecutive_rollbacks = 0
+                duplicate_rollbacks = 0
 
                 (
                     tool_results,
@@ -222,6 +297,10 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
                     tool_results + sub_agent_results + skill_results
                 )
 
+                # Record executed queries for duplicate detection
+                for call in tool_calls:
+                    used_queries[self._get_query_key(call)] += 1
+
             user_msg = self.llm_client.get_user_msg_from_tool_call(
                 all_call_results, tool_calls_exceeded
             )
@@ -230,9 +309,23 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
                 self.name, states={"input_ctx": ctx, "message_history": message_history}
             )
 
+            # Proactive context limit check
+            if _summary_prompt_for_context_check:
+                can_continue, message_history = self.llm_client.ensure_summary_context(
+                    message_history, _summary_prompt_for_context_check
+                )
+                if not can_continue:
+                    tracer.log(
+                        f"Context limit approaching at turn {turn_count}, "
+                        f"breaking to generate summary"
+                    )
+                    break
+
         output_processor_result = await self.output_processor.run(
             AgentContext(
-                **ctx, message_history=message_history, task_failed=task_failed
+                **ctx,
+                message_history=message_history,
+                task_failed=task_failed,
             )
         )
         tracer.save_agent_states(

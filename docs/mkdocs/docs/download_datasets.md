@@ -111,4 +111,4 @@ uv run main.py prepare-benchmark get gaia-val-text-only
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

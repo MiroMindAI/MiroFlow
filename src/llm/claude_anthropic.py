@@ -38,7 +38,7 @@ class ClaudeAnthropicClient(LLMClientBase):
                 timeout=600.0,  # 10 minutes timeout for long requests
             )
 
-    @retry(wait=wait_fixed(10), stop=stop_after_attempt(5))
+    @retry(wait=wait_fixed(10), stop=stop_after_attempt(10))
     async def _create_message(
         self,
         system_prompt,

@@ -8,8 +8,10 @@ MiroFlow supports multiple LLM providers through a unified client interface. Eac
 |--------|----------|-------|---------------------|
 | `ClaudeAnthropicClient` | Anthropic Direct | claude-3-7-sonnet | `ANTHROPIC_API_KEY`, `ANTHROPIC_BASE_URL` |
 | `ClaudeOpenRouterClient` | OpenRouter | anthropic/claude-3.7-sonnet, and other [supported models](https://openrouter.ai/models) | `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL` |
-| `GPTOpenAIClient` | OpenAI | gpt-4, gpt-3.5 | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
+| `GPTOpenAIClient` | OpenAI | gpt-4o, gpt-4o-mini | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
 | `GPT5OpenAIClient` | OpenAI | gpt-5 | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
+| `OpenRouterClient` | OpenRouter | Any model on OpenRouter | `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL` |
+| `OpenAIClient` | OpenAI-Compatible | Any OpenAI-compatible model | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
 | `MiroThinkerSGLangClient` | SGLang | MiroThinker series | `OAI_MIROTHINKER_API_KEY`, `OAI_MIROTHINKER_BASE_URL` |
 
 ## Basic Configuration
@@ -32,4 +34,4 @@ main_agent:
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** October 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

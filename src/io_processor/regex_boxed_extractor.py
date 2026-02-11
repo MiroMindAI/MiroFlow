@@ -63,6 +63,31 @@ class RegexBoxedExtractor(BaseIOProcessor):
 
         return matches[-1] if matches else ""
 
+    @staticmethod
+    def _extract_boxed_from_message_history(message_history: list) -> str:
+        """Extract the last \\boxed{} content from message_history as fallback.
+
+        Scans all assistant messages in reverse order to find intermediate
+        boxed answers produced during the agent's execution.
+        """
+        if not message_history:
+            return ""
+
+        for msg in reversed(message_history):
+            if msg.get("role") != "assistant":
+                continue
+            content = msg.get("content", "")
+            if isinstance(content, list):
+                content = " ".join(
+                    item.get("text", "") for item in content if isinstance(item, dict)
+                )
+            if not isinstance(content, str):
+                continue
+            boxed = RegexBoxedExtractor._extract_boxed_content(content)
+            if boxed:
+                return boxed
+        return ""
+
     async def run_internal(self, ctx: AgentContext) -> AgentContext:
         summary = ctx.get("summary", "")
         boxed_content = self._extract_boxed_content(summary)
@@ -70,6 +95,16 @@ class RegexBoxedExtractor(BaseIOProcessor):
         if boxed_content:
             final_boxed_answer = boxed_content
         else:
-            final_boxed_answer = "No \\boxed{} content found."
+            # Final retry fallback: scan message_history for intermediate boxed answers
+            is_final_retry = ctx.get("is_final_retry", False)
+            if is_final_retry:
+                message_history = ctx.get("message_history", [])
+                fallback = self._extract_boxed_from_message_history(message_history)
+                if fallback:
+                    final_boxed_answer = fallback
+                else:
+                    final_boxed_answer = "No \\boxed{} content found."
+            else:
+                final_boxed_answer = "No \\boxed{} content found."
 
         return AgentContext(final_boxed_answer=final_boxed_answer)

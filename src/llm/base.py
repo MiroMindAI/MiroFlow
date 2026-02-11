@@ -27,6 +27,12 @@ import uuid
 logger = get_tracer()
 
 
+class ContextLimitError(Exception):
+    """Context limit exceeded - non-retriable."""
+
+    pass
+
+
 @dataclasses.dataclass
 class LLMOutput(ABC):
     """LLM 输出数据类"""
@@ -55,6 +61,9 @@ class LLMClientBase(ABC):
         self.max_tokens: int = self.cfg.max_tokens
         self.max_context_length: int = self.cfg.max_context_length
         self.async_client: bool = self.cfg.async_client
+
+        # Token usage tracking for proactive context limit management
+        self.last_call_tokens: dict = {}
 
         self.use_tool_calls: Optional[bool] = self.cfg.use_tool_calls
         self.disable_cache_control: bool = self.cfg.disable_cache_control
@@ -365,6 +374,74 @@ class LLMClientBase(ABC):
                         item["text"] = f"[{_generate_message_id()}] {item['text']}"
             elif isinstance(content, str) and not content.startswith("[msg_"):
                 message["content"] = f"[{_generate_message_id()}] {content}"
+
+    def _estimate_tokens(self, text: str) -> int:
+        """Default token estimation. Subclasses can override with tiktoken."""
+        return len(text) // 4
+
+    def ensure_summary_context(
+        self, message_history: list, summary_prompt: str
+    ) -> tuple[bool, list]:
+        """
+        Check if the context still has room for a summary call.
+        If not, remove the last assistant-user pair from message_history.
+
+        Returns:
+            (can_continue, message_history):
+              - can_continue=True means there is still room, continue the loop
+              - can_continue=False means context is near limit, break the loop
+        """
+        # If max_context_length is not set (<=0), skip the check entirely
+        if self.max_context_length <= 0:
+            return True, message_history
+
+        # If no token usage recorded yet (first call), skip the check
+        last_prompt_tokens = self.last_call_tokens.get("prompt_tokens", 0)
+        last_completion_tokens = self.last_call_tokens.get("completion_tokens", 0)
+        if last_prompt_tokens == 0:
+            return True, message_history
+
+        buffer_factor = 1.5
+
+        # Estimate tokens for the summary prompt
+        summary_tokens = int(self._estimate_tokens(summary_prompt) * buffer_factor)
+
+        # Estimate tokens for the last user message (most recent tool result)
+        last_user_content = ""
+        if message_history and message_history[-1].get("role") == "user":
+            content = message_history[-1].get("content", "")
+            if isinstance(content, list):
+                last_user_content = " ".join(
+                    item.get("text", "")
+                    for item in content
+                    if isinstance(item, dict) and item.get("type") == "text"
+                )
+            elif isinstance(content, str):
+                last_user_content = content
+        last_user_tokens = int(self._estimate_tokens(last_user_content) * buffer_factor)
+
+        # Estimate total: previous context + new completion + summary ability
+        estimated_total = (
+            last_prompt_tokens
+            + last_completion_tokens
+            + last_user_tokens
+            + summary_tokens
+            + self.max_tokens
+            + 1000  # safety buffer
+        )
+
+        logger.info(f"Context check: {estimated_total}/{self.max_context_length}")
+
+        if estimated_total >= self.max_context_length:
+            # Not enough room -- remove last assistant+user pair
+            if message_history and message_history[-1].get("role") == "user":
+                message_history.pop()
+            if message_history and message_history[-1].get("role") == "assistant":
+                message_history.pop()
+            logger.info("Context limit reached, removed last assistant-user pair")
+            return False, message_history
+
+        return True, message_history
 
     def __repr__(self):
         return f"LLMClientBase(provider_class={self.provider_class}, model_name={self.model_name})"

@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import json
 import re
 from typing import Any, Dict, List
 
@@ -17,15 +16,11 @@ from tenacity import (
     wait_exponential,
 )
 
-from src.llm.base import LLMClientBase
+from src.llm.base import LLMClientBase, ContextLimitError
 
 from src.logging.task_tracer import get_tracer
 
 logger = get_tracer()
-
-
-class ContextLimitError(Exception):
-    pass
 
 
 class GPT5OpenAIClient(LLMClientBase):
@@ -46,7 +41,7 @@ class GPT5OpenAIClient(LLMClientBase):
 
     @retry(
         wait=wait_exponential(multiplier=5),
-        stop=stop_after_attempt(5),
+        stop=stop_after_attempt(10),
         retry=retry_if_not_exception_type(ContextLimitError),
     )
     async def _create_message(
@@ -175,6 +170,14 @@ class GPT5OpenAIClient(LLMClientBase):
                 )
                 raise Exception("LLM finish_reason is 'stop', but content is empty")
 
+            # Track token usage for proactive context limit management
+            if hasattr(response, "usage") and response.usage:
+                self.last_call_tokens = {
+                    "prompt_tokens": getattr(response.usage, "prompt_tokens", 0) or 0,
+                    "completion_tokens": getattr(response.usage, "completion_tokens", 0)
+                    or 0,
+                }
+
             logger.debug(
                 f"LLM call finish_reason: {getattr(response.choices[0], 'finish_reason', 'N/A')}"
             )
@@ -197,7 +200,7 @@ class GPT5OpenAIClient(LLMClientBase):
                 raise ContextLimitError(f"Context limit exceeded: {error_str}")
 
             logger.error(
-                f"OpenRouter LLM call failed: {str(e)}, input = {json.dumps(params)}",
+                f"GPT5 LLM call failed [{type(e).__name__}]: {str(e)}",
                 exc_info=True,
             )
             raise e

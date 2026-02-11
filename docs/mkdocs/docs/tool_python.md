@@ -26,7 +26,7 @@ Creates a Linux sandbox for safely executing commands and running Python code.
 !!! warning "Important Usage Notes"
     - **Required First Step**: This tool must be called before using other tools within this MCP server
     - **Session Management**: The sandbox may timeout and automatically shut down after inactivity
-    - **Pre-installed Environment**: The sandbox comes pre-installed with common packages for data science and document processing. For a detailed list and advanced usage information, see [E2B Extension](./e2b_extension.md)
+    - **Pre-installed Environment**: The sandbox comes pre-installed with common packages for data science and document processing. For a detailed list and advanced usage information, see [E2B Advanced Features](./e2b_advanced_features.md)
 
 ---
 
@@ -114,5 +114,16 @@ Download files from sandbox to local system for processing by other tools.
 
 ---
 
+## Configuration
+
+This tool is available under two configuration names:
+
+- **`tool-code`** - Original Python execution tool (config: `config/tool/tool-code.yaml`)
+- **`tool-code-sandbox`** - Simplified sandbox variant (config: `config/tool/tool-code-sandbox.yaml`)
+
+Both use E2B sandboxes and provide the same core functions. Add either to your agent's `tool_config` list to enable code execution.
+
+---
+
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

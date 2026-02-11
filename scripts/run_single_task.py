@@ -84,9 +84,7 @@ def test_single_task(cfg: DictConfig, task: Task):
             pass_at_k=1,
             max_retry=execution_cfg.get("max_retry", 1),
             evaluator=evaluator,
-            exceed_max_turn_summary=execution_cfg.get(
-                "exceed_max_turn_summary", False
-            ),
+            exceed_max_turn_summary=execution_cfg.get("exceed_max_turn_summary", False),
             prompt_manager=agent.prompt_manager
             if hasattr(agent, "prompt_manager")
             else None,

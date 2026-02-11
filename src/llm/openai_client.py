@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import asyncio
-import json
 import re
 from typing import Any, Dict, List, Tuple
 
@@ -17,7 +16,7 @@ from tenacity import (
     wait_exponential,
 )
 
-from src.llm.base import LLMClientBase
+from src.llm.base import LLMClientBase, ContextLimitError
 from src.logging.task_tracer import get_tracer
 
 logger = get_tracer()
@@ -26,12 +25,6 @@ logger = get_tracer()
 OPENAI_REASONING_MODEL_SET = set(
     ["o1", "o3", "o3-mini", "o4-mini", "gpt-5", "gpt-5-2025-08-07"]
 )
-
-
-class ContextLimitError(Exception):
-    """Non-retriable error: context length exceeded / prompt too long."""
-
-    pass
 
 
 class UnifiedOpenAIClient(LLMClientBase):
@@ -82,7 +75,7 @@ class UnifiedOpenAIClient(LLMClientBase):
     # -----------------------------
     @retry(
         wait=wait_exponential(multiplier=5),
-        stop=stop_after_attempt(5),
+        stop=stop_after_attempt(10),
         retry=retry_if_not_exception_type(ContextLimitError),
     )
     async def _create_message(
@@ -134,6 +127,14 @@ class UnifiedOpenAIClient(LLMClientBase):
             # 6) Validate and raise non-retriable context limit errors
             self._validate_response_or_raise(response, params)
 
+            # Track token usage for proactive context limit management
+            if hasattr(response, "usage") and response.usage:
+                self.last_call_tokens = {
+                    "prompt_tokens": getattr(response.usage, "prompt_tokens", 0) or 0,
+                    "completion_tokens": getattr(response.usage, "completion_tokens", 0)
+                    or 0,
+                }
+
             logger.debug(
                 f"LLM call finish_reason: {getattr(response.choices[0], 'finish_reason', 'N/A')}"
             )
@@ -146,7 +147,7 @@ class UnifiedOpenAIClient(LLMClientBase):
             # Map common context-limit strings to ContextLimitError (non-retriable)
             self._maybe_raise_context_limit(e)
             logger.error(
-                f"LLM call failed: {str(e)}, input = {json.dumps(params)}",
+                f"LLM call failed [{type(e).__name__}]: {str(e)}",
                 exc_info=True,
             )
             raise

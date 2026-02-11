@@ -12,15 +12,18 @@ main_agent:
   llm:
     _base_: config/llm/base_mirothinker.yaml
   prompt: config/prompts/standard_prompt_main_agent.yaml
+  
   tools:
-    - config/tool/tool-python.yaml
-    - config/tool/tool-search-and-scrape-webpage.yaml
-    - config/tool/tool-jina-scrape-llm-summary.yaml
+    - config/tool/tool-code-sandbox.yaml
+    - config/tool/tool-serper-search.yaml
+    - config/tool/tool-jina-scrape.yaml
+
   tool_blacklist:
-    - server: "tool-search-and-scrape-webpage"
+    - server: "tool-serper-search"
       tool: "sogou_search"
-    - server: "tool-python"
+    - server: "tool-code-sandbox"
       tool: "download_file_from_sandbox_to_local"
+
   input_processor:
     - ${file-content-preprocessor}
     - ${input-message-generator}

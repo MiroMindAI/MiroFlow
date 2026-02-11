@@ -9,6 +9,7 @@ from .base_verifier import (
     EVAL_ERROR,
     EVAL_INCORRECT,
     EVAL_NOT_ATTEMPTED,
+    LLM_GPT41,
     LLM_GPT4O_MINI,
     LLM_O3,
     LLM_O3_MINI,
@@ -17,6 +18,8 @@ from .base_verifier import (
     TEMP_DETERMINISTIC,
     BaseVerifier,
 )
+from .browsecomp_en_verifier import BrowseCompEnVerifier
+from .browsecomp_zh_verifier import BrowseCompZhVerifier
 from .finsearchcomp_verifier import FinSearchCompVerifier
 from .gaia_common_verifier import GAIACommonVerifier
 from .gaia_verifier import GAIAVerifier
@@ -30,6 +33,7 @@ __all__ = [
     "EVAL_INCORRECT",
     "EVAL_NOT_ATTEMPTED",
     "EVAL_ERROR",
+    "LLM_GPT41",
     "LLM_GPT4O_MINI",
     "LLM_O3_MINI",
     "LLM_O3",
@@ -38,6 +42,8 @@ __all__ = [
     "RETRY_MAX_ATTEMPTS",
     # Classes
     "BaseVerifier",
+    "BrowseCompEnVerifier",
+    "BrowseCompZhVerifier",
     "GAIACommonVerifier",
     "SimpleQAVerifier",
     "XBenchVerifier",

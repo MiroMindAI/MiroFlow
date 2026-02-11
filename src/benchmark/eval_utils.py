@@ -18,6 +18,8 @@ from .verifiers import (
     EVAL_ERROR,
     EVAL_NOT_ATTEMPTED,
     BaseVerifier,
+    BrowseCompEnVerifier,
+    BrowseCompZhVerifier,
     FinSearchCompVerifier,
     GAIACommonVerifier,
     HLEVerifier,
@@ -544,7 +546,19 @@ class Evaluator:
 def get_verifier(
     benchmark_name: str, openai_client: Optional[AsyncOpenAI] = None
 ) -> BaseVerifier:
-    """Get the appropriate verifier for a benchmark."""
+    """Get the appropriate verifier for a benchmark.
+
+    Routing aligned with MiroThinker's _verify_answer_for_datasets_core:
+    - gaia-validation / gaia-* → GAIACommonVerifier (gpt-4.1, simple equivalence)
+    - browsecomp-zh → BrowseCompZhVerifier (gpt-4.1, Chinese BC prompt)
+    - browsecomp / browsecomp-en → BrowseCompEnVerifier (gpt-4.1, English BC prompt)
+    - hle / hle-* → HLEVerifier (o3-mini, structured Pydantic)
+    - xbench / xbench-ds → XBenchVerifier (gpt-4.1, free-text regex)
+    - simpleqa → SimpleQAVerifier (gpt-4.1, A/B/C)
+    - webwalkerqa / frames / seal → GAIACommonVerifier (gpt-4.1, simple equivalence)
+    - finsearchcomp → FinSearchCompVerifier (dynamic prompts)
+    - default → GAIACommonVerifier (gpt-4.1, simple equivalence)
+    """
     if "gaia" in benchmark_name:
         return GAIACommonVerifier(openai_client)
     if "finsearchcomp" in benchmark_name:
@@ -553,12 +567,17 @@ def get_verifier(
         return SimpleQAVerifier(openai_client)
     if "xbench" in benchmark_name:
         return XBenchVerifier(openai_client)
+    if "browsecomp-zh" in benchmark_name:
+        return BrowseCompZhVerifier(openai_client)
     if "browsecomp" in benchmark_name:
-        return HLEVerifier(openai_client)
+        return BrowseCompEnVerifier(openai_client)
     if "hle" in benchmark_name:
         return HLEVerifier(openai_client)
-    # Default to SimpleQA verifier
-    return SimpleQAVerifier(openai_client)
+    # webwalkerqa, frames, seal use same equivalence judge as GAIA
+    if any(name in benchmark_name for name in ["webwalkerqa", "frames", "seal"]):
+        return GAIACommonVerifier(openai_client)
+    # Default to GAIACommonVerifier (gpt-4.1, simple equivalence) aligned with MiroThinker
+    return GAIACommonVerifier(openai_client)
 
 
 async def verify_answer_for_benchmark(

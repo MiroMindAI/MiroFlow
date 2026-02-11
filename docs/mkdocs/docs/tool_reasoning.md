@@ -60,4 +60,4 @@ Perform step-by-step reasoning, analysis, and planning over a **text-only input*
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

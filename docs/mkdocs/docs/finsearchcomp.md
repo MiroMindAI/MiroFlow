@@ -175,4 +175,4 @@ NUM_RUNS=5 ./scripts/run_evaluate_multiple_runs_finsearchcomp.sh
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI

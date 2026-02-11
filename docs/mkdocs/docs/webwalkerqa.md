@@ -128,5 +128,5 @@ uv run main.py common-benchmark --config_file_name=agent_webwalkerqa_mirothinker
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** October 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI
 

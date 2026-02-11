@@ -17,3 +17,4 @@ execution:
 
 # OpenAI API key for evaluation (required for finsearchcomp since it has ground truth)
 openai_api_key: "${oc.env:OPENAI_API_KEY,???}"
+openai_base_url: "${oc.env:OPENAI_BASE_URL,https://api.openai.com/v1}"

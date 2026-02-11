@@ -18,7 +18,7 @@ MiroFlow achieves state-of-the-art performance across multiple agentic benchmark
 ## ✨ Performance on Benchmarks
 
 !!! abstract "Comprehensive Benchmark Analysis"
-    We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **BrowseComp** and **xBench-DeepSearch**.
+    We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **BrowseComp**, **xBench-DeepSearch**, **FRAMES**, **WebWalkerQA**, **FinSearchComp**, and **FutureX**.
 
 <div align="center" markdown="1">
   ![Comprehensive Benchmark Performance Comparison](../assets/miroflow-0.2-performance_short.png){ width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" }
@@ -58,6 +58,6 @@ MiroFlow achieves state-of-the-art performance across multiple agentic benchmark
 ---
 
 !!! info "Documentation Info"
-    **Last Updated:** September 2025 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI
 
 

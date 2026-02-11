@@ -12,6 +12,7 @@ from omegaconf import DictConfig
 from typing import Callable, Awaitable
 
 from src.logging.task_tracer import get_tracer
+from src.llm.base import ContextLimitError
 
 from src.registry import register, ComponentType
 from src.agents.base import BaseAgent
@@ -64,15 +65,36 @@ class IterativeAgentWithTool(BaseAgent):
         max_turns = self.cfg.get("max_turns", -1)
         task_failed = False
 
+        # Pre-render summary prompt for proactive context limit checking
+        _summary_prompt_for_context_check = ""
+        if self.llm_client.max_context_length > 0:
+            try:
+                _summary_prompt_for_context_check = self.prompt_manager.render_prompt(
+                    "summarize_prompt",
+                    context=dict(
+                        task_description=ctx.get("task_description", ""),
+                        task_failed=False,
+                    ),
+                )
+            except Exception:
+                _summary_prompt_for_context_check = ""
+
         while max_turns == -1 or turn_count < max_turns:
             turn_count += 1
 
-            # LLM call
-            llm_output = await self.llm_client.create_message(
-                system_prompt=system_prompt,
-                message_history=message_history,
-                tool_definitions=self.tool_definitions,
-            )
+            # LLM call (with ContextLimitError fallback)
+            try:
+                llm_output = await self.llm_client.create_message(
+                    system_prompt=system_prompt,
+                    message_history=message_history,
+                    tool_definitions=self.tool_definitions,
+                )
+            except ContextLimitError:
+                tracer.log(
+                    f"ContextLimitError caught at turn {turn_count}, "
+                    f"breaking to generate summary"
+                )
+                break
             if llm_output.is_invalid:
                 task_failed = True
                 break
@@ -136,9 +158,23 @@ class IterativeAgentWithTool(BaseAgent):
                 self.name, states={"input_ctx": ctx, "message_history": message_history}
             )
 
+            # Proactive context limit check
+            if _summary_prompt_for_context_check:
+                can_continue, message_history = self.llm_client.ensure_summary_context(
+                    message_history, _summary_prompt_for_context_check
+                )
+                if not can_continue:
+                    tracer.log(
+                        f"Context limit approaching at turn {turn_count}, "
+                        f"breaking to generate summary"
+                    )
+                    break
+
         output_processor_result = await self.output_processor.run(
             AgentContext(
-                **ctx, message_history=message_history, task_failed=task_failed
+                **ctx,
+                message_history=message_history,
+                task_failed=task_failed,
             )
         )
         tracer.save_agent_states(

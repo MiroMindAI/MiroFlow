@@ -22,7 +22,7 @@ JINA_API_KEY = os.environ.get("JINA_API_KEY", "")
 JINA_BASE_URL = os.environ.get("JINA_BASE_URL", "https://r.jina.ai")
 
 # Initialize FastMCP server
-mcp = FastMCP("jina_scrape_llm_summary")
+mcp = FastMCP("tool-jina-scrape")
 
 
 @mcp.tool()

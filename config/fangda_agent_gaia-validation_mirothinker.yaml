@@ -13,13 +13,13 @@ main_agent:
     _base_: config/llm/base_mirothinker.yaml
   prompt: config/prompts/fangda_prompt_main_agent_0128.yaml
   tools:
-    - config/tool/tool-search-and-scrape-webpage.yaml
-    - config/tool/tool-jina-scrape-llm-summary.yaml
-    - config/tool/tool-python.yaml
+    - config/tool/tool-serper-search.yaml
+    - config/tool/tool-jina-scrape.yaml
+    - config/tool/tool-code-sandbox.yaml
   tool_blacklist:
-    - server: "tool-search-and-scrape-webpage"
+    - server: "tool-serper-search"
       tool: "sogou_search"
-    - server: "tool-python"
+    - server: "tool-code-sandbox"
       tool: "download_file_from_sandbox_to_local"
   input_processor:
     - ${input-message-generator}

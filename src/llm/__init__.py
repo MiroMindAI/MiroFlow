@@ -13,13 +13,19 @@ import importlib
 import pkgutil
 import inspect
 
-from src.llm.base import LLMClientBase, LLMProviderClientBase, LLMOutput
+from src.llm.base import (
+    LLMClientBase,
+    LLMProviderClientBase,
+    LLMOutput,
+    ContextLimitError,
+)
 from src.llm.factory import build_llm_client
 
 __all__ = [
     "LLMClientBase",
     "LLMProviderClientBase",  # Backward compatible
     "LLMOutput",
+    "ContextLimitError",
     "build_llm_client",
 ]
 
