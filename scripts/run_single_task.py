@@ -168,10 +168,7 @@ def main():
 
     # Load configuration
     print(f"Loading configuration from: {args.config_path}")
-    cfg = load_config(args.config_path)
-
-    # Override output directory
-    cfg.output_dir = args.output_dir
+    cfg = load_config(args.config_path, f"output_dir={args.output_dir}")
 
     # Determine which task to run
     task = None

@@ -1,0 +1,61 @@
+# MiroFlow Quickstart with Skill Configuration
+# A simple single-agent setup with the reading tool and simple_file_understanding skill.
+#
+# Usage:
+#   bash scripts/test_single_task.sh \
+#     --config config/agent_quickstart_skill.yaml \
+#     --task-question "What is the first country listed in the XLSX file that have names starting with Co?" \
+#     --file-path data/FSI-2023-DOWNLOAD.xlsx
+
+defaults:
+  - benchmark: example_dataset
+  - override hydra/job_logging: none
+  - _self_
+
+entrypoint: main_agent
+
+main_agent:
+  name: main_agent
+  type: IterativeAgentWithTool
+  max_turns: 30
+
+  llm:
+    _base_: config/llm/base_openai.yaml
+    provider_class: GPT5OpenAIClient
+    model_name: gpt-5
+    max_tokens: 128000
+    reasoning_effort: medium
+
+  prompt: config/prompts/standard_prompt_main_agent.yaml
+
+  tools: 
+    - config/tool/tool-python.yaml
+
+  skills:
+    - src/skill/skills/simple_file_understanding
+
+  input_processor:
+    - ${input-message-generator}
+
+  output_processor:
+    - ${output-summary}
+    - ${output-boxed-extractor}
+
+# Input processor: generates initial message from task description
+input-message-generator:
+  type: InputMessageGenerator
+
+# Output processor: summarizes conversation
+output-summary:
+  type: SummaryGenerator
+
+# Output processor: extracts final answer in a boxed format
+output-boxed-extractor:
+  type: RegexBoxedExtractor
+
+# Output directory for logs
+output_dir: logs
+data_dir: "${oc.env:DATA_DIR,data}"
+
+benchmark:
+  exceed_max_turn_summary: false

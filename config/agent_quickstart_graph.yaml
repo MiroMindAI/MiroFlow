@@ -1,0 +1,111 @@
+# MiroFlow Gradio Demo Configuration
+# A simplified configuration for the Gradio web interface (using MiroThinker)
+
+# No benchmark defaults - this is a standalone config
+defaults:
+  - benchmark: example_dataset
+  - override hydra/job_logging: none
+  - _self_
+
+entrypoint: main_agent
+
+main_agent:
+  name: main_agent
+  type: IterativeAgentWithTool
+  max_turns: 30
+
+  llm:
+    _base_: config/llm/base_openai.yaml
+    provider_class: GPT5OpenAIClient
+    model_name: gpt-5
+    max_tokens: 128000
+    reasoning_effort: medium
+
+  prompt: config/prompts/standard_prompt_main_agent.yaml
+
+  tools: null
+
+  input_processor:
+    - ${input-message-generator}
+
+  output_processor:
+    - ${output-summary}
+    - ${output-boxed-extractor}
+
+  sub_agents:
+    agent-worker: ${agent-subagent-1}
+
+agent-subagent-1:
+  type: IterativeAgentWithTool     
+  name: agent-subagent-1
+  max_consecutive_rollbacks: 3
+  max_turns: 200
+  llm:
+    _base_: config/llm/base_mirothinker.yaml
+  prompt: config/prompts/prompt_sub_agent.yaml
+  tools: null
+  input_processor:
+    - ${input-message-generator}
+  output_processor:
+    - ${output-summary}
+  sub_agents:
+    agent-worker: ${agent-subagent-3}
+
+agent-subagent-2:
+  type: IterativeAgentWithTool     
+  name: agent-subagent-2
+  max_consecutive_rollbacks: 3
+  max_turns: 200
+  llm:
+    _base_: config/llm/base_mirothinker.yaml
+  prompt: config/prompts/prompt_sub_agent.yaml
+  tools: null
+  input_processor:
+    - ${input-message-generator}
+  output_processor:
+    - ${output-summary}
+  sub_agents:
+    agent-worker: ${agent-subagent-3}
+
+agent-subagent-3:
+  type: IterativeAgentWithTool     
+  name: agent-subagent-3
+  max_consecutive_rollbacks: 3
+  max_turns: 200
+  llm:
+    _base_: config/llm/base_mirothinker.yaml
+  prompt: config/prompts/prompt_sub_agent.yaml
+  tools:
+    - config/tool/tool-python.yaml
+    - config/tool/tool-search-and-scrape-webpage.yaml
+    - config/tool/tool-jina-scrape-llm-summary.yaml
+  tool_blacklist:
+    - server: "tool-search-and-scrape-webpage"
+      tool: "sogou_search"
+    - server: "tool-python"
+      tool: "download_file_from_sandbox_to_local"
+  input_processor:
+    - ${input-message-generator}
+  output_processor:
+    - ${output-summary}
+
+
+
+# Input processor: generates initial message from task description
+input-message-generator:
+  type: InputMessageGenerator
+
+# Output processor: summarizes conversation
+output-summary:
+  type: SummaryGenerator
+
+# Output processor: extracts final answer in a boxed format
+output-boxed-extractor:
+  type: RegexBoxedExtractor
+
+# Output directory for logs
+output_dir: logs
+data_dir: "${oc.env:DATA_DIR,data}"
+
+benchmark:
+  exceed_max_turn_summary: false

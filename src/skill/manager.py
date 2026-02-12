@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import logging
 import re
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -26,7 +28,7 @@ _FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n(.*)\Z", re.S | re.M)
 def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
     m = _FRONTMATTER_RE.match(md_text)
     if not m:
-        raise SkillError("SKILL.md 缺少 frontmatter（必须以 --- 开头并闭合 ---）")
+        raise SkillError("SKILL.md is missing frontmatter (must start and end with ---)")
 
     fm_raw, body = m.group(1), m.group(2)
     meta: Dict[str, Any] = {}
@@ -90,8 +92,8 @@ class SkillManager:
         allowed_skill_ids: Optional[List[str]] = None,
     ):
         """
-        allow_python_skills: 是否允许加载执行 python skill（建议默认 True 但配合白名单）
-        allowed_skill_ids: 若提供，则只有这些 skill_id 能被执行（强烈建议生产环境启用）
+        allow_python_skills: Whether to allow loading and executing python skills (recommended to keep True but use with whitelist)
+        allowed_skill_ids: If provided, only these skill_ids can be executed (strongly recommended for production)
         """
         self.skill_dirs = skill_dirs
         self.allow_python_skills = allow_python_skills
@@ -102,7 +104,7 @@ class SkillManager:
     def get_all_skills_definitions(self) -> List[SkillMeta]:
         skills_server_params = []
         index = self.discover()
-        print("index:", index)
+        logger.info("Discovered skills index: %s", index)
         schema = {
             "type": "object",
             "properties": {"subtask": {"title": "Subtask", "type": "string"}},
@@ -128,7 +130,7 @@ class SkillManager:
 
     def discover(self) -> Dict[str, SkillMeta]:
         """
-        扫描目录，解析每个 SKILL.md 的 frontmatter（只加载元数据，不加载正文/资源）
+        Scan directories and parse the frontmatter of each SKILL.md (loads metadata only, not body/resources)
         """
         index: Dict[str, SkillMeta] = {}
 
@@ -147,7 +149,7 @@ class SkillManager:
                 name = str(fm.get("name", "")).strip()
                 desc = str(fm.get("description", "")).strip()
                 if not name or not desc:
-                    raise SkillError("frontmatter 必须包含 name 和 description")
+                    raise SkillError("frontmatter must contain name and description")
 
                 meta = SkillMeta(
                     skill_id=skill_dir.name,
@@ -158,11 +160,7 @@ class SkillManager:
                 )
                 index[meta.skill_id] = meta
             except Exception as e:
-                # 生产环境建议记录日志，不要直接炸
-                print(
-                    f"[warn] Failed to load skill meta from {skill_md}: {e}",
-                    file=sys.stderr,
-                )
+                logger.warning("Failed to load skill meta from %s: %s", skill_md, e)
 
         self._index = index
         return index
@@ -184,7 +182,7 @@ class SkillManager:
             and meta.skill_id not in self.allowed_skill_ids
         ):
             raise SkillError(
-                f"Skill '{meta.skill_id}' 不在 allowed_skill_ids 白名单内，拒绝加载执行。"
+                f"Skill '{meta.skill_id}' is not in the allowed_skill_ids whitelist, loading denied."
             )
 
         text = meta.skill_md.read_text(encoding="utf-8")
