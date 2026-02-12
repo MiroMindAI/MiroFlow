@@ -209,6 +209,7 @@ __marimo__/
 
 logs/
 tmp/
+thirdparty/
 
 data/*
 !data/README.md
