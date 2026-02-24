@@ -9,7 +9,7 @@ top_p: 0.95
 min_p: 0.0
 top_k: -1
 
-max_tokens: 32000
+max_tokens: 16384
 max_context_length: 262144
 async_client: true
 

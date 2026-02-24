@@ -24,7 +24,7 @@ More details: [BrowseComp-ZH: Benchmarking Web Browsing Ability of Large Languag
 ### Step 1: Prepare the BrowseComp-ZH Dataset
 
 ```bash title="Download BrowseComp-ZH Dataset"
-uv run main.py prepare-benchmark get browsecomp-zh-test
+uv run -m src.utils.prepare_benchmark.main get browsecomp-zh-test
 ```
 
 This will create the standardized dataset at `data/browsecomp-zh-test/standardized_data.jsonl`.
@@ -32,6 +32,10 @@ This will create the standardized dataset at `data/browsecomp-zh-test/standardiz
 ### Step 2: Configure API Keys
 
 ```env title=".env Configuration"
+# MiroThinker model access
+OAI_MIROTHINKER_API_KEY="your-mirothinker-api-key"
+OAI_MIROTHINKER_BASE_URL="http://localhost:61005/v1"
+
 # Search and web scraping (recommended for Chinese web)
 SERPER_API_KEY="xxx"
 JINA_API_KEY="xxx"
@@ -39,25 +43,23 @@ JINA_API_KEY="xxx"
 # Code execution
 E2B_API_KEY="xxx"
 
-# LLM (Claude 3.7 Sonnet via OpenRouter)
-OPENROUTER_API_KEY="xxx"
-OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
-
-# Evaluation and hint generation
-OPENAI_API_KEY="xxx"
-
-# Vision capabilities
-ANTHROPIC_API_KEY="xxx"
-GEMINI_API_KEY="xxx"
-
 # Optional: Set Chinese context mode
 CHINESE_CONTEXT="true"
 ```
 
 ### Step 3: Run the Evaluation
 
-```bash title="Run BrowseComp-ZH Evaluation"
-uv run main.py common-benchmark --config_file_name=agent_browsecomp-zh_claude37sonnet output_dir="logs/browsecomp-zh/$(date +"%Y%m%d_%H%M")"
+```bash title="Run BrowseComp-ZH Evaluation with MiroThinker"
+uv run src/benchmark/run_benchmark.py \
+  --config-path config/standard_browsecomp-zh_mirothinker.yaml \
+  benchmark.execution.max_concurrent=30 \
+  output_dir="logs/browsecomp-zh/$(date +"%Y%m%d_%H%M")"
+```
+
+For multiple runs:
+
+```bash title="Run Multiple Evaluations (3 runs)"
+bash scripts/standard_browsecomp-zh_mirothinker_3runs.sh
 ```
 
 Results are automatically generated in the output directory:
@@ -70,25 +72,26 @@ Results are automatically generated in the output directory:
 
 ```bash title="Limited Task Testing"
 # Test with 10 tasks only
-uv run main.py common-benchmark --config_file_name=agent_browsecomp-zh_claude37sonnet benchmark.execution.max_tasks=10 output_dir="logs/browsecomp-zh/$(date +"%Y%m%d_%H%M")"
+uv run src/benchmark/run_benchmark.py \
+  --config-path config/standard_browsecomp-zh_mirothinker.yaml \
+  benchmark.execution.max_tasks=10 \
+  output_dir="logs/browsecomp-zh/$(date +"%Y%m%d_%H%M")"
 ```
 
-```bash title="Using MiroThinker Model"
-uv run main.py common-benchmark --config_file_name=agent_browsecomp-zh_mirothinker output_dir="logs/browsecomp-zh/$(date +"%Y%m%d_%H%M")"
+```bash title="Using Sogou Search (alternative)"
+bash scripts/standard_browsecomp-zh_mirothinker_sogou_3runs.sh
 ```
 
 ---
 
-## Available Agent Configurations
+## Available Configurations
 
-| Agent Configuration | Model | Use Case |
-|-------------------|-------|----------|
-| `agent_browsecomp-zh_claude37sonnet` | Claude 3.7 Sonnet | Recommended for better performance on Chinese tasks |
-| `agent_browsecomp-zh_mirothinker` | MiroThinker | For local deployment |
+| Config File | Model | Use Case |
+|-------------|-------|----------|
+| `standard_browsecomp-zh_mirothinker.yaml` | MiroThinker | Standard Chinese web evaluation |
+| `standard_browsecomp-zh_mirothinker_sogou.yaml` | MiroThinker | With Sogou search for Chinese content |
 
 ---
 
 !!! info "Documentation Info"
     **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI
-
-

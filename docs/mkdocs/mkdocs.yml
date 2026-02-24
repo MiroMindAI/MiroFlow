@@ -1,18 +1,37 @@
 site_name: MiroFlow
+site_description: Open-source research agent framework with state-of-the-art performance
 
 theme:
   name: material
-  user_color_mode_toggle: true
+  logo: assets/miromind_logo.png
+  favicon: assets/miromind_logo.png
   highlightjs: true
   hljs_languages:
     - yaml
     - rust
+    - python
+    - bash
   locale: en
-  # favicon: assets/m_logo.png
-
+  palette:
+    - scheme: default
+      primary: teal
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: teal
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
   features:
     - header.autohide
     - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
 
 markdown_extensions:
   - admonition
@@ -31,94 +50,73 @@ markdown_extensions:
   - md_in_html
   - tables
 
-
-repo_name: MiroFlow
-repo_url: https://github.com/MiroMindAI/MiroFlow
-
+repo_name: miroflow
+repo_url: https://github.com/MiroMindAI/miroflow
 
 nav:
-  - 🏠 Introduction: 
-    - News & Updates: index.md
-    - License: license.md
+  - Home:
+    - Overview: index.md
 
-  - 🚀 Quick Start:
-    - Quickstart: quickstart.md
+  - Getting Started:
+    - Installation: quickstart.md
     - Core Concepts: core_concepts.md
-    - YAML Configuration: yaml_config.md
+    - Configuration: yaml_config.md
 
-  - "📊 Evaluation":
+  - Benchmarks:
     - Overview: evaluation_overview.md
-    - How to add new benchmarks: contribute_benchmarks.md
-    - "": ""
-    - "": ""
-    - "": ""
-    - "": ""
-    - GAIA-Val:
-      - Prepare Dataset: gaia_validation_prerequisites.md
-      - Claude-3.7-Sonnet: gaia_validation_claude37sonnet.md
+    - GAIA:
+      - Prerequisites: gaia_validation_prerequisites.md
+      - Claude 3.7 Sonnet: gaia_validation_claude37sonnet.md
       - GPT-5: gaia_validation_gpt5.md
       - MiroThinker: gaia_validation_mirothinker.md
-    - GAIA-Val-Text: gaia_validation_text_only.md
-    - GAIA-Test: gaia_test.md
-    - BrowseComp-EN: browsecomp_en.md
-    - BrowseComp-ZH: browsecomp_zh.md
-    - WebWalkerQA: webwalkerqa.md
-    - FutureX: futurex.md
-    - xBench-DeepSearch: xbench_ds.md
-    - FinSearchComp: finsearchcomp.md
-    - HLE: hle.md
-    - HLE-Text-Only: hle_text_only.md
-    - FRAMES-Test: download_datasets.md
+      - Text-Only: gaia_validation_text_only.md
+      - Test Set: gaia_test.md
+    - BrowseComp:
+      - English: browsecomp_en.md
+      - Chinese: browsecomp_zh.md
+    - Other Benchmarks:
+      - HLE: hle.md
+      - HLE Text-Only: hle_text_only.md
+      - FutureX: futurex.md
+      - xBench-DeepSearch: xbench_ds.md
+      - FinSearchComp: finsearchcomp.md
+      - WebWalkerQA: webwalkerqa.md
+      - FRAMES-Test: download_datasets.md
+    - Add New Benchmark: contribute_benchmarks.md
 
-
-
-  - 🔧 Tools: 
+  - Tools:
     - Overview: tool_overview.md
-    - How to add new tools: contribute_tools.md
-    - "": ""
-    - "": ""
-    - "": ""
-    - "": ""
-    - tool-reading: tool_reading.md
-    - tool-searching: tool_searching.md
-    - tool-searching-serper: tool_searching_serper.md
-    - tool-audio: tool_audio.md
-    - tool-audio-os: tool_audio_os.md
-    - tool-reasoning: tool_reasoning.md
-    - tool-reasoning-os: tool_reasoning_os.md
-    - tool-image-video: tool_vqa.md
-    - tool-image-video-os: tool_vqa_os.md
-    - tool-code / tool-code-sandbox: tool_python.md
-    - "": ""
-    - "": ""
-    - "": ""
-    - "": ""
-    - Advanced Features:
-      - E2B Advanced Features: e2b_advanced_features.md
-      - MiroAPI: miro_api.md
+    - Search:
+      - Google Search: tool_searching.md
+      - Serper Search: tool_searching_serper.md
+    - Media:
+      - Image & Video: tool_vqa.md
+      - Image & Video (Open-Source): tool_vqa_os.md
+      - Audio: tool_audio.md
+      - Audio (Open-Source): tool_audio_os.md
+    - Code & Files:
+      - Code Execution: tool_python.md
+      - File Reading: tool_reading.md
+      - E2B Sandbox: e2b_advanced_features.md
+    - Reasoning:
+      - Reasoning: tool_reasoning.md
+      - Reasoning (Open-Source): tool_reasoning_os.md
+    - MiroAPI: miro_api.md
+    - Add New Tool: contribute_tools.md
 
-  - 🤖 LLM Clients: 
+  - Models:
     - Overview: llm_clients_overview.md
-    - How to add new LLM clients: contribute_llm_clients.md
-    - "": ""
-    - "": ""
-    - "": ""
-    - "": ""
     - MiroThinker: mirothinker.md
-    - Claude 3.7 Sonnet (Official SDK): claude-3.7-sonnet.md
-    - Claude 3.7 Sonnet (OpenRouter): openrouter-claude-3.7-sonnet.md
+    - Claude 3.7 Sonnet: claude-3.7-sonnet.md
+    - Claude 3.7 (OpenRouter): openrouter-claude-3.7-sonnet.md
     - GPT-5: openai-gpt5.md
     - GPT-4o: openai-gpt4o.md
     - DeepSeek: deepseek.md
+    - Add New Model: contribute_llm_clients.md
 
-  - 📚 Resources: 
-    - All About Agents: all_about_agents.md
+  - Resources:
+    - Research Papers: all_about_agents.md
     - Open Source Data: data.md
-    - Applications: applications.md
-    - FAQs: faqs.md
+    - FAQ: faqs.md
     - Contributors: contributors.md
-
-
-extra:
-  version:
-    provider: mike
+    - License: license.md

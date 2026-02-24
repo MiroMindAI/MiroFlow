@@ -8,7 +8,7 @@
 NUM_RUNS=3
 BENCHMARK_NAME="browsecomp-zh"
 AGENT_SET="standard_browsecomp-zh_mirothinker"
-MAX_CONCURRENT=80
+MAX_CONCURRENT=30
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)
@@ -22,15 +22,13 @@ cleanup() {
     echo "Received interrupt signal, terminating all processes..."
 
     # Kill all Python processes related to this benchmark run
-    pkill -TERM -f "test_benchmark.py.*${AGENT_SET}" 2>/dev/null
-    pkill -TERM -f "mcp_server.*${AGENT_SET}" 2>/dev/null
+    pkill -TERM -f "run_benchmark.py.*${AGENT_SET}" 2>/dev/null
 
     # Wait a moment for graceful shutdown
     sleep 2
 
     # Force kill any remaining processes
-    pkill -KILL -f "test_benchmark.py.*${AGENT_SET}" 2>/dev/null
-    pkill -KILL -f "mcp_server" 2>/dev/null
+    pkill -KILL -f "run_benchmark.py.*${AGENT_SET}" 2>/dev/null
 
     # Also kill any child processes of this script
     pkill -TERM -P $$ 2>/dev/null

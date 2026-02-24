@@ -105,6 +105,8 @@ class RetryResult:
     start_time: Optional[datetime] = None
     end_time: Optional[datetime] = None
     file_path: Optional[Path] = None
+    final_boxed_answer: str = ""
+    turns: int = 0
 
 
 @dataclass
@@ -133,6 +135,8 @@ class TaskResult:
     total_retries: int = 0
     earliest_start: Optional[datetime] = None
     latest_end: Optional[datetime] = None
+    no_boxed_found: bool = False
+    turns: int = 0
 
 
 @dataclass
@@ -169,9 +173,24 @@ class RunStats:
     other_tasks: List[str] = field(default_factory=list)
     running_tasks: List[str] = field(default_factory=list)
 
+    # Turn statistics
+    total_turns: int = 0
+    completed_tasks_with_turns: int = 0
+
+    # No boxed content found statistics
+    no_boxed_found: int = 0
+
     @property
     def accuracy(self) -> float:
         return (self.correct / self.completed * 100) if self.completed > 0 else 0.0
+
+    @property
+    def avg_turns(self) -> float:
+        return (
+            (self.total_turns / self.completed_tasks_with_turns)
+            if self.completed_tasks_with_turns > 0
+            else 0.0
+        )
 
 
 def find_task_files(log_folder: Path) -> Dict[str, Dict[str, List[Path]]]:
@@ -203,13 +222,76 @@ def find_task_files(log_folder: Path) -> Dict[str, Dict[str, List[Path]]]:
     return {run_id: dict(tasks) for run_id, tasks in runs.items()}
 
 
-def load_attempt_data(file_path: Path) -> Optional[Dict[str, Any]]:
-    """Load and parse a single attempt JSON file."""
+def load_task_meta_fast(file_path: Path) -> Optional[Dict[str, Any]]:
+    """Load only task_meta from the beginning of the JSON file without parsing the full file.
+
+    Since task_meta is always the first key and is small (< 2KB), we read only
+    the first 8KB and extract it, avoiding parsing the massive agent_states
+    (which can be 100s of MB).
+    """
     try:
         with open(file_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, FileNotFoundError, OSError):
+            chunk = f.read(8192)
+
+        start = chunk.find('"task_meta"')
+        if start == -1:
+            return None
+
+        brace_start = chunk.find("{", start)
+        if brace_start == -1:
+            return None
+
+        # Track braces to find the matching closing brace
+        depth = 0
+        in_string = False
+        escape_next = False
+        for i in range(brace_start, len(chunk)):
+            c = chunk[i]
+            if escape_next:
+                escape_next = False
+                continue
+            if c == "\\":
+                if in_string:
+                    escape_next = True
+                continue
+            if c == '"':
+                in_string = not in_string
+                continue
+            if in_string:
+                continue
+            if c == "{":
+                depth += 1
+            elif c == "}":
+                depth -= 1
+                if depth == 0:
+                    task_meta_str = chunk[brace_start : i + 1]
+                    return json.loads(task_meta_str)
+
         return None
+    except (FileNotFoundError, OSError, json.JSONDecodeError):
+        return None
+
+
+def count_turns_fast(file_path: Path) -> int:
+    """Count turns by scanning for role markers without full JSON parsing.
+
+    Reads the file in chunks and counts "role": "user" and "role": "assistant"
+    occurrences. This is much faster than parsing the entire JSON.
+    """
+    try:
+        user_count = 0
+        assistant_count = 0
+        with open(file_path, "rb") as f:
+            prev_tail = b""
+            for raw_chunk in iter(lambda: f.read(1024 * 1024), b""):
+                # Prepend tail from previous chunk to handle boundary splits
+                combined = prev_tail + raw_chunk
+                user_count += combined.count(b'"role": "user"')
+                assistant_count += combined.count(b'"role": "assistant"')
+                prev_tail = raw_chunk[-64:] if len(raw_chunk) >= 64 else raw_chunk
+        return min(user_count, assistant_count)
+    except (FileNotFoundError, OSError):
+        return 0
 
 
 def analyze_task_attempts(task_id: str, attempt_files: List[Path]) -> TaskResult:
@@ -222,11 +304,10 @@ def analyze_task_attempts(task_id: str, attempt_files: List[Path]) -> TaskResult
             continue
 
         _, attempt_id, retry_id = parsed
-        data = load_attempt_data(file_path)
-        if not data:
-            continue
 
-        task_meta = data.get("task_meta", {})
+        task_meta = load_task_meta_fast(file_path)
+        if not task_meta:
+            continue
 
         # Parse timestamps
         start_time = parse_timestamp(task_meta.get("start_time", ""))
@@ -247,6 +328,7 @@ def analyze_task_attempts(task_id: str, attempt_files: List[Path]) -> TaskResult
             start_time=start_time,
             end_time=end_time,
             file_path=file_path,
+            final_boxed_answer=task_meta.get("final_boxed_answer", ""),
         )
 
         if attempt_id not in result.attempts:
@@ -288,6 +370,19 @@ def analyze_task_attempts(task_id: str, attempt_files: List[Path]) -> TaskResult
         last_attempt = result.attempts[last_attempt_id]
         result.final_status = last_attempt.final_status
         result.final_judge_result = last_attempt.final_judge_result
+
+    # Extract no_boxed and turns from the final attempt's latest retry
+    if result.attempts:
+        final_attempt_id = max(result.attempts.keys())
+        final_attempt = result.attempts[final_attempt_id]
+        if final_attempt.retries:
+            last_retry = final_attempt.retries[-1]
+            result.turns = last_retry.turns
+            if (
+                isinstance(last_retry.final_boxed_answer, str)
+                and "No \\boxed{} content found" in last_retry.final_boxed_answer
+            ):
+                result.no_boxed_found = True
 
     return result
 
@@ -372,6 +467,20 @@ def analyze_run(task_files: Dict[str, List[Path]], parallel: bool = True) -> Run
                     f"{task_id} (status={task_result.final_status})"
                 )
 
+        # Track no_boxed and collect file paths for completed tasks
+        if not task_result.is_running and (
+            task_result.passed_at_attempt is not None
+            or task_result.final_status == "completed"
+        ):
+            if task_result.no_boxed_found:
+                stats.no_boxed_found += 1
+            # Collect the final retry file path for later turn counting
+            if task_result.attempts:
+                final_attempt_id = max(task_result.attempts.keys())
+                final_attempt = task_result.attempts[final_attempt_id]
+                if final_attempt.retries and final_attempt.retries[-1].file_path:
+                    stats.completed_files.append(final_attempt.retries[-1].file_path)
+
     return stats
 
 
@@ -382,10 +491,11 @@ def display_run_summary(run_id: str, stats: RunStats) -> None:
         return
 
     accuracy_bar = create_progress_bar(stats.accuracy)
-    print(
+    run_info = (
         f"  [{run_id}] {stats.completed} done, {stats.running} run, {stats.failed} fail | "
         f"Acc: {stats.correct}/{stats.completed} {accuracy_bar}"
     )
+    print(run_info)
 
 
 def display_overall_summary(all_results: Dict[str, RunStats], num_runs: int) -> None:
@@ -415,6 +525,7 @@ def display_overall_summary(all_results: Dict[str, RunStats], num_runs: int) -> 
         totals.pass_at_2 += stats.pass_at_2
         totals.pass_at_3 += stats.pass_at_3
         totals.pass_at_higher += stats.pass_at_higher
+        totals.no_boxed_found += stats.no_boxed_found
 
         # Track time bounds
         if stats.earliest_start:
@@ -519,6 +630,13 @@ def display_overall_summary(all_results: Dict[str, RunStats], num_runs: int) -> 
     else:
         print("OVERALL ACCURACY: 0/0 (no completed tasks)")
 
+    # No boxed content found statistics
+    if totals.completed > 0:
+        print(
+            f"No \\boxed{{}} content found: {totals.no_boxed_found}/{totals.completed} "
+            f"({totals.no_boxed_found / totals.completed * 100:.1f}%)"
+        )
+
     print()
     print("=" * 80)
 
@@ -539,7 +657,6 @@ Example:
         default="logs/browsecomp-zh",
         help="Path to the log folder (default: logs/browsecomp-zh)",
     )
-
     args = parser.parse_args()
     log_folder = Path(args.log_folder)
 
@@ -564,6 +681,25 @@ Example:
         all_results[run_id] = analyze_run(task_files)
 
     display_overall_summary(all_results, num_runs=len(runs))
+
+    # Compute average turns after main results are displayed
+    all_completed_files = []
+    for stats in all_results.values():
+        all_completed_files.extend(stats.completed_files)
+
+    if all_completed_files:
+        print("Computing average turns...", end="", flush=True)
+        with ProcessPoolExecutor(max_workers=8) as executor:
+            turn_counts = list(executor.map(count_turns_fast, all_completed_files))
+        valid_turns = [t for t in turn_counts if t > 0]
+        if valid_turns:
+            avg_turns = sum(valid_turns) / len(valid_turns)
+            print(
+                f" Average Turns: {avg_turns:.1f} "
+                f"({len(valid_turns)} tasks with turn data)"
+            )
+        else:
+            print(" no turn data found")
 
     return 0
 

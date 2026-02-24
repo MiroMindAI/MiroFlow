@@ -29,7 +29,7 @@ Some components within MiroFlow may have different licenses:
 When using MiroFlow in your projects, attribution is appreciated but not required. You may include:
 
 ```
-Powered by MiroFlow - https://github.com/MiroMindAI/MiroFlow
+Powered by MiroFlow - https://github.com/MiroMindAI/miroflow
 ```
 
 ## Questions
@@ -38,7 +38,7 @@ For licensing questions or clarifications, please:
 
 - Review the full Apache License 2.0 text
 - Check individual component licenses
-- Open an issue on our [GitHub repository](https://github.com/MiroMindAI/MiroFlow/issues)
+- Open an issue on our [GitHub repository](https://github.com/MiroMindAI/miroflow/issues)
 
 ---
 

@@ -4,7 +4,6 @@ template:
       - task_description
       - task_guidance
       - file_input_prompt
-      - chinese_context_extra_prompt
       - task_hint
 
     required_context:
@@ -12,7 +11,6 @@ template:
 
     optional_context:
       - file_input
-      - chinese_context
       - task_hint
 
     task_description: |
@@ -26,19 +24,6 @@ template:
     task_guidance: |
       You should follow the format instruction in the request strictly and wrap the final answer in \\boxed{}.
 
-    chinese_context_extra_prompt: |
-      {% if chinese_context is defined and chinese_context %}
-      ## 中文任务处理指导
-      If the task involves Chinese context, please follow the following instructions:
-      - **信息收集策略**：使用中文关键词进行网络搜索，优先浏览中文网页，以获取更准确和全面的中文资源
-      - **思考过程**：所有分析、推理、判断等思考过程都应使用中文表达，保持语义的一致性
-      - **候选答案收集**：对于中文问题，收集所有可能的中文答案选项，包括不同的表达方式和格式
-      - **证据文档化**：保持中文资源的原始格式，避免不必要的翻译或改写，确保信息的准确性
-      - **不确定性标注**：使用中文清晰地标记任何不确定性、冲突信息或需要进一步验证的内容
-      - **结果组织**：以中文组织和呈现最终报告，使用恰当的中文术语和表达习惯
-      - **过程透明化**：所有步骤描述、状态更新、中间结果等都应使用中文，确保用户理解
-      {% endif %}
-
     task_hint: |
       {% if task_hint is defined and task_hint %}
       Before you begin, please review the following preliminary notes highlighting subtle or easily misunderstood points in the question, which might help you avoid common pitfalls during your analysis (for reference only; these may not be exhaustive):
@@ -48,14 +33,10 @@ template:
   system_prompt: 
     components:
       - basic_system_prompt
-      - chinese_context_extra_prompt
 
     required_context:
       - formatted_date
       - mcp_server_definitions
-
-    optional_context:
-      - chinese_context
 
     basic_system_prompt: |
       In this environment you have access to a set of tools you can use to answer the user's question. 
@@ -107,30 +88,14 @@ template:
 
       You are a task-solving agent that uses tools step-by-step to answer the user's question. Your goal is to provide complete, accurate and well-reasoned answers using additional tools.
     
-    chinese_context_extra_prompt: |
-      {% if chinese_context is defined and chinese_context %}
-      ## 中文语境处理指导
-
-      当处理中文相关的任务时：
-      1. **子任务委托 (Subtask Delegation)**：向worker代理委托的子任务应使用中文描述，确保任务内容准确传达
-      2. **搜索策略 (Search Strategy)**：搜索关键词应使用中文，以获取更准确的中文内容和信息
-      3. **问题分析 (Question Analysis)**：对中文问题的分析和理解应保持中文语境
-      4. **思考过程 (Thinking Process)**：内部分析、推理、总结等思考过程都应使用中文，保持语义表达的一致性
-      5. **信息整理 (Information Organization)**：从中文资源获取的信息应保持中文原文，避免不必要的翻译
-      6. **各种输出 (All Outputs)**：所有输出内容包括步骤说明、状态更新、中间结果等都应使用中文
-      7. **最终答案 (Final Answer)**：对于中文语境的问题，最终答案应使用中文回应
-      {% endif %}
-
   summarize_prompt:
     components:
       - basic_summarize_prompt
-      - chinese_context_extra_prompt
 
     required_context:
       - task_description
       
     optional_context:
-      - chinese_context
       - task_failed
         
     basic_summarize_prompt: |
@@ -161,25 +126,12 @@ template:
       If you attempt to call any tool, it will be considered a mistake.
 
 
-    chinese_context_extra_prompt: |
-      {% if chinese_context is defined and chinese_context %}
-      ## 中文总结要求
-      If the task involves Chinese context:
-      - **总结语言**：使用中文进行总结和回答
-      - **思考过程**：回顾和总结思考过程时也应使用中文表达
-      - **信息组织**：保持中文信息的原始格式和表达方式
-      - **过程描述**：对工作历史、步骤描述、结果分析等各种输出都应使用中文
-      {% endif %}
-
   hint_generation_prompt:
     components:
       - basic_hint_generation_prompt
 
     required_context:
       - task_description
-
-    optional_context:
-      - chinese_context
 
     basic_hint_generation_prompt: |
       Carefully analyze the given task description (question) without attempting to solve it directly. Your role is to identify potential challenges and areas that require special attention during the solving process, and provide practical guidance for someone who will solve this task by actively gathering and analyzing information from the web.
@@ -200,18 +152,6 @@ template:
 
       Here is the question:
         {{ task_description }}
-
-      {% if chinese_context is defined and chinese_context %}
-      ## 中文分析指导
-      如果问题涉及中文语境，请特别注意：
-      - **语言理解**：识别可能存在的中文表达歧义、方言差异或特定语境下的含义
-      - **文化背景**：考虑可能需要中文文化背景知识才能正确理解的术语或概念
-      - **信息获取**：标注需要使用中文搜索关键词才能获得准确信息的方面
-      - **格式要求**：识别中文特有的格式要求、表达习惯或答案形式 
-      - **翻译风险**：标记直接翻译可能导致误解或信息丢失的关键术语
-      - **时效性**：注意中文信息源的时效性和地域性特征
-      - **分析输出**：使用中文进行分析和提示，确保语言一致性 
-      {% endif %}
 
   exceed_max_turn_summary_prompt:
     components:

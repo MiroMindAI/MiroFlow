@@ -18,18 +18,32 @@ MiroFlow supports multiple LLM providers through a unified client interface. Eac
 
 ```yaml title="Agent Configuration"
 main_agent:
-  llm: 
-    provider_class: "ClientName"
-    model_name: "model-name"
-    api_key_param: "${oc.env:API_KEY,???}"
-    base_url_param: "${oc.env:BASE_URL,default-url}"
+  llm:
+    _base_: config/llm/base_mirothinker.yaml   # or base_openai.yaml
+    provider_class: "MiroThinkerSGLangClient"
+    model_name: "mirothinker-v1.5"
 ```
+
+## LLM Base Configs
+
+Pre-configured base configurations are available in `config/llm/`:
+
+| Config File | Provider | Description |
+|-------------|----------|-------------|
+| `base_mirothinker.yaml` | SGLang | MiroThinker model via SGLang |
+| `base_openai.yaml` | OpenAI | GPT models via OpenAI API |
+| `base_kimi_k25.yaml` | OpenAI-Compatible | Kimi K2.5 model |
 
 ## Quick Setup
 
 1. Set relevant environment variables for your chosen provider
-2. Update your YAML config file with the appropriate client
-3. Run: `uv run main.py trace --config_file_name=your_config_file --task="task"`
+2. Update your YAML config file with the appropriate client and base config
+3. Run:
+   ```bash
+   bash scripts/test_single_task.sh \
+     --config config/your_config.yaml \
+     --task-question "Your task here"
+   ```
 
 ---
 

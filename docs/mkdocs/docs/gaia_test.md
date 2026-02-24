@@ -26,33 +26,26 @@ unzip gaia-test.zip
     Set up the required API keys for model access and tool functionality. Update the `.env` file to include the following keys:
 
 ```env title=".env Configuration"
+# MiroThinker model access
+OAI_MIROTHINKER_API_KEY="your-mirothinker-api-key"
+OAI_MIROTHINKER_BASE_URL="http://localhost:61005/v1"
+
 # Search and web scraping capabilities
 SERPER_API_KEY="your-serper-api-key"
 JINA_API_KEY="your-jina-api-key"
 
 # Code execution environment
 E2B_API_KEY="your-e2b-api-key"
-
-# Primary LLM provider (Claude-3.7-Sonnet via OpenRouter)
-OPENROUTER_API_KEY="your-openrouter-api-key"
-OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
-
-# Vision understanding capabilities
-ANTHROPIC_API_KEY="your-anthropic-api-key"
-GEMINI_API_KEY="your-gemini-api-key"
-
-# LLM judge, reasoning, and hint generation
-OPENAI_API_KEY="your-openai-api-key"
-OPENAI_BASE_URL="https://api.openai.com/v1"
 ```
 
 ### Step 3: Run the Evaluation
 
-Execute the evaluation using the following command:
+Execute the evaluation using a standard configuration adapted for the GAIA test set:
 
 ```bash title="Run GAIA Test Evaluation"
-uv run main.py common-benchmark \
-  --config_file_name=agent_gaia-test \
+uv run src/benchmark/run_benchmark.py \
+  --config-path config/standard_gaia-validation-165_mirothinker.yaml \
+  benchmark=gaia-test \
   output_dir="logs/gaia-test/$(date +"%Y%m%d_%H%M")"
 ```
 
@@ -62,19 +55,13 @@ uv run main.py common-benchmark \
     You can monitor the evaluation progress in real-time:
 
 ```bash title="Check Progress"
-uv run utils/progress_check/check_gaia_progress.py $PATH_TO_LOG
+uv run utils/check_progress_gaia-validation-165.py $PATH_TO_LOG
 ```
 
 Replace `$PATH_TO_LOG` with your actual output directory path.
 
 !!! note "Resume Capability"
-    If the evaluation is interrupted, you can resume from where it left off by specifying the same output directory:
-
-```bash title="Resume Interrupted Evaluation"
-uv run main.py common-benchmark \
-  --config_file_name=agent_gaia-test \
-  output_dir="logs/gaia-test/20250922_1430"
-```
+    If the evaluation is interrupted, you can resume from where it left off by specifying the same output directory.
 
 ---
 

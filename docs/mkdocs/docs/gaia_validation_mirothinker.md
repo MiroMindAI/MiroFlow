@@ -28,29 +28,17 @@ JINA_API_KEY="your-jina-api-key"
 
 # Code execution environment
 E2B_API_KEY="your-e2b-api-key"
-
-# Vision understanding capabilities
-ANTHROPIC_API_KEY="your-anthropic-api-key"
-GEMINI_API_KEY="your-gemini-api-key"
-
-# LLM judge, reasoning, and hint generation
-OPENAI_API_KEY="your-openai-api-key"
-OPENAI_BASE_URL="https://api.openai.com/v1"
-
-# Hint Generation and final answer with MiroThinker model
-HINT_LLM_BASE_URL="http://localhost:61005/v1"
-FINAL_ANSWER_LLM_BASE_URL="http://localhost:61005/v1"
-
 ```
 
 ### Step 3: Run the Evaluation
 
-Execute the evaluation using the MiroThinker configuration:
+Execute the evaluation using the MiroThinker standard configuration:
 
 ```bash title="Run GAIA Validation with MiroThinker"
-uv run main.py common-benchmark \
-  --config_file_name=agent_gaia-validation_mirothinker \
-  output_dir="logs/gaia-validation-mirothinker/$(date +"%Y%m%d_%H%M")"
+uv run src/benchmark/run_benchmark.py \
+  --config-path config/standard_gaia-validation-165_mirothinker.yaml \
+  benchmark.execution.max_concurrent=30 \
+  output_dir="logs/gaia-validation-165/$(date +"%Y%m%d_%H%M")"
 ```
 
 ### Step 4: Monitor Progress
@@ -61,11 +49,11 @@ Follow the [progress monitoring instructions](gaia_validation_prerequisites.md#p
 
 Due to performance variance in MiroThinker models, it's recommended to run multiple evaluations for more reliable results.
 
-```bash title="Run Multiple MiroThinker Evaluations"
-bash ./scripts/run_evaluate_multiple_runs_mirothinker_gaia-validation.sh
+```bash title="Run Multiple MiroThinker Evaluations (8 runs)"
+bash scripts/standard_gaia-validation-165_mirothinker_8runs.sh
 ```
 
-This script runs 3 evaluations in parallel and calculates average scores. You can modify `NUM_RUNS` in the script to change the number of runs.
+This script runs 8 evaluations in parallel and calculates average scores. You can modify `NUM_RUNS` in the script to change the number of runs.
 
 ---
 

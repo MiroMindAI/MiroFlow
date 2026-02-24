@@ -40,7 +40,8 @@ dependencies = [
     "python-pptx>=0.6.21",
     "markitdown>=0.1.0",
     "markdownify>=0.11.0",
-    "beautifulsoup4>=4.12.0"
+    "beautifulsoup4>=4.12.0",
+    "tencentcloud-sdk-python>=3.0.0",
 ]
 
 [build-system]

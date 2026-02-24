@@ -1,32 +1,22 @@
-# 📊 Performance Benchmarks
+# Performance Benchmarks
 
 MiroFlow achieves state-of-the-art performance across multiple agentic benchmarks, demonstrating its effectiveness in complex reasoning and tool-use tasks.
 
 ---
 
-## Performance on Future Prediction
-
-!!! success "Future X Benchmark Results"
-    MiroFlow demonstrates exceptional performance in future prediction tasks.
+## MiroThinker Performance
 
 <div align="center" markdown="1">
-  ![Future X Performance Results](../assets/futurex-09-12.png){ width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" }
+  ![MiroThinker Performance](assets/mirothinker.png){ width="100%" }
+</div>
+
+<div align="center" markdown="1">
+  ![BrowseComp MiroThinker Performance](assets/bc-mirothinker.png){ width="100%" }
 </div>
 
 ---
 
-## ✨ Performance on Benchmarks
-
-!!! abstract "Comprehensive Benchmark Analysis"
-    We benchmark MiroFlow on a series of benchmarks including **GAIA**, **HLE**, **BrowseComp**, **xBench-DeepSearch**, **FRAMES**, **WebWalkerQA**, **FinSearchComp**, and **FutureX**.
-
-<div align="center" markdown="1">
-  ![Comprehensive Benchmark Performance Comparison](../assets/miroflow-0.2-performance_short.png){ width="100%" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" }
-</div>
-
----
-
-## Other Benchmark Results
+## Detailed Results
 
 !!! info "Detailed Performance Comparison"
     Comprehensive comparison across multiple benchmark categories and competing frameworks.
@@ -54,10 +44,8 @@ MiroFlow achieves state-of-the-art performance across multiple agentic benchmark
 | WebSailor-72B | - | 30.1% | 55.0% |
 | DeepSeek v3.1 | - | - | 71.2% |
 
-
 ---
 
-!!! info "Documentation Info"
-    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI
+## Reproduce Results
 
-
+Follow the benchmark-specific guides in the sidebar to reproduce each result. Each guide includes dataset preparation, configuration, and execution steps.

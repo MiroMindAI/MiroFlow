@@ -13,7 +13,7 @@ MiroFlow demonstrates state-of-the-art performance on the GAIA validation benchm
     MiroFlow achieves **state-of-the-art (SOTA) performance** among open-source agent frameworks on the GAIA validation set using Claude 3.7 Sonnet.
 
 <div align="center" markdown="1">
-  ![GAIA Validation Performance](../assets/gaia_score.png){ width="100%" }
+  ![GAIA Validation Performance](assets/gaia_score.png){ width="100%" }
 </div>
 
 !!! abstract "Key Performance Metrics"
@@ -60,13 +60,8 @@ OPENAI_BASE_URL="https://api.openai.com/v1"
 
 ### Step 3: Run the Evaluation
 
-Execute the evaluation using the Claude 3.7 Sonnet configuration:
-
-```bash title="Run GAIA Validation with Claude 3.7 Sonnet"
-uv run main.py common-benchmark \
-  --config_file_name=agent_gaia-validation_claude37sonnet \
-  output_dir="logs/gaia-validation-claude37sonnet/$(date +"%Y%m%d_%H%M")"
-```
+!!! note "Configuration Note"
+    The current standard benchmark configurations primarily use MiroThinker. To run with Claude 3.7 Sonnet, create a custom config based on the standard configs with a Claude LLM provider. See [YAML Configuration Guide](yaml_config.md) for details.
 
 ### Step 4: Monitor Progress
 

@@ -363,7 +363,7 @@ Papers on adversarial attacks, safety concerns, and security of agent systems.
     Comprehensive frameworks for building and deploying AI agents across different domains.
 
 **F001** - MiroFlow: Build, manage, and scale your AI agents with ease
-    - [:material-github: GitHub](https://github.com/MiroMindAI/MiroFlow)
+    - [:material-github: GitHub](https://github.com/MiroMindAI/miroflow)
 
 **F002** - Youtu-Agent: A simple yet powerful agent framework that delivers with open-source models
     - [:material-github: GitHub](https://github.com/TencentCloudADP/youtu-agent)

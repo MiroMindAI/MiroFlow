@@ -13,16 +13,14 @@ class SubAgentWorkerPrompt(BaseAgentPrompt):
         super().__init__(*args, **kwargs)
         self.is_main_agent = False
 
-    def generate_system_prompt_with_mcp_tools(
-        self, mcp_servers: list[Any], chinese_context: bool = False
-    ) -> str:
+    def generate_system_prompt_with_mcp_tools(self, mcp_servers: list[Any]) -> str:
         formatted_date = datetime.datetime.today().strftime("%Y-%m-%d")
 
-        prompt = f"""In this environment you have access to a set of tools you can use to answer the user's question. 
+        prompt = f"""In this environment you have access to a set of tools you can use to answer the user's question.
 
 You only have access to the tools provided below. You can only use one tool per message, and will receive the result of that tool in the user's next response. You use tools step-by-step to accomplish a given task, with each tool-use informed by the result of the previous tool-use. Today is: {formatted_date}
 
-# Tool-Use Formatting Instructions 
+# Tool-Use Formatting Instructions
 
 Tool-use is formatted using XML-style tags. The tool-use is enclosed in <use_mcp_tool></use_mcp_tool> and each parameter is similarly enclosed within its own set of tags.
 
@@ -112,22 +110,6 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
 
 """
 
-        # Add Chinese-specific instructions if enabled
-        if chinese_context:
-            prompt += """
-    ## 中文语境处理指导
-
-    当处理中文相关的任务时：
-    1. **子任务委托 (Subtask Delegation)**：向worker代理委托的子任务应使用中文描述，确保任务内容准确传达
-    2. **搜索策略 (Search Strategy)**：搜索关键词应使用中文，以获取更准确的中文内容和信息
-    3. **问题分析 (Question Analysis)**：对中文问题的分析和理解应保持中文语境
-    4. **思考过程 (Thinking Process)**：内部分析、推理、总结等思考过程都应使用中文，保持语义表达的一致性
-    5. **信息整理 (Information Organization)**：从中文资源获取的信息应保持中文原文，避免不必要的翻译
-    6. **各种输出 (All Outputs)**：所有输出内容包括步骤说明、状态更新、中间结果等都应使用中文
-    7. **最终答案 (Final Answer)**：对于中文语境的问题，最终答案应使用中文回应
-
-    """
-
         prompt += """# Agent Specific Objective
 
 You are an agent that performs various subtasks to collect information and execute specific actions. Your task is to complete well-defined, single-scope objectives efficiently and accurately.
@@ -152,24 +134,6 @@ Be cautious and transparent in your output:
 - If more context is needed, return a clarification request and do not proceed with tool use.
 - Focus on completing the specific subtask assigned to you, not broader reasoning.
 """
-        # Add Chinese-specific instructions for worker agent
-        if chinese_context:
-            prompt += """
-
-## 中文内容处理
-
-处理中文相关的子任务时：
-- **搜索关键词**：使用中文关键词进行搜索，获取更准确的中文资源
-- **Google搜索参数**：进行Google搜索时，注意使用适当的地理位置和语言参数：
-  - gl (Geolocation/Country): 设置为中国或相关地区以获取本地化结果
-  - hl (Host Language): 设置为中文以获取中文界面和优化的中文搜索结果
-- **思考过程**：分析、推理、判断等内部思考过程应使用中文表达
-- **信息摘录**：保持中文原文的准确性，避免不必要的翻译或改写
-- **问答处理**：在进行QA（问答）任务时，问题和答案都应使用中文，确保语言一致性
-- **各种输出**：包括状态说明、过程描述、结果展示等所有输出都应使用中文
-- **回应格式**：对中文子任务的回应应使用中文，保持语境一致性
-
-"""
 
         return prompt
 
@@ -177,7 +141,6 @@ Be cautious and transparent in your output:
         self,
         task_description: str,
         task_failed: bool = False,
-        chinese_context: bool = False,
     ) -> str:
         summarize_prompt = (
             (
@@ -211,19 +174,6 @@ Be cautious and transparent in your output:
             )
         )
 
-        # Add Chinese-specific summary instructions
-        if chinese_context:
-            summarize_prompt += """
-
-## 中文总结要求
-
-如果原始问题涉及中文语境：
-- **总结语言**：使用中文进行总结和回答
-- **思考过程**：回顾和总结思考过程时也应使用中文表达
-- **信息组织**：保持中文信息的原始格式和表达方式
-- **过程描述**：对工作历史、步骤描述、结果分析等各种输出都应使用中文
-- **最终答案**：确保最终答案符合中文表达习惯和用户期望
-"""
         return summarize_prompt
 
     def expose_agent_as_tool(self, subagent_name: str) -> dict:
@@ -252,9 +202,7 @@ class SubAgentWorkerPromptDeepSeek(SubAgentWorkerPrompt):
         super().__init__(*args, **kwargs)
         self.is_main_agent = False
 
-    def generate_system_prompt_with_mcp_tools(
-        self, mcp_servers: list[Any], chinese_context: bool = False
-    ) -> str:
+    def generate_system_prompt_with_mcp_tools(self, mcp_servers: list[Any]) -> str:
         formatted_date = datetime.datetime.today().strftime("%Y-%m-%d")
 
         prompt = f"""In this environment you have access to a set of tools you can use to answer the user's question. 
@@ -318,22 +266,6 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
 
 """
 
-        # Add Chinese-specific instructions if enabled
-        if chinese_context:
-            prompt += """
-    ## 中文语境处理指导
-
-    当处理中文相关的任务时：
-    1. **子任务委托 (Subtask Delegation)**：向worker代理委托的子任务应使用中文描述，确保任务内容准确传达
-    2. **搜索策略 (Search Strategy)**：搜索关键词应使用中文，以获取更准确的中文内容和信息
-    3. **问题分析 (Question Analysis)**：对中文问题的分析和理解应保持中文语境
-    4. **思考过程 (Thinking Process)**：内部分析、推理、总结等思考过程都应使用中文，保持语义表达的一致性
-    5. **信息整理 (Information Organization)**：从中文资源获取的信息应保持中文原文，避免不必要的翻译
-    6. **各种输出 (All Outputs)**：所有输出内容包括步骤说明、状态更新、中间结果等都应使用中文
-    7. **最终答案 (Final Answer)**：对于中文语境的问题，最终答案应使用中文回应
-
-    """
-
         prompt += """# Agent Specific Objective
 
 You are an agent that performs various subtasks to collect information and execute specific actions. Your task is to complete well-defined, single-scope objectives efficiently and accurately.
@@ -357,24 +289,6 @@ Be cautious and transparent in your output:
 - Prefer quoting or excerpting **original source text** rather than interpreting or rewriting it, and provide the URL if available.
 - If more context is needed, return a clarification request and do not proceed with tool use.
 - Focus on completing the specific subtask assigned to you, not broader reasoning.
-"""
-        # Add Chinese-specific instructions for worker agent
-        if chinese_context:
-            prompt += """
-
-## 中文内容处理
-
-处理中文相关的子任务时：
-- **搜索关键词**：使用中文关键词进行搜索，获取更准确的中文资源
-- **Google搜索参数**：进行Google搜索时，注意使用适当的地理位置和语言参数：
-  - gl (Geolocation/Country): 设置为中国或相关地区以获取本地化结果
-  - hl (Host Language): 设置为中文以获取中文界面和优化的中文搜索结果
-- **思考过程**：分析、推理、判断等内部思考过程应使用中文表达
-- **信息摘录**：保持中文原文的准确性，避免不必要的翻译或改写
-- **问答处理**：在进行QA（问答）任务时，问题和答案都应使用中文，确保语言一致性
-- **各种输出**：包括状态说明、过程描述、结果展示等所有输出都应使用中文
-- **回应格式**：对中文子任务的回应应使用中文，保持语境一致性
-
 """
 
         return prompt

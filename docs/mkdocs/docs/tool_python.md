@@ -1,6 +1,6 @@
-# Python Tools (`python_server.py`)
+# Code Sandbox Tools (`code_sandbox.py`)
 
-The Python Execution Server provides a secure sandboxed environment for running Python code and shell commands using E2B server. This tool enables agents to execute code safely, manipulate files, and perform computational tasks in an isolated environment.
+The Code Sandbox Server provides a secure sandboxed environment for running Python code and shell commands using E2B. This tool enables agents to execute code safely, manipulate files, and perform computational tasks in an isolated environment.
 
 !!! info "Available Functions"
     This MCP server provides the following functions that agents can call:
@@ -14,7 +14,7 @@ The Python Execution Server provides a secure sandboxed environment for running 
 
 ## Function Reference
 
-The following functions are provided by the `python_server.py` MCP tool and can be called by agents:
+The following functions are provided by the `code_sandbox.py` MCP tool and can be called by agents:
 
 ### `create_sandbox()`
 
@@ -116,12 +116,11 @@ Download files from sandbox to local system for processing by other tools.
 
 ## Configuration
 
-This tool is available under two configuration names:
+This tool is configured as:
 
-- **`tool-code`** - Original Python execution tool (config: `config/tool/tool-code.yaml`)
-- **`tool-code-sandbox`** - Simplified sandbox variant (config: `config/tool/tool-code-sandbox.yaml`)
+- **`tool-code-sandbox`** - Code execution sandbox (config: `config/tool/tool-code-sandbox.yaml`)
 
-Both use E2B sandboxes and provide the same core functions. Add either to your agent's `tool_config` list to enable code execution.
+Add it to your agent's `tools` list to enable code execution.
 
 ---
 

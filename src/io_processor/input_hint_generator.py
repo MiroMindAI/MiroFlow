@@ -22,7 +22,6 @@ class InputHintGenerator(BaseIOProcessor):
             "hint_generation_prompt",
             context=dict(
                 task_description=ctx.get("task_description"),
-                chinese_context=self.cfg.get("chinese_context", False),
             ),
         )
         task_hint = await self.llm_client.create_message(prompt)

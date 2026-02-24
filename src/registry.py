@@ -89,8 +89,8 @@ def register(component_type: ComponentType, name: str) -> Callable[[Type], Type]
     Decorator to register a component
 
     Usage:
-        @register(ComponentType.AGENT, "IterativeAgentWithTool")
-        class IterativeAgentWithTool(BaseAgent):
+        @register(ComponentType.AGENT, "IterativeAgentWithToolAndRollback")
+        class IterativeAgentWithToolAndRollback(BaseAgent):
             ...
     """
 

@@ -6,7 +6,7 @@ defaults:
 entrypoint: main_agent
 main_agent:
   name: main_agent
-  type: IterativeAgentWithTool                           
+  type: IterativeAgentWithToolAndRollback                           
   llm: 
     _base_: config/llm/base_openai.yaml
     provider_class: GPT5OpenAIClient

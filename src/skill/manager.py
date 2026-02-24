@@ -28,7 +28,9 @@ _FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n(.*)\Z", re.S | re.M)
 def _parse_frontmatter(md_text: str) -> Tuple[Dict[str, Any], str]:
     m = _FRONTMATTER_RE.match(md_text)
     if not m:
-        raise SkillError("SKILL.md is missing frontmatter (must start and end with ---)")
+        raise SkillError(
+            "SKILL.md is missing frontmatter (must start and end with ---)"
+        )
 
     fm_raw, body = m.group(1), m.group(2)
     meta: Dict[str, Any] = {}

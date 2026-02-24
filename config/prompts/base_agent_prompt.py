@@ -17,7 +17,7 @@ class BaseAgentPrompt(ABC):
 
     @abstractmethod
     def generate_system_prompt_with_mcp_tools(
-        self, mcp_servers: list[Any], chinese_context: bool = False, **kwargs
+        self, mcp_servers: list[Any], **kwargs
     ) -> str:
         """
         Generate the system prompt with mcp tools for the agent.
@@ -25,7 +25,6 @@ class BaseAgentPrompt(ABC):
         Args:
             date (datetime.datetime): The current date.
             mcp_servers (list[Any]): List of MCP server configurations.
-            chinese_context (bool, optional): Whether to use Chinese context. Defaults to False.
             **kwargs: Additional keyword arguments for extensibility.
 
         Returns:
@@ -43,7 +42,6 @@ class BaseAgentPrompt(ABC):
         self,
         task_description: str,
         task_failed: bool = False,
-        chinese_context: bool = False,
         **kwargs,
     ) -> str:
         """
@@ -53,7 +51,6 @@ class BaseAgentPrompt(ABC):
             task_description (str): The description of the task.
             task_failed (bool, optional): Whether the task failed. Defaults to False.
             agent_type (str, optional): The type of the agent. Defaults to "".
-            chinese_context (bool, optional): Whether to use Chinese context. Defaults to False.
             **kwargs: Additional keyword arguments for extensibility.
 
         Returns:

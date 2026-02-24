@@ -18,7 +18,7 @@ Choose one of the following methods to obtain the GAIA Validation Text-Only data
 **Method 1: Automated Download (Recommended)**
 
 ```bash title="Download via MiroFlow Command"
-uv run main.py prepare-benchmark get gaia-val-text-only
+uv run -m src.utils.prepare_benchmark.main get gaia-val-text-only
 ```
 
 **Method 2: Manual Download**
@@ -33,43 +33,37 @@ unzip gaia-val-text-only.zip
 ### Step 2: Configure API Keys
 
 !!! warning "Required API Configuration"
-    Before running the evaluation, you must configure the necessary API keys in your `.env` file. Each service serves a specific purpose in the evaluation pipeline.
+    Before running the evaluation, you must configure the necessary API keys in your `.env` file.
 
-```env title=".env Configuration"
+```env title="MiroThinker .env Configuration"
+# MiroThinker model access
+OAI_MIROTHINKER_API_KEY="your-mirothinker-api-key"
+OAI_MIROTHINKER_BASE_URL="http://localhost:61005/v1"
+
 # Search and web scraping capabilities
 SERPER_API_KEY="your-serper-api-key"
 JINA_API_KEY="your-jina-api-key"
 
 # Code execution environment
 E2B_API_KEY="your-e2b-api-key"
-
-# Primary LLM provider (Claude-3.7-Sonnet via OpenRouter)
-OPENROUTER_API_KEY="your-openrouter-api-key"
-OPENROUTER_BASE_URL="https://openrouter.ai/api/v1"
-
-# Vision understanding capabilities
-ANTHROPIC_API_KEY="your-anthropic-api-key"
-GEMINI_API_KEY="your-gemini-api-key"
-
-# LLM judge, reasoning, and hint generation
-OPENAI_API_KEY="your-openai-api-key"
-OPENAI_BASE_URL="https://api.openai.com/v1"
 ```
-
-!!! tip "Why OpenRouter?"
-    We use Claude-3.7-Sonnet through the OpenRouter backend as the primary LLM provider because OpenRouter offers better response rates and improved reliability compared to direct API access.
 
 ### Step 3: Run the Evaluation
 
-Execute the evaluation using the following command structure:
+Execute the evaluation using the standard MiroThinker configuration:
 
 ```bash title="Run GAIA Validation Text-Only Evaluation"
-uv run main.py common-benchmark \
-  --config_file_name=agent_gaia-validation-text-only \
-  output_dir="logs/gaia-validation-text-only/$(date +"%Y%m%d_%H%M")"
+uv run src/benchmark/run_benchmark.py \
+  --config-path config/standard_gaia-validation-text-103_mirothinker.yaml \
+  benchmark.execution.max_concurrent=30 \
+  output_dir="logs/gaia-validation-text-103/$(date +"%Y%m%d_%H%M")"
 ```
 
+For multiple runs:
 
+```bash title="Run Multiple Evaluations (8 runs)"
+bash scripts/standard_gaia-validation-text-103_mirothinker_8runs.sh
+```
 
 ### Step 4: Monitor Progress and Resume
 
@@ -77,7 +71,7 @@ uv run main.py common-benchmark \
     You can monitor the evaluation progress in real-time using the progress checker:
 
 ```bash title="Check Evaluation Progress"
-uv run utils/progress_check/check_gaia_progress.py $PATH_TO_LOG
+uv run utils/check_progress_gaia-validation-text-103.py $PATH_TO_LOG
 ```
 
 Replace `$PATH_TO_LOG` with your actual output directory path.
@@ -86,9 +80,9 @@ Replace `$PATH_TO_LOG` with your actual output directory path.
     If the evaluation is interrupted, you can resume from where it left off by specifying the same output directory:
 
 ```bash title="Resume Interrupted Evaluation"
-uv run main.py common-benchmark \
-  --config_file_name=agent_gaia-validation-text-only \
-  output_dir="logs/gaia-validation-text-only/20250922_1430"
+uv run src/benchmark/run_benchmark.py \
+  --config-path config/standard_gaia-validation-text-103_mirothinker.yaml \
+  output_dir="logs/gaia-validation-text-103/run_1"
 ```
 
 

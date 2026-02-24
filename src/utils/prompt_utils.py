@@ -89,7 +89,7 @@ class PromptManager:
         self, prompt_name: str, context: dict, component: str
     ) -> str:
         """
-        Render a single component of a prompt section (e.g., basic_system_prompt, chinese_context_extra_prompt).
+        Render a single component of a prompt section (e.g., basic_system_prompt).
         """
         section_cfg = self.config["template"][prompt_name]
 
@@ -112,7 +112,6 @@ if __name__ == "__main__":
             "absolute_file_path": "/workspace/notes.pdf",
         },
         "formatted_date": "2025-12-01",
-        "chinese_context": True,
         "mcp_server_definitions": "{...schema...}",
     }
 

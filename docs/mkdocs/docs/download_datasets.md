@@ -31,7 +31,7 @@ Edit the `.env` file and configure these essential variables:
 # Required: Your Hugging Face token for dataset access
 HF_TOKEN="your-actual-huggingface-token-here"
 
-# Data directory path 
+# Data directory path
 DATA_DIR="data/"
 ```
 
@@ -71,15 +71,15 @@ fi
 echo "Access confirmed"
 
 # Comment out any unwanted datasets by adding # at the start of the line
-uv run main.py prepare-benchmark get gaia-val
-uv run main.py prepare-benchmark get gaia-val-text-only
-uv run main.py prepare-benchmark get frames-test
-uv run main.py prepare-benchmark get webwalkerqa
-uv run main.py prepare-benchmark get browsecomp-test
-uv run main.py prepare-benchmark get browsecomp-zh-test
-uv run main.py prepare-benchmark get hle
-uv run main.py prepare-benchmark get xbench-ds
-uv run main.py prepare-benchmark get futurex
+uv run -m src.utils.prepare_benchmark.main get gaia-val
+uv run -m src.utils.prepare_benchmark.main get gaia-val-text-only
+uv run -m src.utils.prepare_benchmark.main get frames-test
+uv run -m src.utils.prepare_benchmark.main get webwalkerqa
+uv run -m src.utils.prepare_benchmark.main get browsecomp-test
+uv run -m src.utils.prepare_benchmark.main get browsecomp-zh-test
+uv run -m src.utils.prepare_benchmark.main get hle
+uv run -m src.utils.prepare_benchmark.main get xbench-ds
+uv run -m src.utils.prepare_benchmark.main get futurex
 ```
 
 ### What This Script Does
@@ -99,13 +99,13 @@ uv run main.py prepare-benchmark get futurex
 
 ### Customizing Dataset Selection
 
-To download only specific datasets, edit the script and comment out unwanted lines:
+To download only specific datasets, run individual commands:
 
 ```bash
-# Comment out unwanted datasets like this:
-# uv run main.py prepare-benchmark get gaia-val
-uv run main.py prepare-benchmark get gaia-val-text-only
-# uv run main.py prepare-benchmark get frames-test
+# Download a single dataset
+uv run -m src.utils.prepare_benchmark.main get gaia-val-text-only
+
+# Or edit the script and comment out unwanted lines
 ```
 
 ---
