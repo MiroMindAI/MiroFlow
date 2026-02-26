@@ -5,8 +5,8 @@
 import argparse
 import asyncio
 import json
+import os
 import signal
-import sys
 from pathlib import Path
 
 import dotenv
@@ -23,12 +23,20 @@ from src.agents import build_agent_from_config
 from src.logging.task_tracer import get_tracer, set_tracer
 
 
+_main_signal_received = False
+
+
 def _main_signal_handler(signum, frame):
-    """Handle termination signals in main process."""
+    """Handle termination signals in main process (non-reentrant)."""
+    global _main_signal_received
+    if _main_signal_received:
+        # Already handling a signal, force exit to avoid nested sys.exit()
+        os._exit(128 + signum)
+    _main_signal_received = True
     signal_name = signal.Signals(signum).name
     print(f"\n⚠️ Main process received {signal_name}, cleaning up...")
     _cleanup_executor()
-    sys.exit(128 + signum)
+    os._exit(128 + signum)
 
 
 async def test_benchmark(cfg: DictConfig) -> float:

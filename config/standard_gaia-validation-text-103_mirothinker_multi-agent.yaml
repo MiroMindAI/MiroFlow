@@ -7,7 +7,7 @@ entrypoint: main_agent
 main_agent:
   name: main_agent
   type: IterativeAgentWithToolAndRollback
-  # max_consecutive_rollbacks: 3
+  # max_consecutive_rollbacks: 5
   # max_turns: 200
   llm:
     _base_: config/llm/base_mirothinker.yaml
@@ -23,9 +23,9 @@ main_agent:
     agent-worker: ${agent-worker}
 
 agent-worker:
-  type: IterativeAgentWithTool     
+  type: IterativeAgentWithToolAndRollback     
   name: agent-worker
-  max_consecutive_rollbacks: 3
+  max_consecutive_rollbacks: 5
   max_turns: 200
   llm:
     _base_: config/llm/base_mirothinker.yaml

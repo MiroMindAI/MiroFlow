@@ -37,7 +37,7 @@ unzip gaia-val.zip
 First, you need to request access and configure your environment:
 
 1. **Request Dataset Access**: Visit [https://huggingface.co/datasets/gaia-benchmark/GAIA](https://huggingface.co/datasets/gaia-benchmark/GAIA) and request access
-2. **Configure Environment**: 
+2. **Configure Environment**:
    ```bash
    cp .env.template .env
    ```
@@ -55,7 +55,7 @@ First, you need to request access and configure your environment:
 Then download the dataset:
 
 ```bash title="Download via Script"
-uv run main.py prepare-benchmark get gaia-val
+uv run -m src.utils.prepare_benchmark.main get gaia-val
 ```
 
 ---
@@ -66,8 +66,11 @@ uv run main.py prepare-benchmark get gaia-val
 
 You can monitor the evaluation progress in real-time:
 
-```bash title="Check Progress"
-uv run utils/progress_check/check_gaia_progress.py $PATH_TO_LOG
+```bash title="Check Progress (GAIA-Validation-165)"
+uv run utils/check_progress_gaia-validation-165.py $PATH_TO_LOG
+
+# Or for GAIA-Validation-Text-103
+uv run utils/check_progress_gaia-validation-text-103.py $PATH_TO_LOG
 ```
 
 Replace `$PATH_TO_LOG` with your actual output directory path.
@@ -77,9 +80,9 @@ Replace `$PATH_TO_LOG` with your actual output directory path.
 If the evaluation is interrupted, you can resume from where it left off by specifying the same output directory:
 
 ```bash title="Resume Interrupted Evaluation"
-uv run main.py common-benchmark \
-  --config_file_name=YOUR_CONFIG_FILE \
-  output_dir="logs/gaia-validation/20250922_1430"
+uv run src/benchmark/run_benchmark.py \
+  --config-path config/standard_gaia-validation-165_mirothinker.yaml \
+  output_dir="logs/gaia-validation-165/run_1"
 ```
 
 ---

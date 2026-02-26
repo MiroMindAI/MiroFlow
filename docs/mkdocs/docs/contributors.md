@@ -17,7 +17,7 @@ Thank you to all the amazing contributors who have helped make MiroFlow better! 
     We welcome contributions from the community! Whether you're fixing bugs, adding features, improving documentation, or helping with benchmarks, your contributions are valued.
 
 <div align="center" markdown="1">
-  [![Contributors](https://contrib.rocks/image?repo=MiroMindAI/MiroFlow)](https://github.com/MiroMindAI/MiroFlow/graphs/contributors)
+  [![Contributors](https://contrib.rocks/image?repo=MiroMindAI/miroflow)](https://github.com/MiroMindAI/miroflow/graphs/contributors)
 </div>
 
 ---
@@ -30,7 +30,7 @@ Thank you to all the amazing contributors who have helped make MiroFlow better! 
 ### 🐛 Bug Reports & Feature Requests
 
 !!! note "Issue Reporting"
-    - Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/MiroFlow/issues)
+    - Report bugs or request features via [GitHub Issues](https://github.com/MiroMindAI/miroflow/issues)
     - Use clear, descriptive titles and provide detailed information
 
 ### 🔧 Code Contributions
@@ -77,7 +77,7 @@ Thank you to all the amazing contributors who have helped make MiroFlow better! 
 ## Getting Started
 
 !!! example "Quick Start Guide"
-    1. Check out our [GitHub repository](https://github.com/MiroMindAI/MiroFlow)
+    1. Check out our [GitHub repository](https://github.com/MiroMindAI/miroflow)
     2. Read the contributing guidelines
     3. Join our [Discord community](https://discord.com/invite/GPqEnkzQZd) to connect with other contributors
 

@@ -24,9 +24,20 @@ class SummaryGenerator(BaseIOProcessor):
             context=dict(
                 task_description=ctx.get("task_description"),
                 task_failed=ctx.get("task_failed", False),
-                chinese_context=self.cfg.get("chinese_context", False),
             ),
         )
+
+        # Skip blind guessing: when agent hit max turns/context limit and
+        # this is NOT the final retry, skip answer generation to avoid wasting
+        # the retry on a low-confidence guess. Let ExceedMaxTurnSummaryGenerator
+        # produce a failure experience summary for the next retry instead.
+        reached_limit = ctx.get("reached_limit", False)
+        is_final_retry = ctx.get("is_final_retry", False)
+        if reached_limit and not is_final_retry:
+            return AgentContext(
+                summary_prompt=prompt,
+                summary="Task incomplete - skipping answer generation to retry with failure experience.",
+            )
 
         message_history = ctx.get("message_history", [])
         try:

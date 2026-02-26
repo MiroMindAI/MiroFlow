@@ -1,38 +1,42 @@
 # YAML Configuration Guide
 
-MiroFlow uses a Hydra-based configuration system for customizing AI agents, tools, and benchmarks.
+MiroFlow uses a configuration system for customizing AI agents, tools, and benchmarks.
 
 ## Configuration Structure
 
 ```bash title="Configuration Directory"
 config/
-├── agent_*.yaml                      # Agent configurations
-├── agent_prompts/                    # Prompt classes
-├── benchmark/                        # Benchmark settings
+├── agent_*.yaml                      # Agent configurations (quickstart, web demo, etc.)
+├── standard_*.yaml                   # Standard benchmark configurations
+├── prompts/                          # Prompt classes (.py and .yaml)
+├── llm/                              # LLM provider configurations
+├── benchmark/                        # Benchmark dataset settings
 └── tool/                             # Tool configurations
 ```
 
 ## Quick Start
 
-**Run Benchmarks**
+**Run a Single Task**
 ```bash
-# GAIA validation
-uv run main.py common-benchmark \
-  --config_file_name=agent_gaia-validation \
-  output_dir="logs/gaia-validation/$(date +"%Y%m%d_%H%M")"
-
-# GAIA text-only
-uv run main.py common-benchmark \
-  --config_file_name=agent_gaia-validation-text-only \
-  output_dir="logs/gaia-validation-text-only/$(date +"%Y%m%d_%H%M")"
+bash scripts/test_single_task.sh \
+  --config config/agent_quickstart.yaml \
+  --task-question "What is the first country listed in the XLSX file that have names starting with Co?" \
+  --file-path data/FSI-2023-DOWNLOAD.xlsx
 ```
 
-**Single Task**
+**Run Benchmarks**
 ```bash
-uv run main.py trace \
-  --config_file_name=agent_quickstart_reading \
-  --task="Your task here" \
-  --task_file_name="data/file.xlsx"
+# GAIA validation with MiroThinker (8 runs)
+bash scripts/standard_gaia-validation-165_mirothinker_8runs.sh
+
+# BrowseComp English with MiroThinker (3 runs)
+bash scripts/standard_browsecomp-en_mirothinker_3runs.sh
+
+# Or run a single benchmark run directly
+uv run src/benchmark/run_benchmark.py \
+  --config-path config/standard_gaia-validation-165_mirothinker.yaml \
+  benchmark.execution.max_concurrent=30 \
+  output_dir="logs/gaia-validation-165/run_1"
 ```
 
 ---
@@ -41,48 +45,94 @@ uv run main.py trace \
 
 ### Basic Agent Setup
 
-```yaml title="Basic Agent Configuration"
+```yaml title="Basic Agent Configuration (agent_quickstart.yaml)"
 defaults:
-  - benchmark: gaia-validation
+  - benchmark: example_dataset
   - override hydra/job_logging: none
   - _self_
 
+entrypoint: main_agent
+
 main_agent:
-  prompt_class: MainAgentPromptBoxedAnswer
+  name: main_agent
+  type: IterativeAgentWithToolAndRollback
+  max_turns: 30
+
   llm:
-    provider_class: "ClaudeOpenRouterClient"
-    model_name: "anthropic/claude-3.7-sonnet"
-    temperature: 0.3
-    max_tokens: 32000
-    openrouter_api_key: "${oc.env:OPENROUTER_API_KEY,???}"
-  
-  tool_config: []  # Tools for main agent
-  max_turns: -1    # -1 = unlimited
+    _base_: config/llm/base_openai.yaml
+    provider_class: GPT5OpenAIClient
+    model_name: gpt-5
+    max_tokens: 128000
 
-sub_agents:
-  agent-worker:
-    prompt_class: SubAgentWorkerPrompt
-    llm:
-      provider_class: "ClaudeOpenRouterClient"
-      model_name: "anthropic/claude-3.7-sonnet"
-    tool_config:
-      - tool-reading
-      - tool-searching
-    max_turns: -1
+  prompt: config/prompts/standard_prompt_main_agent.yaml
 
-output_dir: logs/
+  tools:
+    - config/tool/tool-reading.yaml
+
+  input_processor:
+    - ${input-message-generator}
+  output_processor:
+    - ${output-summary}
+    - ${output-boxed-extractor}
+
+input-message-generator:
+  type: InputMessageGenerator
+output-summary:
+  type: SummaryGenerator
+output-boxed-extractor:
+  type: RegexBoxedExtractor
+
+output_dir: logs
 data_dir: "${oc.env:DATA_DIR,data}"
+```
+
+### Standard Benchmark Configuration
+
+```yaml title="Benchmark Configuration (standard_gaia-validation-165_mirothinker.yaml)"
+defaults:
+  - benchmark: gaia-validation-165
+  - override hydra/job_logging: none
+  - _self_
+
+entrypoint: main_agent
+main_agent:
+  name: main_agent
+  type: IterativeAgentWithToolAndRollback
+  max_consecutive_rollbacks: 5
+  max_turns: 200
+
+  llm:
+    _base_: config/llm/base_mirothinker.yaml
+
+  prompt: config/prompts/standard_prompt_main_agent.yaml
+
+  tools:
+    - config/tool/tool-code-sandbox.yaml
+    - config/tool/tool-serper-search.yaml
+    - config/tool/tool-jina-scrape.yaml
+
+  tool_blacklist:
+    - server: "tool-serper-search"
+      tool: "sogou_search"
+
+  input_processor:
+    - ${file-content-preprocessor}
+    - ${input-message-generator}
+  output_processor:
+    - ${output-summary}
+    - ${output-boxed-extractor}
+    - ${output-exceed-max-turn-summary}
 ```
 
 ### LLM Providers
 
 !!! tip "Available Providers"
-    - **Claude**: `ClaudeOpenRouterClient` (recommended), `ClaudeAnthropicClient`
+    - **Claude**: `ClaudeOpenRouterClient` (via OpenRouter), `ClaudeAnthropicClient` (direct)
     - **OpenAI**: `GPTOpenAIClient`, `GPT5OpenAIClient`
     - **OpenRouter (Generic)**: `OpenRouterClient` - access any model via OpenRouter
     - **OpenAI-Compatible**: `OpenAIClient` - generic client for OpenAI-compatible APIs
     - **MiroThinker**: `MiroThinkerSGLangClient`
-    - **DeepSeek**: via `OpenRouterClient` or `ClaudeOpenRouterClient`
+    - **DeepSeek**: via `OpenRouterClient` or `OpenAIClient`
 
     See [LLM Clients Overview](llm_clients_overview.md) for details.
 
@@ -93,11 +143,12 @@ data_dir: "${oc.env:DATA_DIR,data}"
     - **`tool-searching`**: Web search, Wikipedia, Archive.org, and retrieval
     - **`tool-searching-serper`** / **`tool-serper-search`**: Lightweight Google search via Serper
     - **`tool-reading`**: Document processing
-    - **`tool-code`** / **`tool-code-sandbox`**: Python code execution in E2B sandbox
+    - **`tool-code-sandbox`**: Python code execution in E2B sandbox
     - **`tool-image-video`** / **`tool-image-video-os`**: Visual content analysis
     - **`tool-audio`** / **`tool-audio-os`**: Audio processing
     - **`tool-jina-scrape`**: URL scraping with LLM-powered info extraction
     - **`tool-browsing`**: Web browsing
+    - **`tool-markitdown`**: Document to markdown conversion
 
     See [Tool Overview](tool_overview.md) for configurations.
 
@@ -105,32 +156,26 @@ data_dir: "${oc.env:DATA_DIR,data}"
 
 ## Advanced Features
 
-### GAIA Benchmark Configuration
+### Input/Output Processors
 
-```yaml title="GAIA-Optimized Setup"
-main_agent:
-  prompt_class: MainAgentPrompt_GAIA
-  tool_config:
-    - tool-reasoning
-  
-  input_process:
-    hint_generation: true      # Use LLM for task hint generation
-  output_process:
-    final_answer_extraction: true  # Use LLM for answer extraction
+```yaml title="Available Processors"
+# Input processors
+input_processor:
+  - ${file-content-preprocessor}     # Pre-process file content
+  - ${input-hint-generator}          # Generate hints using LLM
+  - ${input-message-generator}       # Generate initial message
 
-sub_agents:
-  agent-worker:
-    tool_config:
-      - tool-searching
-      - tool-reading
-      - tool-code
-      - tool-image-video
-      - tool-audio
+# Output processors
+output_processor:
+  - ${output-summary}                # Summarize conversation
+  - ${output-boxed-extractor}        # Extract \boxed{} answers via regex
+  - ${output-final-answer-extraction} # Extract final answer using LLM
+  - ${output-exceed-max-turn-summary} # Summarize when max turns exceeded
 ```
 
 ### Benchmark Settings
 
-```yaml title="Benchmark Configuration"
+```yaml title="Benchmark Configuration (config/benchmark/)"
 name: "your-benchmark"
 data:
   data_dir: "${data_dir}/your-data"
@@ -138,6 +183,18 @@ execution:
   max_tasks: null      # null = no limit
   max_concurrent: 3    # Parallel tasks
   pass_at_k: 1         # Attempts per task
+```
+
+### Tool Blacklist
+
+You can disable specific tools from a tool server:
+
+```yaml title="Tool Blacklist"
+tool_blacklist:
+  - server: "tool-serper-search"
+    tool: "sogou_search"
+  - server: "tool-code-sandbox"
+    tool: "download_file_from_sandbox_to_local"
 ```
 
 ---
@@ -149,6 +206,8 @@ execution:
 OPENROUTER_API_KEY="your_key"
 ANTHROPIC_API_KEY="your_key"
 OPENAI_API_KEY="your_key"
+OAI_MIROTHINKER_API_KEY="your_key"
+OAI_MIROTHINKER_BASE_URL="your_url"
 
 # Tools
 SERPER_API_KEY="your_key"
@@ -169,7 +228,7 @@ CHINESE_CONTEXT="false"
 | `temperature` | LLM creativity (0.0-1.0) | 0.3 |
 | `max_tokens` | Response length limit | 32000 |
 | `max_turns` | Conversation turns (-1 = unlimited) | -1 |
-| `max_tool_calls_per_turn` | Tool calls per turn | 10 |
+| `max_consecutive_rollbacks` | Max consecutive rollbacks before stopping | 5 |
 | `max_concurrent` | Parallel benchmark tasks | 3 |
 
 ---
@@ -177,11 +236,11 @@ CHINESE_CONTEXT="false"
 ## Best Practices
 
 !!! success "Quick Tips"
-    - **Start simple**: Use `agent_quickstart_reading.yaml` as a base
+    - **Start simple**: Use `agent_quickstart.yaml` as a base
     - **Tool selection**: Choose tools based on your task requirements
     - **API keys**: Always use environment variables, never hardcode
     - **Resource limits**: Set `max_concurrent` and `max_tokens` appropriately
-    - **Development**: Use higher `temperature` and unlimited `max_turns` for exploration
+    - **Benchmark configs**: Use the `standard_*_mirothinker.yaml` configs for reproducing benchmark results
 
 ---
 

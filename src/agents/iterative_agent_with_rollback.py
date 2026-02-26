@@ -36,6 +36,15 @@ MCP_TAGS = [
     "</arguments>",
 ]
 
+# Refusal keywords - if model outputs these without tool calls, it's refusing to act
+REFUSAL_KEYWORDS = [
+    "time constraint",
+    "I'm sorry, but I can't",
+    "I'm sorry, I cannot solve",
+    "I cannot continue",
+    "I'm unable to",
+]
+
 
 @register(ComponentType.AGENT, "IterativeAgentWithToolAndRollback")
 class IterativeAgentWithToolAndRollback(BaseAgent):
@@ -57,8 +66,8 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
             ]
         )
 
-        # Rollback config - read from yaml, default is 3
-        self.max_consecutive_rollbacks = self.cfg.get("max_consecutive_rollbacks", 3)
+        # Rollback config - read from yaml, default is 5
+        self.max_consecutive_rollbacks = self.cfg.get("max_consecutive_rollbacks", 5)
         self.max_duplicate_rollbacks = self.cfg.get("max_duplicate_rollbacks", 3)
 
     @staticmethod
@@ -96,7 +105,8 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
         1. If there are tool calls, no rollback needed (normal flow)
         2. finish_reason == "length" - API explicitly tells us it was truncated (100% reliable)
         3. Response has MCP tags but no tool calls parsed - incomplete format (100% reliable)
-        4. Other cases are treated as normal completion
+        4. Response contains refusal keywords - model is refusing to act
+        5. Other cases are treated as normal completion
 
         Args:
             llm_output: LLM output object
@@ -128,7 +138,11 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
         if any(tag in response_text for tag in MCP_TAGS):
             return True, "mcp_tag_without_tool_calls"
 
-        # 4. Normal completion - no tool calls and no anomalies, model considers task complete
+        # 4. Check for refusal keywords - model is refusing to continue working
+        if any(keyword in response_text for keyword in REFUSAL_KEYWORDS):
+            return True, "refusal_detected"
+
+        # 5. Normal completion - no tool calls and no anomalies, model considers task complete
         return False, "normal_completion"
 
     async def run_internal(self, ctx: AgentContext) -> AgentContext:
@@ -153,6 +167,7 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
         turn_count = 0
         max_turns = self.cfg.get("max_turns", -1)
         task_failed = False
+        reached_limit = False  # Track if agent hit max turns or context limit
 
         # Pre-render summary prompt for proactive context limit checking
         _summary_prompt_for_context_check = ""
@@ -188,6 +203,7 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
                     f"ContextLimitError caught at turn {turn_count}, "
                     f"breaking to generate summary"
                 )
+                reached_limit = True
                 break
 
             if llm_output.is_invalid:
@@ -319,13 +335,19 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
                         f"Context limit approaching at turn {turn_count}, "
                         f"breaking to generate summary"
                     )
+                    reached_limit = True
                     break
+
+        # Check if we exited due to reaching max turns
+        if max_turns != -1 and turn_count >= max_turns:
+            reached_limit = True
 
         output_processor_result = await self.output_processor.run(
             AgentContext(
                 **ctx,
                 message_history=message_history,
                 task_failed=task_failed,
+                reached_limit=reached_limit,
             )
         )
         tracer.save_agent_states(

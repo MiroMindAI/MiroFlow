@@ -8,6 +8,7 @@ import asyncio
 import atexit
 import ctypes
 import gc
+import os
 import random
 import signal
 import sys
@@ -95,12 +96,19 @@ def _cleanup_executor():
         print("✅ Worker processes cleaned up.")
 
 
+_signal_received = False
+
+
 def _signal_handler(signum, frame):
-    """Handle termination signals by cleaning up executor."""
+    """Handle termination signals by cleaning up executor (non-reentrant)."""
+    global _signal_received
+    if _signal_received:
+        os._exit(128 + signum)
+    _signal_received = True
     signal_name = signal.Signals(signum).name
     print(f"\n⚠️ Received {signal_name}, terminating workers...")
     _cleanup_executor()
-    sys.exit(128 + signum)
+    os._exit(128 + signum)
 
 
 # Register cleanup handlers
@@ -476,8 +484,10 @@ def run_tasks(
 
     try:
         # Create executor with initializer to set PR_SET_PDEATHSIG in each worker
-        # Use 'fork' context on Linux for better compatibility with PR_SET_PDEATHSIG
-        mp_context = get_context("fork") if sys.platform == "linux" else None
+        # Use 'forkserver' context on Linux to avoid deadlocks caused by 'fork'
+        # when workers use asyncio + subprocess-heavy code (MCP servers).
+        # PR_SET_PDEATHSIG is set in _worker_initializer, which works with forkserver.
+        mp_context = get_context("forkserver") if sys.platform == "linux" else None
         _global_executor = ProcessPoolExecutor(
             max_workers=max_concurrent,
             mp_context=mp_context,

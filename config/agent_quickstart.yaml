@@ -11,7 +11,7 @@ entrypoint: main_agent
 
 main_agent:
   name: main_agent
-  type: IterativeAgentWithTool
+  type: IterativeAgentWithToolAndRollback
   max_turns: 30
 
   llm:

@@ -42,6 +42,11 @@ class MiroThinkerSGLangClient(LLMClientBase):
                 timeout=1800,
             )
 
+    # Max retries for length-truncated or repeat responses (adaptive retry)
+    _LENGTH_RETRY_MAX = 3
+    _LENGTH_RETRY_WAIT = 30
+    _SEVERE_REPEAT_THRESHOLD = 5  # last 50 chars appearing this many times = repeat
+
     @retry(
         wait=wait_exponential(multiplier=5),
         stop=stop_after_attempt(10),
@@ -88,14 +93,15 @@ class MiroThinkerSGLangClient(LLMClientBase):
             messages, keep_tool_result, strip_think=self.strip_think_from_history
         )
 
-        params = None
+        current_max_tokens = self.max_tokens
+
         try:
             temperature = self.temperature
 
             params = {
                 "model": self.model_name,
                 "temperature": temperature,
-                "max_tokens": self.max_tokens,
+                "max_tokens": current_max_tokens,
                 "messages": messages_copy,
                 "stream": False,
             }
@@ -103,42 +109,103 @@ class MiroThinkerSGLangClient(LLMClientBase):
             # Add optional parameters only if they have non-default values
             if self.top_p != 1.0:
                 params["top_p"] = self.top_p
+
+            # SGLang-specific params must go through extra_body
+            # (the OpenAI SDK rejects unknown keyword arguments)
+            extra_body = {}
             if self.min_p != 0.0:
-                params["min_p"] = self.min_p
+                extra_body["min_p"] = self.min_p
             if self.top_k != -1:
-                params["top_k"] = self.top_k
+                extra_body["top_k"] = self.top_k
+            if self.repetition_penalty != 1.0:
+                extra_body["repetition_penalty"] = self.repetition_penalty
+            if extra_body:
+                params["extra_body"] = extra_body
 
-            response = await self._create_completion(params, self.async_client)
+            # Adaptive retry loop for length-truncated / severe-repeat responses
+            best_response = None
+            for length_attempt in range(self._LENGTH_RETRY_MAX + 1):
+                params["max_tokens"] = current_max_tokens
+                response = await self._create_completion(params, self.async_client)
 
-            if (
-                response is None
-                or response.choices is None
-                or len(response.choices) == 0
-            ):
-                logger.debug(f"LLM call failed: response = {response}")
-                raise Exception(f"LLM call failed [rare case]: response = {response}")
+                if (
+                    response is None
+                    or response.choices is None
+                    or len(response.choices) == 0
+                ):
+                    logger.debug(f"LLM call failed: response = {response}")
+                    raise Exception(
+                        f"LLM call failed [rare case]: response = {response}"
+                    )
 
-            if (
-                response.choices
-                and response.choices[0].finish_reason == "stop"
-                and (response.choices[0].message.content or "").strip() == ""
-            ):
+                if (
+                    response.choices
+                    and response.choices[0].finish_reason == "stop"
+                    and (response.choices[0].message.content or "").strip() == ""
+                ):
+                    logger.debug(
+                        "LLM finish_reason is 'stop', but content is empty, triggering Error"
+                    )
+                    raise Exception("LLM finish_reason is 'stop', but content is empty")
+
+                # Track token usage
+                if hasattr(response, "usage") and response.usage:
+                    self.last_call_tokens = {
+                        "prompt_tokens": getattr(response.usage, "prompt_tokens", 0)
+                        or 0,
+                        "completion_tokens": getattr(
+                            response.usage, "completion_tokens", 0
+                        )
+                        or 0,
+                    }
+
+                finish_reason = getattr(response.choices[0], "finish_reason", "N/A")
+                content = response.choices[0].message.content or ""
+                logger.debug(f"LLM call finish_reason: {finish_reason}")
+
+                # Check if we need adaptive retry
+                needs_retry = False
+
+                if finish_reason == "length":
+                    if not content.strip():
+                        # Empty content due to thinking using all tokens
+                        needs_retry = True
+                        logger.debug(
+                            f"Length-truncated with empty content, "
+                            f"increasing max_tokens (attempt {length_attempt + 1})"
+                        )
+                    else:
+                        # Got some content but truncated - keep as best so far
+                        best_response = response
+
+                # Check for severe repetition
+                if content and len(content) >= 50:
+                    tail = content[-50:]
+                    if content.count(tail) >= self._SEVERE_REPEAT_THRESHOLD:
+                        needs_retry = True
+                        logger.debug(
+                            f"Severe repeat detected " f"(attempt {length_attempt + 1})"
+                        )
+
+                if not needs_retry or length_attempt >= self._LENGTH_RETRY_MAX:
+                    break
+
+                # Adaptive increase: 10% more tokens for next attempt
+                current_max_tokens = int(current_max_tokens * 1.1)
                 logger.debug(
-                    "LLM finish_reason is 'stop', but content is empty, triggering Error"
+                    f"Retrying with max_tokens={current_max_tokens} "
+                    f"(attempt {length_attempt + 2})"
                 )
-                raise Exception("LLM finish_reason is 'stop', but content is empty")
+                await asyncio.sleep(self._LENGTH_RETRY_WAIT)
 
-            # Track token usage for proactive context limit management
-            if hasattr(response, "usage") and response.usage:
-                self.last_call_tokens = {
-                    "prompt_tokens": getattr(response.usage, "prompt_tokens", 0) or 0,
-                    "completion_tokens": getattr(response.usage, "completion_tokens", 0)
-                    or 0,
-                }
+            # If all retries hit length and we have a best response, use it
+            if (
+                response.choices[0].finish_reason == "length"
+                and not (response.choices[0].message.content or "").strip()
+                and best_response is not None
+            ):
+                response = best_response
 
-            logger.debug(
-                f"LLM call finish_reason: {getattr(response.choices[0], 'finish_reason', 'N/A')}"
-            )
             return response
         except asyncio.CancelledError:
             logger.debug("[WARNING] LLM API call was cancelled during execution")

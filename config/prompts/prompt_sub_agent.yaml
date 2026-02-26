@@ -4,14 +4,12 @@ template:
       - task_description
       - file_input_prompt
       - task_guidance
-      - chinese_context_extra_prompt
 
     required_context:
       - task_description
 
     optional_context:
       - file_input
-      - chinese_context
 
     task_description: |
       {{ task_description }}
@@ -37,31 +35,14 @@ template:
 
       Your objective is maximum completeness, transparency, and detailed documentation to empower the user to judge and select their preferred answer independently. Even if uncertain, explicitly documenting the existence of possible answers significantly enhances the user's experience, ensuring no plausible solution is irreversibly omitted due to early misunderstanding or premature filtering.
 
-    chinese_context_extra_prompt: |
-      {% if chinese_context is defined and chinese_context %}
-      ## 中文任务处理指导
-      If the task involves Chinese context, please follow the following instructions:
-      - **信息收集策略**：使用中文关键词进行网络搜索，优先浏览中文网页，以获取更准确和全面的中文资源
-      - **思考过程**：所有分析、推理、判断等思考过程都应使用中文表达，保持语义的一致性
-      - **候选答案收集**：对于中文问题，收集所有可能的中文答案选项，包括不同的表达方式和格式
-      - **证据文档化**：保持中文资源的原始格式，避免不必要的翻译或改写，确保信息的准确性
-      - **不确定性标注**：使用中文清晰地标记任何不确定性、冲突信息或需要进一步验证的内容
-      - **结果组织**：以中文组织和呈现最终报告，使用恰当的中文术语和表达习惯
-      - **过程透明化**：所有步骤描述、状态更新、中间结果等都应使用中文，确保用户理解
-      {% endif %}
-
   system_prompt: 
     components:
       - basic_system_prompt
-      - chinese_context_extra_prompt
       - agent_specific_objective_prompt
 
     required_context:
       - formatted_date
       - mcp_server_definitions
-
-    optional_context:
-      - chinese_context
 
     basic_system_prompt: |
       In this environment you have access to a set of tools you can use to answer the user's question. 
@@ -142,20 +123,6 @@ template:
       6. Unless otherwise requested, respond in the same language as the user's message.
       7. If the task does not require tool use, answer the user directly.
     
-    chinese_context_extra_prompt: |
-      {% if chinese_context is defined and chinese_context %}
-      ## 中文语境处理指导
-
-      当处理中文相关的任务时：
-      1. **子任务委托 (Subtask Delegation)**：向worker代理委托的子任务应使用中文描述，确保任务内容准确传达
-      2. **搜索策略 (Search Strategy)**：搜索关键词应使用中文，以获取更准确的中文内容和信息
-      3. **问题分析 (Question Analysis)**：对中文问题的分析和理解应保持中文语境
-      4. **思考过程 (Thinking Process)**：内部分析、推理、总结等思考过程都应使用中文，保持语义表达的一致性
-      5. **信息整理 (Information Organization)**：从中文资源获取的信息应保持中文原文，避免不必要的翻译
-      6. **各种输出 (All Outputs)**：所有输出内容包括步骤说明、状态更新、中间结果等都应使用中文
-      7. **最终答案 (Final Answer)**：对于中文语境的问题，最终答案应使用中文回应
-      {% endif %}
-
     agent_specific_objective_prompt: |
       # Agent Specific Objective
 
@@ -180,31 +147,15 @@ template:
       - Prefer quoting or excerpting **original source text** rather than interpreting or rewriting it, and provide the URL if available.
       - If more context is needed, return a clarification request and do not proceed with tool use.
       - Focus on completing the specific subtask assigned to you, not broader reasoning.
-      
-      {% if chinese_context is defined and chinese_context %}
-      ## 中文内容处理
-      处理中文相关的子任务时：
-      - **搜索关键词**：使用中文关键词进行搜索，获取更准确的中文资源
-      - **Google搜索参数**：进行Google搜索时，注意使用适当的地理位置和语言参数：
-        - gl (Geolocation/Country): 设置为中国或相关地区以获取本地化结果
-        - hl (Host Language): 设置为中文以获取中文界面和优化的中文搜索结果
-      - **思考过程**：分析、推理、判断等内部思考过程应使用中文表达
-      - **信息摘录**：保持中文原文的准确性，避免不必要的翻译或改写
-      - **问答处理**：在进行QA（问答）任务时，问题和答案都应使用中文，确保语言一致性
-      - **各种输出**：包括状态说明、过程描述、结果展示等所有输出都应使用中文
-      - **回应格式**：对中文子任务的回应应使用中文，保持语境一致性
-      {% endif %}
 
   summarize_prompt:
     components:
       - basic_summarize_prompt
-      - chinese_context_extra_prompt
 
     required_context:
       - task_description
       
     optional_context:
-      - chinese_context
       - task_failed
         
     basic_summarize_prompt: |
@@ -232,15 +183,5 @@ template:
       Organize the content into logical sections with appropriate headings.
       Do NOT include any tool call instructions, speculative filler, or vague summaries.
       Focus on factual, specific, and well-organized information.
-
-    chinese_context_extra_prompt: |
-      {% if chinese_context is defined and chinese_context %}
-      ## 中文总结要求
-      If the task involves Chinese context:
-      - **总结语言**：使用中文进行总结和回答
-      - **思考过程**：回顾和总结思考过程时也应使用中文表达
-      - **信息组织**：保持中文信息的原始格式和表达方式
-      - **过程描述**：对工作历史、步骤描述、结果分析等各种输出都应使用中文
-      {% endif %}
 
   

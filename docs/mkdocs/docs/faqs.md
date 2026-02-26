@@ -27,6 +27,11 @@ Common questions and development roadmap for MiroFlow framework.
     We plan to merge these two projects in the future to create a single, unified platform.
 
 
+!!! info "Q: Can I use other language models besides OpenRouter?"
+    **A**: Yes, MiroFlow supports various language models including OpenAI, Anthropic, and OpenAI-compatible endpoints. See the [LLM Clients Overview](llm_clients_overview.md) for configuration details.
+
+!!! info "Q: Is there commercial support available?"
+    **A**: For commercial inquiries and enterprise support, please contact us through our [website](https://miromind.ai/).
 
 ---
 

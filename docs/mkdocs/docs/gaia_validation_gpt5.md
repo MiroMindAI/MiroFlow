@@ -1,6 +1,6 @@
-# GAIA Validation - GPT5
+# GAIA Validation - GPT-5
 
-MiroFlow now supports GPT-5 with MCP tool invocation, providing a unified workflow for multi-step reasoning, information integration, and scalable tool coordination.
+MiroFlow supports GPT-5 with MCP tool invocation, providing a unified workflow for multi-step reasoning, information integration, and scalable tool coordination.
 
 !!! info "Prerequisites"
     Before proceeding, please review the [GAIA Validation Prerequisites](gaia_validation_prerequisites.md) document, which covers common setup requirements, dataset preparation, and API key configuration.
@@ -32,18 +32,12 @@ GEMINI_API_KEY="your-gemini-api-key"
 # Primary LLM provider, LLM judge, reasoning, and hint generation
 OPENAI_API_KEY="your-openai-api-key"
 OPENAI_BASE_URL="https://api.openai.com/v1"
-
 ```
 
 ### Step 3: Run the Evaluation
 
-Execute the evaluation using the GPT-5 configuration:
-
-```bash title="Run GAIA Validation with GPT-5"
-uv run main.py common-benchmark \
-  --config_file_name=agent_gaia-validation-gpt5 \
-  output_dir="logs/gaia-validation-gpt5/$(date +"%Y%m%d_%H%M")"
-```
+!!! note "Configuration Note"
+    To run with GPT-5, create a custom config based on the standard configs with a GPT-5 LLM provider (`GPT5OpenAIClient`). See [YAML Configuration Guide](yaml_config.md) for details on creating custom configurations.
 
 ### Step 4: Monitor Progress
 

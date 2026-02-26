@@ -1,0 +1,11 @@
+name: "tool-serper-sogou-search"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.serper_sogou_search"
+env:
+# Search API keys - these values will be loaded from the .env file at runtime
+  SERPER_API_KEY: "${oc.env:SERPER_API_KEY}"
+  SERPER_BASE_URL: "${oc.env:SERPER_BASE_URL,https://miro-api.miromind.site/serper}"
+  TENCENTCLOUD_SECRET_ID: "${oc.env:TENCENTCLOUD_SECRET_ID}"
+  TENCENTCLOUD_SECRET_KEY: "${oc.env:TENCENTCLOUD_SECRET_KEY}"

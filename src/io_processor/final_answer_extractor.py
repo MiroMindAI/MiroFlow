@@ -105,7 +105,6 @@ class FinalAnswerExtractor(BaseIOProcessor):
         extracted_answer = await extract_final_answer_function(
             task_description_detail=ctx.get("task_description", ""),
             summary=ctx.get("summary", None),
-            chinese_context=self.cfg.get("chinese_context", False),
             llm_client=self.llm_client,
         )
 

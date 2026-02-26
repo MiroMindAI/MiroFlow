@@ -13,9 +13,7 @@ class MainAgentPrompt_GAIA(BaseAgentPrompt):
         super().__init__(*args, **kwargs)
         self.is_main_agent = True
 
-    def generate_system_prompt_with_mcp_tools(
-        self, mcp_servers: list[Any], chinese_context: bool = False
-    ) -> str:
+    def generate_system_prompt_with_mcp_tools(self, mcp_servers: list[Any]) -> str:
         formatted_date = datetime.datetime.today().strftime("%Y-%m-%d")
 
         # Basic system prompt
@@ -113,29 +111,12 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
 
 """
 
-        # Add Chinese-specific instructions if enabled
-        if chinese_context:
-            prompt += """
-    ## 中文语境处理指导
-
-    当处理中文相关的任务时：
-    1. **子任务委托 (Subtask Delegation)**：向worker代理委托的子任务应使用中文描述，确保任务内容准确传达
-    2. **搜索策略 (Search Strategy)**：搜索关键词应使用中文，以获取更准确的中文内容和信息
-    3. **问题分析 (Question Analysis)**：对中文问题的分析和理解应保持中文语境
-    4. **思考过程 (Thinking Process)**：内部分析、推理、总结等思考过程都应使用中文，保持语义表达的一致性
-    5. **信息整理 (Information Organization)**：从中文资源获取的信息应保持中文原文，避免不必要的翻译
-    6. **各种输出 (All Outputs)**：所有输出内容包括步骤说明、状态更新、中间结果等都应使用中文
-    7. **最终答案 (Final Answer)**：对于中文语境的问题，最终答案应使用中文回应
-
-    """
-
         return prompt
 
     def generate_summarize_prompt(
         self,
         task_description: str,
         task_failed: bool = False,
-        chinese_context: bool = False,
     ) -> str:
         summarize_prompt = (
             (
@@ -169,17 +150,4 @@ You accomplish a given task iteratively, breaking it down into clear steps and w
             )
         )
 
-        # Add Chinese-specific summary instructions
-        if chinese_context:
-            summarize_prompt += """
-
-## 中文总结要求
-
-如果原始问题涉及中文语境：
-- **总结语言**：使用中文进行总结和回答
-- **思考过程**：回顾和总结思考过程时也应使用中文表达
-- **信息组织**：保持中文信息的原始格式和表达方式
-- **过程描述**：对工作历史、步骤描述、结果分析等各种输出都应使用中文
-- **最终答案**：确保最终答案符合中文表达习惯和用户期望
-"""
         return summarize_prompt

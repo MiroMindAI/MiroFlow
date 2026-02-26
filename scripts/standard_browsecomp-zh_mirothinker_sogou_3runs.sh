@@ -6,9 +6,9 @@
 
 # Configuration parameters
 NUM_RUNS=3
-BENCHMARK_NAME="hle-text-only"
-AGENT_SET="standard_hle-text-only_mirothinker"
-MAX_CONCURRENT=80
+BENCHMARK_NAME="browsecomp-zh"
+AGENT_SET="standard_browsecomp-zh_mirothinker_sogou"
+MAX_CONCURRENT=30
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)
@@ -22,15 +22,16 @@ cleanup() {
     echo "Received interrupt signal, terminating all processes..."
 
     # Kill all Python processes related to this benchmark run
+    # (matches run_benchmark.py and any forked worker processes with the config name)
     pkill -TERM -f "run_benchmark.py.*${AGENT_SET}" 2>/dev/null
 
     # Wait a moment for graceful shutdown
     sleep 2
 
-    # Force kill any remaining processes
+    # Force kill any remaining processes (including forked workers)
     pkill -KILL -f "run_benchmark.py.*${AGENT_SET}" 2>/dev/null
 
-    # Also kill any child processes of this script
+    # Also kill any child processes of this script (and their children)
     pkill -TERM -P $$ 2>/dev/null
     sleep 1
     pkill -KILL -P $$ 2>/dev/null
@@ -43,7 +44,8 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 echo "Starting $NUM_RUNS runs of the evaluation..."
-echo "Benchmark: $BENCHMARK_NAME (500 tasks)"
+echo "Benchmark: $BENCHMARK_NAME (289 tasks)"
+echo "Agent set: $AGENT_SET (Serper + Sogou combined search)"
 echo "Results will be saved in: $RESULTS_DIR"
 
 # Create results directory
