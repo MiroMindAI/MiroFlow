@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/miromind_logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -464,6 +464,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../whats_new/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What's New in v1.6
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -654,6 +682,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Agent System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#smart-rollback-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Smart Rollback &amp; Retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-graph-multi-agent-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Graph &amp; Multi-Agent Composition
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -690,10 +746,32 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#skill-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill System
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#component-registry" class="md-nav__link">
     <span class="md-ellipsis">
       
         Component Registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Management
       
     </span>
   </a>
@@ -2117,34 +2195,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../miro_api/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MiroAPI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../contribute_tools/" class="md-nav__link">
         
   
@@ -2717,6 +2767,34 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Agent System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#smart-rollback-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Smart Rollback &amp; Retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#agent-graph-multi-agent-composition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agent Graph &amp; Multi-Agent Composition
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -2753,10 +2831,32 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#skill-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Skill System
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#component-registry" class="md-nav__link">
     <span class="md-ellipsis">
       
         Component Registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-management" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt Management
       
     </span>
   </a>
@@ -2792,7 +2892,7 @@
 <p>MiroFlow is a flexible framework for building and deploying intelligent agents capable of complex reasoning and tool use.</p>
 <h2 id="architecture-overview">Architecture Overview</h2>
 <div align="center">
-<p><img alt="MiroFlow Architecture" src="../assets/miroflow_architecture.png" width="80%" /></p>
+<p><img alt="MiroFlow Architecture" src="../assets/miroflow_architecture_v1.6.png" width="100%" /></p>
 </div>
 <div class="admonition abstract">
 <p class="admonition-title">Agentic Process</p>
@@ -2809,12 +2909,56 @@
 <h3 id="agent-system">Agent System</h3>
 <div class="admonition info">
 <p class="admonition-title">Agent Architecture</p>
+<p>MiroFlow provides a modular agent hierarchy built on <code>BaseAgent</code>:</p>
 <p><strong>IterativeAgentWithToolAndRollback</strong>: The primary agent type that receives tasks, iteratively reasons and calls tools, with automatic rollback on consecutive failures. Key parameters:</p>
 <ul>
 <li><code>max_turns</code>: Maximum reasoning/tool-calling iterations</li>
 <li><code>max_consecutive_rollbacks</code>: Maximum consecutive rollbacks before stopping</li>
+<li><code>max_duplicate_rollbacks</code>: Maximum duplicate tool-call rollbacks before stopping</li>
 <li>Configurable tools, prompts, and LLM providers</li>
 </ul>
+<p><strong>SequentialAgent</strong>: Composes multiple sub-modules in sequence, passing <code>AgentContext</code> between them. Used for building input/output processing pipelines and multi-step workflows.</p>
+</div>
+<h4 id="smart-rollback-retry">Smart Rollback &amp; Retry</h4>
+<div class="admonition warning">
+<p class="admonition-title">Automatic Error Recovery</p>
+<p>The iterative agent automatically detects and recovers from common LLM output issues:</p>
+<ul>
+<li><strong>Format errors</strong>: Malformed tool calls or invalid JSON arguments</li>
+<li><strong>Truncated output</strong>: Incomplete responses due to token limits</li>
+<li><strong>Refusals</strong>: LLM refusing to complete the task</li>
+<li><strong>Duplicate tool calls</strong>: Repeated identical tool invocations that indicate the agent is stuck</li>
+</ul>
+<p>On detection, the agent rolls back the failed turn and retries with accumulated failure feedback, giving the LLM context about what went wrong. This dramatically improves robustness in production.</p>
+</div>
+<h4 id="agent-graph-multi-agent-composition">Agent Graph &amp; Multi-Agent Composition</h4>
+<div class="admonition tip">
+<p class="admonition-title">Multi-Agent Orchestration</p>
+<p>MiroFlow supports composing agents into hierarchical graphs. A main agent can delegate subtasks to sub-agents, each with their own LLM, tools, and prompts.</p>
+<p><strong>How it works:</strong></p>
+<ul>
+<li>Sub-agents are defined in the YAML config and referenced via <code>sub_agents</code> field</li>
+<li>Sub-agents are exposed to the parent agent as callable tools (e.g., <code>agent-worker</code>)</li>
+<li>Each sub-agent can have its own sub-agents, enabling multi-level hierarchies</li>
+<li>Agents share context through <code>AgentContext</code>, a dict-based object for inter-agent communication</li>
+</ul>
+<p><strong>Example config</strong> (<code>config/agent_quickstart_graph.yaml</code>):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">main_agent</span><span class="p">:</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IterativeAgentWithTool</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="nt">sub_agents</span><span class="p">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">agent-worker</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${agent-subagent-1}</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nt">agent-subagent-1</span><span class="p">:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IterativeAgentWithTool</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">  </span><span class="nt">sub_agents</span><span class="p">:</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">agent-worker</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${agent-subagent-3}</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="nt">agent-subagent-3</span><span class="p">:</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">IterativeAgentWithTool</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="nt">tools</span><span class="p">:</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config/tool/tool-code-sandbox.yaml</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">config/tool/tool-serper-search.yaml</span>
+</code></pre></div></p>
 </div>
 <h3 id="tool-integration">Tool Integration</h3>
 <div class="admonition note">
@@ -2865,22 +3009,94 @@
 <li>See <a href="../llm_clients_overview/">LLM Clients Overview</a> for details</li>
 </ul>
 </div>
+<h3 id="skill-system">Skill System</h3>
+<div class="admonition example">
+<p class="admonition-title">Markdown-Based Skill Definition</p>
+<p>Skills are reusable instruction sets that guide the agent on how to handle specific types of tasks. Each skill is defined by a <code>SKILL.md</code> file with YAML frontmatter and markdown instructions.</p>
+<p><strong>Skill structure:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>miroflow/skill/skills/
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>└── simple_file_understanding/
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    └── SKILL.md
+</code></pre></div></p>
+<p><strong>Example <code>SKILL.md</code>:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>---
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>name: simple_file_understanding
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>description: Understand and analyze CSV files. Use when the task
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>             involves reading, parsing, or answering questions
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="gu">             about data in a CSV file.</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="gu">---</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="gh"># simple_file_understanding</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="gu">## Instructions</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>When a task involves a CSV file, follow this workflow:
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="k">1.</span> Use the <span class="sb">`read_file`</span> tool to load the file content.
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="k">2.</span> Identify column headers, data types, and row count.
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="k">3.</span> Answer the question based on the data.
+</code></pre></div></p>
+<p><strong>Key features:</strong></p>
+<ul>
+<li><strong>Auto-discovery</strong>: Skills are automatically discovered by scanning configured directories</li>
+<li><strong>Sandboxed execution</strong>: Python skills run in a sandboxed environment for safety</li>
+<li><strong>Whitelisting</strong>: Restrict which skills are available in production via <code>allowed_skill_ids</code></li>
+<li><strong>MCP integration</strong>: Skills are exposed to the agent as callable tools through the Skill MCP Server</li>
+</ul>
+<p>Enable skills in your agent config:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">main_agent</span><span class="p">:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">  </span><span class="nt">skill</span><span class="p">:</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="nt">skill_dirs</span><span class="p">:</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">miroflow/skill/skills</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="nt">allow_python_skills</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></p>
+</div>
 <h3 id="component-registry">Component Registry</h3>
 <div class="admonition info">
-<p class="admonition-title">Registry System</p>
-<p>MiroFlow uses a unified registration mechanism for dynamically discovering and loading components:</p>
+<p class="admonition-title">Plugin Architecture</p>
+<p>MiroFlow uses a unified registration mechanism for dynamically discovering and loading components. This enables a plugin-like architecture where new agents, IO processors, and LLM clients can be added without modifying core code.</p>
+<p><strong>Register a new component:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">miroflow.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">register</span><span class="p">,</span> <span class="n">ComponentType</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nd">@register</span><span class="p">(</span><span class="n">ComponentType</span><span class="o">.</span><span class="n">AGENT</span><span class="p">,</span> <span class="s2">&quot;MyCustomAgent&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyCustomAgent</span><span class="p">(</span><span class="n">BaseAgent</span><span class="p">):</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_internal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">):</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>        <span class="c1"># Your custom logic here</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="k">return</span> <span class="n">ctx</span>
+</code></pre></div></p>
+<p><strong>Supported component types:</strong></p>
 <ul>
-<li><strong>Agents</strong>: Registered via <code>@register(ComponentType.AGENT, "name")</code></li>
-<li><strong>IO Processors</strong>: Registered via <code>@register(ComponentType.IO_PROCESSOR, "name")</code></li>
-<li><strong>LLM Clients</strong>: Registered via <code>@register(ComponentType.LLM, "name")</code></li>
+<li><strong>Agents</strong>: <code>@register(ComponentType.AGENT, "name")</code> — custom agent implementations</li>
+<li><strong>IO Processors</strong>: <code>@register(ComponentType.IO_PROCESSOR, "name")</code> — input/output pipeline stages</li>
+<li><strong>LLM Clients</strong>: <code>@register(ComponentType.LLM, "name")</code> — new LLM provider integrations</li>
 <li><strong>Tools</strong>: Discovered dynamically via MCP protocol (not registered in code)</li>
-<li><strong>Skills</strong>: Discovered via filesystem scanning</li>
+<li><strong>Skills</strong>: Discovered via filesystem scanning (see <a href="#skill-system">Skill System</a>)</li>
 </ul>
+<p>The registry features <strong>thread-safe lazy loading</strong> — modules are only imported when their components are first requested.</p>
+</div>
+<h3 id="prompt-management">Prompt Management</h3>
+<div class="admonition note">
+<p class="admonition-title">Zero-Code Prompt Configuration</p>
+<p>Agent prompts are managed through <strong>YAML + Jinja2 templates</strong>, not Python code. This means you can tune agent behavior by editing config files — no code changes or redeployment needed.</p>
+<p><strong>Prompt config structure</strong> (<code>config/prompts/*.yaml</code>):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">template</span><span class="p">:</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">initial_user_text</span><span class="p">:</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nt">components</span><span class="p">:</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_description</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">task_guidance</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">file_input_prompt</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="nt">task_description</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">      </span><span class="no">{{ task_description }}</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="nt">file_input_prompt</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">      </span><span class="no">{% if file_input is defined and file_input is not none %}</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">      </span><span class="no">A {{ file_input.file_type }} file &#39;{{ file_input.file_name }}&#39;</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">      </span><span class="no">is associated with this task.</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">      </span><span class="no">{% endif %}</span>
+</code></pre></div></p>
+<p>The <code>PromptManager</code> loads these templates and renders them with runtime context variables, supporting conditional sections, loops, and template composition.</p>
 </div>
 <hr />
 <div class="admonition info">
 <p class="admonition-title">Documentation Info</p>
-<p><strong>Last Updated:</strong> February 2026 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+<p><strong>Last Updated:</strong> March 2026 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
 </div>
 
 

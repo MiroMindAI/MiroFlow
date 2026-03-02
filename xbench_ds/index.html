@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/miromind_logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -451,6 +451,34 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../whats_new/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What's New in v1.6
   
 
     
@@ -2132,34 +2160,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../miro_api/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MiroAPI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../contribute_tools/" class="md-nav__link">
         
   
@@ -2819,7 +2819,7 @@
 <p class="admonition-title">Dataset Setup</p>
 <p>Use the integrated prepare-benchmark command to download and process the dataset:</p>
 </div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>-m<span class="w"> </span>src.utils.prepare_benchmark.main<span class="w"> </span>get<span class="w"> </span>xbench-ds
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>-m<span class="w"> </span>miroflow.utils.prepare_benchmark.main<span class="w"> </span>get<span class="w"> </span>xbench-ds
 </code></pre></div>
 <p>By default, this will create the standardized dataset at data/xbench-ds/standardized_data.jsonl.</p>
 <h3 id="step-2-configure-api-keys">Step 2: Configure API Keys</h3>
@@ -2839,7 +2839,7 @@
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>E2B_API_KEY=&quot;your-e2b-api-key&quot;
 </code></pre></div>
 <h3 id="step-3-run-the-evaluation">Step 3: Run the Evaluation</h3>
-<div class="highlight"><span class="filename">Run xbench-DeepSearch Evaluation with MiroThinker</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>src/benchmark/run_benchmark.py<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><span class="filename">Run xbench-DeepSearch Evaluation with MiroThinker</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>miroflow/benchmark/run_benchmark.py<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--config-path<span class="w"> </span>config/standard_xbench-ds_mirothinker.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>benchmark.execution.max_concurrent<span class="o">=</span><span class="m">30</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/xbench-ds/</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y%m%d_%H%M&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
@@ -2868,7 +2868,7 @@
 </ul>
 </div>
 <p>Execute the following command to run multiple xbench-DeepSearch evaluations:</p>
-<div class="highlight"><span class="filename">Multiple runs (8 runs)</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>bash<span class="w"> </span>scripts/standard_xbench-ds_mirothinker_8runs.sh
+<div class="highlight"><span class="filename">Multiple runs (8 runs)</span><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>bash<span class="w"> </span>scripts/benchmark/mirothinker/xbench-ds_mirothinker_8runs.sh
 </code></pre></div>
 <h3 id="running-parallel-thinking-analysis-alone">Running Parallel Thinking Analysis alone</h3>
 <p>After completing evaluations (single or multiple runs), you can apply parallel thinking post-processing to aggregate and generate the final result.</p>

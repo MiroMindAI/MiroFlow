@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/miromind_logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -451,6 +451,34 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../whats_new/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What's New in v1.6
   
 
     
@@ -2115,34 +2143,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../miro_api/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MiroAPI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../contribute_tools/" class="md-nav__link">
         
   
@@ -2800,7 +2800,7 @@
 </code></pre></div>
 <h3 id="step-3-run-the-evaluation">Step 3: Run the Evaluation</h3>
 <p>Execute the evaluation using the MiroThinker standard configuration:</p>
-<div class="highlight"><span class="filename">Run GAIA Validation with MiroThinker</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>src/benchmark/run_benchmark.py<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><span class="filename">Run GAIA Validation with MiroThinker</span><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>uv<span class="w"> </span>run<span class="w"> </span>miroflow/benchmark/run_benchmark.py<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span>--config-path<span class="w"> </span>config/standard_gaia-validation-165_mirothinker.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span>benchmark.execution.max_concurrent<span class="o">=</span><span class="m">30</span><span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/gaia-validation-165/</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y%m%d_%H%M&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
@@ -2809,7 +2809,7 @@
 <p>Follow the <a href="../gaia_validation_prerequisites/#progress-monitoring-and-resume">progress monitoring instructions</a> in the prerequisites document.</p>
 <h2 id="multiple-runs">Multiple Runs</h2>
 <p>Due to performance variance in MiroThinker models, it's recommended to run multiple evaluations for more reliable results.</p>
-<div class="highlight"><span class="filename">Run Multiple MiroThinker Evaluations (8 runs)</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bash<span class="w"> </span>scripts/standard_gaia-validation-165_mirothinker_8runs.sh
+<div class="highlight"><span class="filename">Run Multiple MiroThinker Evaluations (8 runs)</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>bash<span class="w"> </span>scripts/benchmark/mirothinker/gaia-validation-165_mirothinker_8runs.sh
 </code></pre></div>
 <p>This script runs 8 evaluations in parallel and calculates average scores. You can modify <code>NUM_RUNS</code> in the script to change the number of runs.</p>
 <hr />

@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/miromind_logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -451,6 +451,34 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../whats_new/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What's New in v1.6
   
 
     
@@ -2121,34 +2149,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../miro_api/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MiroAPI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../contribute_tools/" class="md-nav__link">
         
   
@@ -2834,7 +2834,7 @@
 </ol>
 </div>
 <p>Then download the dataset:</p>
-<div class="highlight"><span class="filename">Download via Script</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>-m<span class="w"> </span>src.utils.prepare_benchmark.main<span class="w"> </span>get<span class="w"> </span>gaia-val
+<div class="highlight"><span class="filename">Download via Script</span><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>uv<span class="w"> </span>run<span class="w"> </span>-m<span class="w"> </span>miroflow.utils.prepare_benchmark.main<span class="w"> </span>get<span class="w"> </span>gaia-val
 </code></pre></div>
 <hr />
 <h2 id="progress-monitoring-and-resume">Progress Monitoring and Resume</h2>
@@ -2848,7 +2848,7 @@
 <p>Replace <code>$PATH_TO_LOG</code> with your actual output directory path.</p>
 <h3 id="resume-capability">Resume Capability</h3>
 <p>If the evaluation is interrupted, you can resume from where it left off by specifying the same output directory:</p>
-<div class="highlight"><span class="filename">Resume Interrupted Evaluation</span><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uv<span class="w"> </span>run<span class="w"> </span>src/benchmark/run_benchmark.py<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><span class="filename">Resume Interrupted Evaluation</span><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>uv<span class="w"> </span>run<span class="w"> </span>miroflow/benchmark/run_benchmark.py<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>--config-path<span class="w"> </span>config/standard_gaia-validation-165_mirothinker.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/gaia-validation-165/run_1&quot;</span>
 </code></pre></div>

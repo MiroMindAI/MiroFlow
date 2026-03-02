@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/miromind_logo.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
     
     
       
@@ -451,6 +451,34 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../whats_new/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What's New in v1.6
   
 
     
@@ -2165,34 +2193,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../miro_api/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    MiroAPI
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../contribute_tools/" class="md-nav__link">
         
   
@@ -2911,7 +2911,7 @@
 <p class="admonition-title">Dataset Setup</p>
 <p>Use the integrated prepare-benchmark command to download and process the dataset:</p>
 </div>
-<div class="highlight"><span class="filename">Download Futurex-Online Dataset</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>-m<span class="w"> </span>src.utils.prepare_benchmark.main<span class="w"> </span>get<span class="w"> </span>futurex
+<div class="highlight"><span class="filename">Download Futurex-Online Dataset</span><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>-m<span class="w"> </span>miroflow.utils.prepare_benchmark.main<span class="w"> </span>get<span class="w"> </span>futurex
 </code></pre></div>
 <p>This will create the standardized dataset at <code>data/futurex/standardized_data.jsonl</code>.</p>
 <h3 id="step-2-configure-api-keys">Step 2: Configure API Keys</h3>
@@ -2935,7 +2935,7 @@
 <p class="admonition-title">Evaluation Execution</p>
 <p>Execute the following command to run evaluation on the Futurex-Online dataset using a standard configuration:</p>
 </div>
-<div class="highlight"><span class="filename">Run Futurex-Online Evaluation</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>src/benchmark/run_benchmark.py<span class="w"> </span><span class="se">\</span>
+<div class="highlight"><span class="filename">Run Futurex-Online Evaluation</span><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv<span class="w"> </span>run<span class="w"> </span>miroflow/benchmark/run_benchmark.py<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--config-path<span class="w"> </span>config/standard_gaia-validation-165_mirothinker.yaml<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span><span class="nv">benchmark</span><span class="o">=</span>futurex<span class="w"> </span><span class="se">\</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">  </span><span class="nv">output_dir</span><span class="o">=</span><span class="s2">&quot;logs/futurex/</span><span class="k">$(</span>date<span class="w"> </span>+<span class="s2">&quot;%Y%m%d_%H%M&quot;</span><span class="k">)</span><span class="s2">&quot;</span>
