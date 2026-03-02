@@ -3,23 +3,57 @@
 </div>
 
 <div align="center" markdown="1">
-**Open-source research agent framework with state-of-the-art performance across representative benchmarks.**
+**Performance-first agent framework that makes any model better — and proves it across 9+ benchmarks.**
 </div>
 
 ---
 
-## Why MiroFlow?
+## Architecture
+
+<div align="center" markdown="1">
+  ![MiroFlow Architecture](assets/miroflow_architecture_v1.6.png){ width="100%" }
+</div>
+
+---
+
+## Why MiroFlow
 
 <div class="grid cards" markdown>
 
-!!! success "State-of-the-Art Performance"
-    **#1 ranking** across multiple agentic benchmarks including FutureX, GAIA, HLE, xBench-DeepSearch, and BrowseComp. All results are fully reproducible.
+!!! tip "Make Any Model Better"
+    Plug in any LLM — GPT-5, Claude, MiroThinker, Kimi K2.5, DeepSeek — and get better agent performance through smart rollback, iterative reasoning, and optimized tool orchestration. Change `provider_class` and `model_name` in YAML — everything else stays the same. [Learn more](why_miroflow.md)
 
-!!! abstract "High Concurrency & Reliability"
-    Robust concurrency management and fault-tolerant design for handling rate-limited APIs and unstable networks at scale.
+!!! tip "Prove It With Reproducible Benchmarks"
+    State-of-the-art results across 9+ benchmarks (GAIA, HLE, BrowseComp, xBench-DeepSearch, FutureX, and more). Every result is reproducible from a config file and a shell script, with automated multi-run statistical aggregation.
 
-!!! tip "Cost-Effective Deployment"
-    Run a full research agent on a **single RTX 4090** with the open-source [MiroThinker](https://github.com/MiroMindAI/mirothinker) model. No proprietary tools required.
+!!! tip "Fair Model Comparison"
+    Same tools, same prompts, same infrastructure. The only variable is the model. See how different LLMs perform head-to-head on the [Model Comparison Leaderboard](model_comparison.md).
+
+</div>
+
+---
+
+## What's New in v1.6
+
+<div class="grid cards" markdown>
+
+!!! example "Skill System"
+    Define new agent skills with simple `SKILL.md` files — no code changes needed. Skills are auto-discovered from the filesystem, support sandboxed execution, and can be whitelisted for production safety. See [Core Concepts](core_concepts.md#skill-system) for details.
+
+!!! example "Agent Graph Orchestration"
+    Compose multi-agent workflows using `SequentialAgent` and agent graph configs. Agents pass context to each other via `AgentContext`, enabling modular task decomposition and flexible pipeline design. See [Core Concepts](core_concepts.md#agent-graph--multi-agent-composition) for details.
+
+!!! example "Web Application"
+    Out-of-the-box **FastAPI + React** web interface with session management, task execution monitoring, and file uploads. Get started with `bash scripts/start_web.sh`. See [Quick Start](quickstart.md#example-2-web-demo-with-mirothinker) for setup.
+
+!!! example "Smart Rollback & Retry"
+    Automatic detection and rollback of LLM output errors — format issues, truncation, refusals, and duplicate tool calls are all handled gracefully, significantly improving agent robustness.
+
+!!! example "Plugin Architecture"
+    Unified component registry with `@register` decorator for agents, IO processors, and LLM clients. Extend MiroFlow without touching core code — just register your component and reference it in config.
+
+!!! example "Zero-Code Prompt Management"
+    YAML + Jinja2 template-based prompt system. Tune agent behavior by editing config files instead of source code — no redeployment needed.
 
 </div>
 
@@ -45,11 +79,47 @@ bash scripts/test_single_task.sh \
 
 Expected output: `\boxed{Congo Democratic Republic}`
 
+**Switch models in one line** — same tools, same prompts, different LLM:
+
+```yaml
+# GPT-5
+llm:
+  provider_class: GPT5OpenAIClient
+  model_name: gpt-5
+
+# Claude 3.7 Sonnet
+llm:
+  provider_class: ClaudeAnthropicClient
+  model_name: claude-3-7-sonnet-20250219
+
+# MiroThinker (open-source, self-hosted)
+llm:
+  provider_class: MiroThinkerSGLangClient
+  model_name: mirothinker-v1.5
+```
+
 See the [Installation Guide](quickstart.md) for web app setup, more examples, and configuration options.
 
 ---
 
-## Benchmark Results
+## Any Model, Better Results
+
+### Cross-Model Performance (MiroFlow Framework)
+
+| Benchmark | MiroThinker | Claude 3.7 Sonnet | Kimi K2.5 |
+|-----------|-------------|-------------------|-----------|
+| GAIA Validation (165) | **82.4%** | 73.9% | — |
+| GAIA Text-Only (103) | **79.6%** | — | 52.4% |
+| HLE | **27.2%** | — | — |
+| HLE Text-Only | **29.5%** | — | — |
+| BrowseComp-EN | 33.2% | — | — |
+| BrowseComp-ZH | **47.1%** | — | — |
+| xBench-DeepSearch | **72.0%** | — | — |
+
+> All results use the same MiroFlow tools, prompts, and infrastructure. The only variable is the model.
+> See the full [Model Comparison Leaderboard](model_comparison.md) for details.
+
+### Featured Results: MiroThinker
 
 <div align="center" markdown="1">
   ![MiroThinker Performance](assets/mirothinker.png){ width="100%" }
@@ -59,7 +129,7 @@ See the [Installation Guide](quickstart.md) for web app setup, more examples, an
   ![BrowseComp MiroThinker Performance](assets/bc-mirothinker.png){ width="100%" }
 </div>
 
-See [Benchmarks Overview](evaluation_overview.md) for detailed results and reproduction guides.
+See [Evaluation Methodology](evaluation_overview.md) for detailed methodology and reproduction guides.
 
 ---
 

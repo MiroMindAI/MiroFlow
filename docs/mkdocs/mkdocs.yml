@@ -1,5 +1,5 @@
 site_name: MiroFlow
-site_description: Open-source research agent framework with state-of-the-art performance
+site_description: Performance-first agent framework that makes any model better — and proves it
 
 theme:
   name: material
@@ -56,14 +56,19 @@ repo_url: https://github.com/MiroMindAI/miroflow
 nav:
   - Home:
     - Overview: index.md
+    - Why MiroFlow: why_miroflow.md
+    - What's New in v1.6: whats_new.md
 
   - Getting Started:
     - Installation: quickstart.md
     - Core Concepts: core_concepts.md
     - Configuration: yaml_config.md
 
+  - Model Comparison:
+    - Leaderboard: model_comparison.md
+    - Evaluation Methodology: evaluation_overview.md
+
   - Benchmarks:
-    - Overview: evaluation_overview.md
     - GAIA:
       - Prerequisites: gaia_validation_prerequisites.md
       - Claude 3.7 Sonnet: gaia_validation_claude37sonnet.md
@@ -101,7 +106,6 @@ nav:
     - Reasoning:
       - Reasoning: tool_reasoning.md
       - Reasoning (Open-Source): tool_reasoning_os.md
-    - MiroAPI: miro_api.md
     - Add New Tool: contribute_tools.md
 
   - Models:

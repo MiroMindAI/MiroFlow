@@ -1,18 +1,18 @@
 # LLM Clients Overview
 
-MiroFlow supports multiple LLM providers through a unified client interface. Each client handles provider-specific API communication while maintaining consistent functionality.
+MiroFlow is model-agnostic — plug in any LLM and get better agent performance through smart rollback, iterative reasoning, and optimized tool orchestration. Switch models in one line of YAML. Same tools, same prompts, same environment.
 
 ## Available Clients
 
-| Client | Provider | Model | Environment Variables |
-|--------|----------|-------|---------------------|
-| `ClaudeAnthropicClient` | Anthropic Direct | claude-3-7-sonnet | `ANTHROPIC_API_KEY`, `ANTHROPIC_BASE_URL` |
-| `ClaudeOpenRouterClient` | OpenRouter | anthropic/claude-3.7-sonnet, and other [supported models](https://openrouter.ai/models) | `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL` |
-| `GPTOpenAIClient` | OpenAI | gpt-4o, gpt-4o-mini | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
-| `GPT5OpenAIClient` | OpenAI | gpt-5 | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
-| `OpenRouterClient` | OpenRouter | Any model on OpenRouter | `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL` |
-| `OpenAIClient` | OpenAI-Compatible | Any OpenAI-compatible model | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
-| `MiroThinkerSGLangClient` | SGLang | MiroThinker series | `OAI_MIROTHINKER_API_KEY`, `OAI_MIROTHINKER_BASE_URL` |
+| Client | Provider | Model | Benchmark Status | Environment Variables |
+|--------|----------|-------|-----------------|---------------------|
+| `MiroThinkerSGLangClient` | SGLang | MiroThinker series | GAIA, HLE, BrowseComp, xBench-DS, FutureX | `OAI_MIROTHINKER_API_KEY`, `OAI_MIROTHINKER_BASE_URL` |
+| `ClaudeAnthropicClient` | Anthropic Direct | claude-3-7-sonnet | GAIA | `ANTHROPIC_API_KEY`, `ANTHROPIC_BASE_URL` |
+| `GPT5OpenAIClient` | OpenAI | gpt-5 | — | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
+| `GPTOpenAIClient` | OpenAI | gpt-4o, gpt-4o-mini | — | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
+| `ClaudeOpenRouterClient` | OpenRouter | anthropic/claude-3.7-sonnet, and other [supported models](https://openrouter.ai/models) | — | `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL` |
+| `OpenRouterClient` | OpenRouter | Any model on OpenRouter | — | `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL` |
+| `OpenAIClient` | OpenAI-Compatible | Any OpenAI-compatible model | GAIA Text-Only (Kimi K2.5) | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
 
 ## Basic Configuration
 
@@ -47,5 +47,33 @@ Pre-configured base configurations are available in `config/llm/`:
 
 ---
 
+## Switch Models in One Line
+
+Change `provider_class` and `model_name` in your YAML config — everything else stays the same:
+
+```yaml
+# GPT-5
+main_agent:
+  llm:
+    provider_class: GPT5OpenAIClient
+    model_name: gpt-5
+
+# Claude 3.7 Sonnet
+main_agent:
+  llm:
+    provider_class: ClaudeAnthropicClient
+    model_name: claude-3-7-sonnet-20250219
+
+# MiroThinker (open-source, self-hosted)
+main_agent:
+  llm:
+    provider_class: MiroThinkerSGLangClient
+    model_name: mirothinker-v1.5
+```
+
+See the [Model Comparison Leaderboard](model_comparison.md) for cross-model benchmark results.
+
+---
+
 !!! info "Documentation Info"
-    **Last Updated:** February 2026 · **Doc Contributor:** Team @ MiroMind AI
+    **Last Updated:** March 2026 · **Doc Contributor:** Team @ MiroMind AI

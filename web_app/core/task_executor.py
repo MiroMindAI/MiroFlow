@@ -5,22 +5,20 @@
 """Background task execution for agent runs."""
 
 import asyncio
+import logging
 import os
-import sys
 import threading
 import traceback
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-from pathlib import Path
 from typing import Any
-
-# Add parent directory for MiroFlow imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from ..core.config import AppConfig
 from ..core.session_manager import SessionManager
 from ..models.task import FileInfo
+
+logger = logging.getLogger(__name__)
 
 
 class TaskExecutor:
@@ -75,9 +73,9 @@ class TaskExecutor:
         try:
             # Import MiroFlow components (import here to avoid circular imports)
             from config import load_config
-            from src.agents import build_agent_from_config
-            from src.agents.context import AgentContext
-            from src.logging.task_tracer import get_tracer, set_tracer
+            from miroflow.agents import build_agent_from_config
+            from miroflow.agents.context import AgentContext
+            from miroflow.logging.task_tracer import get_tracer, set_tracer
 
             # Update status to running
             self.session_manager.update_task(task_id, {"status": "running"})
@@ -186,7 +184,7 @@ class TaskExecutor:
                         message_history = state_data.get("message_history", [])
                         return self._format_messages(message_history)
         except Exception:
-            pass
+            logger.debug("Failed to retrieve task messages", exc_info=True)
         return []
 
     def get_task_progress(self, task_id: str) -> dict[str, Any]:
@@ -234,7 +232,7 @@ class TaskExecutor:
                         "messages": messages,
                     }
         except Exception:
-            pass
+            logger.debug("Failed to retrieve task progress", exc_info=True)
 
         return {"current_turn": 0, "step_count": 0, "recent_logs": [], "messages": []}
 

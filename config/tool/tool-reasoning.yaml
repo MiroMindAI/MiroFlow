@@ -2,7 +2,7 @@ name: "tool-reasoning"
 tool_command: "python"
 args:
   - "-m"
-  - "src.tool.mcp_servers.reasoning_mcp_server"
+  - "miroflow.tool.mcp_servers.reasoning_mcp_server"
 env:
 # If OpenAI API key and Anthropic API key are both provided, OpenAI will be used.
 # These values will be loaded from the .env file at runtime

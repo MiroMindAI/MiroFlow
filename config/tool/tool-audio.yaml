@@ -2,7 +2,7 @@ name: "tool-audio"
 tool_command: "python"
 args:
   - "-m"
-  - "src.tool.mcp_servers.audio_mcp_server"
+  - "miroflow.tool.mcp_servers.audio_mcp_server"
 env:
 # Audio processing API configuration - these values will be loaded from the .env file at runtime
   OPENAI_API_KEY: "${oc.env:OPENAI_API_KEY}"

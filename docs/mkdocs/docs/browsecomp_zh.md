@@ -24,7 +24,7 @@ More details: [BrowseComp-ZH: Benchmarking Web Browsing Ability of Large Languag
 ### Step 1: Prepare the BrowseComp-ZH Dataset
 
 ```bash title="Download BrowseComp-ZH Dataset"
-uv run -m src.utils.prepare_benchmark.main get browsecomp-zh-test
+uv run -m miroflow.utils.prepare_benchmark.main get browsecomp-zh-test
 ```
 
 This will create the standardized dataset at `data/browsecomp-zh-test/standardized_data.jsonl`.
@@ -50,8 +50,8 @@ CHINESE_CONTEXT="true"
 ### Step 3: Run the Evaluation
 
 ```bash title="Run BrowseComp-ZH Evaluation with MiroThinker"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_browsecomp-zh_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_browsecomp-zh_mirothinker.yaml \
   benchmark.execution.max_concurrent=30 \
   output_dir="logs/browsecomp-zh/$(date +"%Y%m%d_%H%M")"
 ```
@@ -59,7 +59,7 @@ uv run src/benchmark/run_benchmark.py \
 For multiple runs:
 
 ```bash title="Run Multiple Evaluations (3 runs)"
-bash scripts/standard_browsecomp-zh_mirothinker_3runs.sh
+bash scripts/benchmark/mirothinker/browsecomp-zh_mirothinker_3runs.sh
 ```
 
 Results are automatically generated in the output directory:
@@ -72,14 +72,14 @@ Results are automatically generated in the output directory:
 
 ```bash title="Limited Task Testing"
 # Test with 10 tasks only
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_browsecomp-zh_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_browsecomp-zh_mirothinker.yaml \
   benchmark.execution.max_tasks=10 \
   output_dir="logs/browsecomp-zh/$(date +"%Y%m%d_%H%M")"
 ```
 
 ```bash title="Using Sogou Search (alternative)"
-bash scripts/standard_browsecomp-zh_mirothinker_sogou_3runs.sh
+bash scripts/benchmark/mirothinker/browsecomp-zh_mirothinker_sogou_3runs.sh
 ```
 
 ---
@@ -88,8 +88,8 @@ bash scripts/standard_browsecomp-zh_mirothinker_sogou_3runs.sh
 
 | Config File | Model | Use Case |
 |-------------|-------|----------|
-| `standard_browsecomp-zh_mirothinker.yaml` | MiroThinker | Standard Chinese web evaluation |
-| `standard_browsecomp-zh_mirothinker_sogou.yaml` | MiroThinker | With Sogou search for Chinese content |
+| `benchmark_browsecomp-zh_mirothinker.yaml` | MiroThinker | Standard Chinese web evaluation |
+| `benchmark_browsecomp-zh_mirothinker_sogou.yaml` | MiroThinker | With Sogou search for Chinese content |
 
 ---
 

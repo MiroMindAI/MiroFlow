@@ -1,6 +1,6 @@
 # Get Started in Under 5 Minutes
 
-Clone the repository, configure your API keys, and run your first intelligent agent. MiroFlow provides pre-configured agents for different use cases.
+Clone the repository, configure your API keys, and run your first intelligent agent with any model. MiroFlow provides pre-configured agents for different use cases.
 
 ---
 
@@ -72,6 +72,47 @@ bash scripts/start_web.sh
 - Starts a FastAPI + React web interface using `config/agent_web_demo.yaml`
 - Uses MiroThinker (via SGLang) for intelligent analysis
 - Provides access to tools: code sandbox, Serper search, Jina scrape, and file reading
+
+---
+
+## Example 3: Same Task, Different Model
+
+!!! example "Switch LLMs in One Line"
+    Run the same task with a different model by changing the LLM config. Same tools, same prompts, same environment — only the model changes.
+
+Copy the quickstart config and change the LLM section:
+
+```yaml title="config/agent_quickstart_claude.yaml (example)"
+main_agent:
+  llm:
+    provider_class: ClaudeAnthropicClient
+    model_name: claude-3-7-sonnet-20250219
+```
+
+```yaml title="config/agent_quickstart_mirothinker.yaml (example)"
+main_agent:
+  llm:
+    provider_class: MiroThinkerSGLangClient
+    model_name: mirothinker-v1.5
+```
+
+Then run the same task:
+
+```bash
+# With Claude
+bash scripts/test_single_task.sh \
+  --config config/agent_quickstart_claude.yaml \
+  --task-question "What is the first country listed in the XLSX file that have names starting with Co?" \
+  --file-path data/FSI-2023-DOWNLOAD.xlsx
+
+# With MiroThinker
+bash scripts/test_single_task.sh \
+  --config config/agent_quickstart_mirothinker.yaml \
+  --task-question "What is the first country listed in the XLSX file that have names starting with Co?" \
+  --file-path data/FSI-2023-DOWNLOAD.xlsx
+```
+
+See [Model Comparison](model_comparison.md) for benchmark results across models.
 
 ---
 

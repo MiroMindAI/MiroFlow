@@ -26,13 +26,13 @@ main_agent:
     max_tokens: 128000
     reasoning_effort: medium
 
-  prompt: config/prompts/standard_prompt_main_agent.yaml
+  prompt: config/prompts/prompt_main_agent_benchmark.yaml
 
   tools: 
-    - config/tool/tool-python.yaml
+    - config/tool/tool-code-sandbox.yaml
 
   skills:
-    - src/skill/skills/simple_file_understanding
+    - miroflow/skill/skills/simple_file_understanding
 
   input_processor:
     - ${input-message-generator}

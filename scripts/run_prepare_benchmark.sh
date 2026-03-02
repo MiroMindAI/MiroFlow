@@ -13,14 +13,14 @@ fi
 echo "Access confirmed"
 
 # Comment out any unwanted datasets by adding # at the start of the line
-uv run -m src.utils.prepare_benchmark.main get gaia-val
-uv run -m src.utils.prepare_benchmark.main get gaia-val-text-only
-uv run -m src.utils.prepare_benchmark.main get frames-test
-uv run -m src.utils.prepare_benchmark.main get webwalkerqa
-uv run -m src.utils.prepare_benchmark.main get browsecomp-test
-uv run -m src.utils.prepare_benchmark.main get browsecomp-zh-test
-uv run -m src.utils.prepare_benchmark.main get hle
-uv run -m src.utils.prepare_benchmark.main get hle-text-only
-uv run -m src.utils.prepare_benchmark.main get xbench-ds
-uv run -m src.utils.prepare_benchmark.main get futurex
-uv run -m src.utils.prepare_benchmark.main get finsearchcomp
+uv run -m miroflow.utils.prepare_benchmark.main get gaia-val
+uv run -m miroflow.utils.prepare_benchmark.main get gaia-val-text-only
+uv run -m miroflow.utils.prepare_benchmark.main get frames-test
+uv run -m miroflow.utils.prepare_benchmark.main get webwalkerqa
+uv run -m miroflow.utils.prepare_benchmark.main get browsecomp-test
+uv run -m miroflow.utils.prepare_benchmark.main get browsecomp-zh-test
+uv run -m miroflow.utils.prepare_benchmark.main get hle
+uv run -m miroflow.utils.prepare_benchmark.main get hle-text-only
+uv run -m miroflow.utils.prepare_benchmark.main get xbench-ds
+uv run -m miroflow.utils.prepare_benchmark.main get futurex
+uv run -m miroflow.utils.prepare_benchmark.main get finsearchcomp

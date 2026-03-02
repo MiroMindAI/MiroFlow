@@ -41,7 +41,7 @@ More details: [FinSearchComp: Towards a Realistic, Expert-Level Evaluation of Fi
     Use the integrated prepare-benchmark command to download and process the dataset:
 
 ```bash title="Download FinSearchComp Dataset"
-uv run -m src.utils.prepare_benchmark.main get finsearchcomp
+uv run -m miroflow.utils.prepare_benchmark.main get finsearchcomp
 ```
 
 This will create the standardized dataset at `data/finsearchcomp/standardized_data.jsonl`.
@@ -70,8 +70,8 @@ E2B_API_KEY="xxx"
     Execute the following command to run evaluation on the FinSearchComp dataset:
 
 ```bash title="Run FinSearchComp Evaluation"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_gaia-validation-165_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_gaia-validation-165_mirothinker.yaml \
   benchmark=finsearchcomp \
   output_dir="logs/finsearchcomp/$(date +"%Y%m%d_%H%M")"
 ```
@@ -102,8 +102,8 @@ uv run src/benchmark/run_benchmark.py \
 
 ### Limited Task Testing
 ```bash title="Test with Limited Tasks"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_gaia-validation-165_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_gaia-validation-165_mirothinker.yaml \
   benchmark=finsearchcomp \
   benchmark.execution.max_tasks=5 \
   output_dir="logs/finsearchcomp/$(date +"%Y%m%d_%H%M")"

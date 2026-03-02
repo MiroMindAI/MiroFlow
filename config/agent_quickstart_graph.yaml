@@ -21,7 +21,7 @@ main_agent:
     max_tokens: 128000
     reasoning_effort: medium
 
-  prompt: config/prompts/standard_prompt_main_agent.yaml
+  prompt: config/prompts/prompt_main_agent_benchmark.yaml
 
   tools: null
 
@@ -76,13 +76,13 @@ agent-subagent-3:
     _base_: config/llm/base_mirothinker.yaml
   prompt: config/prompts/prompt_sub_agent.yaml
   tools:
-    - config/tool/tool-python.yaml
-    - config/tool/tool-search-and-scrape-webpage.yaml
-    - config/tool/tool-jina-scrape-llm-summary.yaml
+    - config/tool/tool-code-sandbox.yaml
+    - config/tool/tool-serper-search.yaml
+    - config/tool/tool-jina-scrape.yaml
   tool_blacklist:
-    - server: "tool-search-and-scrape-webpage"
+    - server: "tool-serper-search"
       tool: "sogou_search"
-    - server: "tool-python"
+    - server: "tool-code-sandbox"
       tool: "download_file_from_sandbox_to_local"
   input_processor:
     - ${input-message-generator}

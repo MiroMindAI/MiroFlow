@@ -17,11 +17,11 @@ Each LLM client inherits from `LLMClientBase` and implements 4 required methods:
 
 ### Step 1: Create Provider File
 
-Create `src/llm/your_provider_client.py`:
+Create `miroflow/llm/your_provider_client.py`:
 
 ```python title="Provider Implementation"
 import dataclasses
-from src.llm.base import LLMClientBase
+from miroflow.llm.base import LLMClientBase
 
 @dataclasses.dataclass
 class YourProviderClient(LLMClientBase):
@@ -62,7 +62,7 @@ export YOUR_BASE_URL="https://api.yourprovider.com/v1"  # optional if using defa
 
 ## Examples
 
-See existing providers in `src/llm/`:
+See existing providers in `miroflow/llm/`:
 
 - `ClaudeAnthropicClient` (`claude_anthropic.py`) - Direct Anthropic API
 - `ClaudeOpenRouterClient` (`claude_openrouter.py`) - Claude via OpenRouter

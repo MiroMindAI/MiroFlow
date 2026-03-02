@@ -13,9 +13,9 @@ MiroFlow's extensible tool system allows you to add custom functionality by impl
 
 ### Step 1: Create MCP Server
 
-Create a new file `src/tool/mcp_servers/new-mcp-server.py` that implements the tool's core logic.
+Create a new file `miroflow/tool/mcp_servers/new-mcp-server.py` that implements the tool's core logic.
 
-```python title="src/tool/mcp_servers/new-mcp-server.py"
+```python title="miroflow/tool/mcp_servers/new-mcp-server.py"
 from fastmcp import FastMCP
 
 # Initialize FastMCP server
@@ -45,7 +45,7 @@ name: "new-tool-name"
 tool_command: "python"
 args:
   - "-m"
-  - "src.tool.mcp_servers.new-mcp-server"  # Match the server file created above
+  - "miroflow.tool.mcp_servers.new-mcp-server"  # Match the server file created above
 ```
 
 ### Step 3: Register Tool in Agent Configuration

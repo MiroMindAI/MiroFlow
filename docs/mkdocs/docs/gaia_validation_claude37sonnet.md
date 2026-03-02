@@ -1,5 +1,8 @@
 # GAIA Validation - Claude 3.7 Sonnet
 
+!!! tip "Cross-Model Comparison"
+    See how Claude 3.7 Sonnet compares to other models on GAIA and other benchmarks in the [Model Comparison Leaderboard](model_comparison.md).
+
 MiroFlow demonstrates state-of-the-art performance on the GAIA validation benchmark using Claude 3.7 Sonnet models, showcasing exceptional capabilities in complex reasoning tasks that require multi-step problem solving, information synthesis, and tool usage.
 
 !!! info "Prerequisites"

@@ -136,6 +136,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.*
 .envrc
 .venv
 env/
@@ -229,4 +230,4 @@ web_app/uploads/
 .vscode/
 .ruff_cache/
 .env
-.env.local
+.env.*
