@@ -6,6 +6,8 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="Open-source research agent framework with state-of-the-art performance">
+      
       
       
       
@@ -18,7 +20,7 @@
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../assets/miromind_logo.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
     
@@ -28,6 +30,9 @@
     
     
       <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -55,7 +60,14 @@
   </head>
   
   
-    <body dir="ltr">
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -73,10 +85,6 @@
       
     </div>
     
-      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
-        
-      </div>
-    
     
       
 
@@ -84,8 +92,7 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="MiroFlow" class="md-header__button md-logo" aria-label="MiroFlow" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/miromind_logo.png" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -108,6 +115,32 @@
         </div>
       </div>
     </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
     
     
       <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
@@ -139,6 +172,8 @@
         </button>
       </nav>
       
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
@@ -156,13 +191,13 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/MiroMindAI/MiroFlow" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/MiroMindAI/miroflow" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
-    MiroFlow
+    miroflow
   </div>
 </a>
       </div>
@@ -193,7 +228,7 @@
           
   
   
-  🏠 Introduction
+  Home
 
         </a>
       </li>
@@ -215,7 +250,7 @@
           
   
   
-  🚀 Quick Start
+  Getting Started
 
         </a>
       </li>
@@ -235,7 +270,7 @@
           
   
   
-  📊 Evaluation
+  Benchmarks
 
         </a>
       </li>
@@ -255,7 +290,7 @@
           
   
   
-  🔧 Tools
+  Tools
 
         </a>
       </li>
@@ -275,7 +310,7 @@
           
   
   
-  🤖 LLM Clients
+  Models
 
         </a>
       </li>
@@ -295,7 +330,7 @@
           
   
   
-  📚 Resources
+  Resources
 
         </a>
       </li>
@@ -327,21 +362,20 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="MiroFlow" class="md-nav__button md-logo" aria-label="MiroFlow" data-md-component="logo">
       
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+  <img src="../assets/miromind_logo.png" alt="logo">
 
     </a>
     MiroFlow
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/MiroMindAI/MiroFlow" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/MiroMindAI/miroflow" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
-    MiroFlow
+    miroflow
   </div>
 </a>
     </div>
@@ -360,13 +394,17 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
         
           
           <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
@@ -376,7 +414,7 @@
   <span class="md-ellipsis">
     
   
-    🏠 Introduction
+    Home
   
 
     
@@ -392,7 +430,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    🏠 Introduction
+    Home
   
 
           </label>
@@ -412,35 +450,7 @@
   <span class="md-ellipsis">
     
   
-    News & Updates
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../license/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    License
+    Overview
   
 
     
@@ -478,6 +488,8 @@
         
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
@@ -494,7 +506,7 @@
   <span class="md-ellipsis">
     
   
-    🚀 Quick Start
+    Getting Started
   
 
     
@@ -510,7 +522,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    🚀 Quick Start
+    Getting Started
   
 
           </label>
@@ -530,7 +542,7 @@
   <span class="md-ellipsis">
     
   
-    Quickstart
+    Installation
   
 
     
@@ -656,10 +668,32 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#inputoutput-processors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input/Output Processors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#llm-support" class="md-nav__link">
     <span class="md-ellipsis">
       
         LLM Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#component-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Component Registry
       
     </span>
   </a>
@@ -694,7 +728,7 @@
   <span class="md-ellipsis">
     
   
-    YAML Configuration
+    Configuration
   
 
     
@@ -727,13 +761,17 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -743,7 +781,7 @@
   <span class="md-ellipsis">
     
   
-    📊 Evaluation
+    Benchmarks
   
 
     
@@ -759,7 +797,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    📊 Evaluation
+    Benchmarks
   
 
           </label>
@@ -799,151 +837,13 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../contribute_benchmarks/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    How to add new benchmarks
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
     
     
     
     
       
+      
+        
       
     
     
@@ -951,17 +851,19 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" >
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_2" >
         
           
-          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    GAIA-Val
+    GAIA
   
 
     
@@ -972,12 +874,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3_7">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             
   
-    GAIA-Val
+    GAIA
   
 
           </label>
@@ -997,7 +899,7 @@
   <span class="md-ellipsis">
     
   
-    Prepare Dataset
+    Prerequisites
   
 
     
@@ -1025,7 +927,7 @@
   <span class="md-ellipsis">
     
   
-    Claude-3.7-Sonnet
+    Claude 3.7 Sonnet
   
 
     
@@ -1095,14 +997,6 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
               
                 
   
@@ -1117,7 +1011,7 @@
   <span class="md-ellipsis">
     
   
-    GAIA-Val-Text
+    Text-Only
   
 
     
@@ -1145,7 +1039,7 @@
   <span class="md-ellipsis">
     
   
-    GAIA-Test
+    Test Set
   
 
     
@@ -1158,6 +1052,68 @@
   
 
               
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BrowseComp
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    BrowseComp
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -1173,7 +1129,7 @@
   <span class="md-ellipsis">
     
   
-    BrowseComp-EN
+    English
   
 
     
@@ -1201,7 +1157,97 @@
   <span class="md-ellipsis">
     
   
-    BrowseComp-ZH
+    Chinese
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4" id="__nav_3_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other Benchmarks
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Other Benchmarks
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../hle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HLE
   
 
     
@@ -1222,14 +1268,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../webwalkerqa/" class="md-nav__link">
+      <a href="../hle_text_only/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WebWalkerQA
+    HLE Text-Only
   
 
     
@@ -1334,42 +1380,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../hle/" class="md-nav__link">
+      <a href="../webwalkerqa/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    HLE
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../hle_text_only/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    HLE-Text-Only
+    WebWalkerQA
   
 
     
@@ -1417,6 +1435,42 @@
     </li>
   
 
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contribute_benchmarks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add New Benchmark
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
     
       
       
@@ -1429,6 +1483,8 @@
     
     
       
+      
+        
       
     
     
@@ -1436,7 +1492,9 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
@@ -1446,7 +1504,7 @@
   <span class="md-ellipsis">
     
   
-    🔧 Tools
+    Tools
   
 
     
@@ -1462,7 +1520,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    🔧 Tools
+    Tools
   
 
           </label>
@@ -1502,43 +1560,33 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../contribute_tools/" class="md-nav__link">
+    
+    
+    
+    
+      
+      
         
-  
-  
-  <span class="md-ellipsis">
+      
     
-  
-    How to add new tools
-  
-
     
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
   
   
   <span class="md-ellipsis">
     
   
-    
+    Search
   
 
     
@@ -1546,123 +1594,19 @@
   
   
 
-      </a>
-    </li>
-  
-
-              
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
             
-              
-                
   
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
+    Search
   
 
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tool_reading/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    tool-reading
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -1678,7 +1622,7 @@
   <span class="md-ellipsis">
     
   
-    tool-searching
+    Google Search
   
 
     
@@ -1706,7 +1650,7 @@
   <span class="md-ellipsis">
     
   
-    tool-searching-serper
+    Serper Search
   
 
     
@@ -1720,29 +1664,9 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tool_audio/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    tool-audio
-  
-
-    
-  </span>
-  
-  
-
-      </a>
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1754,43 +1678,33 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../tool_audio_os/" class="md-nav__link">
+    
+    
+    
+    
+      
+      
         
-  
-  
-  <span class="md-ellipsis">
+      
     
-  
-    tool-audio-os
-  
-
     
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tool_reasoning/" class="md-nav__link">
-        
   
   
   <span class="md-ellipsis">
     
   
-    tool-reasoning
+    Media
   
 
     
@@ -1798,39 +1712,19 @@
   
   
 
-      </a>
-    </li>
-  
-
-              
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
             
-              
-                
   
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tool_reasoning_os/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    tool-reasoning-os
+    Media
   
 
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -1846,7 +1740,7 @@
   <span class="md-ellipsis">
     
   
-    tool-image-video
+    Image & Video
   
 
     
@@ -1874,7 +1768,7 @@
   <span class="md-ellipsis">
     
   
-    tool-image-video-os
+    Image & Video (Open-Source)
   
 
     
@@ -1887,6 +1781,124 @@
   
 
               
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_audio/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audio
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_audio_os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Audio (Open-Source)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code & Files
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Code & Files
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -1902,7 +1914,7 @@
   <span class="md-ellipsis">
     
   
-    tool-code / tool-code-sandbox
+    Code Execution
   
 
     
@@ -1923,14 +1935,14 @@
   
   
     <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
+      <a href="../tool_reading/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    
+    File Reading
   
 
     
@@ -1943,140 +1955,6 @@
   
 
               
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_21" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_21" id="__nav_4_21_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Advanced Features
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_21_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_21">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Advanced Features
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -2092,7 +1970,7 @@
   <span class="md-ellipsis">
     
   
-    E2B Advanced Features
+    E2B Sandbox
   
 
     
@@ -2101,6 +1979,132 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reasoning
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reasoning
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_reasoning/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reasoning
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_reasoning_os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reasoning (Open-Source)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -2134,9 +2138,29 @@
 
               
             
-          </ul>
-        </nav>
-      
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contribute_tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add New Tool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2161,13 +2185,17 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
@@ -2177,7 +2205,7 @@
   <span class="md-ellipsis">
     
   
-    🤖 LLM Clients
+    Models
   
 
     
@@ -2193,7 +2221,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    🤖 LLM Clients
+    Models
   
 
           </label>
@@ -2214,146 +2242,6 @@
     
   
     Overview
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../contribute_llm_clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    How to add new LLM clients
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href=".." class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    
   
 
     
@@ -2409,7 +2297,7 @@
   <span class="md-ellipsis">
     
   
-    Claude 3.7 Sonnet (Official SDK)
+    Claude 3.7 Sonnet
   
 
     
@@ -2437,7 +2325,7 @@
   <span class="md-ellipsis">
     
   
-    Claude 3.7 Sonnet (OpenRouter)
+    Claude 3.7 (OpenRouter)
   
 
     
@@ -2535,6 +2423,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contribute_llm_clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Add New Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2554,13 +2470,17 @@
     
       
       
+        
+      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
         
           
           <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
@@ -2570,7 +2490,7 @@
   <span class="md-ellipsis">
     
   
-    📚 Resources
+    Resources
   
 
     
@@ -2586,7 +2506,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    📚 Resources
+    Resources
   
 
           </label>
@@ -2606,7 +2526,7 @@
   <span class="md-ellipsis">
     
   
-    All About Agents
+    Research Papers
   
 
     
@@ -2655,34 +2575,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../applications/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Applications
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../faqs/" class="md-nav__link">
         
   
@@ -2690,7 +2582,7 @@
   <span class="md-ellipsis">
     
   
-    FAQs
+    FAQ
   
 
     
@@ -2719,6 +2611,34 @@
     
   
     Contributors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License
   
 
     
@@ -2811,10 +2731,32 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#inputoutput-processors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input/Output Processors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#llm-support" class="md-nav__link">
     <span class="md-ellipsis">
       
         LLM Support
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#component-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Component Registry
       
     </span>
   </a>
@@ -2853,14 +2795,13 @@
 <p><img alt="MiroFlow Architecture" src="../assets/miroflow_architecture.png" width="80%" /></p>
 </div>
 <div class="admonition abstract">
-<p class="admonition-title">Multi-Stage Agentic Process</p>
+<p class="admonition-title">Agentic Process</p>
 <p>MiroFlow processes user queries through a structured workflow:</p>
 <ol>
-<li><strong>Intent Recognition &amp; Query Augmentation</strong> - LLMs analyze and refine user input</li>
-<li><strong>Planning &amp; Task Orchestration</strong> - Main agent creates execution plans and coordinates sub-agents</li>
-<li><strong>Delegation to Sub-Agents</strong> - Specialized agents handle domain-specific tasks</li>
-<li><strong>Tool Access via MCP Servers</strong> - Agents leverage external capabilities through MCP protocol</li>
-<li><strong>Result Synthesis &amp; Output Alignment</strong> - Final results are synthesized and formatted</li>
+<li><strong>Input Processing</strong> - File content pre-processing, hint generation, and message formatting</li>
+<li><strong>Iterative Reasoning with Rollback</strong> - The agent iteratively reasons, plans, and executes tool calls with automatic rollback on failures</li>
+<li><strong>Tool Access via MCP Servers</strong> - Agents leverage external capabilities (search, code execution, file reading, etc.) through the MCP protocol</li>
+<li><strong>Output Processing</strong> - Results are summarized and final answers are extracted (regex-based or LLM-based)</li>
 </ol>
 </div>
 <hr />
@@ -2868,27 +2809,47 @@
 <h3 id="agent-system">Agent System</h3>
 <div class="admonition info">
 <p class="admonition-title">Agent Architecture</p>
-<p><strong>Main Agent</strong>: Primary coordinator that receives tasks, creates plans, and manages overall execution. Can use reasoning tools and delegate to sub-agents.</p>
-<p><strong>Sub-Agents</strong>: Specialized agents for specific domains:</p>
+<p><strong>IterativeAgentWithToolAndRollback</strong>: The primary agent type that receives tasks, iteratively reasons and calls tools, with automatic rollback on consecutive failures. Key parameters:</p>
 <ul>
-<li><strong><code>agent-worker</code></strong>: General-purpose agent with comprehensive tool access (search, files, code, media)</li>
-<li>Each sub-agent has dedicated configurations and can operate independently</li>
+<li><code>max_turns</code>: Maximum reasoning/tool-calling iterations</li>
+<li><code>max_consecutive_rollbacks</code>: Maximum consecutive rollbacks before stopping</li>
+<li>Configurable tools, prompts, and LLM providers</li>
 </ul>
 </div>
 <h3 id="tool-integration">Tool Integration</h3>
 <div class="admonition note">
 <p class="admonition-title">Tool System</p>
-<p><strong>Tool Manager</strong>: Connects to MCP servers and manages tool availability</p>
+<p><strong>Tool Manager</strong>: Connects to MCP servers and manages tool availability. Tools are configured via YAML files in <code>config/tool/</code>.</p>
 <p><strong>Available Tools</strong>:</p>
 <ul>
-<li><strong>Code Execution</strong>: Python sandbox via E2B integration</li>
-<li><strong>Web Search</strong>: Google search with content retrieval</li>
-<li><strong>Document Processing</strong>: Multi-format file reading and analysis</li>
-<li><strong>Visual Processing</strong>: Image and video analysis</li>
-<li><strong>Audio Processing</strong>: Transcription and audio analysis</li>
-<li><strong>Enhanced Reasoning</strong>: Advanced reasoning via high-quality LLMs</li>
+<li><strong>Code Execution</strong> (<code>tool-code-sandbox</code>): Python sandbox via E2B integration</li>
+<li><strong>Web Search</strong> (<code>tool-searching</code>, <code>tool-serper-search</code>, <code>tool-searching-serper</code>): Google search with content retrieval</li>
+<li><strong>URL Scraping</strong> (<code>tool-jina-scrape</code>): URL scraping with LLM-powered info extraction</li>
+<li><strong>Document Processing</strong> (<code>tool-reading</code>): Multi-format file reading and analysis</li>
+<li><strong>Visual Processing</strong> (<code>tool-image-video</code>, <code>tool-image-video-os</code>): Image and video analysis</li>
+<li><strong>Audio Processing</strong> (<code>tool-audio</code>, <code>tool-audio-os</code>): Transcription and audio analysis</li>
+<li><strong>Enhanced Reasoning</strong> (<code>tool-reasoning</code>, <code>tool-reasoning-os</code>): Advanced reasoning via high-quality LLMs</li>
+<li><strong>Web Browsing</strong> (<code>tool-browsing</code>): Automated web browsing</li>
+<li><strong>Markdown Conversion</strong> (<code>tool-markitdown</code>): Document to markdown conversion</li>
 </ul>
 <p>See <a href="../tool_overview/">Tool Overview</a> for detailed tool configurations and capabilities.</p>
+</div>
+<h3 id="inputoutput-processors">Input/Output Processors</h3>
+<div class="admonition note">
+<p class="admonition-title">Processing Pipeline</p>
+<p><strong>Input Processors</strong> (run before agent execution):</p>
+<ul>
+<li><code>FileContentPreprocessor</code>: Pre-processes attached file content</li>
+<li><code>InputHintGenerator</code>: Generates task hints using an LLM</li>
+<li><code>InputMessageGenerator</code>: Formats the initial message for the agent</li>
+</ul>
+<p><strong>Output Processors</strong> (run after agent execution):</p>
+<ul>
+<li><code>SummaryGenerator</code>: Summarizes the agent's conversation</li>
+<li><code>RegexBoxedExtractor</code>: Extracts <code>\boxed{}</code> answers via regex</li>
+<li><code>FinalAnswerExtractor</code>: Extracts final answers using an LLM</li>
+<li><code>ExceedMaxTurnSummaryGenerator</code>: Generates summary when max turns are exceeded</li>
+</ul>
 </div>
 <h3 id="llm-support">LLM Support</h3>
 <div class="admonition tip">
@@ -2897,10 +2858,23 @@
 <ul>
 <li><strong>Anthropic Claude</strong> (via Anthropic API or OpenRouter)</li>
 <li><strong>OpenAI GPT</strong> (GPT-4o, GPT-5 via OpenAI API)</li>
-<li><strong>DeepSeek</strong> (via OpenRouter)</li>
+<li><strong>DeepSeek</strong> (via OpenRouter or OpenAI-compatible API)</li>
 <li><strong>MiroThinker</strong> (via SGLang, open-source)</li>
+<li><strong>Kimi K2.5</strong> (via OpenAI-compatible API)</li>
 <li><strong>Any OpenAI-compatible API</strong> (via generic OpenAI/OpenRouter clients)</li>
 <li>See <a href="../llm_clients_overview/">LLM Clients Overview</a> for details</li>
+</ul>
+</div>
+<h3 id="component-registry">Component Registry</h3>
+<div class="admonition info">
+<p class="admonition-title">Registry System</p>
+<p>MiroFlow uses a unified registration mechanism for dynamically discovering and loading components:</p>
+<ul>
+<li><strong>Agents</strong>: Registered via <code>@register(ComponentType.AGENT, "name")</code></li>
+<li><strong>IO Processors</strong>: Registered via <code>@register(ComponentType.IO_PROCESSOR, "name")</code></li>
+<li><strong>LLM Clients</strong>: Registered via <code>@register(ComponentType.LLM, "name")</code></li>
+<li><strong>Tools</strong>: Discovered dynamically via MCP protocol (not registered in code)</li>
+<li><strong>Skills</strong>: Discovered via filesystem scanning</li>
 </ul>
 </div>
 <hr />
@@ -2927,6 +2901,12 @@
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
         
       </main>
       
@@ -2957,7 +2937,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["header.autohide", "navigation.tabs"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["header.autohide", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
