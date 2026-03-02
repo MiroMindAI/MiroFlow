@@ -24,7 +24,7 @@ More details: [WebWalkerQA on HuggingFace](https://huggingface.co/datasets/Mirom
 ### Step 1: Prepare the WebWalkerQA Dataset
 
 ```bash title="Download WebWalkerQA Dataset"
-uv run -m src.utils.prepare_benchmark.main get webwalkerqa
+uv run -m miroflow.utils.prepare_benchmark.main get webwalkerqa
 ```
 
 This will create the standardized dataset at `data/webwalkerqa/standardized_data.jsonl`.
@@ -47,8 +47,8 @@ E2B_API_KEY="xxx"
 ### Step 3: Run the Evaluation
 
 ```bash title="Run WebWalkerQA Evaluation with MiroThinker"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_webwalkerqa_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_webwalkerqa_mirothinker.yaml \
   benchmark.execution.max_concurrent=30 \
   output_dir="logs/webwalkerqa/$(date +"%Y%m%d_%H%M")"
 ```
@@ -56,7 +56,7 @@ uv run src/benchmark/run_benchmark.py \
 For multiple runs:
 
 ```bash title="Run Multiple Evaluations (3 runs)"
-bash scripts/standard_webwalkerqa_mirothinker_3runs.sh
+bash scripts/benchmark/mirothinker/webwalkerqa_mirothinker_3runs.sh
 ```
 
 !!! tip "Progress Monitoring and Resume"
@@ -78,16 +78,16 @@ Results are automatically generated in the output directory:
 
 ```bash title="Limited Task Testing"
 # Test with 10 tasks only
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_webwalkerqa_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_webwalkerqa_mirothinker.yaml \
   benchmark.execution.max_tasks=10 \
   output_dir="logs/webwalkerqa/test"
 ```
 
 ```bash title="Custom Concurrency"
 # Run with 10 concurrent tasks
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_webwalkerqa_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_webwalkerqa_mirothinker.yaml \
   benchmark.execution.max_concurrent=10 \
   output_dir="logs/webwalkerqa/$(date +"%Y%m%d_%H%M")"
 ```
@@ -98,7 +98,7 @@ uv run src/benchmark/run_benchmark.py \
 
 | Config File | Model | Use Case |
 |-------------|-------|----------|
-| `standard_webwalkerqa_mirothinker.yaml` | MiroThinker | Standard evaluation |
+| `benchmark_webwalkerqa_mirothinker.yaml` | MiroThinker | Standard evaluation |
 
 ---
 

@@ -2,7 +2,7 @@ name: "tool-image-video"
 tool_command: "python"
 args:
   - "-m"
-  - "src.tool.mcp_servers.vision_mcp_server"
+  - "miroflow.tool.mcp_servers.vision_mcp_server"
 env:
 # Visual Question Answering (VQA) provider selection order:
 # 1. If ANTHROPIC_API_KEY is set, Anthropic will be used for VQA.

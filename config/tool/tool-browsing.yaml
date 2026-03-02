@@ -2,7 +2,7 @@ name: "tool-browsing"
 tool_command: "python"
 args:
   - "-m"
-  - "src.tool.mcp_servers.browsing_mcp_server"
+  - "miroflow.tool.mcp_servers.browsing_mcp_server"
 env:
 # Browsing AI API configuration - these values will be loaded from the .env file at runtime
   ANTHROPIC_API_KEY: "${oc.env:ANTHROPIC_API_KEY}"

@@ -1,5 +1,8 @@
 # GAIA Validation - GPT-5
 
+!!! tip "Cross-Model Comparison"
+    See how GPT-5 compares to other models on GAIA and other benchmarks in the [Model Comparison Leaderboard](model_comparison.md).
+
 MiroFlow supports GPT-5 with MCP tool invocation, providing a unified workflow for multi-step reasoning, information integration, and scalable tool coordination.
 
 !!! info "Prerequisites"

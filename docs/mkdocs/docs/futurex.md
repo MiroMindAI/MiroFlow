@@ -39,7 +39,7 @@ More details: [FutureX: An Advanced Live Benchmark for LLM Agents in Future Pred
     Use the integrated prepare-benchmark command to download and process the dataset:
 
 ```bash title="Download Futurex-Online Dataset"
-uv run -m src.utils.prepare_benchmark.main get futurex
+uv run -m miroflow.utils.prepare_benchmark.main get futurex
 ```
 
 This will create the standardized dataset at `data/futurex/standardized_data.jsonl`.
@@ -68,8 +68,8 @@ E2B_API_KEY="xxx"
     Execute the following command to run evaluation on the Futurex-Online dataset using a standard configuration:
 
 ```bash title="Run Futurex-Online Evaluation"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_gaia-validation-165_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_gaia-validation-165_mirothinker.yaml \
   benchmark=futurex \
   output_dir="logs/futurex/$(date +"%Y%m%d_%H%M")"
 ```

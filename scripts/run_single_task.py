@@ -19,10 +19,10 @@ import dotenv
 from omegaconf import DictConfig
 
 from config import load_config
-from src.benchmark.eval_utils import Task, Evaluator
-from src.benchmark.task_runner import run_single_task as _run_single_task
-from src.agents import build_agent_from_config
-from src.logging.task_tracer import get_tracer
+from miroflow.benchmark.eval_utils import Task, Evaluator
+from miroflow.benchmark.task_runner import run_single_task as _run_single_task
+from miroflow.agents import build_agent_from_config
+from miroflow.logging.task_tracer import get_tracer
 
 
 def parse_task_from_json(x: str) -> Task:

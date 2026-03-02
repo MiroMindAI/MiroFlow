@@ -12,7 +12,7 @@ MiroFlow provides advanced E2B (Execute to Build) sandbox capabilities for enhan
 !!! tip "Recommended Setup"
     To achieve our best benchmark results, we recommend using a pre-defined sandbox template that includes the most commonly used Python and apt packages.
 
-If you prefer not to use a sandbox template, you can disable it by commenting out the line `template=DEFAULT_TEMPLATE_ID,` in `src/tool/mcp_servers/code_sandbox.py`.
+If you prefer not to use a sandbox template, you can disable it by commenting out the line `template=DEFAULT_TEMPLATE_ID,` in `miroflow/tool/mcp_servers/code_sandbox.py`.
 
 ---
 

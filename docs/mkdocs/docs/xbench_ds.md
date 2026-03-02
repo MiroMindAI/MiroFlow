@@ -15,7 +15,7 @@ See more details at [xbench official website](https://xbench.org/agi/aisearch) a
     Use the integrated prepare-benchmark command to download and process the dataset:
 
 ```bash
-uv run -m src.utils.prepare_benchmark.main get xbench-ds
+uv run -m miroflow.utils.prepare_benchmark.main get xbench-ds
 ```
 
 By default, this will create the standardized dataset at data/xbench-ds/standardized_data.jsonl.
@@ -41,8 +41,8 @@ E2B_API_KEY="your-e2b-api-key"
 ### Step 3: Run the Evaluation
 
 ```bash title="Run xbench-DeepSearch Evaluation with MiroThinker"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_xbench-ds_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_xbench-ds_mirothinker.yaml \
   benchmark.execution.max_concurrent=30 \
   output_dir="logs/xbench-ds/$(date +"%Y%m%d_%H%M")"
 ```
@@ -75,7 +75,7 @@ Replace `$PATH_TO_LOG` with your actual output directory path.
 Execute the following command to run multiple xbench-DeepSearch evaluations:
 
 ```bash title="Multiple runs (8 runs)"
-bash scripts/standard_xbench-ds_mirothinker_8runs.sh
+bash scripts/benchmark/mirothinker/xbench-ds_mirothinker_8runs.sh
 ```
 
 ### Running Parallel Thinking Analysis alone

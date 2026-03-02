@@ -55,7 +55,7 @@ First, you need to request access and configure your environment:
 Then download the dataset:
 
 ```bash title="Download via Script"
-uv run -m src.utils.prepare_benchmark.main get gaia-val
+uv run -m miroflow.utils.prepare_benchmark.main get gaia-val
 ```
 
 ---
@@ -80,8 +80,8 @@ Replace `$PATH_TO_LOG` with your actual output directory path.
 If the evaluation is interrupted, you can resume from where it left off by specifying the same output directory:
 
 ```bash title="Resume Interrupted Evaluation"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_gaia-validation-165_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_gaia-validation-165_mirothinker.yaml \
   output_dir="logs/gaia-validation-165/run_1"
 ```
 

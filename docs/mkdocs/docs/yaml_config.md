@@ -7,7 +7,7 @@ MiroFlow uses a configuration system for customizing AI agents, tools, and bench
 ```bash title="Configuration Directory"
 config/
 ├── agent_*.yaml                      # Agent configurations (quickstart, web demo, etc.)
-├── standard_*.yaml                   # Standard benchmark configurations
+├── benchmark_*.yaml                  # Benchmark configurations
 ├── prompts/                          # Prompt classes (.py and .yaml)
 ├── llm/                              # LLM provider configurations
 ├── benchmark/                        # Benchmark dataset settings
@@ -27,14 +27,14 @@ bash scripts/test_single_task.sh \
 **Run Benchmarks**
 ```bash
 # GAIA validation with MiroThinker (8 runs)
-bash scripts/standard_gaia-validation-165_mirothinker_8runs.sh
+bash scripts/benchmark/mirothinker/gaia-validation-165_mirothinker_8runs.sh
 
 # BrowseComp English with MiroThinker (3 runs)
-bash scripts/standard_browsecomp-en_mirothinker_3runs.sh
+bash scripts/benchmark/mirothinker/browsecomp-en_mirothinker_3runs.sh
 
 # Or run a single benchmark run directly
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_gaia-validation-165_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_gaia-validation-165_mirothinker.yaml \
   benchmark.execution.max_concurrent=30 \
   output_dir="logs/gaia-validation-165/run_1"
 ```
@@ -64,7 +64,7 @@ main_agent:
     model_name: gpt-5
     max_tokens: 128000
 
-  prompt: config/prompts/standard_prompt_main_agent.yaml
+  prompt: config/prompts/prompt_main_agent_benchmark.yaml
 
   tools:
     - config/tool/tool-reading.yaml
@@ -88,7 +88,7 @@ data_dir: "${oc.env:DATA_DIR,data}"
 
 ### Standard Benchmark Configuration
 
-```yaml title="Benchmark Configuration (standard_gaia-validation-165_mirothinker.yaml)"
+```yaml title="Benchmark Configuration (benchmark_gaia-validation-165_mirothinker.yaml)"
 defaults:
   - benchmark: gaia-validation-165
   - override hydra/job_logging: none
@@ -104,7 +104,7 @@ main_agent:
   llm:
     _base_: config/llm/base_mirothinker.yaml
 
-  prompt: config/prompts/standard_prompt_main_agent.yaml
+  prompt: config/prompts/prompt_main_agent_benchmark.yaml
 
   tools:
     - config/tool/tool-code-sandbox.yaml
@@ -240,7 +240,7 @@ CHINESE_CONTEXT="false"
     - **Tool selection**: Choose tools based on your task requirements
     - **API keys**: Always use environment variables, never hardcode
     - **Resource limits**: Set `max_concurrent` and `max_tokens` appropriately
-    - **Benchmark configs**: Use the `standard_*_mirothinker.yaml` configs for reproducing benchmark results
+    - **Benchmark configs**: Use the `benchmark_*_mirothinker.yaml` configs for reproducing benchmark results
 
 ---
 

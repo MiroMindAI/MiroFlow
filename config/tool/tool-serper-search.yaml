@@ -2,7 +2,7 @@ name: "tool-serper-search"
 tool_command: "python"
 args:
   - "-m"
-  - "src.tool.mcp_servers.serper_search"
+  - "miroflow.tool.mcp_servers.serper_search"
 env:
 # Search API keys - these values will be loaded from the .env file at runtime
   SERPER_API_KEY: "${oc.env:SERPER_API_KEY}"

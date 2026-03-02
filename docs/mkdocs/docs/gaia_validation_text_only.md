@@ -18,7 +18,7 @@ Choose one of the following methods to obtain the GAIA Validation Text-Only data
 **Method 1: Automated Download (Recommended)**
 
 ```bash title="Download via MiroFlow Command"
-uv run -m src.utils.prepare_benchmark.main get gaia-val-text-only
+uv run -m miroflow.utils.prepare_benchmark.main get gaia-val-text-only
 ```
 
 **Method 2: Manual Download**
@@ -53,8 +53,8 @@ E2B_API_KEY="your-e2b-api-key"
 Execute the evaluation using the standard MiroThinker configuration:
 
 ```bash title="Run GAIA Validation Text-Only Evaluation"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_gaia-validation-text-103_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_gaia-validation-text-103_mirothinker.yaml \
   benchmark.execution.max_concurrent=30 \
   output_dir="logs/gaia-validation-text-103/$(date +"%Y%m%d_%H%M")"
 ```
@@ -62,7 +62,7 @@ uv run src/benchmark/run_benchmark.py \
 For multiple runs:
 
 ```bash title="Run Multiple Evaluations (8 runs)"
-bash scripts/standard_gaia-validation-text-103_mirothinker_8runs.sh
+bash scripts/benchmark/mirothinker/gaia-validation-text-103_mirothinker_8runs.sh
 ```
 
 ### Step 4: Monitor Progress and Resume
@@ -80,8 +80,8 @@ Replace `$PATH_TO_LOG` with your actual output directory path.
     If the evaluation is interrupted, you can resume from where it left off by specifying the same output directory:
 
 ```bash title="Resume Interrupted Evaluation"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_gaia-validation-text-103_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_gaia-validation-text-103_mirothinker.yaml \
   output_dir="logs/gaia-validation-text-103/run_1"
 ```
 

@@ -18,7 +18,7 @@ More details: [HLE text only Dataset on HuggingFace](https://huggingface.co/data
 ### Step 1: Prepare the HLE (text only) Dataset
 
 ```bash title="Download HLE (text only) Dataset"
-uv run -m src.utils.prepare_benchmark.main get hle-text-only
+uv run -m miroflow.utils.prepare_benchmark.main get hle-text-only
 ```
 
 This will download the dataset to `data/hle-text-only/`.
@@ -41,8 +41,8 @@ E2B_API_KEY="xxx"
 ### Step 3: Run the Evaluation
 
 ```bash title="Run HLE Text-Only Evaluation with MiroThinker"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_hle-text-only_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_hle-text-only_mirothinker.yaml \
   benchmark.execution.max_concurrent=30 \
   output_dir="logs/hle-text-only/$(date +"%Y%m%d_%H%M")"
 ```
@@ -50,7 +50,7 @@ uv run src/benchmark/run_benchmark.py \
 For multiple runs:
 
 ```bash title="Run Multiple Evaluations (3 runs)"
-bash scripts/standard_hle-text-only_mirothinker_3runs.sh
+bash scripts/benchmark/mirothinker/hle-text-only_mirothinker_3runs.sh
 ```
 
 !!! tip "Resume Interrupted Evaluation"
@@ -73,8 +73,8 @@ uv run utils/check_progress_hle-text-only.py $PATH_TO_LOG
 ### Test with Limited Tasks
 
 ```bash
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_hle-text-only_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_hle-text-only_mirothinker.yaml \
   benchmark.execution.max_tasks=10 \
   output_dir="logs/hle-text-only/$(date +"%Y%m%d_%H%M")"
 ```
@@ -82,8 +82,8 @@ uv run src/benchmark/run_benchmark.py \
 ### Adjust Concurrency
 
 ```bash
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_hle-text-only_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_hle-text-only_mirothinker.yaml \
   benchmark.execution.max_concurrent=5 \
   output_dir="logs/hle-text-only/$(date +"%Y%m%d_%H%M")"
 ```

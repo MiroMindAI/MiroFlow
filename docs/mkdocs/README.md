@@ -4,10 +4,10 @@ This directory contains the MkDocs documentation site using the Material theme.
 
 ## Setup
 
-Install required dependencies:
+mkdocs is included in the project's core dependencies. Just run:
 
 ```bash
-uv pip install mkdocs "mkdocs-material[imaging]"
+uv sync
 ```
 
 ## Local Development
@@ -37,15 +37,18 @@ Live site: https://miromindai.github.io/miroflow/
 
 ```
 docs/
-├── index.md                    # Landing page with changelog
-├── license.md                  # Apache 2.0 license info
+├── index.md                    # Landing page
+├── why_miroflow.md             # Why MiroFlow — full narrative
+├── whats_new.md                # What's New in v1.6
+├── model_comparison.md         # Cross-model leaderboard
+├── evaluation_overview.md      # Evaluation methodology
 ├── quickstart.md               # 5-minute quick start guide
 ├── core_concepts.md            # Architecture overview
 ├── yaml_config.md              # Configuration reference
-├── evaluation_overview.md      # Benchmark performance summary
 ├── contribute_benchmarks.md    # How to add new benchmarks
 ├── contribute_tools.md         # How to add new MCP tools
 ├── contribute_llm_clients.md   # How to add new LLM clients
+├── llm_clients_overview.md     # LLM clients overview
 ├── tool_*.md                   # Individual tool documentation
 ├── gaia_*.md                   # GAIA benchmark guides
 ├── browsecomp_*.md             # BrowseComp benchmark guides

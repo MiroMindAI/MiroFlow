@@ -25,7 +25,7 @@ More details: [Humanity's Last Exam](https://arxiv.org/abs/2501.14249)
 ### Step 1: Prepare the HLE Dataset
 
 ```bash title="Download HLE Dataset"
-uv run -m src.utils.prepare_benchmark.main get hle
+uv run -m miroflow.utils.prepare_benchmark.main get hle
 ```
 
 This will download the dataset and save images to `data/hle/images/`.
@@ -48,8 +48,8 @@ E2B_API_KEY="xxx"
 ### Step 3: Run the Evaluation
 
 ```bash title="Run HLE Evaluation with MiroThinker"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_hle_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_hle_mirothinker.yaml \
   benchmark.execution.max_concurrent=30 \
   output_dir="logs/hle/$(date +"%Y%m%d_%H%M")"
 ```
@@ -57,7 +57,7 @@ uv run src/benchmark/run_benchmark.py \
 For multiple runs:
 
 ```bash title="Run Multiple Evaluations (3 runs)"
-bash scripts/standard_hle_mirothinker_3runs.sh
+bash scripts/benchmark/mirothinker/hle_mirothinker_3runs.sh
 ```
 
 !!! tip "Resume Interrupted Evaluation"
@@ -80,8 +80,8 @@ uv run utils/check_progress_hle.py $PATH_TO_LOG
 ### Test with Limited Tasks
 
 ```bash
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_hle_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_hle_mirothinker.yaml \
   benchmark.execution.max_tasks=10 \
   output_dir="logs/hle/$(date +"%Y%m%d_%H%M")"
 ```
@@ -89,8 +89,8 @@ uv run src/benchmark/run_benchmark.py \
 ### Adjust Concurrency
 
 ```bash
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_hle_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_hle_mirothinker.yaml \
   benchmark.execution.max_concurrent=5 \
   output_dir="logs/hle/$(date +"%Y%m%d_%H%M")"
 ```

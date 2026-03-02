@@ -43,8 +43,8 @@ E2B_API_KEY="your-e2b-api-key"
 Execute the evaluation using a standard configuration adapted for the GAIA test set:
 
 ```bash title="Run GAIA Test Evaluation"
-uv run src/benchmark/run_benchmark.py \
-  --config-path config/standard_gaia-validation-165_mirothinker.yaml \
+uv run miroflow/benchmark/run_benchmark.py \
+  --config-path config/benchmark_gaia-validation-165_mirothinker.yaml \
   benchmark=gaia-test \
   output_dir="logs/gaia-test/$(date +"%Y%m%d_%H%M")"
 ```

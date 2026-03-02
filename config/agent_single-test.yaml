@@ -21,8 +21,8 @@ main_agent:
     - config/tool/tool-audio.yaml
     # - config/tool/tool-reasoning.yaml
   skills:
-    - src/skill/skills/Today_feeling
-    - src/skill/skills/Afternoon_feeling
+    - miroflow/skill/skills/Today_feeling
+    - miroflow/skill/skills/Afternoon_feeling
   input_processor:
     - ${input-hint-generator} 
     - ${input-message-generator}

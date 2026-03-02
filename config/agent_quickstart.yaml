@@ -21,13 +21,13 @@ main_agent:
     max_tokens: 128000
     reasoning_effort: medium
 
-  prompt: config/prompts/standard_prompt_main_agent.yaml
+  prompt: config/prompts/prompt_main_agent_benchmark.yaml
 
   tools:
     - config/tool/tool-reading.yaml
-    # - config/tool/tool-python.yaml
-    # - config/tool/tool-search-and-scrape-webpage.yaml
-    # - config/tool/tool-jina-scrape-llm-summary.yaml
+    # - config/tool/tool-code-sandbox.yaml
+    # - config/tool/tool-serper-search.yaml
+    # - config/tool/tool-jina-scrape.yaml
     #- config/tool/tool-code.yaml
     #- config/tool/tool-image-video.yaml
     # - config/tool/tool-audio.yaml     # Uncomment for audio processing

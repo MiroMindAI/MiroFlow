@@ -1,7 +1,7 @@
 <div align="center">
   <img src="docs/mkdocs/docs/assets/miroflow_logo.png" width="45%" alt="MiroFlow" />
 
-  <h3>Open-Source Research Agent Framework with State-of-the-Art Performance</h3>
+  <h3>Performance-First Agent Framework That Makes Any Model Better</h3>
 
 [![DEMO](https://img.shields.io/badge/Demo-FFB300?style=for-the-badge&logo=airplayvideo&logoColor=white)](https://dr.miromind.ai/)
 [![MODELS](https://img.shields.io/badge/Models-5EDDD2?style=for-the-badge&logo=huggingface&logoColor=ffffff&labelColor)](https://huggingface.co/miromind-ai)
@@ -13,8 +13,8 @@
 </div>
 
 <div align="center">
-<strong>MiroFlow</strong> is an open-source research agent framework that achieves <strong>#1 ranking</strong> across representative benchmarks (FutureX, GAIA, HLE, xBench-DeepSearch, BrowseComp).<br>
-It powers <a href="https://github.com/MiroMindAI/mirothinker">MiroThinker</a>, our open-source agent foundation model with native tool-assisted reasoning.
+<strong>MiroFlow</strong> is the open-source agent framework that maximizes any model's agent performance — and proves it across 9+ benchmarks with reproducible results.<br>
+Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroThinker</a>, Kimi, DeepSeek, or any OpenAI-compatible model. Same tools. Same environment. Better results.
 </div>
 
 <br>
@@ -34,22 +34,61 @@ It powers <a href="https://github.com/MiroMindAI/mirothinker">MiroThinker</a>, o
 
 - **[2025-09-15]**: **MiroFlow v0.3**: Enhanced codebase architecture and significantly improved benchmark performance, boosting GPT-5's prediction accuracy for future events by 11%. MiroFlow now ranks #1 in the future prediction benchmark. See [FutureX](https://futurex-ai.github.io/).
 - **[2025-08-27]**: **MiroFlow v0.2**: Achieves state-of-the-art performance across [multiple agentic benchmarks](https://miromind.ai), including HLE (27.2%), HLE-Text-Only (29.5%), BrowserComp-EN (33.2%), BrowserComp-ZH (47.1%), and xBench-DeepSearch (72.0%).
-- **[2025-08-26]**: Released [GAIA Validation Trace](docs/public_trace.md) (73.94% pass@1) and [Gradio Demo](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo) for local deployment.
+- **[2025-08-26]**: Released GAIA Validation Trace (73.94% pass@1) and [Gradio Demo](https://github.com/MiroMindAI/MiroThinker/tree/main/apps/gradio-demo) for local deployment.
 - **[2025-08-08]**: **MiroFlow v0.1**: Complete open-source release of the research agent framework.
 
 </details>
 
 ---
 
-## Highlights
+## Architecture
 
-- **Reproducible State-of-the-Art Performance**: #1 ranking across [multiple representative agentic benchmarks](https://miromindai.github.io/miroflow/evaluation_overview/), including FutureX, GAIA, HLE, xBench-DeepSearch, and BrowseComp.
-- **High Concurrency & Reliability**: Robust concurrency management and fault-tolerant design for handling rate-limited APIs and unstable networks.
-- **Cost-Effective Deployment**: Run a research agent service on a single RTX 4090 with the open-source [MiroThinker](https://github.com/MiroMindAI/mirothinker) model and free tools.
+<div align="center">
+  <img src="docs/mkdocs/docs/assets/miroflow_architecture_v1.6.png" width="100%" alt="MiroFlow Architecture" />
+</div>
 
 ---
 
-## Performance on Benchmarks
+## Why MiroFlow
+
+### Make Any Model Better
+- **Model-Agnostic Performance**: Plug in any LLM — GPT-5, Claude, MiroThinker, Kimi K2.5, DeepSeek — and get better agent performance through smart rollback, iterative reasoning, and optimized tool orchestration.
+- **#1 Across 9+ Benchmarks**: Reproducible state-of-the-art on FutureX, GAIA, HLE, xBench-DeepSearch, BrowseComp, and more.
+- **One-Line Model Switching**: Change `provider_class` and `model_name` in YAML. Same tools, same prompts, same environment.
+
+### Prove It
+- **Standardized Evaluation**: Fair model comparison with identical infrastructure. The framework is the constant; the model is the variable.
+- **Automated Multi-Run Evaluation**: Parallel runs with statistical aggregation (mean, std dev, min/max). Every result reproducible from config to score.
+
+### Build With It
+- **Skill System**: Define agent skills via `SKILL.md` — no code changes needed.
+- **Agent Graph**: Compose multi-agent workflows with hierarchical graphs.
+- **Web Application**: FastAPI + React interface out of the box.
+- **Plugin Architecture**: `@register` decorator — extend without touching core code.
+- **Zero-Code Prompts**: YAML + Jinja2 templates.
+- **Cost-Effective**: Single RTX 4090 with open-source [MiroThinker](https://github.com/MiroMindAI/mirothinker).
+
+---
+
+## Any Model, Better Results
+
+### Cross-Model Performance (MiroFlow Framework)
+
+| Benchmark | MiroThinker | Claude 3.7 Sonnet | Kimi K2.5 |
+|-----------|-------------|-------------------|-----------|
+| GAIA Validation (165) | **82.4%** | 73.9% | — |
+| GAIA Text-Only (103) | **79.6%** | — | 52.4% |
+| HLE | **27.2%** | — | — |
+| HLE Text-Only | **29.5%** | — | — |
+| BrowseComp-EN | 33.2% | — | — |
+| BrowseComp-ZH | **47.1%** | — | — |
+| xBench-DeepSearch | **72.0%** | — | — |
+| FutureX | **#1** | — | — |
+
+> All results use the same MiroFlow tools, prompts, and infrastructure. The only variable is the model.
+> See the full [Model Comparison](https://miromindai.github.io/miroflow/model_comparison/) for details.
+
+### Featured Results: MiroThinker
 
 <div align="center">
   <img width="100%" alt="MiroThinker Performance" src="docs/mkdocs/docs/assets/mirothinker.png" />
@@ -59,7 +98,7 @@ It powers <a href="https://github.com/MiroMindAI/mirothinker">MiroThinker</a>, o
   <img width="100%" alt="BrowseComp MiroThinker Performance" src="docs/mkdocs/docs/assets/bc-mirothinker.png" />
 </div>
 
-Follow our detailed guides to reproduce benchmark results in our [Benchmarks Documentation](https://miromindai.github.io/miroflow/evaluation_overview/).
+Follow our detailed guides to reproduce any result in our [Benchmarks Documentation](https://miromindai.github.io/miroflow/evaluation_overview/).
 
 ---
 
@@ -83,6 +122,25 @@ bash scripts/test_single_task.sh \
 
 Expected output: `\boxed{Congo Democratic Republic}`
 
+**Switch models in one line** — same tools, same prompts, different LLM:
+
+```yaml
+# GPT-5
+llm:
+  provider_class: GPT5OpenAIClient
+  model_name: gpt-5
+
+# Claude 3.7 Sonnet
+llm:
+  provider_class: ClaudeAnthropicClient
+  model_name: claude-3-7-sonnet-20250219
+
+# MiroThinker (open-source, self-hosted)
+llm:
+  provider_class: MiroThinkerSGLangClient
+  model_name: mirothinker-v1.5
+```
+
 See [full documentation](https://miromindai.github.io/miroflow/quickstart/) for web app setup, more examples, and configuration options.
 
 ---
@@ -104,7 +162,7 @@ If you find our work helpful, please consider citing:
 **MiroFlow** (Framework)
 ```bibtex
 @misc{2026miroflow,
-  title={MiroFlow: A High-Performance Open-Source Research Agent Framework},
+  title={MiroFlow: A Performance-First Agent Framework for Any Model},
   author={MiroMind AI Team},
   howpublished={\url{https://github.com/MiroMindAI/miroflow}},
   year={2026}
