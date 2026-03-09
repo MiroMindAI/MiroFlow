@@ -52,6 +52,9 @@ dependencies = [
     "markitdown-mcp>=0.0.1a3",
     "markdownify>=0.11.0",
     "beautifulsoup4>=4.12.0",
+    # === Scraping ===
+    "playwright>=1.40.0",
+    "pypdf>=4.0.0",
     # === Sandbox ===
     "e2b-code-interpreter>=1.2.1",
     # === Other ===

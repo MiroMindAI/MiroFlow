@@ -7,12 +7,12 @@
 # Configuration parameters
 NUM_RUNS=3
 BENCHMARK_NAME="browsecomp-zh"
-AGENT_SET="benchmark_browsecomp-zh_mirothinker_sogou"
-MAX_CONCURRENT=30
+AGENT_SET="benchmark_browsecomp-zh_mirothinker_v3"
+MAX_CONCURRENT=80
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)
-RESULTS_DIR=${RESULTS_DIR:-"logs/${BENCHMARK_NAME}/${AGENT_SET}_${TIMESTAMP}"}
+RESULTS_DIR=${RESULTS_DIR:-"logs/${BENCHMARK_NAME}/${TIMESTAMP}_${AGENT_SET}"}
 
 # Unique identifier for this run (used for cleanup)
 RUN_MARKER="$$_${AGENT_SET}"
@@ -22,16 +22,15 @@ cleanup() {
     echo "Received interrupt signal, terminating all processes..."
 
     # Kill all Python processes related to this benchmark run
-    # (matches run_benchmark.py and any forked worker processes with the config name)
     pkill -TERM -f "run_benchmark.py.*${AGENT_SET}" 2>/dev/null
 
     # Wait a moment for graceful shutdown
     sleep 2
 
-    # Force kill any remaining processes (including forked workers)
+    # Force kill any remaining processes
     pkill -KILL -f "run_benchmark.py.*${AGENT_SET}" 2>/dev/null
 
-    # Also kill any child processes of this script (and their children)
+    # Also kill any child processes of this script
     pkill -TERM -P $$ 2>/dev/null
     sleep 1
     pkill -KILL -P $$ 2>/dev/null
@@ -45,7 +44,6 @@ trap cleanup SIGINT SIGTERM
 
 echo "Starting $NUM_RUNS runs of the evaluation..."
 echo "Benchmark: $BENCHMARK_NAME (289 tasks)"
-echo "Agent set: $AGENT_SET (Serper + Sogou combined search)"
 echo "Results will be saved in: $RESULTS_DIR"
 
 # Create results directory

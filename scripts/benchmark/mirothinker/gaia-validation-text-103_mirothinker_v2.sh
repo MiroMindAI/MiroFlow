@@ -6,13 +6,13 @@
 
 # Configuration parameters
 NUM_RUNS=8
-BENCHMARK_NAME="gaia-validation-165"
-AGENT_SET="benchmark_gaia-validation-165_mirothinker"
+BENCHMARK_NAME="gaia-validation-text-only"
+AGENT_SET="benchmark_gaia-validation-text-103_mirothinker_v2"
 MAX_CONCURRENT=30
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)
-RESULTS_DIR=${RESULTS_DIR:-"logs/${BENCHMARK_NAME}/${AGENT_SET}_${TIMESTAMP}"}
+RESULTS_DIR=${RESULTS_DIR:-"logs/${BENCHMARK_NAME}/${TIMESTAMP}_${AGENT_SET}"}
 
 # Unique identifier for this run (used for cleanup)
 RUN_MARKER="$$_${AGENT_SET}"

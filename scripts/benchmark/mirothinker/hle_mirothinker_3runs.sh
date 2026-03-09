@@ -12,7 +12,7 @@ MAX_CONCURRENT=80
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)
-RESULTS_DIR=${RESULTS_DIR:-"logs/${BENCHMARK_NAME}/${AGENT_SET}_${TIMESTAMP}"}
+RESULTS_DIR=${RESULTS_DIR:-"logs/${BENCHMARK_NAME}/${TIMESTAMP}_${AGENT_SET}"}
 
 # Unique identifier for this run (used for cleanup)
 RUN_MARKER="$$_${AGENT_SET}"

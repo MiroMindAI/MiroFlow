@@ -13,6 +13,7 @@ main_agent:
   name: main_agent
   type: IterativeAgentWithToolAndRollback
   max_turns: 30
+  verbose: true  # Print turn-by-turn agent loop details (LLM usage, tool calls, rollbacks)
 
   llm:
     _base_: config/llm/base_openai.yaml

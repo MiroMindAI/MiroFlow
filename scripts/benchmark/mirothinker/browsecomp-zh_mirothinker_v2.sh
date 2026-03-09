@@ -5,14 +5,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Configuration parameters
-NUM_RUNS=8
-BENCHMARK_NAME="gaia-validation-text-only"
-AGENT_SET="benchmark_gaia-validation-text-103_mirothinker"
-MAX_CONCURRENT=30
+NUM_RUNS=3
+BENCHMARK_NAME="browsecomp-zh"
+AGENT_SET="benchmark_browsecomp-zh_mirothinker_v2"
+MAX_CONCURRENT=80
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)
-RESULTS_DIR=${RESULTS_DIR:-"logs/${BENCHMARK_NAME}/${AGENT_SET}_${TIMESTAMP}"}
+RESULTS_DIR=${RESULTS_DIR:-"logs/${BENCHMARK_NAME}/${TIMESTAMP}_${AGENT_SET}"}
 
 # Unique identifier for this run (used for cleanup)
 RUN_MARKER="$$_${AGENT_SET}"
@@ -43,6 +43,7 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 echo "Starting $NUM_RUNS runs of the evaluation..."
+echo "Benchmark: $BENCHMARK_NAME (289 tasks)"
 echo "Results will be saved in: $RESULTS_DIR"
 
 # Create results directory

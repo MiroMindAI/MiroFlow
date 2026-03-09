@@ -5,10 +5,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Configuration parameters
-NUM_RUNS=3
-BENCHMARK_NAME="frames-test"
-AGENT_SET="benchmark_frames-test_mirothinker"
-MAX_CONCURRENT=80
+NUM_RUNS=8
+BENCHMARK_NAME="gaia-validation-text-only"
+AGENT_SET="benchmark_gaia-validation-text-103_mirothinker_v1"
+MAX_CONCURRENT=30
 
 # Set results directory with timestamp
 TIMESTAMP=$(date +%Y%m%d_%H%M)
@@ -43,7 +43,6 @@ cleanup() {
 trap cleanup SIGINT SIGTERM
 
 echo "Starting $NUM_RUNS runs of the evaluation..."
-echo "Benchmark: $BENCHMARK_NAME (824 tasks)"
 echo "Results will be saved in: $RESULTS_DIR"
 
 # Create results directory

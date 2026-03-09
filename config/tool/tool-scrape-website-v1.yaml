@@ -1,0 +1,15 @@
+name: "tool-scrape-website-v1"
+tool_command: "python"
+args:
+  - "-m"
+  - "miroflow.tool.mcp_servers.scrape_website_v1"
+env:
+# Jina and LLM API keys - these values will be loaded from the .env file at runtime
+  JINA_API_KEY: "${oc.env:JINA_API_KEY}"
+  JINA_BASE_URL: "${oc.env:JINA_BASE_URL,https://miro-api.miromind.site/jina}"
+  SUMMARY_LLM_BASE_URL: "${oc.env:SUMMARY_LLM_BASE_URL}"
+  SUMMARY_LLM_MODEL_NAME: "${oc.env:SUMMARY_LLM_MODEL_NAME}"
+  SUMMARY_LLM_API_KEY: "${oc.env:SUMMARY_LLM_API_KEY}"
+# Firecrawl API keys - used as fallback scraping engine
+  FIRECRAWL_API_KEY: "${oc.env:FIRECRAWL_API_KEY,}"
+  FIRECRAWL_BASE_URL: "${oc.env:FIRECRAWL_BASE_URL,https://api.firecrawl.dev/v2/scrape}"

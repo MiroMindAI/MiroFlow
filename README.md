@@ -74,21 +74,20 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 
 ### Cross-Model Performance (MiroFlow Framework)
 
-| Benchmark | MiroThinker | Claude 3.7 Sonnet | Kimi K2.5 |
-|-----------|-------------|-------------------|-----------|
-| GAIA Validation (165) | **82.4%** | 73.9% | — |
-| GAIA Text-Only (103) | **79.6%** | — | 52.4% |
-| HLE | **27.2%** | — | — |
-| HLE Text-Only | **29.5%** | — | — |
-| BrowseComp-EN | 33.2% | — | — |
-| BrowseComp-ZH | **47.1%** | — | — |
-| xBench-DeepSearch | **72.0%** | — | — |
-| FutureX | **#1** | — | — |
+| Benchmark | MiroThinker 1.5 | Claude Sonnet 4.5 | Kimi K2.5 |
+|-----------|-----------------|-------------------|-----------|
+| GAIA Validation (165) | - | - | — |
+| GAIA Text-Only (103) | 81.4% | — | - |
+| HLE | - | — | — |
+| HLE Text-Only | - | — | — |
+| BrowseComp-EN | - | — | — |
+| BrowseComp-ZH | - | — | — |
+| xBench-DeepSearch | - | — | — |
+| FutureX | **#2** | — | — |
 
-> All results use the same MiroFlow tools, prompts, and infrastructure. The only variable is the model.
-> See the full [Model Comparison](https://miromindai.github.io/miroflow/model_comparison/) for details.
+> Each benchmark may use different tool combinations and prompts to maximize performance. See the full [Model Comparison](https://miromindai.github.io/miroflow/model_comparison/) for per-benchmark configs and reproduction scripts.
 
-### Featured Results: MiroThinker
+### Featured Results: [MiroThinker 1.5](https://github.com/MiroMindAI/mirothinker)
 
 <div align="center">
   <img width="100%" alt="MiroThinker Performance" src="docs/mkdocs/docs/assets/mirothinker.png" />
@@ -109,9 +108,9 @@ Follow our detailed guides to reproduce any result in our [Benchmarks Documentat
 git clone https://github.com/MiroMindAI/miroflow && cd miroflow
 uv sync
 
-# 2. Configure API keys
+# 2. Configure API keys (only OPENAI_API_KEY is required for this example)
 cp .env.template .env
-# Edit .env and add your API keys (see .env.template for details)
+# Edit .env and set OPENAI_API_KEY (used by GPT-5 in the default quickstart config)
 
 # 3. Run your first task
 bash scripts/test_single_task.sh \
@@ -161,10 +160,10 @@ If you find our work helpful, please consider citing:
 
 **MiroFlow** (Framework)
 ```bibtex
-@misc{2026miroflow,
-  title={MiroFlow: A Performance-First Agent Framework for Any Model},
-  author={MiroMind AI Team},
-  howpublished={\url{https://github.com/MiroMindAI/miroflow}},
+@article{miromind2026miroflow,
+  title={MiroFlow: Towards High-Performance and Robust Open-Source Agent Framework for General Deep Research Tasks},
+  author={Su, Shiqian and Xing, Sen and Dong, Xuan and Zhong, Muyan and Wang, Bin and Zhu, Xizhou and Chen, Yuntao and Wang, Wenhai and Deng, Yue and Zhu, Pengxiang and others},
+  journal={arXiv preprint arXiv:2602.22808},
   year={2026}
 }
 ```
