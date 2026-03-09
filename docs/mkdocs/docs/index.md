@@ -106,7 +106,7 @@ See the [Installation Guide](quickstart.md) for web app setup, more examples, an
 
 ### Cross-Model Performance (MiroFlow Framework)
 
-| Benchmark | MiroThinker 1.7 | Claude 3.7 Sonnet | Kimi K2.5 |
+| Benchmark | MiroThinker 1.5 | Claude 3.7 Sonnet | Kimi K2.5 |
 |-----------|-----------------|-------------------|-----------|
 | GAIA Validation (165) | **82.4%** | 73.9% | — |
 | GAIA Text-Only (103) | **79.6%** | — | 52.4% |
@@ -118,7 +118,7 @@ See the [Installation Guide](quickstart.md) for web app setup, more examples, an
 
 > Each benchmark may use different tool combinations and prompts to maximize performance. See the full [Model Comparison Leaderboard](model_comparison.md) for per-benchmark configs and reproduction scripts.
 
-### Featured Results: [MiroThinker 1.7](https://github.com/MiroMindAI/mirothinker)
+### Featured Results: [MiroThinker 1.5](https://github.com/MiroMindAI/mirothinker)
 
 <div align="center" markdown="1">
   ![MiroThinker Performance](assets/mirothinker.png){ width="100%" }

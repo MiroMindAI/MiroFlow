@@ -74,7 +74,7 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 
 ### Cross-Model Performance (MiroFlow Framework)
 
-| Benchmark | MiroThinker 1.7 | Claude Sonnet 4.5 | Kimi K2.5 |
+| Benchmark | MiroThinker 1.5 | Claude Sonnet 4.5 | Kimi K2.5 |
 |-----------|-----------------|-------------------|-----------|
 | GAIA Validation (165) | — | — | — |
 | GAIA Text-Only (103) | 81.3% | — | — |
@@ -83,11 +83,11 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 | BrowseComp-EN | — | — | — |
 | BrowseComp-ZH | 68.7% | — | — |
 | xBench-DeepSearch | — | — | — |
-| FutureX | **#1** | — | — |
+| FutureX | — | — | — |
 
 > Each benchmark may use different tool combinations and prompts to maximize performance. See the full [Model Comparison](https://miromindai.github.io/miroflow/model_comparison/) for per-benchmark configs and reproduction scripts.
 
-### Featured Results: [MiroThinker 1.7](https://github.com/MiroMindAI/mirothinker)
+### Featured Results: [MiroThinker 1.5](https://github.com/MiroMindAI/mirothinker)
 
 <div align="center">
   <img width="100%" alt="MiroThinker Performance" src="docs/mkdocs/docs/assets/mirothinker.png" />
