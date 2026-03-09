@@ -20,10 +20,7 @@ MiroFlow demonstrates state-of-the-art performance on the GAIA validation benchm
 </div>
 
 !!! abstract "Key Performance Metrics"
-    - **Pass@3**: **81.8%**
-    - **Majority Vote**: **82.4%**
-    - **Pass@1 (best@3)**: **74.5%**
-    - **Pass@1 (avg@3)**: **72.2%**
+    Results will be updated after comprehensive v1.7 testing.
 
 !!! info "Reproducibility Guarantee"
     Unlike other frameworks with unclear evaluation methods, MiroFlow's results are **fully reproducible**. Note that Hugging Face access was disabled during inference to prevent direct answer retrieval.

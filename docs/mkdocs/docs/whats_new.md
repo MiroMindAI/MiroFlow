@@ -216,11 +216,11 @@ v1.7 adds support for more benchmarks with dedicated verifiers:
 
 | Benchmark | Status |
 |---|---|
-| FutureX | #1 ranking |
-| GAIA (Validation + Test) | State-of-the-art |
-| HLE / HLE Text-Only | State-of-the-art |
-| BrowseComp (EN + ZH) | State-of-the-art |
-| xBench-DeepSearch | State-of-the-art |
+| FutureX | Supported |
+| GAIA (Validation + Test) | Supported |
+| HLE / HLE Text-Only | Supported |
+| BrowseComp (EN + ZH) | Supported |
+| xBench-DeepSearch | Supported |
 | WebWalkerQA | New in v1.7 |
 | SimpleQA | New in v1.7 |
 | FinSearchComp | New in v1.7 |
@@ -228,7 +228,7 @@ v1.7 adds support for more benchmarks with dedicated verifiers:
 
 Each benchmark has a dedicated **verifier** implementation for automated result evaluation, with support for batch evaluation and score aggregation.
 
-With standardized evaluation infrastructure, MiroFlow also enables fair cross-model comparison — see the [Model Comparison Leaderboard](model_comparison.md) for head-to-head results.
+With standardized evaluation infrastructure, MiroFlow also enables fair cross-model comparison — see the [Model Comparison Leaderboard](model_comparison.md) for details.
 
 ---
 

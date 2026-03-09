@@ -53,7 +53,7 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 
 ### Make Any Model Better
 - **Model-Agnostic Performance**: Plug in any LLM — GPT-5, Claude, MiroThinker, Kimi K2.5, DeepSeek — and get better agent performance through smart rollback, iterative reasoning, and optimized tool orchestration.
-- **#1 Across 9+ Benchmarks**: Reproducible state-of-the-art on FutureX, GAIA, HLE, xBench-DeepSearch, BrowseComp, and more.
+- **Comprehensive Benchmarking**: Supports 9+ benchmarks including FutureX, GAIA, HLE, xBench-DeepSearch, BrowseComp, and more.
 - **One-Line Model Switching**: Change `provider_class` and `model_name` in YAML. Same tools, same prompts, same environment.
 
 ### Prove It
@@ -72,30 +72,7 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 
 ## Any Model, Better Results
 
-### Cross-Model Performance (MiroFlow Framework)
-
-| Benchmark | MiroThinker 1.5 | Claude Sonnet 4.5 | Kimi K2.5 |
-|-----------|-----------------|-------------------|-----------|
-| GAIA Validation (165) | — | — | — |
-| GAIA Text-Only (103) | 81.3% | — | — |
-| HLE | — | — | — |
-| HLE Text-Only | — | — | — |
-| BrowseComp-EN | — | — | — |
-| BrowseComp-ZH | 68.7% | — | — |
-| xBench-DeepSearch | — | — | — |
-| FutureX | — | — | — |
-
-> Each benchmark may use different tool combinations and prompts to maximize performance. See the full [Model Comparison](https://miromindai.github.io/miroflow/model_comparison/) for per-benchmark configs and reproduction scripts.
-
-### Featured Results: [MiroThinker 1.5](https://github.com/MiroMindAI/mirothinker)
-
-<div align="center">
-  <img width="100%" alt="MiroThinker Performance" src="docs/mkdocs/docs/assets/mirothinker.png" />
-</div>
-
-<div align="center">
-  <img width="100%" alt="BrowseComp MiroThinker Performance" src="docs/mkdocs/docs/assets/bc-mirothinker.png" />
-</div>
+Benchmark results will be updated after comprehensive testing with v1.7. See the full [Model Comparison](https://miromindai.github.io/miroflow/model_comparison/) for details.
 
 Follow our detailed guides to reproduce any result in our [Benchmarks Documentation](https://miromindai.github.io/miroflow/evaluation_overview/).
 

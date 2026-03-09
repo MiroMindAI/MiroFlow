@@ -10,19 +10,8 @@ MiroFlow provides a standardized evaluation environment where every model gets t
 
 All results below were produced using MiroFlow with identical configurations — only `provider_class` and `model_name` differ.
 
-| Benchmark | MiroThinker 1.5 | Claude 3.7 Sonnet | Kimi K2.5 |
-|-----------|-----------------|-------------------|-----------|
-| GAIA Validation (165) | **82.4%** | 73.9% | — |
-| GAIA Text-Only (103) | **79.6%** | — | 52.4% |
-| HLE | **27.2%** | — | — |
-| HLE Text-Only | **29.5%** | — | — |
-| BrowseComp-EN | 33.2% | — | — |
-| BrowseComp-ZH | **47.1%** | — | — |
-| xBench-DeepSearch | **72.0%** | — | — |
-| FutureX | — | — | — |
-
-!!! note "Table Coverage"
-    This table only shows model-benchmark combinations with real, reproducible data. As more models are evaluated, new columns and rows will be added. No placeholders — every cell has a verified result.
+!!! note "Coming Soon"
+    Benchmark results will be updated after comprehensive testing with v1.7. Stay tuned.
 
 ---
 
@@ -88,15 +77,7 @@ Add your config and results to the repository. We welcome community-contributed 
 
 ## MiroFlow vs Other Frameworks
 
-| Model/Framework | GAIA Val | HLE | HLE-Text | BrowseComp-EN | BrowseComp-ZH | xBench-DS |
-|----------------|----------|-----|----------|----------------|----------------|-----------|
-| **MiroFlow + MiroThinker 1.5** | **82.4%** | **27.2%** | 29.5% | 33.2% | **47.1%** | **72.0%** |
-| OpenAI Deep Research | 67.4% | 26.6% | — | **51.5%** | 42.9% | — |
-| Gemini Deep Research | — | 26.9% | — | — | — | 50+% |
-| Kimi Researcher | — | — | 26.9% | — | — | 69.0% |
-| Manus | 73.3% | — | — | — | — | — |
-| WebSailor-72B | 55.4% | — | — | — | 30.1% | 55.0% |
-| DeepSeek v3.1 | — | — | **29.8%** | — | — | 71.2% |
+Coming soon — framework comparison results will be added after v1.7 testing is complete.
 
 ---
 
