@@ -27,7 +27,7 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 
 ## 📰 News
 
-- **[2026-03]**: **MiroFlow 1.7 + MiroThinker 1.5**: Major release with Web Application interface (FastAPI + React), comprehensive verifier system for benchmark evaluation, and expanded LLM support including Kimi K2.5 and GPT-5.
+- **[2026-03]**: **MiroFlow 1.7 + MiroThinker 1.7**: Major release with Web Application interface (FastAPI + React), comprehensive verifier system for benchmark evaluation, and expanded LLM support including Kimi K2.5 and GPT-5.
 
 <details>
 <summary><strong>Previous Updates</strong></summary>
@@ -74,7 +74,7 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 
 ### Cross-Model Performance (MiroFlow Framework)
 
-| Benchmark | MiroThinker 1.5 | Claude Sonnet 4.5 | Kimi K2.5 |
+| Benchmark | MiroThinker 1.7 | Claude Sonnet 4.5 | Kimi K2.5 |
 |-----------|-----------------|-------------------|-----------|
 | GAIA Validation (165) | — | — | — |
 | GAIA Text-Only (103) | 81.3% | — | — |
@@ -87,7 +87,7 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 
 > Each benchmark may use different tool combinations and prompts to maximize performance. See the full [Model Comparison](https://miromindai.github.io/miroflow/model_comparison/) for per-benchmark configs and reproduction scripts.
 
-### Featured Results: [MiroThinker 1.5](https://github.com/MiroMindAI/mirothinker)
+### Featured Results: [MiroThinker 1.7](https://github.com/MiroMindAI/mirothinker)
 
 <div align="center">
   <img width="100%" alt="MiroThinker Performance" src="docs/mkdocs/docs/assets/mirothinker.png" />
