@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/mkdocs/docs/assets/miroflow_logo.png" width="45%" alt="MiroFlow" />
+  <img src="docs/mkdocs/docs/assets/miromind_logo.png" width="45%" alt="MiroMind" />
 
   <h3>Performance-First Agent Framework That Makes Any Model Better</h3>
 

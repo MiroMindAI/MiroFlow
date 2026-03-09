@@ -1,5 +1,5 @@
 <div align="center" markdown="1">
-  ![MiroFlow Logo](assets/miroflow_logo.png){ width="45%" }
+  ![MiroMind Logo](assets/miromind_logo.png){ width="45%" }
 </div>
 
 <div align="center" markdown="1">
