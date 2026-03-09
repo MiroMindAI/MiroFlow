@@ -11,7 +11,7 @@
 ## Architecture
 
 <div align="center" markdown="1">
-  ![MiroFlow Architecture](assets/miroflow_architecture_v1.6.png){ width="100%" }
+  ![MiroFlow Architecture](assets/miroflow_architecture_v1.7.png){ width="100%" }
 </div>
 
 ---
@@ -33,7 +33,7 @@
 
 ---
 
-## What's New in v1.6
+## What's New in v1.7
 
 <div class="grid cards" markdown>
 

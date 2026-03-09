@@ -39,7 +39,7 @@ Live site: https://miromindai.github.io/miroflow/
 docs/
 ├── index.md                    # Landing page
 ├── why_miroflow.md             # Why MiroFlow — full narrative
-├── whats_new.md                # What's New in v1.6
+├── whats_new.md                # What's New in v1.7
 ├── model_comparison.md         # Cross-model leaderboard
 ├── evaluation_overview.md      # Evaluation methodology
 ├── quickstart.md               # 5-minute quick start guide

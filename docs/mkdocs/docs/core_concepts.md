@@ -5,7 +5,7 @@ MiroFlow is a flexible framework for building and deploying intelligent agents c
 ## Architecture Overview
 
 <div align="center" markdown="1">
-  ![MiroFlow Architecture](assets/miroflow_architecture_v1.6.png){ width="100%" }
+  ![MiroFlow Architecture](assets/miroflow_architecture_v1.7.png){ width="100%" }
 </div>
 
 !!! abstract "Agentic Process"

@@ -57,7 +57,7 @@ nav:
   - Home:
     - Overview: index.md
     - Why MiroFlow: why_miroflow.md
-    - What's New in v1.6: whats_new.md
+    - What's New in v1.7: whats_new.md
 
   - Getting Started:
     - Installation: quickstart.md

@@ -27,7 +27,7 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 
 ## 📰 News
 
-- **[2026-03]**: **MiroFlow 1.6 + MiroThinker 1.6**: Major release with Web Application interface (FastAPI + React), comprehensive verifier system for benchmark evaluation, and expanded LLM support including Kimi K2.5 and GPT-5.
+- **[2026-03]**: **MiroFlow 1.7 + MiroThinker 1.5**: Major release with Web Application interface (FastAPI + React), comprehensive verifier system for benchmark evaluation, and expanded LLM support including Kimi K2.5 and GPT-5.
 
 <details>
 <summary><strong>Previous Updates</strong></summary>
@@ -44,7 +44,7 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 ## Architecture
 
 <div align="center">
-  <img src="docs/mkdocs/docs/assets/miroflow_architecture_v1.6.png" width="100%" alt="MiroFlow Architecture" />
+  <img src="docs/mkdocs/docs/assets/miroflow_architecture_v1.7.png" width="100%" alt="MiroFlow Architecture" />
 </div>
 
 ---
@@ -76,14 +76,14 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 
 | Benchmark | MiroThinker 1.5 | Claude Sonnet 4.5 | Kimi K2.5 |
 |-----------|-----------------|-------------------|-----------|
-| GAIA Validation (165) | - | - | — |
-| GAIA Text-Only (103) | 81.4% | — | - |
-| HLE | - | — | — |
-| HLE Text-Only | - | — | — |
-| BrowseComp-EN | - | — | — |
-| BrowseComp-ZH | - | — | — |
-| xBench-DeepSearch | - | — | — |
-| FutureX | **#2** | — | — |
+| GAIA Validation (165) | — | — | — |
+| GAIA Text-Only (103) | 81.3% | — | — |
+| HLE | — | — | — |
+| HLE Text-Only | — | — | — |
+| BrowseComp-EN | — | — | — |
+| BrowseComp-ZH | 68.7% | — | — |
+| xBench-DeepSearch | — | — | — |
+| FutureX | **#1** | — | — |
 
 > Each benchmark may use different tool combinations and prompts to maximize performance. See the full [Model Comparison](https://miromindai.github.io/miroflow/model_comparison/) for per-benchmark configs and reproduction scripts.
 

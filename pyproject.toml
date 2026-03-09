@@ -1,6 +1,6 @@
 [project]
 name = "miroflow"
-version = "1.6.0"
+version = "1.7.0"
 description = "MiroFlow: Performance-first agent framework that makes any model better"
 readme = "README.md"
 license = "Apache-2.0"

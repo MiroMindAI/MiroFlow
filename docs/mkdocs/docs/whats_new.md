@@ -1,9 +1,9 @@
-# What's New in MiroFlow v1.6
+# What's New in MiroFlow v1.7
 
-MiroFlow v1.6 is a major architectural upgrade over the [original open-source release](https://github.com/MiroMindAI/miroflow). This page summarizes the key new features and improvements.
+MiroFlow v1.7 is a major architectural upgrade over the [original open-source release](https://github.com/MiroMindAI/miroflow). This page summarizes the key new features and improvements.
 
 <div align="center" markdown="1">
-  ![MiroFlow Architecture](assets/miroflow_architecture_v1.6.png){ width="100%" }
+  ![MiroFlow Architecture](assets/miroflow_architecture_v1.7.png){ width="100%" }
 </div>
 
 ---
@@ -12,7 +12,7 @@ MiroFlow v1.6 is a major architectural upgrade over the [original open-source re
 
 **Define new agent skills with Markdown — no code required.**
 
-In the original MiroFlow, there was no concept of reusable skills. Agents relied entirely on their system prompt and available tools. In v1.6, we introduce a **Skill System** that lets you define task-specific instructions as `SKILL.md` files with YAML frontmatter.
+In the original MiroFlow, there was no concept of reusable skills. Agents relied entirely on their system prompt and available tools. In v1.7, we introduce a **Skill System** that lets you define task-specific instructions as `SKILL.md` files with YAML frontmatter.
 
 !!! example "Example: CSV File Analysis Skill"
     ```
@@ -45,7 +45,7 @@ In the original MiroFlow, there was no concept of reusable skills. Agents relied
 
 **From flat main/sub-agent to composable multi-agent graphs.**
 
-The original MiroFlow had a flat two-level structure: one main agent and optional sub-agents. In v1.6, agents can be composed into **hierarchical graphs** with arbitrary depth.
+The original MiroFlow had a flat two-level structure: one main agent and optional sub-agents. In v1.7, agents can be composed into **hierarchical graphs** with arbitrary depth.
 
 !!! tip "How it works"
     - Agents are defined in YAML config with `sub_agents` references
@@ -82,7 +82,7 @@ Additionally, the new `SequentialAgent` enables composing multiple modules in se
 
 **Out-of-the-box interactive web interface.**
 
-The original MiroFlow was CLI-only. v1.6 ships with a full-featured **FastAPI + React** web application.
+The original MiroFlow was CLI-only. v1.7 ships with a full-featured **FastAPI + React** web application.
 
 !!! abstract "Web App Features"
     - **Session management**: Create and manage multiple agent sessions
@@ -100,7 +100,7 @@ bash scripts/start_web.sh
 
 **Automatic detection and recovery from LLM output errors.**
 
-The original MiroFlow had basic retry logic. v1.6 introduces a sophisticated **rollback mechanism** that detects and handles:
+The original MiroFlow had basic retry logic. v1.7 introduces a sophisticated **rollback mechanism** that detects and handles:
 
 | Error Type | Detection | Recovery |
 |---|---|---|
@@ -122,7 +122,7 @@ Each rollback includes accumulated failure feedback, giving the LLM context abou
 
 **Extend MiroFlow without touching core code.**
 
-The original MiroFlow used hardcoded `importlib` lookups to find provider classes. v1.6 introduces a **unified registry** with decorator-based registration.
+The original MiroFlow used hardcoded `importlib` lookups to find provider classes. v1.7 introduces a **unified registry** with decorator-based registration.
 
 ```python title="Register a custom agent"
 from miroflow.registry import register, ComponentType
@@ -157,7 +157,7 @@ The registry uses **thread-safe lazy loading** — modules are only imported whe
 
 The original MiroFlow used a Python class hierarchy for prompts (`BaseAgentPrompt` → `MainAgentPrompt_GAIA`, etc.). Changing prompts required code changes and redeployment.
 
-v1.6 introduces a **YAML + Jinja2 template system**:
+v1.7 introduces a **YAML + Jinja2 template system**:
 
 ```yaml title="config/prompts/prompt_main_agent_benchmark.yaml"
 template:
@@ -183,7 +183,7 @@ The `PromptManager` renders templates at runtime with context variables, support
 
 **Composable input/output processors with clean separation of concerns.**
 
-The original MiroFlow mixed IO processing logic into the monolithic `Orchestrator` class. v1.6 extracts this into a dedicated `io_processor` module with 9 composable processors:
+The original MiroFlow mixed IO processing logic into the monolithic `Orchestrator` class. v1.7 extracts this into a dedicated `io_processor` module with 9 composable processors:
 
 **Input Processors:**
 
@@ -212,7 +212,7 @@ output_processor:
 
 ## Expanded Benchmark Support
 
-v1.6 adds support for more benchmarks with dedicated verifiers:
+v1.7 adds support for more benchmarks with dedicated verifiers:
 
 | Benchmark | Status |
 |---|---|
@@ -221,10 +221,10 @@ v1.6 adds support for more benchmarks with dedicated verifiers:
 | HLE / HLE Text-Only | State-of-the-art |
 | BrowseComp (EN + ZH) | State-of-the-art |
 | xBench-DeepSearch | State-of-the-art |
-| WebWalkerQA | New in v1.6 |
-| SimpleQA | New in v1.6 |
-| FinSearchComp | New in v1.6 |
-| FRAMES-Test | New in v1.6 |
+| WebWalkerQA | New in v1.7 |
+| SimpleQA | New in v1.7 |
+| FinSearchComp | New in v1.7 |
+| FRAMES-Test | New in v1.7 |
 
 Each benchmark has a dedicated **verifier** implementation for automated result evaluation, with support for batch evaluation and score aggregation.
 
@@ -234,7 +234,7 @@ With standardized evaluation infrastructure, MiroFlow also enables fair cross-mo
 
 ## Summary: Old vs New
 
-| Feature | Original MiroFlow | MiroFlow v1.6 |
+| Feature | Original MiroFlow | MiroFlow v1.7 |
 |---|---|---|
 | Agent architecture | Monolithic `Orchestrator` | Modular `BaseAgent` hierarchy |
 | Multi-agent | Flat main + sub-agent | Hierarchical agent graphs |
