@@ -2404,69 +2404,9 @@
 <hr />
 <h2 id="cross-model-performance">Cross-Model Performance</h2>
 <p>All results below were produced using MiroFlow with identical configurations — only <code>provider_class</code> and <code>model_name</code> differ.</p>
-<table>
-<thead>
-<tr>
-<th>Benchmark</th>
-<th>MiroThinker 1.5</th>
-<th>Claude 3.7 Sonnet</th>
-<th>Kimi K2.5</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>GAIA Validation (165)</td>
-<td><strong>82.4%</strong></td>
-<td>73.9%</td>
-<td>—</td>
-</tr>
-<tr>
-<td>GAIA Text-Only (103)</td>
-<td><strong>79.6%</strong></td>
-<td>—</td>
-<td>52.4%</td>
-</tr>
-<tr>
-<td>HLE</td>
-<td><strong>27.2%</strong></td>
-<td>—</td>
-<td>—</td>
-</tr>
-<tr>
-<td>HLE Text-Only</td>
-<td><strong>29.5%</strong></td>
-<td>—</td>
-<td>—</td>
-</tr>
-<tr>
-<td>BrowseComp-EN</td>
-<td>33.2%</td>
-<td>—</td>
-<td>—</td>
-</tr>
-<tr>
-<td>BrowseComp-ZH</td>
-<td><strong>47.1%</strong></td>
-<td>—</td>
-<td>—</td>
-</tr>
-<tr>
-<td>xBench-DeepSearch</td>
-<td><strong>72.0%</strong></td>
-<td>—</td>
-<td>—</td>
-</tr>
-<tr>
-<td>FutureX</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-</tr>
-</tbody>
-</table>
 <div class="admonition note">
-<p class="admonition-title">Table Coverage</p>
-<p>This table only shows model-benchmark combinations with real, reproducible data. As more models are evaluated, new columns and rows will be added. No placeholders — every cell has a verified result.</p>
+<p class="admonition-title">Coming Soon</p>
+<p>Benchmark results will be updated after comprehensive testing with v1.7. Stay tuned.</p>
 </div>
 <hr />
 <h2 id="why-these-comparisons-are-fair">Why These Comparisons Are Fair</h2>
@@ -2531,84 +2471,7 @@
 <p>Add your config and results to the repository. We welcome community-contributed model evaluations.</p>
 <hr />
 <h2 id="miroflow-vs-other-frameworks">MiroFlow vs Other Frameworks</h2>
-<table>
-<thead>
-<tr>
-<th>Model/Framework</th>
-<th>GAIA Val</th>
-<th>HLE</th>
-<th>HLE-Text</th>
-<th>BrowseComp-EN</th>
-<th>BrowseComp-ZH</th>
-<th>xBench-DS</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>MiroFlow + MiroThinker 1.5</strong></td>
-<td><strong>82.4%</strong></td>
-<td><strong>27.2%</strong></td>
-<td>29.5%</td>
-<td>33.2%</td>
-<td><strong>47.1%</strong></td>
-<td><strong>72.0%</strong></td>
-</tr>
-<tr>
-<td>OpenAI Deep Research</td>
-<td>67.4%</td>
-<td>26.6%</td>
-<td>—</td>
-<td><strong>51.5%</strong></td>
-<td>42.9%</td>
-<td>—</td>
-</tr>
-<tr>
-<td>Gemini Deep Research</td>
-<td>—</td>
-<td>26.9%</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>50+%</td>
-</tr>
-<tr>
-<td>Kimi Researcher</td>
-<td>—</td>
-<td>—</td>
-<td>26.9%</td>
-<td>—</td>
-<td>—</td>
-<td>69.0%</td>
-</tr>
-<tr>
-<td>Manus</td>
-<td>73.3%</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-</tr>
-<tr>
-<td>WebSailor-72B</td>
-<td>55.4%</td>
-<td>—</td>
-<td>—</td>
-<td>—</td>
-<td>30.1%</td>
-<td>55.0%</td>
-</tr>
-<tr>
-<td>DeepSeek v3.1</td>
-<td>—</td>
-<td>—</td>
-<td><strong>29.8%</strong></td>
-<td>—</td>
-<td>—</td>
-<td>71.2%</td>
-</tr>
-</tbody>
-</table>
+<p>Coming soon — framework comparison results will be added after v1.7 testing is complete.</p>
 <hr />
 <h2 id="reproduce-any-result">Reproduce Any Result</h2>
 <p>Every result in the tables above can be reproduced from a config file. Follow the benchmark-specific guides:</p>
