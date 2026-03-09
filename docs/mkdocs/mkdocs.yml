@@ -3,8 +3,8 @@ site_description: Performance-first agent framework that makes any model better 
 
 theme:
   name: material
-  logo: assets/miromind_logo.png
-  favicon: assets/miromind_logo.png
+  logo: assets/miromind_logomark.png
+  favicon: assets/miromind_logomark.png
   highlightjs: true
   hljs_languages:
     - yaml
