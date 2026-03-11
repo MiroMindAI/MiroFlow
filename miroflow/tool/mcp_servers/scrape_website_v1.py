@@ -126,9 +126,7 @@ def smart_split_content(text: str, chunk_size: int, overlap: int) -> List[str]:
                 best_break_rel = idx + len(pattern)
                 break
 
-        effective_end = (
-            search_start + best_break_rel if best_break_rel != -1 else end
-        )
+        effective_end = search_start + best_break_rel if best_break_rel != -1 else end
 
         # Ensure we always move forward at least by 10% of chunk size or at least 'overlap'
         # to avoid infinite loops if overlap is too large
@@ -215,9 +213,7 @@ def get_content_score(res: Dict[str, Any], query: str = "") -> int:
             "about",
         }
         query_words = {
-            w
-            for w in re.findall(r"\w{3,}", query.lower())
-            if w not in stop_words
+            w for w in re.findall(r"\w{3,}", query.lower()) if w not in stop_words
         }
 
         if query_words:
@@ -295,10 +291,7 @@ def get_prompt_with_truncation(
         # Calculate how many chars to KEEP (not how many to remove)
         keep_chars = max(len(content) - truncate_last_num_chars, 2000)
         if keep_chars < len(content):
-            content = (
-                content[:keep_chars]
-                + "\n[...truncated due to length limits]"
-            )
+            content = content[:keep_chars] + "\n[...truncated due to length limits]"
     return EXTRACT_INFO_PROMPT.format(info_to_extract, content)
 
 
@@ -555,16 +548,13 @@ async def scrape_url_with_firecrawl(
                             "error": "",
                             "char_count": total_char_count,
                             "line_count": total_line_count,
-                            "all_content_displayed": total_char_count
-                            <= max_chars,
+                            "all_content_displayed": total_char_count <= max_chars,
                             "last_char_line": displayed_content.count("\n") + 1
                             if displayed_content
                             else 0,
                         }
                     else:
-                        error_msg = res_data.get(
-                            "error", "Unknown Firecrawl error"
-                        )
+                        error_msg = res_data.get("error", "Unknown Firecrawl error")
                         if attempt < len(retry_delays):
                             await asyncio.sleep(delay)
                             continue
@@ -655,18 +645,14 @@ async def scrape_url_with_playwright(
             content_type = response.headers.get("content-type", "").lower()
             content = ""
 
-            if (
-                "application/pdf" in content_type
-                or url.lower().endswith(".pdf")
-            ):
+            if "application/pdf" in content_type or url.lower().endswith(".pdf"):
                 pdf_bytes = await response.body()
                 if PdfReader:
                     with io.BytesIO(pdf_bytes) as f:
                         reader = PdfReader(f)
                         pages_to_read = min(len(reader.pages), 50)
                         content = "\n".join(
-                            reader.pages[i].extract_text()
-                            for i in range(pages_to_read)
+                            reader.pages[i].extract_text() for i in range(pages_to_read)
                         )
                 else:
                     content = "PDF detected but pypdf is not installed."
@@ -837,12 +823,12 @@ async def call_robust_llm(
                             logger.warning(
                                 f"LLM: Context limit hit (attempt {attempt + 1}). Retrying with gradient truncation..."
                             )
-                            payload["messages"][0][
-                                "content"
-                            ] = get_prompt_with_truncation(
-                                info_for_truncation,
-                                original_content,
-                                truncate_last_num_chars=40960 * (attempt + 1),
+                            payload["messages"][0]["content"] = (
+                                get_prompt_with_truncation(
+                                    info_for_truncation,
+                                    original_content,
+                                    truncate_last_num_chars=40960 * (attempt + 1),
+                                )
                             )
                             await asyncio.sleep(delay)
                             continue
@@ -866,9 +852,7 @@ async def call_robust_llm(
                 return {
                     "success": True,
                     "extracted_info": output,
-                    "tokens_used": data.get("usage", {}).get(
-                        "total_tokens", 0
-                    ),
+                    "tokens_used": data.get("usage", {}).get("total_tokens", 0),
                 }
 
         except Exception as e:
@@ -951,9 +935,7 @@ async def scrape_and_extract_info(
 
     # Tier 2: Firecrawl (First fallback, highly reliable)
     if best_score < 5:
-        logger.info(
-            f"Jina quality low (Score: {best_score}). Trying Firecrawl..."
-        )
+        logger.info(f"Jina quality low (Score: {best_score}). Trying Firecrawl...")
         fc_res = await scrape_url_with_firecrawl(url)
         fc_score = get_content_score(fc_res, info_to_extract)
         if fc_score > best_score:
@@ -961,9 +943,7 @@ async def scrape_and_extract_info(
 
     # Tier 3: Playwright
     if best_score < 5:
-        logger.info(
-            f"Current quality low (Score: {best_score}). Trying Playwright..."
-        )
+        logger.info(f"Current quality low (Score: {best_score}). Trying Playwright...")
         pw_res = await scrape_url_with_playwright(url)
         pw_score = get_content_score(pw_res, info_to_extract)
         if pw_score > best_score:
@@ -983,8 +963,10 @@ async def scrape_and_extract_info(
                 py_score,
             )
 
-    if not best_res or not best_res.get("success") or (
-        best_score < 1 and best_res.get("char_count", 0) < 50
+    if (
+        not best_res
+        or not best_res.get("success")
+        or (best_score < 1 and best_res.get("char_count", 0) < 50)
     ):
         return json.dumps(
             {
@@ -1031,9 +1013,7 @@ async def scrape_and_extract_info(
 
         async def sem_call_robust_llm(chunk_text):
             async with semaphore:
-                chunk_prompt = EXTRACT_INFO_PROMPT.format(
-                    info_to_extract, chunk_text
-                )
+                chunk_prompt = EXTRACT_INFO_PROMPT.format(info_to_extract, chunk_text)
                 return await call_robust_llm(
                     chunk_prompt,
                     temperature=0.2,
@@ -1042,9 +1022,7 @@ async def scrape_and_extract_info(
                 )
 
         # Map Phase: Parallel extraction with concurrency control
-        chunk_results = await asyncio.gather(
-            *(sem_call_robust_llm(c) for c in chunks)
-        )
+        chunk_results = await asyncio.gather(*(sem_call_robust_llm(c) for c in chunks))
 
         # Filter successful findings
         valid_partials = []
@@ -1056,9 +1034,7 @@ async def scrape_and_extract_info(
                 valid_partials.append(text)
 
         if not valid_partials:
-            logger.warning(
-                "No extracted information available from any chunk."
-            )
+            logger.warning("No extracted information available from any chunk.")
             final_info = (
                 "The requested information was not found in the provided document."
             )
@@ -1071,9 +1047,7 @@ async def scrape_and_extract_info(
             )
             formatted_fragments = ""
             for i, partial in enumerate(valid_partials):
-                formatted_fragments += (
-                    f"--- FRAGMENT {i + 1} ---\n{partial}\n\n"
-                )
+                formatted_fragments += f"--- FRAGMENT {i + 1} ---\n{partial}\n\n"
 
             reduce_prompt = REDUCE_PROMPT.format(
                 info=info_to_extract, partials=formatted_fragments
@@ -1094,10 +1068,7 @@ async def scrape_and_extract_info(
     verification_note = ""
     if final_info:
         info_lower = final_info.lower()
-        if (
-            "[confidence: low" in info_lower
-            or "requires verification" in info_lower
-        ):
+        if "[confidence: low" in info_lower or "requires verification" in info_lower:
             verification_note = "LOW CONFIDENCE: This information has low reliability. Strongly recommend verifying with additional independent sources before using."
         elif (
             "[confidence: medium" in info_lower

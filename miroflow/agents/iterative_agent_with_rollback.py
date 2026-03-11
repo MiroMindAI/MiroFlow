@@ -215,9 +215,11 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
             if self.verbose:
                 usage = getattr(llm_output, "usage", None)
                 if usage:
-                    print(f"[Turn {turn_count}] LLM returned | "
-                          f"prompt_tokens={getattr(usage, 'prompt_tokens', '?')}, "
-                          f"completion_tokens={getattr(usage, 'completion_tokens', '?')}")
+                    print(
+                        f"[Turn {turn_count}] LLM returned | "
+                        f"prompt_tokens={getattr(usage, 'prompt_tokens', '?')}, "
+                        f"completion_tokens={getattr(usage, 'completion_tokens', '?')}"
+                    )
                 else:
                     print(f"[Turn {turn_count}] LLM returned (no usage info)")
                 resp_preview = (llm_output.response_text or "")[:200]
@@ -238,11 +240,17 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
             )[0]
 
             if self.verbose and tool_and_sub_agent_calls:
-                print(f"[Turn {turn_count}] Tool calls ({len(tool_and_sub_agent_calls)}):")
+                print(
+                    f"[Turn {turn_count}] Tool calls ({len(tool_and_sub_agent_calls)}):"
+                )
                 for i, call in enumerate(tool_and_sub_agent_calls):
-                    args_preview = json.dumps(call.get("arguments", {}), ensure_ascii=False)[:150]
-                    print(f"  [{i+1}] {call.get('server_name', '?')}::{call.get('tool_name', '?')} "
-                          f"args={args_preview}")
+                    args_preview = json.dumps(
+                        call.get("arguments", {}), ensure_ascii=False
+                    )[:150]
+                    print(
+                        f"  [{i+1}] {call.get('server_name', '?')}::{call.get('tool_name', '?')} "
+                        f"args={args_preview}"
+                    )
 
             # Check if rollback is needed
             should_rollback, rollback_reason = self._should_rollback(
@@ -263,9 +271,11 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
                         f"max={self.max_consecutive_rollbacks}"
                     )
                     if self.verbose:
-                        print(f"[Turn {turn_count}] ROLLBACK #{consecutive_rollbacks}: "
-                              f"reason={rollback_reason}, "
-                              f"max={self.max_consecutive_rollbacks}")
+                        print(
+                            f"[Turn {turn_count}] ROLLBACK #{consecutive_rollbacks}: "
+                            f"reason={rollback_reason}, "
+                            f"max={self.max_consecutive_rollbacks}"
+                        )
                     continue  # Retry this turn
                 else:
                     # Normal completion or max rollback count reached
@@ -342,12 +352,18 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
                 )
 
                 if self.verbose:
-                    print(f"[Turn {turn_count}] Tool results: "
-                          f"{len(tool_results)} tool, "
-                          f"{len(sub_agent_results)} sub-agent, "
-                          f"{len(skill_results)} skill")
+                    print(
+                        f"[Turn {turn_count}] Tool results: "
+                        f"{len(tool_results)} tool, "
+                        f"{len(sub_agent_results)} sub-agent, "
+                        f"{len(skill_results)} skill"
+                    )
                     for r in tool_results:
-                        result_preview = str(r.get("result", ""))[:200] if isinstance(r, dict) else str(r)[:200]
+                        result_preview = (
+                            str(r.get("result", ""))[:200]
+                            if isinstance(r, dict)
+                            else str(r)[:200]
+                        )
                         print(f"  -> {result_preview}")
 
                 # Record executed queries for duplicate detection
@@ -398,8 +414,10 @@ class IterativeAgentWithToolAndRollback(BaseAgent):
         if self.verbose:
             final_answer = output_processor_result.get("final_boxed_answer", None)
             print(f"\n{'='*60}")
-            print(f"[DONE] Total turns: {turn_count} | "
-                  f"task_failed={task_failed} | reached_limit={reached_limit}")
+            print(
+                f"[DONE] Total turns: {turn_count} | "
+                f"task_failed={task_failed} | reached_limit={reached_limit}"
+            )
             print(f"[DONE] Final answer: {str(final_answer)[:300]}")
             print(f"{'='*60}\n")
 
