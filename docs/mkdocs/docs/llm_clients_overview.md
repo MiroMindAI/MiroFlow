@@ -13,6 +13,7 @@ MiroFlow is model-agnostic — plug in any LLM and get better agent performance 
 | `ClaudeOpenRouterClient` | OpenRouter | anthropic/claude-3.7-sonnet, and other [supported models](https://openrouter.ai/models) | — | `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL` |
 | `OpenRouterClient` | OpenRouter | Any model on OpenRouter | — | `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL` |
 | `OpenAIClient` | OpenAI-Compatible | Any OpenAI-compatible model | GAIA Text-Only (Kimi K2.5) | `OPENAI_API_KEY`, `OPENAI_BASE_URL` |
+| `MiniMaxClient` | [MiniMax](https://platform.minimax.io) | MiniMax-M2.7, MiniMax-M2.7-highspeed | — | `MINIMAX_API_KEY`, `MINIMAX_BASE_URL` |
 
 ## Basic Configuration
 
@@ -33,6 +34,7 @@ Pre-configured base configurations are available in `config/llm/`:
 | `base_mirothinker.yaml` | SGLang | MiroThinker model via SGLang |
 | `base_openai.yaml` | OpenAI | GPT models via OpenAI API |
 | `base_kimi_k25.yaml` | OpenAI-Compatible | Kimi K2.5 model |
+| `base_minimax.yaml` | MiniMax | MiniMax M2.7 via OpenAI-compatible API |
 
 ## Quick Setup
 
@@ -69,6 +71,12 @@ main_agent:
   llm:
     provider_class: MiroThinkerSGLangClient
     model_name: mirothinker-v1.5
+
+# MiniMax M2.7
+main_agent:
+  llm:
+    provider_class: MiniMaxClient
+    model_name: MiniMax-M2.7
 ```
 
 See the [Model Comparison Leaderboard](model_comparison.md) for cross-model benchmark results.

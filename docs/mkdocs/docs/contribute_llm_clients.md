@@ -71,6 +71,7 @@ See existing providers in `miroflow/llm/`:
 - `OpenRouterClient` (`openrouter.py`) - Generic OpenRouter client
 - `OpenAIClient` (`openai_client.py`) - Generic OpenAI-compatible client
 - `MiroThinkerSGLangClient` (`mirothinker_sglang.py`) - MiroThinker via SGLang
+- `MiniMaxClient` (`minimax_client.py`) - MiniMax M2.7 via OpenAI-compatible API
 
 ---
 

@@ -14,7 +14,7 @@
 
 <div align="center">
 <strong>MiroFlow</strong> is the open-source agent framework that maximizes any model's agent performance — and proves it across 9+ benchmarks with reproducible results.<br>
-Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroThinker</a>, Kimi, DeepSeek, or any OpenAI-compatible model. Same tools. Same environment. Better results.
+Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroThinker</a>, Kimi, DeepSeek, <a href="https://platform.minimax.io">MiniMax</a>, or any OpenAI-compatible model. Same tools. Same environment. Better results.
 </div>
 
 <br>
@@ -52,7 +52,7 @@ Plug in GPT-5, Claude, <a href="https://github.com/MiroMindAI/mirothinker">MiroT
 ## Why MiroFlow
 
 ### Make Any Model Better
-- **Model-Agnostic Performance**: Plug in any LLM — GPT-5, Claude, MiroThinker, Kimi K2.5, DeepSeek — and get better agent performance through smart rollback, iterative reasoning, and optimized tool orchestration.
+- **Model-Agnostic Performance**: Plug in any LLM — GPT-5, Claude, MiroThinker, Kimi K2.5, DeepSeek, MiniMax — and get better agent performance through smart rollback, iterative reasoning, and optimized tool orchestration.
 - **Comprehensive Benchmarking**: Supports 9+ benchmarks including FutureX, GAIA, HLE, xBench-DeepSearch, BrowseComp, and more.
 - **One-Line Model Switching**: Change `provider_class` and `model_name` in YAML. Same tools, same prompts, same environment.
 
@@ -115,6 +115,11 @@ llm:
 llm:
   provider_class: MiroThinkerSGLangClient
   model_name: mirothinker-v1.5
+
+# MiniMax M2.7
+llm:
+  provider_class: MiniMaxClient
+  model_name: MiniMax-M2.7
 ```
 
 See [full documentation](https://miromindai.github.io/miroflow/quickstart/) for web app setup, more examples, and configuration options.

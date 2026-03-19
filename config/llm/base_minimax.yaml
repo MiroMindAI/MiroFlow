@@ -1,0 +1,24 @@
+# config/llm/base_minimax.yaml
+# MiniMax M2.7 via OpenAI-compatible API
+# API docs: https://platform.minimax.io/docs/api-reference/text-openai-api
+provider_class: "MiniMaxClient"
+model_name: "MiniMax-M2.7"
+api_key: ${oc.env:MINIMAX_API_KEY,???}
+base_url: ${oc.env:MINIMAX_BASE_URL,https://api.minimax.io/v1}
+
+temperature: 1.0
+top_p: 0.95
+min_p: 0.0
+top_k: -1
+
+max_tokens: 32000
+max_context_length: 204800
+async_client: true
+
+reasoning_effort: null
+repetition_penalty: 1.0
+
+disable_cache_control: true
+keep_tool_result: -1
+
+use_tool_calls: false
