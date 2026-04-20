@@ -6,33 +6,28 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Performance-first agent framework that makes any model better — and proves it">
       
       
       
+        <link rel="prev" href="../yaml_config/">
       
-        <link rel="prev" href="../model_comparison/">
       
-      
-        <link rel="next" href="../gaia_validation_prerequisites/">
+        <link rel="next" href="../contribute_benchmarks/">
       
       
         
       
       
-      <link rel="icon" href="../assets/miromind_logomark.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.5">
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Evaluation Methodology - MiroFlow</title>
+        <title>Overview - MiroFlow</title>
       
     
     
       <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
-      
-        
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -60,14 +55,7 @@
   </head>
   
   
-    
-    
-      
-    
-    
-    
-    
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo">
+    <body dir="ltr">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -76,7 +64,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#evaluation-methodology" class="md-skip">
+        <a href="#performance-benchmarks" class="md-skip">
           Skip to content
         </a>
       
@@ -85,6 +73,10 @@
       
     </div>
     
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+        
+      </div>
+    
     
       
 
@@ -92,7 +84,8 @@
   <nav class="md-header__inner md-grid" aria-label="Header">
     <a href=".." title="MiroFlow" class="md-header__button md-logo" aria-label="MiroFlow" data-md-component="logo">
       
-  <img src="../assets/miromind_logomark.png" alt="logo">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -109,38 +102,12 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Evaluation Methodology
+              Overview
             
           </span>
         </div>
       </div>
     </div>
-    
-      
-        <form class="md-header__option" data-md-component="palette">
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
-    
-      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
-    
-    
-    
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
-    
-      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
-      </label>
-    
-  
-</form>
-      
     
     
       <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
@@ -172,8 +139,6 @@
         </button>
       </nav>
       
-        <div class="md-search__suggest" data-md-component="search-suggest"></div>
-      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
@@ -191,13 +156,13 @@
     
     
       <div class="md-header__source">
-        <a href="https://github.com/MiroMindAI/miroflow" title="Go to repository" class="md-source" data-md-component="source">
+        <a href="https://github.com/MiroMindAI/MiroFlow" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
-    miroflow
+    MiroFlow
   </div>
 </a>
       </div>
@@ -228,7 +193,7 @@
           
   
   
-  Home
+  🏠 Introduction
 
         </a>
       </li>
@@ -248,7 +213,7 @@
           
   
   
-  Getting Started
+  🚀 Quick Start
 
         </a>
       </li>
@@ -266,44 +231,14 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../model_comparison/" class="md-tabs__link">
+        <a href="./" class="md-tabs__link">
           
   
   
-  Model Comparison
+  📊 Evaluation
 
         </a>
       </li>
-    
-  
-
-      
-        
-  
-  
-  
-  
-    
-    
-      
-  
-  
-  
-  
-    
-    
-      <li class="md-tabs__item">
-        <a href="../gaia_validation_prerequisites/" class="md-tabs__link">
-          
-  
-  
-  Benchmarks
-
-        </a>
-      </li>
-    
-  
-
     
   
 
@@ -320,7 +255,7 @@
           
   
   
-  Tools
+  🔧 Tools
 
         </a>
       </li>
@@ -340,7 +275,7 @@
           
   
   
-  Models
+  🤖 LLM Clients
 
         </a>
       </li>
@@ -360,7 +295,7 @@
           
   
   
-  Resources
+  📚 Resources
 
         </a>
       </li>
@@ -392,20 +327,21 @@
   <label class="md-nav__title" for="__drawer">
     <a href=".." title="MiroFlow" class="md-nav__button md-logo" aria-label="MiroFlow" data-md-component="logo">
       
-  <img src="../assets/miromind_logomark.png" alt="logo">
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
     MiroFlow
   </label>
   
     <div class="md-nav__source">
-      <a href="https://github.com/MiroMindAI/miroflow" title="Go to repository" class="md-source" data-md-component="source">
+      <a href="https://github.com/MiroMindAI/MiroFlow" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
   </div>
   <div class="md-source__repository">
-    miroflow
+    MiroFlow
   </div>
 </a>
     </div>
@@ -424,17 +360,13 @@
     
       
       
-        
-      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
         
           
           <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
@@ -444,7 +376,7 @@
   <span class="md-ellipsis">
     
   
-    Home
+    🏠 Introduction
   
 
     
@@ -460,7 +392,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Home
+    🏠 Introduction
   
 
           </label>
@@ -480,7 +412,7 @@
   <span class="md-ellipsis">
     
   
-    Overview
+    News & Updates
   
 
     
@@ -501,42 +433,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../why_miroflow/" class="md-nav__link">
+      <a href="../license/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Why MiroFlow
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../whats_new/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    What's New in v1.7
+    License
   
 
     
@@ -569,17 +473,13 @@
     
       
       
-        
-      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
@@ -589,7 +489,7 @@
   <span class="md-ellipsis">
     
   
-    Getting Started
+    🚀 Quick Start
   
 
     
@@ -605,7 +505,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Getting Started
+    🚀 Quick Start
   
 
           </label>
@@ -625,7 +525,7 @@
   <span class="md-ellipsis">
     
   
-    Installation
+    Quickstart
   
 
     
@@ -681,7 +581,7 @@
   <span class="md-ellipsis">
     
   
-    Configuration
+    YAML Configuration
   
 
     
@@ -719,8 +619,6 @@
         
       
       
-        
-      
     
     
     <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
@@ -737,7 +635,7 @@
   <span class="md-ellipsis">
     
   
-    Model Comparison
+    📊 Evaluation
   
 
     
@@ -753,39 +651,11 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    Model Comparison
+    📊 Evaluation
   
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../model_comparison/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Leaderboard
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
             
               
                 
@@ -810,7 +680,7 @@
   <span class="md-ellipsis">
     
   
-    Evaluation Methodology
+    Overview
   
 
     
@@ -828,7 +698,7 @@
   <span class="md-ellipsis">
     
   
-    Evaluation Methodology
+    Overview
   
 
     
@@ -854,10 +724,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#featured-results-mirothinker" class="md-nav__link">
+  <a href="#performance-on-future-prediction" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Featured Results: MiroThinker
+        Performance on Future Prediction
       
     </span>
   </a>
@@ -865,10 +735,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#supported-benchmarks" class="md-nav__link">
+  <a href="#performance-on-benchmarks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported Benchmarks
+        ✨ Performance on Benchmarks
       
     </span>
   </a>
@@ -876,35 +746,41 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#controlled-variables" class="md-nav__link">
+  <a href="#other-benchmark-results" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Controlled Variables
+        Other Benchmark Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Other Benchmark Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reasoning-language-understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reasoning &amp; Language Understanding
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#multi-run-evaluation" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#web-browsing-search-tasks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Multi-Run Evaluation
+        Web Browsing &amp; Search Tasks
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#reproduce-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reproduce Results
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -917,46 +793,21 @@
 
               
             
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
+              
+                
   
   
   
   
-    
-    
-    
-    
-      
-      
+    <li class="md-nav__item">
+      <a href="../contribute_benchmarks/" class="md-nav__link">
         
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    Benchmarks
+    How to add new benchmarks
   
 
     
@@ -964,19 +815,123 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Benchmarks
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -990,27 +945,23 @@
     
       
       
-        
-      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_7" >
         
           
-          <label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3_7" id="__nav_3_7_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    GAIA
+    GAIA-Val
   
 
     
@@ -1021,12 +972,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_1_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_1">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_7">
             <span class="md-nav__icon md-icon"></span>
             
   
-    GAIA
+    GAIA-Val
   
 
           </label>
@@ -1046,7 +997,7 @@
   <span class="md-ellipsis">
     
   
-    Prerequisites
+    Prepare Dataset
   
 
     
@@ -1074,7 +1025,7 @@
   <span class="md-ellipsis">
     
   
-    Claude 3.7 Sonnet
+    Claude-3.7-Sonnet
   
 
     
@@ -1144,6 +1095,14 @@
 
               
             
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
               
                 
   
@@ -1158,7 +1117,7 @@
   <span class="md-ellipsis">
     
   
-    Text-Only
+    GAIA-Val-Text
   
 
     
@@ -1186,7 +1145,7 @@
   <span class="md-ellipsis">
     
   
-    Test Set
+    GAIA-Test
   
 
     
@@ -1199,68 +1158,6 @@
   
 
               
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    BrowseComp
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    BrowseComp
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
             
               
                 
@@ -1276,7 +1173,7 @@
   <span class="md-ellipsis">
     
   
-    English
+    BrowseComp-EN
   
 
     
@@ -1304,97 +1201,7 @@
   <span class="md-ellipsis">
     
   
-    Chinese
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Other Benchmarks
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Other Benchmarks
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../hle/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    HLE
+    BrowseComp-ZH
   
 
     
@@ -1415,14 +1222,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../hle_text_only/" class="md-nav__link">
+      <a href="../webwalkerqa/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    HLE Text-Only
+    WebWalkerQA
   
 
     
@@ -1527,14 +1334,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../webwalkerqa/" class="md-nav__link">
+      <a href="../hle/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    WebWalkerQA
+    HLE
   
 
     
@@ -1555,50 +1362,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../download_datasets/" class="md-nav__link">
+      <a href="../hle_text_only/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    FRAMES-Test
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../contribute_benchmarks/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Add New Benchmark
+    HLE-Text-Only
   
 
     
@@ -1630,8 +1401,6 @@
     
     
       
-      
-        
       
     
     
@@ -1639,19 +1408,17 @@
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Tools
+    🔧 Tools
   
 
     
@@ -1662,12 +1429,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Tools
+    🔧 Tools
   
 
           </label>
@@ -1707,69 +1474,15 @@
   
   
   
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Search
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Search
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../tool_searching/" class="md-nav__link">
+      <a href="../contribute_tools/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Google Search
+    How to add new tools
   
 
     
@@ -1790,104 +1503,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../tool_searching_serper/" class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Serper Search
-  
-
     
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_3" id="__nav_5_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Media
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Media
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tool_vqa/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Image & Video
   
 
     
@@ -1908,14 +1531,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../tool_vqa_os/" class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Image & Video (Open-Source)
+    
   
 
     
@@ -1936,14 +1559,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../tool_audio/" class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Audio
+    
   
 
     
@@ -1964,104 +1587,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../tool_audio_os/" class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Audio (Open-Source)
-  
-
     
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Code & Files
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Code & Files
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tool_python/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Code Execution
   
 
     
@@ -2089,7 +1622,7 @@
   <span class="md-ellipsis">
     
   
-    File Reading
+    tool-reading
   
 
     
@@ -2110,14 +1643,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../e2b_advanced_features/" class="md-nav__link">
+      <a href="../tool_searching/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    E2B Sandbox
+    tool-searching
   
 
     
@@ -2131,9 +1664,29 @@
 
               
             
-          </ul>
-        </nav>
-      
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_searching_serper/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tool-searching-serper
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2145,33 +1698,15 @@
   
   
   
-    
-    
-    
-    
-      
-      
+    <li class="md-nav__item">
+      <a href="../tool_audio/" class="md-nav__link">
         
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
     
   
-    Reasoning
+    tool-audio
   
 
     
@@ -2179,19 +1714,39 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Reasoning
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_audio_os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tool-audio-os
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -2207,7 +1762,7 @@
   <span class="md-ellipsis">
     
   
-    Reasoning
+    tool-reasoning
   
 
     
@@ -2235,7 +1790,7 @@
   <span class="md-ellipsis">
     
   
-    Reasoning (Open-Source)
+    tool-reasoning-os
   
 
     
@@ -2244,14 +1799,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -2264,14 +1811,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../contribute_tools/" class="md-nav__link">
+      <a href="../tool_vqa/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Add New Tool
+    tool-image-video
   
 
     
@@ -2280,6 +1827,288 @@
   
 
       </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_vqa_os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tool-image-video-os
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tool_python/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tool-python
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_21" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_21" id="__nav_4_21_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Features
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_21_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_21">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Advanced Features
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../e2b_advanced_features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    E2B Advanced Features
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../miro_api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MiroAPI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -2304,27 +2133,23 @@
     
       
       
-        
-      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Models
+    🤖 LLM Clients
   
 
     
@@ -2335,12 +2160,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Models
+    🤖 LLM Clients
   
 
           </label>
@@ -2361,6 +2186,146 @@
     
   
     Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contribute_llm_clients/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How to add new LLM clients
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    
   
 
     
@@ -2416,7 +2381,7 @@
   <span class="md-ellipsis">
     
   
-    Claude 3.7 Sonnet
+    Claude 3.7 Sonnet (Official SDK)
   
 
     
@@ -2444,7 +2409,7 @@
   <span class="md-ellipsis">
     
   
-    Claude 3.7 (OpenRouter)
+    Claude 3.7 Sonnet (OpenRouter)
   
 
     
@@ -2542,34 +2507,6 @@
 
               
             
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../contribute_llm_clients/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Add New Model
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
           </ul>
         </nav>
       
@@ -2589,27 +2526,23 @@
     
       
       
-        
-      
     
     
     <li class="md-nav__item md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Resources
+    📚 Resources
   
 
     
@@ -2620,12 +2553,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Resources
+    📚 Resources
   
 
           </label>
@@ -2645,7 +2578,7 @@
   <span class="md-ellipsis">
     
   
-    Research Papers
+    All About Agents
   
 
     
@@ -2694,6 +2627,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../applications/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Applications
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../faqs/" class="md-nav__link">
         
   
@@ -2701,7 +2662,7 @@
   <span class="md-ellipsis">
     
   
-    FAQ
+    FAQs
   
 
     
@@ -2730,34 +2691,6 @@
     
   
     Contributors
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../license/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    License
   
 
     
@@ -2805,10 +2738,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#featured-results-mirothinker" class="md-nav__link">
+  <a href="#performance-on-future-prediction" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Featured Results: MiroThinker
+        Performance on Future Prediction
       
     </span>
   </a>
@@ -2816,10 +2749,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#supported-benchmarks" class="md-nav__link">
+  <a href="#performance-on-benchmarks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported Benchmarks
+        ✨ Performance on Benchmarks
       
     </span>
   </a>
@@ -2827,35 +2760,41 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#controlled-variables" class="md-nav__link">
+  <a href="#other-benchmark-results" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Controlled Variables
+        Other Benchmark Results
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Other Benchmark Results">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reasoning-language-understanding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reasoning &amp; Language Understanding
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#multi-run-evaluation" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#web-browsing-search-tasks" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Multi-Run Evaluation
+        Web Browsing &amp; Search Tasks
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#reproduce-results" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reproduce Results
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2879,133 +2818,141 @@
   
 
 
-<h1 id="evaluation-methodology">Evaluation Methodology</h1>
-<p>MiroFlow provides a standardized evaluation framework for fair, reproducible model comparison across 9+ benchmarks. For cross-model results, see the <a href="../model_comparison/">Model Comparison Leaderboard</a>.</p>
+<h1 id="performance-benchmarks">📊 Performance Benchmarks</h1>
+<p>MiroFlow achieves state-of-the-art performance across multiple agentic benchmarks, demonstrating its effectiveness in complex reasoning and tool-use tasks.</p>
 <hr />
-<h2 id="featured-results-mirothinker">Featured Results: MiroThinker</h2>
-<div align="center">
-<p><img alt="MiroThinker Performance" src="../assets/mirothinker.png" width="100%" /></p>
+<h2 id="performance-on-future-prediction">Performance on Future Prediction</h2>
+<div class="admonition success">
+<p class="admonition-title">Future X Benchmark Results</p>
+<p>MiroFlow demonstrates exceptional performance in future prediction tasks.</p>
 </div>
 <div align="center">
-<p><img alt="BrowseComp MiroThinker Performance" src="../assets/bc-mirothinker.png" width="100%" /></p>
+<p><img alt="Future X Performance Results" src="../assets/futurex-09-12.png" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" width="100%" /></p>
 </div>
 <hr />
-<h2 id="supported-benchmarks">Supported Benchmarks</h2>
+<h2 id="performance-on-benchmarks">✨ Performance on Benchmarks</h2>
+<div class="admonition abstract">
+<p class="admonition-title">Comprehensive Benchmark Analysis</p>
+<p>We benchmark MiroFlow on a series of benchmarks including <strong>GAIA</strong>, <strong>HLE</strong>, <strong>BrowseComp</strong> and <strong>xBench-DeepSearch</strong>.</p>
+</div>
+<div align="center">
+<p><img alt="Comprehensive Benchmark Performance Comparison" src="../assets/miroflow-0.2-performance_short.png" style="border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);" width="100%" /></p>
+</div>
+<hr />
+<h2 id="other-benchmark-results">Other Benchmark Results</h2>
+<div class="admonition info">
+<p class="admonition-title">Detailed Performance Comparison</p>
+<p>Comprehensive comparison across multiple benchmark categories and competing frameworks.</p>
+</div>
+<h3 id="reasoning-language-understanding">Reasoning &amp; Language Understanding</h3>
 <table>
 <thead>
 <tr>
-<th>Benchmark</th>
-<th>Category</th>
-<th>Verifier Type</th>
-<th>Metrics</th>
+<th>Model/Framework</th>
+<th>GAIA Val</th>
+<th>HLE</th>
+<th>HLE-Text</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>GAIA (Validation + Test)</td>
-<td>General Agent</td>
-<td>Exact match + normalization</td>
-<td>Pass@1 accuracy</td>
+<td><strong>MiroFlow</strong></td>
+<td><strong>82.4%</strong></td>
+<td><strong>27.2%</strong></td>
+<td>29.5%</td>
 </tr>
 <tr>
-<td>HLE / HLE Text-Only</td>
-<td>Language Understanding</td>
-<td>LLM judge</td>
-<td>Accuracy</td>
+<td>OpenAI Deep Research</td>
+<td>67.4%</td>
+<td>26.6%</td>
+<td>-</td>
 </tr>
 <tr>
-<td>BrowseComp (EN + ZH)</td>
-<td>Web Search</td>
-<td>Exact match</td>
-<td>Accuracy</td>
+<td>Gemini Deep Research</td>
+<td>-</td>
+<td>26.9%</td>
+<td>-</td>
 </tr>
 <tr>
-<td>xBench-DeepSearch</td>
-<td>Deep Search</td>
-<td>Exact match</td>
-<td>Accuracy</td>
+<td>Kimi Researcher</td>
+<td>-</td>
+<td>-</td>
+<td>26.9%</td>
 </tr>
 <tr>
-<td>FutureX</td>
-<td>Future Prediction</td>
-<td>Custom verifier</td>
-<td>Ranking</td>
+<td>WebSailor-72B</td>
+<td>55.4%</td>
+<td>-</td>
+<td>-</td>
 </tr>
 <tr>
-<td>FinSearchComp</td>
-<td>Finance</td>
-<td>Custom verifier</td>
-<td>Accuracy</td>
+<td>Manus</td>
+<td>73.3%</td>
+<td>-</td>
+<td>-</td>
 </tr>
 <tr>
-<td>WebWalkerQA</td>
-<td>Web Navigation</td>
-<td>Exact match</td>
-<td>Accuracy</td>
-</tr>
-<tr>
-<td>FRAMES-Test</td>
-<td>Multi-hop QA</td>
-<td>LLM judge</td>
-<td>Accuracy</td>
-</tr>
-<tr>
-<td>SimpleQA</td>
-<td>Simple QA</td>
-<td>Exact match</td>
-<td>Accuracy</td>
+<td>DeepSeek v3.1</td>
+<td>-</td>
+<td>-</td>
+<td><strong>29.8%</strong></td>
 </tr>
 </tbody>
 </table>
-<hr />
-<h2 id="controlled-variables">Controlled Variables</h2>
-<p>Every benchmark evaluation in MiroFlow controls the following variables to ensure fair comparison:</p>
+<h3 id="web-browsing-search-tasks">Web Browsing &amp; Search Tasks</h3>
 <table>
 <thead>
 <tr>
-<th>Variable</th>
-<th>How It's Controlled</th>
+<th>Model/Framework</th>
+<th>BrowserComp-EN</th>
+<th>BrowserComp-ZH</th>
+<th>xBench-DeepSearch</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><strong>MCP Tools</strong></td>
-<td>Identical tool configurations across all models — same search, code sandbox, file reading, etc.</td>
+<td><strong>MiroFlow</strong></td>
+<td>33.2%</td>
+<td><strong>47.1%</strong></td>
+<td><strong>72.0%</strong></td>
 </tr>
 <tr>
-<td><strong>Prompt Templates</strong></td>
-<td>Same YAML + Jinja2 templates rendered with the same context variables</td>
+<td>OpenAI Deep Research</td>
+<td><strong>51.5%</strong></td>
+<td>42.9%</td>
+<td>-</td>
 </tr>
 <tr>
-<td><strong>Verifiers</strong></td>
-<td>Each benchmark has a dedicated verifier implementation used for all models</td>
+<td>Gemini Deep Research</td>
+<td>-</td>
+<td>-</td>
+<td>50+%</td>
 </tr>
 <tr>
-<td><strong>IO Pipeline</strong></td>
-<td>Same input preprocessing (file content, hints, message formatting) and output extraction (summary, boxed answer)</td>
+<td>Kimi Researcher</td>
+<td>-</td>
+<td>-</td>
+<td>69.0%</td>
 </tr>
 <tr>
-<td><strong>Rollback Logic</strong></td>
-<td>Same error recovery parameters (<code>max_consecutive_rollbacks</code>, <code>max_duplicate_rollbacks</code>)</td>
+<td>WebSailor-72B</td>
+<td>-</td>
+<td>30.1%</td>
+<td>55.0%</td>
+</tr>
+<tr>
+<td>DeepSeek v3.1</td>
+<td>-</td>
+<td>-</td>
+<td>71.2%</td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="multi-run-evaluation">Multi-Run Evaluation</h2>
-<p>Benchmark scripts support automated multi-run evaluation for statistical reliability:</p>
-<ol>
-<li><strong>Parallel execution</strong>: Multiple evaluation runs execute concurrently</li>
-<li><strong>Result aggregation</strong>: Scores are collected and aggregated automatically</li>
-<li><strong>Statistical reporting</strong>: Mean, standard deviation, min/max across runs</li>
-</ol>
-<p>Example benchmark script:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Runs 8 evaluation passes on GAIA validation with MiroThinker</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>bash<span class="w"> </span>scripts/benchmark/mirothinker/gaia-validation-165_mirothinker_8runs.sh
-</code></pre></div></p>
-<hr />
-<h2 id="reproduce-results">Reproduce Results</h2>
-<p>Follow the benchmark-specific guides in the sidebar to reproduce each result. Each guide includes dataset preparation, configuration, and execution steps.</p>
-<p>See the <a href="../model_comparison/">Model Comparison Leaderboard</a> for cross-model results and framework comparison.</p>
+<div class="admonition info">
+<p class="admonition-title">Documentation Info</p>
+<p><strong>Last Updated:</strong> September 2025 · <strong>Doc Contributor:</strong> Team @ MiroMind AI</p>
+</div>
 
 
 
@@ -3025,12 +2972,6 @@
           
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
-        
-          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
-  
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
-  Back to top
-</button>
         
       </main>
       
@@ -3061,7 +3002,7 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["header.autohide", "navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["header.autohide", "navigation.tabs"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
