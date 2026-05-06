@@ -1,0 +1,8 @@
+name: "tool-searching-tavily"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.searching_tavily_mcp_server"
+env:
+# Tavily API key - this value will be loaded from the .env file at runtime
+  TAVILY_API_KEY: "${oc.env:TAVILY_API_KEY}"
