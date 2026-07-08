@@ -2,7 +2,7 @@
 # Welcome to MiroFlow
 
 <div align="center" markdown="1">
-  ![MiroFlow Logo](https://github.com/MiroMindAI/MiroFlow/blob/miroflow-v0.2/docs/figs/MiroFlow_logo.png?raw=true){ width="80%" }
+  ![MiroFlow Logo](assets/miroflow_logo.png){ width="80%" }
 </div>
 
 ---
