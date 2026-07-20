@@ -81,6 +81,7 @@ nav:
     - tool-reading: tool_reading.md
     - tool-searching: tool_searching.md
     - tool-searching-serper: tool_searching_serper.md
+    - tool-xquik: tool_xquik.md
     - tool-audio: tool_audio.md
     - tool-audio-os: tool_audio_os.md
     - tool-reasoning: tool_reasoning.md

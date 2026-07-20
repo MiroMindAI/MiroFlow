@@ -1,0 +1,9 @@
+name: "tool-xquik"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.xquik_mcp_server"
+env:
+  XQUIK_API_KEY: "${oc.env:XQUIK_API_KEY}"
+  XQUIK_BASE_URL: "${oc.env:XQUIK_BASE_URL,https://xquik.com}"
+  XQUIK_REQUEST_TIMEOUT: "${oc.env:XQUIK_REQUEST_TIMEOUT,30}"

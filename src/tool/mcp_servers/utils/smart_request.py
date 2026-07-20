@@ -14,6 +14,8 @@ import urllib.parse
 from markitdown import MarkItDown
 import io
 
+REQUEST_TIMEOUT_SECONDS = 30
+
 
 def request_to_json(content: str) -> dict:
     if isinstance(content, str) and "Markdown Content:\n" in content:
@@ -184,7 +186,9 @@ async def scrape_serper(url: str, serper_api_key: str) -> tuple[str, str]:
         return None, f"Tool execution failed: {str(e)}"
 
 
-def scrape_request(url: str) -> tuple[str, str]:
+def scrape_request(
+    url: str, timeout: float = REQUEST_TIMEOUT_SECONDS
+) -> tuple[str, str]:
     """This function uses requests to scrape a website.
     Args:
         url: The URL of the website to scrape.
@@ -193,7 +197,7 @@ def scrape_request(url: str) -> tuple[str, str]:
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
-        response = requests.get(url, headers=headers)
+        response = requests.get(url, headers=headers, timeout=timeout)
         response.raise_for_status()
 
         try:

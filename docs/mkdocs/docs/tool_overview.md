@@ -7,6 +7,7 @@ MiroFlow provides a comprehensive set of tools that extend agent capabilities th
 !!! info "Core Tools"
     - **[Python Tools](tool_python.md)** - Code execution in secure sandbox
     - **[Searching Tools](tool_searching.md)** - Web search and content retrieval  
+    - **[Xquik X Search](tool_xquik.md)** - X post search with cursor pagination
     - **[Vision Tools](tool_vqa.md)** - Image analysis and video processing
     - **[Reasoning Tools](tool_reasoning.md)** - Advanced logical analysis
 
