@@ -1,0 +1,12 @@
+name: "tool-searching-parallel"
+tool_command: "python"
+args:
+  - "-m"
+  - "src.tool.mcp_servers.parallel_search_mcp_server"
+# ToolManager starts subprocesses with an explicit environment.
+# Preserve optional network configuration without passing provider credentials.
+env:
+  HTTPS_PROXY: "${oc.env:HTTPS_PROXY,''}"
+  HTTP_PROXY: "${oc.env:HTTP_PROXY,''}"
+  NO_PROXY: "${oc.env:NO_PROXY,''}"
+  SSL_CERT_FILE: "${oc.env:SSL_CERT_FILE,''}"
