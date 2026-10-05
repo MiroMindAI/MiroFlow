@@ -1,0 +1,8 @@
+# Opt-in variant of the search quickstart; existing agents keep their tools.
+defaults:
+  - agent_quickstart_search
+  - _self_
+
+main_agent:
+  tool_config:
+    - tool-searching-parallel
